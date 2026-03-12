@@ -1,0 +1,124 @@
+Este sistema va a consistir en una pagina para las canchas de futbol (principalmente) para que se puedan alquilar de una forma mucho mas sencilla y llevadera. Deberá tener muchas cosas, no solo la propia publicación de las canchas que hay libres durante el dia, sino también temas como el precio de la mismas, fotos, realizar la reserva y ver quien reservó, verificación de la misma, tener asociado (si es el caso) el video de beeup de esa cancha en ese horario en la parte de la reserva y/o enviarlo por mail.
+
+Lo mínimo que tiene que hacer para que sirva es poder publicar las canchas libres durante el dia, poder reservarlas, poder pagar a traves de la pagina y poder verificar quién ha reservado.
+
+Las entidades clave puede ser el usuario, las canchas, la orden, el pago, el administrador de las canchas y yo (el administrador supremo del sistema)
+
+debe cumplirse si o si lo mínimo necesario para que funcione
+
+Los roles son el usuario común que entra a ver que canchas hay disponibles, el administrador de las canchas que se encarga de publicar su negocio de canchas y poner el precio, fotos y a que hora están disponibles que canchas. Por ultimo está el administrador supremo, que ese sería yo, el cual podrá contar con privilegios absolutos incluso sobre los administradores de las canchas.
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Opción recomendada (rápida y sólida)
+
+Backend: Laravel
+
+DB: PostgreSQL
+
+Frontend: Blade + Livewire (o Inertia+Vue/React si querés más SPA)
+
+Jobs/colas: Redis (para mails, confirmaciones, etc.)
+
+Storage fotos: S3 compatible (o local al principio)
+
+Autenticación: Laravel Breeze/Jetstream
+
+Pagos: integración con un PSP (ej: Mercado Pago / Stripe según tu target)
+
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
++Usuarios y roles
+
+users: id, name, email, password, phone
+
+roles: USER / FIELD_ADMIN / SUPER_ADMIN
+
+user_roles (si querés multi rol) o un role simple en users
+
+
++Dueños / complejos / canchas
+
+venues (complejo): id, owner_user_id, nombre, dirección, zona, etc.
+
+fields (canchas): id, venue_id, nombre (“Cancha 1”), tipo (5/7/11), techada bool, duración_turno, etc.
+
+field_photos: id, field_id, path/url, orden
+
+
++Disponibilidad
+
+field_schedules (horario habitual): field_id, day_of_week, open_time, close_time
+
+field_exceptions (cierres/feriados): field_id, date, closed bool, open_time?, close_time?
+
+Con esto podés mostrar “hoy” sin que el admin cargue cada hora manualmente.
+
+
++Reservas, orden y pago
+
+reservations: id, field_id, user_id, start_time, end_time, status (PENDING_PAYMENT, PAID, CANCELLED, EXPIRED, CHECKED_IN), total_price, code_verification
+
+orders: id, reservation_id, status, amount
+
+payments: id, order_id, provider, provider_payment_id, status, amount, raw_payload(json)
+
+
++Video Beeup (asociado a reserva)
+
+reservation_videos: reservation_id, provider (“beeup”), video_url, available_from, available_to, sent_by_email_at
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
++Flujo A — Reserva + pago (MVP)
+
+Usuario elige cancha + fecha + horario
+
+Creás reservation en PENDING_PAYMENT con expiración (ej 10 minutos)
+
+Redirigís a pagar
+
+PSP notifica (webhook) → marcás PAID
+
+Enviás mail con:
+
+datos reserva
+
+código/QR de verificación
+
+link a “ver reserva”
+
+
++Flujo B — Verificación en cancha
+
+El admin de cancha abre panel → lista “reservas de hoy”
+
+Busca por nombre / código / QR
+
+Marca “CHECKED_IN” (o “VERIFIED”)
+
+Tip: el QR puede codificar reservation_id + code_verification para no exponer cosas sensibles.
+
+
++Flujo C — Beeup video
+
+Si Beeup te entrega el video después del partido:
+
+guardás video_url cuando esté disponible
+
+enviás mail automático al usuario con el link
+
+o lo mostrás dentro de la reserva
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+USER: ver disponibilidad, reservar, pagar, ver sus reservas
+
+FIELD_ADMIN: administrar sus venues/fields, precios, fotos, horarios, ver reservas de sus canchas, verificar/check-in, reembolsos/cancelaciones (si lo permitís)
+
+SUPER_ADMIN (vos): todo, además puede suspender venues/usuarios, ver métricas, moderar contenido
+
+Clave: FIELD_ADMIN solo puede tocar recursos cuyo venue.owner_user_id == su user_id.
+

@@ -1,0 +1,68 @@
+<?php
+
+namespace App\Models;
+
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class User extends Authenticatable
+{
+    /** @use HasFactory<\Database\Factories\UserFactory> */
+    use HasFactory, Notifiable;
+
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'is_active',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+            'is_active' => 'boolean',
+        ];
+    }
+
+    public function favoriteVenues()
+    {
+        return $this->belongsToMany(Venue::class, 'favorite_venues')
+            ->withTimestamps();
+    }
+
+    public function venueReviews()
+    {
+        return $this->hasMany(VenueReview::class);
+    }
+
+    public function venueAdminSubscriptions(): HasMany
+    {
+        return $this->hasMany(VenueAdminSubscription::class);
+    }
+
+    public function activeVenueAdminSubscription()
+    {
+        return $this->venueAdminSubscriptions()
+            ->where('status', 'ACTIVE')
+            ->whereNotNull('starts_at')
+            ->where('starts_at', '<=', now())
+            ->whereNotNull('expires_at')
+            ->where('expires_at', '>', now())
+            ->latest('expires_at');
+    }
+
+    public function hasActiveVenueAdminSubscription(): bool
+    {
+        return $this->activeVenueAdminSubscription()->exists();
+    }
+}
