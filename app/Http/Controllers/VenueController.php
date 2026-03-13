@@ -233,7 +233,7 @@ class VenueController extends Controller
     public function show(Venue $venue)
     {
         $venue->load([
-            'fields',
+            'fields' => fn($q) => $q->where('is_active', true),
             'fields.price',
             'reviews.user',
         ]);

@@ -61,6 +61,36 @@
           </div>
         @endif
 
+        {{-- Sección Mercado Pago --}}
+        <div style="border:1px solid #e0e0e0; border-radius:12px; padding:16px; background:#fafafa;">
+          <div style="font-weight:700; margin-bottom:4px;">Mercado Pago</div>
+          <div style="font-size:13px; color:#666; margin-bottom:12px;">
+            Pegá tu <strong>Access Token de producción</strong> para que los pagos de este complejo lleguen directamente a tu cuenta.
+            Lo encontrás en
+            <a href="https://www.mercadopago.com.ar/developers/panel/app" target="_blank">mercadopago.com.ar → Desarrolladores → Credenciales de producción</a>.
+          </div>
+
+          @if($venue->mp_access_token)
+            <div style="margin-bottom:10px; padding:10px 14px; background:#e8f5e9; border-radius:8px; color:#2e7d32; font-size:13px; font-weight:600;">
+              ✓ Cuenta de Mercado Pago conectada
+            </div>
+          @endif
+
+          <div>
+            <label style="font-size:13px;">Access Token</label><br>
+            <input
+              name="mp_access_token"
+              type="password"
+              value="{{ old('mp_access_token', $venue->mp_access_token ? '••••••••••••••••' : '') }}"
+              placeholder="APP_USR-..."
+              autocomplete="off"
+              style="width:100%; padding:10px; border:1px solid #ddd; border-radius:10px; font-family:monospace; font-size:13px;">
+            <div style="font-size:12px; color:#999; margin-top:4px;">
+              Dejá el campo vacío si no querés modificarlo.
+            </div>
+          </div>
+        </div>
+
         <div style="display:flex; gap:10px; align-items:center;">
           <button type="submit" style="padding:10px 14px; border:0; background:#111; color:#fff; border-radius:10px; cursor:pointer;">
             Guardar

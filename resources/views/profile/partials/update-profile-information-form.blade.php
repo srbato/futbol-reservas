@@ -1,15 +1,37 @@
 <section>
     <p class="muted" style="margin:0 0 18px 0;">
-        Editá tu nombre y tu correo electrónico.
+        Editá tu nombre, tu correo electrónico y tu foto de perfil.
     </p>
 
     <form id="send-verification" method="post" action="{{ route('verification.send') }}">
         @csrf
     </form>
 
-    <form method="post" action="{{ route('profile.update') }}" style="display:grid; gap:14px;">
+    <form method="post" action="{{ route('profile.update') }}" style="display:grid; gap:14px;"
+        enctype="multipart/form-data">
         @csrf
-        @method('patch')
+        @method('POST')
+
+        {{-- Avatar --}}
+        <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+            @if(auth()->user()->avatar_path)
+                <img
+                    src="{{ \Illuminate\Support\Facades\Storage::url(auth()->user()->avatar_path) }}"
+                    alt="Avatar"
+                    style="width:72px; height:72px; border-radius:999px; object-fit:cover; border:2px solid #eee;"
+                >
+            @else
+                <div style="width:72px; height:72px; border-radius:999px; background:#f1f1f1; display:flex; align-items:center; justify-content:center; font-size:28px; color:#999; border:2px solid #eee;">
+                    👤
+                </div>
+            @endif
+
+            <div>
+                <label style="display:block; font-size:13px; color:#666; margin-bottom:6px;">Foto de perfil</label>
+                <input type="file" name="avatar" accept="image/*">
+                <div style="font-size:12px; color:#999; margin-top:4px;">JPG, PNG o WebP. Máx. 2MB.</div>
+            </div>
+        </div>
 
         <div>
             <label for="name" style="display:block; font-size:13px; color:#666; margin-bottom:6px;">Nombre</label>

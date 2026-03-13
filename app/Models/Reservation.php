@@ -17,17 +17,18 @@ class Reservation extends Model
         'currency',
         'verification_code',
         'expires_at',
-
         'payment_provider',
         'payment_external_id',
         'payment_status',
         'mp_preference_id',
+        'reminder_sent',
     ];
 
     protected $casts = [
-        'start_at' => 'datetime',
-        'end_at' => 'datetime',
-        'expires_at' => 'datetime',
+        'start_at'      => 'datetime',
+        'end_at'        => 'datetime',
+        'expires_at'    => 'datetime',
+        'reminder_sent' => 'boolean',
     ];
 
     public function field(): BelongsTo

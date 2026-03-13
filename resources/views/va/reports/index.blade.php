@@ -96,10 +96,13 @@
                 {{ $item['field']->venue->name }}
               </div>
             </div>
-
-            <div style="font-weight:700;">
-              {{ $item['reserved_slots'] }}/{{ $item['total_slots'] }} slots
-              — {{ $item['occupancy_percent'] }}%
+            <div style="text-align:right;">
+              <div style="font-weight:700;">
+                {{ $item['reserved_slots'] }}/{{ $item['total_slots'] }} slots — {{ $item['occupancy_percent'] }}%
+              </div>
+              <div style="font-size:13px; color:#666; margin-top:2px;">
+                $ {{ number_format($item['revenue'], 0, ',', '.') }} generados
+              </div>
             </div>
           </div>
 

@@ -30,6 +30,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\VenueAdminMembershipController;
+use App\Http\Controllers\VenueAdmin\MercadoPagoOAuthController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -53,7 +55,7 @@ Route::get('/dashboard', function () {
 
 Route::middleware(['auth', 'active.user'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/membership/become-partner', [VenueAdminMembershipController::class, 'show'])
         ->name('membership.become');
@@ -182,7 +184,7 @@ Route::post('/contact', function (Request $request) {
         "Mensaje:\n{$data['message']}";
 
     Mail::raw($text, function ($message) use ($data) {
-        $message->to('tucancha@gmail.com')
+        $message->to('tucancha10@gmail.com')
             ->subject('Nuevo contacto desde TuCancha')
             ->replyTo($data['email'], $data['name']);
     });
@@ -212,6 +214,7 @@ Route::middleware(['auth', 'active.user', 'role:venue_admin,super_admin'])->pref
         Route::post('/venues/{venue}/fields', [VaFieldController::class, 'store'])->name('va.fields.store');
         Route::get('/fields/{field}/edit', [VaFieldController::class, 'edit'])->name('va.fields.edit');
         Route::post('/fields/{field}', [VaFieldController::class, 'update'])->name('va.fields.update');
+        Route::post('/fields/{field}/toggle-active', [VaFieldController::class, 'toggleActive'])->name('va.fields.toggle_active');
 
         // Schedules
         Route::get('/fields/{field}/schedule', [VaScheduleController::class, 'edit'])->name('va.schedule.edit');
@@ -239,7 +242,16 @@ Route::middleware(['auth', 'active.user', 'role:venue_admin,super_admin'])->pref
         // Reports
         Route::get('/reports', [VaReportsController::class, 'index'])->name('va.reports');
         Route::get('/reports/export', [VaReportsController::class, 'export'])->name('va.reports.export');
+
+        // Mercado Pago OAuth
+        Route::get('/venues/{venue}/mp-connect', [MercadoPagoOAuthController::class, 'redirect'])->name('va.mp_oauth.redirect');
+        Route::post('/venues/{venue}/mp-disconnect', [MercadoPagoOAuthController::class, 'disconnect'])->name('va.mp_oauth.disconnect');
+    
     });
+
+    Route::get('/mp-oauth/callback', [MercadoPagoOAuthController::class, 'callback'])
+    ->middleware(['auth', 'active.user'])
+    ->name('va.mp_oauth.callback');
 
 /*
 |--------------------------------------------------------------------------
@@ -290,6 +302,10 @@ Route::middleware(['auth', 'active.user'])->group(function () {
     Route::post('/sa/users/{user}/activate',
         [UserManagementController::class, 'activate']
     )->name('sa.users.activate');
+});
+
+Route::get('/reservations/{reservation}/status', function (\App\Models\Reservation $reservation) {
+    return response()->json(['status' => $reservation->status]);
 });
 
 require __DIR__ . '/auth.php';

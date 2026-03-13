@@ -14,16 +14,20 @@
         </div>
     @elseif($reservation->status === 'PENDING_PAYMENT')
         <div style="text-align:center; margin-bottom:24px;">
-            <h1 style="font-size:34px; margin-bottom:10px;">⏳ Pago recibido, esperando confirmación</h1>
+            <h1 style="font-size:34px; margin-bottom:10px;">⏳ Esperando confirmación del pago</h1>
             <p class="muted" style="margin:0;">
-                Volviste desde Mercado Pago, pero la reserva todavía figura pendiente. Esto puede pasar si el webhook aún no impactó.
+                Estamos esperando la confirmación de Mercado Pago. Esto puede tardar unos segundos.
             </p>
+            <div style="margin-top:16px; display:flex; align-items:center; justify-content:center; gap:10px; color:#9a6700; font-weight:600;">
+                <span id="pollingDot" style="width:10px; height:10px; border-radius:999px; background:#f0ad00; display:inline-block; animation:pulse 1s infinite;"></span>
+                <span id="pollingText">Verificando estado...</span>
+            </div>
         </div>
     @else
         <div style="text-align:center; margin-bottom:24px;">
             <h1 style="font-size:34px; margin-bottom:10px;">ℹ️ Estado actualizado</h1>
             <p class="muted" style="margin:0;">
-                El pago volvió desde Mercado Pago, pero la reserva actualmente tiene el estado <strong>{{ $reservation->status }}</strong>.
+                Estado actual: <strong>{{ $reservation->status }}</strong>
             </p>
         </div>
     @endif
@@ -50,20 +54,53 @@
     @if($reservation->status === 'PENDING_PAYMENT')
         <div class="page-card" style="margin-bottom:18px; background:#fff4db; border-color:#f5d48a;">
             <p style="margin:0; color:#9a6700; line-height:1.6;">
-                Si el pago fue aprobado, la reserva debería actualizarse automáticamente en breve.
-                Podés revisar el estado actual en <strong>Mis reservas</strong>.
+                Si el pago fue aprobado, la reserva se actualizará automáticamente en esta misma página.
             </p>
         </div>
     @endif
 
     <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-        <a href="{{ route('venues.index') }}" class="btn">
-            Volver a complejos
-        </a>
-
-        <a href="{{ route('my_reservations') }}" class="btn btn-primary">
-            Ver mis reservas
-        </a>
+        <a href="{{ route('venues.index') }}" class="btn">Volver a complejos</a>
+        <a href="{{ route('my_reservations') }}" class="btn btn-primary">Ver mis reservas</a>
     </div>
 </div>
+
+@if($reservation->status === 'PENDING_PAYMENT')
+<style>
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.3; }
+    }
+</style>
+<script>
+    const reservationId = {{ $reservation->id }};
+    let attempts = 0;
+    const maxAttempts = 20; // intenta por ~1 minuto
+
+    function checkStatus() {
+        if (attempts >= maxAttempts) {
+            document.getElementById('pollingText').innerText = 'No se pudo confirmar automáticamente. Revisá tus reservas.';
+            document.getElementById('pollingDot').style.background = '#842029';
+            return;
+        }
+
+        attempts++;
+
+        fetch(`/reservations/${reservationId}/status`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'PAID') {
+                    window.location.reload();
+                } else {
+                    setTimeout(checkStatus, 3000);
+                }
+            })
+            .catch(() => {
+                setTimeout(checkStatus, 3000);
+            });
+    }
+
+    setTimeout(checkStatus, 3000);
+</script>
+@endif
 @endsection

@@ -1,3 +1,5 @@
+<!-- resources\views\va\dashboard.blade.php -->
+
 @php
   use App\Support\ReservationStatus;
 @endphp
@@ -296,20 +298,42 @@
           <span class="muted">— {{ $v->description }}</span>
         @endif
 
-        <div style="margin-top:8px;">
-          <a href="{{ route('va.venues.edit', $v) }}">Editar complejo</a>
-        </div>
+    <div style="margin-top:8px; display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+        <a href="{{ route('va.venues.edit', $v) }}">Editar complejo</a>
+
+        @if($v->mp_access_token)
+            <span style="color:#2e7d32; font-weight:600; font-size:13px;">✓ Mercado Pago conectado</span>
+        @else
+            <span style="color:#999; font-size:13px;">Sin Mercado Pago — <a href="{{ route('va.venues.edit', $v) }}">configurar</a></span>
+        @endif
+    </div>
 
         @if($v->fields->isEmpty())
           <p class="muted" style="margin-top:10px;">No tiene canchas cargadas.</p>
         @else
           <ul style="padding-left:18px; margin-top:12px;">
             @foreach($v->fields as $f)
-              <li style="margin-bottom:8px;">
-                {{ $f->name }}
-                — {{ $f->price->price_per_slot ?? 0 }} {{ $f->price->currency ?? 'ARS' }}
-                — <a href="{{ route('va.fields.edit', $f) }}">Editar</a>
-                — <a href="{{ route('va.schedule.edit', $f) }}">Horarios</a>
+              <li style="margin-bottom:8px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                <span>{{ $f->name }}</span>
+                <span class="muted">— {{ $f->price->price_per_slot ?? 0 }} {{ $f->price->currency ?? 'ARS' }}</span>
+                <a href="{{ route('va.fields.edit', $f) }}">Editar</a>
+                <a href="{{ route('va.schedule.edit', $f) }}">Horarios</a>
+
+                <form method="POST" action="{{ route('va.fields.toggle_active', $f) }}" style="display:inline;">
+                  @csrf
+                  @if($f->is_active)
+                    <button type="submit"
+                      style="background:none; border:none; color:#c62828; cursor:pointer; font-size:13px; padding:0; font-weight:600;">
+                      Desactivar
+                    </button>
+                  @else
+                    <span style="color:#999; font-size:13px; font-weight:600;">Inactiva</span>
+                    <button type="submit"
+                      style="background:none; border:none; color:#2e7d32; cursor:pointer; font-size:13px; padding:0; font-weight:600;">
+                      Activar
+                    </button>
+                  @endif
+                </form>
               </li>
             @endforeach
           </ul>

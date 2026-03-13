@@ -40,8 +40,11 @@ return [
     ],
 
     'mercadopago' => [
-        'access_token' => env('MP_ACCESS_TOKEN'),
-        'public_key' => env('MP_PUBLIC_KEY'),
+        'access_token'   => env('MERCADOPAGO_ACCESS_TOKEN'),
+        'client_id'      => env('MERCADOPAGO_CLIENT_ID'),
+        'client_secret'  => env('MERCADOPAGO_CLIENT_SECRET'),
+        'marketplace_id' => env('MERCADOPAGO_MARKETPLACE_ID'),
+        'fee_percent'    => env('MERCADOPAGO_FEE_PERCENT', 5),
     ],
 
 ];

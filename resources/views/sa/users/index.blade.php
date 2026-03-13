@@ -57,7 +57,7 @@
           <thead>
             <tr style="background:#fafafa;">
               <th style="text-align:left; padding:12px; border-bottom:1px solid #eee;">ID</th>
-              <th style="text-align:left; padding:12px; border-bottom:1px solid #eee;">Nombre</th>
+              <th style="text-align:left; padding:12px; border-bottom:1px solid #eee;">Usuario</th>
               <th style="text-align:left; padding:12px; border-bottom:1px solid #eee;">Email</th>
               <th style="text-align:left; padding:12px; border-bottom:1px solid #eee;">Estado</th>
               <th style="text-align:left; padding:12px; border-bottom:1px solid #eee;">Rol actual</th>
@@ -74,8 +74,21 @@
                   {{ $user->id }}
                 </td>
 
-                <td style="padding:12px; border-bottom:1px solid #f1f1f1; font-weight:600;">
-                  {{ $user->name }}
+                <td style="padding:12px; border-bottom:1px solid #f1f1f1;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        @if($user->avatar_path)
+                            <img
+                                src="{{ \Illuminate\Support\Facades\Storage::url($user->avatar_path) }}"
+                                alt="{{ $user->name }}"
+                                style="width:32px; height:32px; border-radius:999px; object-fit:cover; border:1px solid #eee; flex-shrink:0;"
+                            >
+                        @else
+                            <div style="width:32px; height:32px; border-radius:999px; background:#f1f1f1; display:flex; align-items:center; justify-content:center; font-size:13px; color:#999; border:1px solid #eee; flex-shrink:0;">
+                                👤
+                            </div>
+                        @endif
+                        <strong>{{ $user->name }}</strong>
+                    </div>
                 </td>
 
                 <td style="padding:12px; border-bottom:1px solid #f1f1f1;">

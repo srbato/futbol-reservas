@@ -145,11 +145,18 @@ class ReportsController extends Controller
                 ? round(($reservedSlots / $totalSlots) * 100)
                 : 0;
 
+            $fieldRevenue = Reservation::query()
+                ->where('field_id', $field->id)
+                ->where('status', 'PAID')
+                ->whereBetween('start_at', [$from, $to])
+                ->sum('total_amount');
+
             $fieldOccupancy[] = [
-                'field' => $field,
-                'reserved_slots' => $reservedSlots,
-                'total_slots' => $totalSlots,
+                'field'             => $field,
+                'reserved_slots'    => $reservedSlots,
+                'total_slots'       => $totalSlots,
                 'occupancy_percent' => $occupancyPercent,
+                'revenue'           => $fieldRevenue,
             ];
         }
 

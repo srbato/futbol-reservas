@@ -15,3 +15,7 @@ Schedule::command('reservations:expire')
 Schedule::command('membership:send-expiration-reminders')
     ->dailyAt('09:00')
     ->withoutOverlapping();
+
+Schedule::command('reservations:send-reminders')
+    ->everyMinute()
+    ->withoutOverlapping();

@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ReservationCancelledMail;
 use App\Models\Reservation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class ReservationCancelController extends Controller
 {
@@ -20,9 +22,22 @@ class ReservationCancelController extends Controller
         }
 
         $reservation->update([
-            'status' => 'CANCELLED',
+            'status'     => 'CANCELLED',
             'expires_at' => null,
         ]);
+
+        $reservation->loadMissing(['user', 'field.venue.owner']);
+
+        // Mail al usuario
+        Mail::to($reservation->user->email)
+            ->send(new ReservationCancelledMail($reservation, 'user'));
+
+        // Mail al dueño del complejo
+        $venueOwner = $reservation->field->venue->owner;
+        if ($venueOwner && $venueOwner->email) {
+            Mail::to($venueOwner->email)
+                ->send(new ReservationCancelledMail($reservation, 'admin'));
+        }
 
         return back()->with('success', 'Reserva cancelada correctamente.');
     }

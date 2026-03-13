@@ -45,23 +45,41 @@
         <div class="page-card" style="min-width:240px; padding:18px;">
           <div style="font-size:12px; color:#666; margin-bottom:6px;">Canchas disponibles</div>
           <div style="font-size:36px; font-weight:800; line-height:1;">
-            {{ $venue->fields->count() }}
+              {{ $venue->fields->where('is_active', true)->count() }}
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <h2 class="section-title">Canchas del complejo</h2>
+<h2 class="section-title">Canchas del complejo</h2>
 
-  @if($venue->fields->isEmpty())
-    <div class="page-card">
-      <p class="muted" style="margin:0;">Este complejo todavía no tiene canchas cargadas.</p>
-    </div>
+  @php
+      $activeFields = $venue->fields->where('is_active', true);
+      $sports = $activeFields->pluck('sport')->unique()->filter()->values();
+  @endphp
+
+  @if($activeFields->isEmpty())
+      <div class="page-card">
+          <p class="muted" style="margin:0;">Este complejo todavía no tiene canchas cargadas.</p>
+      </div>
   @else
-    <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
-      @foreach ($venue->fields as $field)
-        <article class="venue-card">
+      @if($sports->count() > 1)
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+              <button onclick="filterSport(null)" class="sport-filter-btn active" data-sport="">
+                  Todos
+              </button>
+              @foreach($sports as $sport)
+                  <button onclick="filterSport('{{ $sport }}')" class="sport-filter-btn" data-sport="{{ $sport }}">
+                      {{ ucfirst($sport) }}
+                  </button>
+              @endforeach
+          </div>
+      @endif
+
+      <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+      @foreach ($activeFields as $field)
+        <article class="venue-card" data-sport="{{ $field->sport }}">
           @if($field->cover_image_path)
             <img
               src="{{ \Illuminate\Support\Facades\Storage::url($field->cover_image_path) }}"
@@ -200,7 +218,20 @@
       @forelse($venue->reviews->sortByDesc('created_at') as $review)
         <div style="padding:14px; border:1px solid #eee; border-radius:14px;">
           <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:6px;">
-            <strong>{{ $review->user->name }}</strong>
+            <div style="display:flex; align-items:center; gap:8px;">
+              @if($review->user->avatar_path)
+                  <img
+                      src="{{ \Illuminate\Support\Facades\Storage::url($review->user->avatar_path) }}"
+                      alt="{{ $review->user->name }}"
+                      style="width:32px; height:32px; border-radius:999px; object-fit:cover; border:1px solid #eee;"
+                  >
+              @else
+                  <div style="width:32px; height:32px; border-radius:999px; background:#f1f1f1; display:flex; align-items:center; justify-content:center; font-size:13px; color:#999; border:1px solid #eee; flex-shrink:0;">
+                      👤
+                  </div>
+              @endif
+              <strong>{{ $review->user->name }}</strong>
+          </div>
 
             <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
               <span class="stars">
@@ -227,6 +258,28 @@
       @endforelse
     </div>
   </div>
+
+  <style>
+      .sport-filter-btn {
+          padding: 8px 16px;
+          border: 1px solid #ddd;
+          background: #fff;
+          border-radius: 999px;
+          cursor: pointer;
+          font-weight: 600;
+          font-size: 13px;
+          transition: .2s ease;
+      }
+      .sport-filter-btn:hover {
+          background: #f7f7f7;
+      }
+      .sport-filter-btn.active {
+          background: #111;
+          color: #fff;
+          border-color: #111;
+      }
+  </style>
+
 
   <script>
     function toggleReviewForm(forceState = null) {
@@ -276,5 +329,20 @@
         document.getElementById('reviewFormWrap').style.display = 'block';
       @endif
     })();
+
+
+    function filterSport(sport) {
+        const cards = document.querySelectorAll('.venue-card[data-sport]');
+        const btns  = document.querySelectorAll('.sport-filter-btn');
+
+        cards.forEach(card => {
+            card.style.display = (!sport || card.dataset.sport === sport) ? '' : 'none';
+        });
+
+        btns.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.sport === (sport ?? ''));
+        });
+    }
+
   </script>
 @endsection

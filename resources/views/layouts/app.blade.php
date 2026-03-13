@@ -618,9 +618,21 @@
             <a href="{{ route('membership.become') }}">Hacete socio</a>
           @endif
 
-          <div class="user-menu-wrap">
-            <button type="button" class="user-menu-button" onclick="toggleUserMenu()">
-              Mi cuenta ▾
+        <div class="user-menu-wrap">
+            <button type="button" class="user-menu-button" onclick="toggleUserMenu()"
+                    style="display:flex; align-items:center; gap:8px; padding:6px 12px 6px 6px;">
+                @if(auth()->user()->avatar_path)
+                    <img
+                        src="{{ \Illuminate\Support\Facades\Storage::url(auth()->user()->avatar_path) }}"
+                        alt="Avatar"
+                        style="width:32px; height:32px; border-radius:999px; object-fit:cover; border:1px solid #eee;"
+                    >
+                @else
+                    <div style="width:32px; height:32px; border-radius:999px; background:#f1f1f1; display:flex; align-items:center; justify-content:center; font-size:14px; color:#999; border:1px solid #eee;">
+                        👤
+                    </div>
+                @endif
+                <span>{{ auth()->user()->name }}</span> ▾
             </button>
 
             <div id="userDropdown" class="user-dropdown">

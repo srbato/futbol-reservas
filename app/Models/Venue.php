@@ -20,7 +20,10 @@ class Venue extends Model
         'zone',
         'lat',
         'lng',
-        'is_active'
+        'is_active',
+        'mp_access_token',
+        'mp_refresh_token',
+        'mp_user_id',
     ];
 
     public function fields(): HasMany
@@ -49,5 +52,10 @@ class Venue extends Model
             'id',       // Local key en venues...
             'id'        // Local key en fields...
         );
+    }
+
+    public function owner()
+    {
+        return $this->belongsTo(User::class, 'owner_user_id');
     }
 }

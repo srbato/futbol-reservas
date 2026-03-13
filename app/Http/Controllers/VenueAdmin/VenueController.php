@@ -61,22 +61,30 @@ class VenueController extends Controller
             abort(403);
         }
 
-        $data = $request->validate([
-            'name' => ['required', 'string', 'max:120'],
-            'description' => ['nullable', 'string', 'max:255'],
-            'cover_image' => ['nullable', 'image', 'max:4096'],
-            'address' => ['nullable', 'string', 'max:200'],
-            'zone' => ['nullable', 'string', 'max:120'],
-            'lat' => ['nullable', 'numeric', 'between:-90,90'],
-            'lng' => ['nullable', 'numeric', 'between:-180,180'],
+       $data = $request->validate([
+            'name'             => ['required', 'string', 'max:120'],
+            'description'      => ['nullable', 'string', 'max:255'],
+            'cover_image'      => ['nullable', 'image', 'max:4096'],
+            'address'          => ['nullable', 'string', 'max:200'],
+            'zone'             => ['nullable', 'string', 'max:120'],
+            'lat'              => ['nullable', 'numeric', 'between:-90,90'],
+            'lng'              => ['nullable', 'numeric', 'between:-180,180'],
+            'mp_access_token'  => ['nullable', 'string', 'max:255'],
         ]);
 
-        $venue->name = $data['name'];
+        $venue->name        = $data['name'];
         $venue->description = $data['description'] ?? null;
-        $venue->address = $data['address'] ?? null;
-        $venue->zone = $data['zone'] ?? null;
-        $venue->lat = $data['lat'] ?? null;
-        $venue->lng = $data['lng'] ?? null;
+        $venue->address     = $data['address'] ?? null;
+        $venue->zone        = $data['zone'] ?? null;
+        $venue->lat         = $data['lat'] ?? null;
+        $venue->lng         = $data['lng'] ?? null;
+
+        // Solo actualizamos el token si el admin escribió algo nuevo
+        // (no los puntos de placeholder que mostramos cuando ya hay uno guardado)
+        $nuevoToken = $data['mp_access_token'] ?? null;
+        if ($nuevoToken && !str_starts_with($nuevoToken, '••')) {
+            $venue->mp_access_token = $nuevoToken;
+        }
 
         if ($request->hasFile('cover_image')) {
             if ($venue->cover_image_path) {

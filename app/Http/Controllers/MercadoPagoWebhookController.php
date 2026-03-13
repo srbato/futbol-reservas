@@ -16,8 +16,14 @@ class MercadoPagoWebhookController extends Controller
     {
         Log::info('MP webhook recibido', $request->all());
 
-        $type = $request->input('type');
-        $dataId = $request->input('data.id');
+        $type   = $request->input('type');
+        $topic  = $request->input('topic');
+        $dataId = $request->input('data.id') ?? $request->input('id');
+
+        // Ignoramos merchant_order, MP también manda el evento 'payment' por separado
+        if ($topic === 'merchant_order') {
+            return response()->json(['ok' => true]);
+        }
 
         if ($type !== 'payment' || !$dataId) {
             return response()->json(['ok' => true]);
@@ -30,17 +36,16 @@ class MercadoPagoWebhookController extends Controller
         if (!$paymentResponse->successful()) {
             Log::error('No se pudo consultar el pago en MP', [
                 'payment_id' => $dataId,
-                'response' => $paymentResponse->body(),
+                'response'   => $paymentResponse->body(),
             ]);
-
             return response()->json(['ok' => false], 500);
         }
 
         $payment = $paymentResponse->json();
 
         $externalReference = $payment['external_reference'] ?? null;
-        $paymentStatus = $payment['status'] ?? null;
-        $paymentId = $payment['id'] ?? null;
+        $paymentStatus     = $payment['status'] ?? null;
+        $paymentId         = $payment['id'] ?? null;
 
         if (!$externalReference) {
             Log::warning('Pago sin external_reference', $payment);
@@ -70,26 +75,53 @@ class MercadoPagoWebhookController extends Controller
             Log::warning('Reserva no encontrada para webhook MP', [
                 'reservation_id' => $reservationId,
             ]);
-
             return response()->json(['ok' => true]);
         }
 
-        $reservation->payment_provider = 'mercadopago';
+        // Usamos el token del venue si tiene uno, sino el de TuCancha
+        $reservation->loadMissing('field.venue');
+        $accessToken = $reservation->field->venue->mp_access_token
+            ?? config('services.mercadopago.access_token');
+
+        // Re-consultamos el pago usando el token correcto
+        $paymentResponse = Http::withoutVerifying()
+            ->withToken($accessToken)
+            ->get("https://api.mercadopago.com/v1/payments/{$paymentId}");
+
+        if (!$paymentResponse->successful()) {
+            Log::error('No se pudo re-consultar el pago con token del venue', [
+                'payment_id' => $paymentId,
+                'venue_id'   => $reservation->field->venue->id,
+            ]);
+            // Continuamos igual con el status que ya teníamos del webhook principal
+        }
+
+        $reservation->payment_provider    = 'mercadopago';
         $reservation->payment_external_id = (string) $paymentId;
-        $reservation->payment_status = $paymentStatus;
+        $reservation->payment_status      = $paymentStatus;
 
         $wasPaidBefore = $reservation->status === 'PAID';
 
         if ($paymentStatus === 'approved') {
-            $reservation->status = 'PAID';
+            $reservation->status    = 'PAID';
             $reservation->expires_at = null;
         }
 
         $reservation->save();
 
         if ($paymentStatus === 'approved' && !$wasPaidBefore) {
-            $reservation->loadMissing(['user', 'field.venue']);
-            Mail::to($reservation->user->email)->send(new ReservationPaidMail($reservation));
+            $reservation->loadMissing(['user', 'field.venue.owner']);
+
+            // Mail al usuario
+            Mail::to($reservation->user->email)
+                ->send(new ReservationPaidMail($reservation));
+
+            // Mail al dueño del complejo
+            $venueOwner = $reservation->field->venue->owner;
+            if ($venueOwner && $venueOwner->email) {
+                Mail::to($venueOwner->email)
+                    ->send(new \App\Mail\VenueAdminReservationMail($reservation));
+            }
         }
 
         return response()->json(['ok' => true]);

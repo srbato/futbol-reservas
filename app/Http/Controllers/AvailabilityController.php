@@ -40,9 +40,13 @@ class AvailabilityController extends Controller
         $open = Carbon::parse($date->toDateString() . ' ' . $openTime);
         $close = Carbon::parse($date->toDateString() . ' ' . $closeTime);
 
-        $slotMinutes = (int) $field->slot_minutes;
-        $price = (float) ($field->price?->price_per_slot ?? 0);
-        $currency = $field->price?->currency ?? 'ARS';
+        $slotMinutes   = (int) $field->slot_minutes;
+        $price         = (float) ($field->price?->price_per_slot ?? 0);
+        $currency      = $field->price?->currency ?? 'ARS';
+
+        $nightPrice     = $field->price?->night_price_per_slot ? (float) $field->price->night_price_per_slot : null;
+        $nightStart     = $field->price?->night_start_time ?? null;
+        $nightEnd       = $field->price?->night_end_time ?? null;
 
         $reservations = Reservation::query()
             ->where('field_id', $field->id)
@@ -101,11 +105,18 @@ class AvailabilityController extends Controller
                 $status = 'PAST';
             }
 
-            // Precio final por defecto = precio normal
-            $finalPrice = $price;
-            $originalPrice = $price;
+            // Precio base: nocturno si el slot cae dentro de la franja, normal si no
+            $isNightSlot = false;
+            if ($nightPrice !== null && $nightStart && $nightEnd) {
+                $nightStartCarbon = Carbon::parse($date->toDateString() . ' ' . $nightStart);
+                $nightEndCarbon   = Carbon::parse($date->toDateString() . ' ' . $nightEnd);
+                $isNightSlot = $nightStartCarbon < $slotEnd && $nightEndCarbon > $slotStart;
+            }
+
+            $finalPrice    = $isNightSlot ? $nightPrice : $price;
+            $originalPrice = $finalPrice;
             $discountLabel = null;
-            $hasDiscount = false;
+            $hasDiscount   = false;
 
             $matchingDiscount = $discounts->first(function ($d) use ($date, $dow, $slotStart, $slotEnd) {
                 // Si tiene fecha puntual y no coincide, no aplica
@@ -137,15 +148,16 @@ class AvailabilityController extends Controller
             }
 
             $slots[] = [
-                'start_at' => $slotStart->format('H:i'),
-                'end_at' => $slotEnd->format('H:i'),
-                'status' => $status,
-                'price' => $finalPrice,
+                'start_at'       => $slotStart->format('H:i'),
+                'end_at'         => $slotEnd->format('H:i'),
+                'status'         => $status,
+                'price'          => $finalPrice,
                 'original_price' => $originalPrice,
-                'currency' => $currency,
-                'reason' => $reason,
-                'has_discount' => $hasDiscount,
+                'currency'       => $currency,
+                'reason'         => $reason,
+                'has_discount'   => $hasDiscount,
                 'discount_label' => $discountLabel,
+                'is_night_price' => $isNightSlot,
             ];
         }
 

@@ -190,12 +190,21 @@
         };
       }
 
-      if (slot.has_discount) {
+    if (slot.has_discount) {
         return {
           label: 'Disponible con descuento',
           bg: '#fff4db',
           color: '#9a6700',
           border: '1px solid #f5d48a'
+        };
+      }
+
+      if (slot.is_night_price) {
+        return {
+          label: '🌙 Precio nocturno',
+          bg: '#ede9fe',
+          color: '#5b21b6',
+          border: '1px solid #c4b5fd'
         };
       }
 
@@ -265,22 +274,28 @@
           `
           : '';
 
-        const priceHtml = slot.has_discount
-          ? `
-            <div style="display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;">
-              <span style="text-decoration:line-through; color:#999; font-size:14px;">
-                ${formatMoney(slot.original_price, slot.currency)}
-              </span>
-              <span style="font-size:22px; font-weight:800; color:#157347;">
+          const priceHtml = slot.has_discount
+            ? `
+              <div style="display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;">
+                <span style="text-decoration:line-through; color:#999; font-size:14px;">
+                  ${formatMoney(slot.original_price, slot.currency)}
+                </span>
+                <span style="font-size:22px; font-weight:800; color:#157347;">
+                  ${formatMoney(slot.price, slot.currency)}
+                </span>
+              </div>
+            `
+            : slot.is_night_price
+            ? `
+              <div style="font-size:22px; font-weight:800; color:#5b21b6;">
                 ${formatMoney(slot.price, slot.currency)}
-              </span>
-            </div>
-          `
-          : `
-            <div style="font-size:22px; font-weight:800; color:#111;">
-              ${formatMoney(slot.price, slot.currency)}
-            </div>
-          `;
+              </div>
+            `
+            : `
+              <div style="font-size:22px; font-weight:800; color:#111;">
+                ${formatMoney(slot.price, slot.currency)}
+              </div>
+            `;
 
         return `
           <div class="page-card" style="padding:18px; height:100%; display:flex; flex-direction:column; justify-content:space-between;">
