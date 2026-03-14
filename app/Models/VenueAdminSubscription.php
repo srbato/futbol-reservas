@@ -9,6 +9,8 @@ class VenueAdminSubscription extends Model
 {
     protected $fillable = [
         'user_id',
+        'plan_slug',
+        'billing_cycle',
         'status',
         'monthly_price',
         'currency',
@@ -21,6 +23,7 @@ class VenueAdminSubscription extends Model
         'reminder_sent_7d_at',
         'reminder_sent_2d_at',
         'reminder_sent_0d_at',
+        'referral_code_used',
     ];
 
     protected $casts = [

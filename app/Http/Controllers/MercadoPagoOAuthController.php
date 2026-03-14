@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\VenueAdmin;
+namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Venue;
@@ -27,12 +27,19 @@ class MercadoPagoOAuthController extends Controller
             'mp_oauth_venue_id' => $venue->id,
         ]);
 
+        $redirectUri = route('va.mp_oauth.callback');
+
         $query = http_build_query([
             'client_id'     => config('services.mercadopago.client_id'),
             'response_type' => 'code',
-            'platform_id'   => 'mp',
             'state'         => $state,
-            'redirect_uri'  => route('va.mp_oauth.callback'),
+            'redirect_uri'  => $redirectUri,
+        ]);
+
+        Log::info('MP OAuth redirect', [
+            'redirect_uri' => $redirectUri,
+            'client_id'    => config('services.mercadopago.client_id'),
+            'full_url'     => 'https://auth.mercadopago.com.ar/authorization?' . $query,
         ]);
 
         return redirect()->away('https://auth.mercadopago.com.ar/authorization?' . $query);
@@ -71,7 +78,8 @@ class MercadoPagoOAuthController extends Controller
         }
 
         // Intercambiamos el code por el access_token
-        $response = Http::withoutVerifying()->post('https://api.mercadopago.com/oauth/token', [
+        $response = Http::withOptions(['verify' => !app()->isLocal()])
+            ->post('https://api.mercadopago.com/oauth/token', [
             'client_id'     => config('services.mercadopago.client_id'),
             'client_secret' => config('services.mercadopago.client_secret'),
             'grant_type'    => 'authorization_code',

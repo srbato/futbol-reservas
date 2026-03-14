@@ -43,4 +43,9 @@ class Field extends Model
         return $this->hasMany(FieldDiscount::class);
     }
 
+    public function recurringDiscounts(): HasMany
+    {
+        return $this->hasMany(FieldRecurringDiscount::class);
+    }
+
 }

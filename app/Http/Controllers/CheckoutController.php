@@ -29,6 +29,10 @@ class CheckoutController extends Controller
                 ->with('error', 'La reserva venció y ya no puede pagarse.');
         }
 
-        return view('checkout.show', compact('reservation'));
+        $availableReward = $reservation->status === 'PENDING_PAYMENT'
+            ? $user->availableReferralRewards()->first()
+            : null;
+
+        return view('checkout.show', compact('reservation', 'availableReward'));
     }
 }

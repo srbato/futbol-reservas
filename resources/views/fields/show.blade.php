@@ -248,14 +248,24 @@
             </button>
           `
           : `
-            <button
-              type="button"
-              class="btn btn-primary"
-              style="width:100%;"
-              onclick="reserve('${slot.start_at}')"
-            >
-              Reservar
-            </button>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <button
+                type="button"
+                class="btn btn-primary"
+                style="width:100%;"
+                onclick="reserve('${slot.start_at}')"
+              >
+                Reservar
+              </button>
+              <button
+                type="button"
+                class="btn"
+                style="width:100%; font-size:13px;"
+                onclick="openRecurringModal('${slot.start_at}')"
+              >
+                🔁 Reservar recurrente
+              </button>
+            </div>
           `;
 
         const reasonHtml = slot.reason
@@ -460,5 +470,233 @@
       document.getElementById('payModal').style.display = 'none';
       location.reload();
     }
+
+    // ── Recurring reservation ────────────────────────────────────────────────
+
+    let recurringTime = null;
+
+    function openRecurringModal(time) {
+      const date = document.getElementById('datePicker').value;
+      recurringTime = time;
+
+      const label = document.getElementById('recurringDateLabel');
+      if (label) {
+        label.textContent = date + ' a las ' + time;
+      }
+
+      document.getElementById('recurringModal').style.display = 'block';
+    }
+
+    function closeRecurringModal() {
+      document.getElementById('recurringModal').style.display = 'none';
+      recurringTime = null;
+    }
+
+    function closeResultsModal() {
+      document.getElementById('recurringResultsModal').style.display = 'none';
+      location.reload();
+    }
+
+    const recurringTiers = {!! $tiersJson ?? '[]' !!};
+
+    function updateDiscountPreview() {
+      const occurrences = parseInt(document.getElementById('recurOccurrences')?.value ?? '0', 10);
+      const preview = document.getElementById('discountPreview');
+      if (!preview) return;
+
+      const applicable = recurringTiers
+        .filter(t => t.min_occurrences <= occurrences)
+        .sort((a, b) => b.min_occurrences - a.min_occurrences)[0];
+
+      if (applicable) {
+        preview.style.display = 'block';
+        preview.textContent = `🔥 Se aplicará un descuento del ${applicable.discount_percentage}% al total`;
+      } else {
+        preview.style.display = 'none';
+      }
+    }
+
+    function submitRecurring() {
+      if (!recurringTime) return;
+
+      const date = document.getElementById('datePicker').value;
+      const frequency = document.querySelector('input[name="recurFrequency"]:checked')?.value ?? 'weekly';
+      const occurrences = parseInt(document.getElementById('recurOccurrences').value, 10);
+
+      const btn = document.getElementById('recurSubmitBtn');
+      btn.disabled = true;
+      btn.textContent = 'Creando reservas...';
+
+      fetch('/reservations/recurring', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': '{{ csrf_token() }}',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          field_id: {{ $field->id }},
+          start_at: date + ' ' + recurringTime,
+          frequency,
+          occurrences,
+        }),
+      })
+      .then(async (r) => {
+        if (r.status === 401) {
+          window.location.href = '{{ route('login') }}';
+          return null;
+        }
+        const text = await r.text();
+        try {
+          return JSON.parse(text);
+        } catch (e) {
+          throw new Error('Respuesta inesperada del servidor.');
+        }
+      })
+      .then((data) => {
+        if (!data) return;
+
+        closeRecurringModal();
+
+        if (data.batch && data.batch.checkout_url) {
+          window.location.href = data.batch.checkout_url;
+        } else {
+          showRecurringResults(data);
+        }
+      })
+      .catch((err) => {
+        showReservationFeedback(err.message || 'No se pudieron crear las reservas.', 'error');
+        closeRecurringModal();
+      })
+      .finally(() => {
+        btn.disabled = false;
+        btn.textContent = 'Crear reservas';
+      });
+    }
+
+    function showRecurringResults(data) {
+      const { results, summary } = data;
+
+      const rows = results.map(r => {
+        if (r.status === 'created') {
+          return `
+            <div style="display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid #eee;">
+              <span style="font-size:18px;">✅</span>
+              <div>
+                <div style="font-weight:700; text-transform:capitalize;">${r.date} — ${r.time}</div>
+                <div style="font-size:13px; color:#157347;">Reservada correctamente</div>
+              </div>
+            </div>
+          `;
+        } else {
+          return `
+            <div style="display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid #eee;">
+              <span style="font-size:18px;">❌</span>
+              <div>
+                <div style="font-weight:700; text-transform:capitalize;">${r.date} — ${r.time}</div>
+                <div style="font-size:13px; color:#842029;">${r.reason ?? 'No disponible'}</div>
+              </div>
+            </div>
+          `;
+        }
+      }).join('');
+
+      const summaryHtml = `
+        <div style="display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap;">
+          <div style="padding:8px 16px; border-radius:999px; background:#e8f7ee; color:#157347; font-weight:700; font-size:14px;">
+            ✓ ${summary.created} reservadas
+          </div>
+          ${summary.failed > 0 ? `
+            <div style="padding:8px 16px; border-radius:999px; background:#f8d7da; color:#842029; font-weight:700; font-size:14px;">
+              ✗ ${summary.failed} fallidas
+            </div>
+          ` : ''}
+        </div>
+      `;
+
+      const noteHtml = summary.created > 0 ? `
+        <div style="margin-top:14px; padding:12px 16px; border-radius:12px; background:#fff4db; border:1px solid #f5d48a; color:#9a6700; font-size:13px;">
+          Tenés <strong>30 minutos</strong> para pagar cada reserva desde <strong>Mis Reservas</strong>.
+        </div>
+      ` : '';
+
+      document.getElementById('recurringResultsBody').innerHTML = summaryHtml + rows + noteHtml;
+      document.getElementById('recurringResultsModal').style.display = 'block';
+    }
   </script>
+
+  {{-- Recurring configuration modal --}}
+  <div id="recurringModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:100;">
+    <div style="background:#fff; padding:24px; max-width:460px; margin:8% auto; border-radius:18px; box-shadow:0 12px 40px rgba(0,0,0,.18);">
+      <h3 style="margin:0 0 6px 0;">Reserva recurrente</h3>
+      <p class="muted" style="margin:0 0 20px 0; font-size:14px;">
+        Turno seleccionado: <strong id="recurringDateLabel"></strong>
+      </p>
+
+      <div style="margin-bottom:18px;">
+        <label style="display:block; font-size:13px; font-weight:700; margin-bottom:8px;">Frecuencia</label>
+        <div style="display:flex; gap:10px;">
+          <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:14px;">
+            <input type="radio" name="recurFrequency" value="weekly" checked>
+            Semanal
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:14px;">
+            <input type="radio" name="recurFrequency" value="biweekly">
+            Quincenal
+          </label>
+        </div>
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <label for="recurOccurrences" style="display:block; font-size:13px; font-weight:700; margin-bottom:8px;">
+          Cantidad de turnos
+        </label>
+        <select id="recurOccurrences" onchange="updateDiscountPreview()" style="padding:10px 12px; border:1px solid #ddd; border-radius:12px; background:#fff; width:100%; font-size:14px;">
+          <option value="2">2 turnos</option>
+          <option value="3">3 turnos</option>
+          <option value="4" selected>4 turnos (~1 mes)</option>
+          <option value="6">6 turnos (~1.5 meses)</option>
+          <option value="8">8 turnos (~2 meses)</option>
+          <option value="12">12 turnos (~3 meses)</option>
+        </select>
+      </div>
+
+      @php
+        $tiersJson = $recurringDiscounts->map(fn($t) => [
+          'min_occurrences' => $t->min_occurrences,
+          'discount_percentage' => (float) $t->discount_percentage,
+        ])->values()->toJson();
+      @endphp
+
+      <div id="discountPreview" style="display:none; margin-bottom:20px; padding:12px 16px; border-radius:12px; background:#e8f7ee; border:1px solid #cfe9d7; color:#157347; font-weight:700; font-size:14px;"></div>
+
+      @if($recurringDiscounts->isNotEmpty())
+        <div style="margin-bottom:20px; font-size:13px; color:#666;">
+          <strong style="color:#111;">Descuentos disponibles:</strong>
+          @foreach($recurringDiscounts as $t)
+            <div>{{ $t->min_occurrences }}+ turnos → {{ $t->discount_percentage }}% off</div>
+          @endforeach
+        </div>
+      @endif
+
+      <div style="display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;">
+        <button onclick="closeRecurringModal()" class="btn">Cancelar</button>
+        <button id="recurSubmitBtn" onclick="submitRecurring()" class="btn btn-primary">Crear reservas</button>
+      </div>
+    </div>
+  </div>
+
+  {{-- Results modal --}}
+  <div id="recurringResultsModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:100; overflow-y:auto;">
+    <div style="background:#fff; padding:24px; max-width:500px; margin:6% auto; border-radius:18px; box-shadow:0 12px 40px rgba(0,0,0,.18);">
+      <h3 style="margin:0 0 16px 0;">Resultado de reservas</h3>
+
+      <div id="recurringResultsBody"></div>
+
+      <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:20px; flex-wrap:wrap;">
+        <a href="{{ route('my_reservations') }}" class="btn btn-primary">Ir a Mis Reservas</a>
+        <button onclick="closeResultsModal()" class="btn">Cerrar</button>
+      </div>
+    </div>
+  </div>
 @endsection

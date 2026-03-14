@@ -11,11 +11,16 @@ class ReservationViewController extends Controller
     {
         $user = $request->user();
 
-        if ($reservation->user_id !== $user->id && $user->role !== 'super_admin') {
+        $reservation->load(['field.venue', 'user']);
+
+        $isOwner      = $reservation->user_id === $user->id;
+        $isSuperAdmin = $user->role === 'super_admin';
+        $isVenueAdmin = $user->role === 'venue_admin'
+            && $reservation->field->venue->owner_user_id === $user->id;
+
+        if (!$isOwner && !$isSuperAdmin && !$isVenueAdmin) {
             abort(403, 'No tenés permiso para ver esta reserva.');
         }
-
-        $reservation->load(['field.venue', 'user']);
 
         return view('reservations.show', compact('reservation'));
     }

@@ -37,6 +37,11 @@ class ScheduleController extends Controller
         ]);
 
         foreach ($data['days'] as $dow => $row) {
+            $dow = (int) $dow;
+            if ($dow < 0 || $dow > 6) {
+                continue;
+            }
+
             $isClosed = isset($row['is_closed']);
             $open = $row['open_time'] ?? null;
             $close = $row['close_time'] ?? null;

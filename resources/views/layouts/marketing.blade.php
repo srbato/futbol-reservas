@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>@yield('title', 'TuCancha')</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: #f7f7f8;
+      color: #111;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ── Header ─────────────────────────────────────── */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(255,255,255,.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid #ececec;
+    }
+
+    .header-inner,
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .header-inner {
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .nav a {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 14px;
+      color: #444;
+      transition: background .15s;
+    }
+
+    .nav a:hover { background: #f3f3f3; }
+
+    .nav-divider {
+      width: 1px;
+      height: 18px;
+      background: #e0e0e0;
+      margin: 0 4px;
+    }
+
+    /* ── Buttons ─────────────────────────────────────── */
+    .btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 14px;
+      border: 1px solid #ddd;
+      background: #fff;
+      cursor: pointer;
+      transition: transform .15s, box-shadow .15s;
+      font-family: inherit;
+    }
+
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,.08); }
+
+    .btn-primary {
+      background: #111;
+      color: #fff !important;
+      border-color: #111;
+    }
+
+    .btn-primary:hover { background: #222; }
+
+    .btn-ghost {
+      background: rgba(255,255,255,.1);
+      color: #fff !important;
+      border-color: rgba(255,255,255,.2);
+    }
+
+    .btn-ghost:hover { background: rgba(255,255,255,.18); }
+
+    /* ── Shared section styles ───────────────────────── */
+    .section { padding: 52px 0; }
+
+    .section-head { margin-bottom: 36px; }
+
+    .section-label {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: #f0f0f0;
+      font-size: 12px;
+      font-weight: 700;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-size: 36px;
+      letter-spacing: -0.02em;
+      margin: 0 0 10px 0;
+      line-height: 1.1;
+    }
+
+    .section-subtitle {
+      color: #666;
+      font-size: 16px;
+      line-height: 1.6;
+      max-width: 680px;
+      margin: 0;
+    }
+
+    /* ── Footer ──────────────────────────────────────── */
+    .footer {
+      background: #fff;
+      border-top: 1px solid #ececec;
+      padding: 32px 0;
+    }
+
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .footer-brand {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .footer-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      font-size: 14px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: #444;
+      font-weight: 600;
+      transition: color .15s;
+    }
+
+    .footer-links a:hover { color: #111; }
+
+    .footer-copy { font-size: 13px; color: #aaa; }
+
+    /* ── Responsive ──────────────────────────────────── */
+    @media (max-width: 768px) {
+      .section { padding: 36px 0; }
+      .section-title { font-size: 28px; }
+      .footer-inner { flex-direction: column; align-items: flex-start; gap: 16px; }
+    }
+
+    @media (max-width: 480px) {
+      .container { padding: 0 16px; }
+    }
+
+    @stack('styles')
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-inner">
+      <a href="{{ route('home') }}" class="brand">TuCancha</a>
+
+      <nav class="nav">
+        <a href="{{ url('/como-funciona') }}">Cómo funciona</a>
+        <a href="{{ url('/planes') }}">Planes</a>
+        <a href="{{ route('venues.index') }}">Complejos</a>
+        <a href="{{ route('nosotros') }}">Nosotros</a>
+        <div class="nav-divider"></div>
+        @auth
+          <a href="{{ route('venues.index') }}" class="btn btn-primary" style="margin-left:4px;">Ver complejos</a>
+        @else
+          <a href="{{ route('login') }}">Ingresar</a>
+          <a href="{{ route('register') }}" class="btn btn-primary" style="margin-left:4px;">Crear cuenta</a>
+        @endauth
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    @yield('content')
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-inner">
+        <span class="footer-brand">TuCancha</span>
+        <div class="footer-links">
+          <a href="{{ route('home') }}">Inicio</a>
+          <a href="{{ url('/como-funciona') }}">Cómo funciona</a>
+          <a href="{{ url('/planes') }}">Planes</a>
+          <a href="{{ route('venues.index') }}">Complejos</a>
+          <a href="{{ route('nosotros') }}">Nosotros</a>
+          <a href="mailto:tucancha10@gmail.com">tucancha10@gmail.com</a>
+        </div>
+        <span class="footer-copy">© {{ date('Y') }} TuCancha</span>
+      </div>
+    </div>
+  </footer>
+
+  @stack('scripts')
+
+</body>
+</html>

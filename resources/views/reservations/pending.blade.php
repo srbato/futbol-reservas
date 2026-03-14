@@ -48,4 +48,35 @@
         <a href="{{ route('my_reservations') }}" class="btn btn-primary">Ver mis reservas</a>
     </div>
 </div>
+
+<script>
+    // Polling: verificar si el pago fue aprobado y recargar automáticamente
+    const reservationId = {{ $reservation->id }};
+    let attempts = 0;
+    const maxAttempts = 20;
+
+    function checkStatus() {
+        if (attempts >= maxAttempts) return;
+        attempts++;
+
+        fetch(`/reservations/${reservationId}/status`)
+            .then(r => {
+                if (r.status === 401) { window.location.href = '/login'; return null; }
+                return r.json();
+            })
+            .then(data => {
+                if (!data) return;
+                if (data.status === 'PAID') {
+                    window.location.href = '/reservation-success/' + reservationId;
+                } else if (data.status === 'CANCELLED' || data.status === 'EXPIRED') {
+                    window.location.href = '/reservation-failure/' + reservationId;
+                } else {
+                    setTimeout(checkStatus, 3000);
+                }
+            })
+            .catch(() => setTimeout(checkStatus, 3000));
+    }
+
+    setTimeout(checkStatus, 3000);
+</script>
 @endsection

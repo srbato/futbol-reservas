@@ -5,6 +5,7 @@ namespace App\Http\Controllers\VenueAdmin;
 use App\Http\Controllers\Controller;
 use App\Models\Field;
 use App\Models\FieldPrice;
+use App\Models\MembershipPlan;
 use App\Models\Venue;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -22,8 +23,32 @@ class FieldController extends Controller
 
     public function store(Request $request, Venue $venue)
     {
-        if ($venue->owner_user_id !== $request->user()->id && $request->user()->role !== 'super_admin') {
+        $user = $request->user();
+
+        if ($venue->owner_user_id !== $user->id && $user->role !== 'super_admin') {
             abort(403);
+        }
+
+        // Enforce plan field limit (super_admin is exempt)
+        if ($user->role !== 'super_admin') {
+            $subscription = $user->activeVenueAdminSubscription()->first();
+            $plan = $subscription?->plan_slug
+                ? MembershipPlan::where('slug', $subscription->plan_slug)->first()
+                : null;
+
+            if ($plan && $plan->max_fields !== null) {
+                $activeFieldCount = Field::whereHas('venue', fn($q) => $q->where('owner_user_id', $user->id))
+                    ->where('is_active', true)
+                    ->count();
+
+                if ($activeFieldCount >= $plan->max_fields) {
+                    return back()->with('error',
+                        "Tu plan {$plan->name} permite hasta {$plan->max_fields} " .
+                        ($plan->max_fields === 1 ? 'cancha activa' : 'canchas activas') .
+                        ". Desactivá una cancha existente o actualizá tu plan para agregar más."
+                    );
+                }
+            }
         }
 
         $data = $request->validate([
@@ -125,8 +150,34 @@ class FieldController extends Controller
 
     public function toggleActive(Request $request, Field $field)
     {
-        if ($field->venue->owner_user_id !== $request->user()->id && $request->user()->role !== 'super_admin') {
+        $user = $request->user();
+        $field->load('venue');
+
+        if ($field->venue->owner_user_id !== $user->id && $user->role !== 'super_admin') {
             abort(403);
+        }
+
+        // If re-activating, enforce plan limit
+        if (!$field->is_active && $user->role !== 'super_admin') {
+            $subscription = $user->activeVenueAdminSubscription()->first();
+            $plan = $subscription?->plan_slug
+                ? MembershipPlan::where('slug', $subscription->plan_slug)->first()
+                : null;
+
+            if ($plan && $plan->max_fields !== null) {
+                $activeFieldCount = Field::whereHas('venue', fn($q) => $q->where('owner_user_id', $user->id))
+                    ->where('is_active', true)
+                    ->count();
+
+                if ($activeFieldCount >= $plan->max_fields) {
+                    return redirect()->route('va.dashboard')
+                        ->with('error',
+                            "Tu plan {$plan->name} permite hasta {$plan->max_fields} " .
+                            ($plan->max_fields === 1 ? 'cancha activa' : 'canchas activas') .
+                            ". Desactivá otra cancha antes de reactivar esta."
+                        );
+                }
+            }
         }
 
         $field->is_active = !$field->is_active;

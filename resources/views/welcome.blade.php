@@ -1,545 +1,440 @@
-<!doctype html>
-<html lang="es">
-<head>
-  <meta charset="utf-8">
-  <title>TuCancha</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    * { box-sizing: border-box; }
+@extends('layouts.marketing')
 
-    html {
-      scroll-behavior: smooth;
-    }
+@section('title', 'TuCancha — Reservá tu cancha al instante')
 
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: #f7f7f8;
-      color: #111;
-    }
+@push('styles')
+  /* ── Hero ────────────────────────────────────────── */
+  .hero { padding: 40px 0 0 0; }
 
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
+  .hero-inner {
+    background: linear-gradient(135deg, #111 0%, #1f1f1f 100%);
+    border-radius: 28px;
+    padding: 52px 48px 48px 48px;
+    color: #fff;
+  }
 
-    .header {
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      background: rgba(255,255,255,.95);
-      backdrop-filter: blur(8px);
-      border-bottom: 1px solid #ececec;
-    }
+  .hero-label {
+    display: inline-block;
+    padding: 5px 14px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.15);
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,.85);
+    margin-bottom: 22px;
+    letter-spacing: .02em;
+  }
 
-    .header-inner,
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 0 24px;
-    }
+  .hero-inner h1 {
+    margin: 0 0 16px 0;
+    font-size: 62px;
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    max-width: 780px;
+  }
 
-    .header-inner {
-      min-height: 76px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
+  .hero-inner > p {
+    margin: 0 0 30px 0;
+    color: rgba(255,255,255,.8);
+    font-size: 19px;
+    line-height: 1.6;
+    max-width: 640px;
+  }
 
-    .brand {
-      font-size: 24px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-    }
+  .hero-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
 
-    .nav {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
+  /* ── Quick search ────────────────────────────────── */
+  .search-bar {
+    background: #fff;
+    border: 1px solid #ececec;
+    border-radius: 20px;
+    box-shadow: 0 4px 24px rgba(0,0,0,.06);
+    padding: 20px 24px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+  }
 
-    .nav a,
-    .nav button,
-    .btn {
-      display: inline-block;
-      border: 1px solid #ddd;
-      background: #fff;
-      padding: 10px 16px;
-      border-radius: 999px;
-      font-weight: 700;
-      font-size: 14px;
-      cursor: pointer;
-    }
+  .search-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    min-width: 150px;
+  }
 
-    .btn-primary,
-    .nav .btn-primary {
-      background: #111;
-      color: #fff;
-      border-color: #111;
-    }
+  .search-field label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: #888;
+  }
 
-    .hero {
-      padding: 56px 0 36px 0;
-    }
+  .search-field select,
+  .search-field input {
+    padding: 11px 14px;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    font: inherit;
+    font-size: 14px;
+    background: #fafafa;
+    color: #111;
+    outline: none;
+    transition: border-color .15s;
+  }
 
-    .hero-grid {
-      display: grid;
-      grid-template-columns: 1.2fr .8fr;
-      gap: 24px;
-      align-items: stretch;
-    }
+  .search-field select:focus,
+  .search-field input:focus { border-color: #111; background: #fff; }
 
-    .hero-main,
-    .hero-side,
-    .section-card,
-    .contact-card {
-      background: #fff;
-      border: 1px solid #ececec;
-      border-radius: 28px;
-      box-shadow: 0 6px 24px rgba(0,0,0,.04);
-    }
+  .search-btn {
+    padding: 12px 28px;
+    border-radius: 12px;
+    background: #111;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: background .15s, transform .15s;
+    white-space: nowrap;
+    font-family: inherit;
+  }
 
-    .hero-main {
-      padding: 34px;
-      background: linear-gradient(135deg, #111 0%, #1f1f1f 100%);
-      color: #fff;
-    }
+  .search-btn:hover { background: #333; transform: translateY(-1px); }
 
-    .hero-main h1 {
-      margin: 0 0 14px 0;
-      font-size: 58px;
-      line-height: 1.02;
-      letter-spacing: -0.03em;
-      max-width: 760px;
-    }
+  /* ── Why cards ───────────────────────────────────── */
+  .why-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
 
-    .hero-main p {
-      margin: 0;
-      color: rgba(255,255,255,.84);
-      font-size: 18px;
-      line-height: 1.6;
-      max-width: 720px;
-    }
+  .why-card {
+    background: #fff;
+    border: 1px solid #ececec;
+    border-radius: 20px;
+    padding: 24px 22px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.03);
+    transition: transform .2s, box-shadow .2s;
+  }
 
-    .hero-actions {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 24px;
-    }
+  .why-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.08); }
 
-    .hero-actions .btn {
-      border-color: rgba(255,255,255,.18);
-      background: rgba(255,255,255,.08);
-      color: #fff;
-    }
+  .why-icon { font-size: 34px; margin-bottom: 14px; display: block; }
 
-    .hero-actions .btn-primary {
-      background: #fff;
-      color: #111;
-      border-color: #fff;
-    }
+  .why-card h3 { margin: 0 0 8px 0; font-size: 17px; font-weight: 800; }
 
-    .hero-side {
-      padding: 26px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 16px;
-    }
+  .why-card p { margin: 0; color: #666; font-size: 14px; line-height: 1.6; }
 
-    .mini-stat {
-      padding: 16px;
-      border-radius: 18px;
-      background: #f7f7f8;
-      border: 1px solid #eee;
-    }
+  /* ── Owner CTA (simplified) ──────────────────────── */
+  .owner-cta {
+    background: #111;
+    border-radius: 28px;
+    padding: 48px;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
 
-    .mini-stat .label {
-      font-size: 12px;
-      color: #666;
-      margin-bottom: 8px;
-    }
+  .owner-cta h2 {
+    margin: 0 0 10px 0;
+    font-size: 34px;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
 
-    .mini-stat .value {
-      font-size: 32px;
-      font-weight: 800;
-      line-height: 1;
-    }
+  .owner-cta p {
+    margin: 0;
+    color: rgba(255,255,255,.72);
+    font-size: 16px;
+    line-height: 1.6;
+    max-width: 560px;
+  }
 
-    .section {
-      padding: 18px 0 8px 0;
-    }
+  .owner-cta-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
 
-    .section-title {
-      font-size: 34px;
-      letter-spacing: -0.02em;
-      margin: 0 0 10px 0;
-    }
+  /* ── FAQ ─────────────────────────────────────────── */
+  .faq-list { display: flex; flex-direction: column; gap: 10px; }
 
-    .section-subtitle {
-      margin: 0 0 22px 0;
-      color: #666;
-      font-size: 16px;
-      max-width: 760px;
-      line-height: 1.6;
-    }
+  .faq-item {
+    background: #fff;
+    border: 1px solid #ececec;
+    border-radius: 16px;
+    overflow: hidden;
+    transition: box-shadow .2s;
+  }
 
-    .grid-3 {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 18px;
-    }
+  .faq-item.open { box-shadow: 0 4px 20px rgba(0,0,0,.07); }
 
-    .section-card {
-      padding: 22px;
-    }
+  .faq-trigger {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    cursor: pointer;
+    text-align: left;
+    font: inherit;
+  }
 
-    .section-card h3 {
-      margin: 0 0 10px 0;
-      font-size: 22px;
-    }
+  .faq-trigger-text { font-size: 16px; font-weight: 700; color: #111; }
 
-    .section-card p {
-      margin: 0;
-      color: #666;
-      line-height: 1.6;
-    }
+  .faq-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #f3f3f3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    color: #555;
+    flex-shrink: 0;
+    transition: transform .2s, background .2s;
+  }
 
-    .partners {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
-    }
+  .faq-item.open .faq-icon { transform: rotate(45deg); background: #111; color: #fff; }
 
-    .partner {
-      background: #fff;
-      border: 1px solid #ececec;
-      border-radius: 18px;
-      padding: 18px;
-      text-align: center;
-      font-weight: 700;
-      box-shadow: 0 4px 16px rgba(0,0,0,.03);
-    }
+  .faq-body {
+    display: none;
+    padding: 16px 24px 20px 24px;
+    color: #555;
+    font-size: 15px;
+    line-height: 1.7;
+    border-top: 1px solid #f0f0f0;
+  }
 
-    .cta {
-      padding: 26px;
-      border-radius: 28px;
-      background: #111;
-      color: #fff;
-      margin-top: 18px;
-    }
+  .faq-item.open .faq-body { display: block; }
 
-    .cta h2 {
-      margin: 0 0 10px 0;
-      font-size: 34px;
-    }
+  /* ── Responsive ──────────────────────────────────── */
+  @media (max-width: 1024px) {
+    .why-grid { grid-template-columns: repeat(2, 1fr); }
+  }
 
-    .cta p {
-      margin: 0;
-      color: rgba(255,255,255,.82);
-      line-height: 1.6;
-      max-width: 720px;
-    }
+  @media (max-width: 768px) {
+    .hero-inner { padding: 36px 24px 32px 24px; }
+    .hero-inner h1 { font-size: 38px; }
+    .hero-inner > p { font-size: 16px; }
+    .why-grid { grid-template-columns: 1fr; }
+    .owner-cta { padding: 36px 24px; flex-direction: column; align-items: flex-start; }
+    .owner-cta h2 { font-size: 26px; }
+    .search-bar { flex-direction: column; }
+    .search-field { min-width: 100%; }
+  }
 
-    .cta-actions {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 20px;
-    }
+  @media (max-width: 480px) {
+    .hero { padding: 16px 0 0 0; }
+    .hero-inner h1 { font-size: 30px; }
+  }
+@endpush
 
-    .cta-actions .btn {
-      background: rgba(255,255,255,.08);
-      color: #fff;
-      border-color: rgba(255,255,255,.16);
-    }
+@section('content')
 
-    .cta-actions .btn-primary {
-      background: #fff;
-      color: #111;
-      border-color: #fff;
-    }
+  {{-- ── Hero ─────────────────────────────────────────────────────── --}}
+  <section class="hero">
+    <div class="container">
+      <div class="hero-inner">
+        <span class="hero-label">🏟️ Plataforma de reservas deportivas</span>
+        <h1>Reservá tu cancha al instante.</h1>
+        <p>
+          Explorá los complejos disponibles en tu ciudad y reservá en segundos.
+          Sin llamadas, sin filas, sin complicaciones.
+        </p>
 
-    .contact {
-      padding: 28px 0 56px 0;
-    }
+        <div class="hero-actions">
+          <a href="{{ route('venues.index') }}" class="btn btn-primary">Ver complejos</a>
+          <a href="{{ route('planes') }}" class="btn btn-ghost">Sumá tu complejo</a>
+        </div>
+      </div>
 
-    .contact-card {
-      padding: 26px;
-    }
+      {{-- Quick search --}}
+      <form method="GET" action="{{ route('venues.index') }}" class="search-bar">
+        <div class="search-field">
+          <label for="qs-deporte">Deporte</label>
+          <select id="qs-deporte" name="deporte">
+            <option value="">Cualquier deporte</option>
+            <option value="futbol">Fútbol</option>
+            <option value="padel">Pádel</option>
+            <option value="tenis">Tenis</option>
+            <option value="basquet">Básquet</option>
+          </select>
+        </div>
 
-    .contact-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-      align-items: start;
-    }
+        <div class="search-field">
+          <label for="qs-fecha">Fecha</label>
+          <input
+            type="date"
+            id="qs-fecha"
+            name="fecha"
+            value="{{ now()->toDateString() }}"
+            min="{{ now()->toDateString() }}"
+          >
+        </div>
 
-    .contact-box {
-      padding: 18px;
-      border-radius: 18px;
-      background: #f7f7f8;
-      border: 1px solid #eee;
-    }
-
-    .contact-box h3 {
-      margin-top: 0;
-      margin-bottom: 8px;
-    }
-
-    .contact-box p {
-      margin: 0;
-      color: #666;
-      line-height: 1.6;
-    }
-
-    .contact-form {
-      display: grid;
-      gap: 12px;
-    }
-
-    .contact-form input,
-    .contact-form textarea {
-      width: 100%;
-      padding: 12px 14px;
-      border: 1px solid #ddd;
-      border-radius: 14px;
-      background: #fff;
-      font: inherit;
-    }
-
-    .footer {
-      padding: 18px 0 30px 0;
-      color: #666;
-      font-size: 14px;
-    }
-
-    @media (max-width: 980px) {
-      .hero-grid,
-      .grid-3,
-      .partners,
-      .contact-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .hero-main h1 {
-        font-size: 40px;
-      }
-    }
-  </style>
-</head>
-<body>
-  <header class="header">
-    <div class="header-inner">
-      <a href="{{ route('home') }}" class="brand">TuCancha</a>
-
-      <nav class="nav">
-        <a href="#como-funciona">Cómo funciona</a>
-        <a href="#socios">Socios</a>
-        <a href="#contacto">Contacto</a>
-
-        @auth
-          <a href="{{ route('venues.index') }}" class="btn-primary">Entrar al sistema</a>
-        @else
-          <a href="{{ route('login') }}">Ingresar</a>
-          <a href="{{ route('register') }}" class="btn-primary">Crear cuenta</a>
-        @endauth
-      </nav>
+        <button type="submit" class="search-btn">Buscar →</button>
+      </form>
     </div>
-  </header>
+  </section>
 
-  <main>
-    <section class="hero">
-      <div class="container">
-        <div class="hero-grid">
-          <div class="hero-main">
-            <h1>Reservas deportivas simples, rápidas y profesionales.</h1>
-            <p>
-              TuCancha conecta jugadores con complejos deportivos en una sola plataforma.
-              Reservá online, pagá en minutos y gestioná tus turnos desde cualquier lugar.
-            </p>
-
-            <div class="hero-actions">
-              @auth
-                <a href="{{ route('venues.index') }}" class="btn btn-primary">Ir a reservar</a>
-              @else
-                <a href="{{ route('register') }}" class="btn btn-primary">Empezar ahora</a>
-                <a href="{{ route('login') }}" class="btn">Ya tengo cuenta</a>
-              @endauth
-            </div>
-          </div>
-
-          <div class="hero-side">
-            <div class="mini-stat">
-              <div class="label">Qué ofrece el sistema</div>
-              <div class="value">Reservá, pagá y jugá</div>
-            </div>
-
-            <div class="mini-stat">
-              <div class="label">Para usuarios</div>
-              <div class="value">Búsqueda + favoritos + reseñas</div>
-            </div>
-
-            <div class="mini-stat">
-              <div class="label">Para complejos</div>
-              <div class="value">Panel admin + pagos + control</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="como-funciona" class="section">
-      <div class="container">
-        <h2 class="section-title">Qué hace TuCancha</h2>
+  {{-- ── ¿Por qué TuCancha? ────────────────────────────────────────── --}}
+  <section id="por-que" class="section">
+    <div class="container">
+      <div class="section-head">
+        <span class="section-label">Beneficios</span>
+        <h2 class="section-title">¿Por qué TuCancha?</h2>
         <p class="section-subtitle">
-          Diseñamos una plataforma para que reservar una cancha sea tan fácil como pedir un turno online.
-          También ayudamos a los complejos a ordenar sus reservas, cobros y operación diaria.
+          Diseñamos cada detalle para que reservar una cancha sea tan simple como mandar un mensaje.
         </p>
+      </div>
 
-        <div class="grid-3">
-          <div class="section-card">
-            <h3>Reservas online</h3>
-            <p>
-              Los usuarios pueden buscar complejos, revisar disponibilidad, elegir horario y confirmar su turno
-              desde una interfaz clara y rápida.
-            </p>
-          </div>
+      <div class="why-grid">
+        <div class="why-card">
+          <span class="why-icon">⚡</span>
+          <h3>Reservas al instante</h3>
+          <p>Elegí complejo, horario y confirmá tu turno en segundos. Sin esperas ni llamadas.</p>
+        </div>
 
-          <div class="section-card">
-            <h3>Pagos integrados</h3>
-            <p>
-              El sistema permite pagar online y confirmar automáticamente la reserva, reduciendo errores y
-              mejorando la experiencia del cliente.
-            </p>
-          </div>
+        <div class="why-card">
+          <span class="why-icon">💳</span>
+          <h3>Pago seguro con Mercado Pago</h3>
+          <p>Pagá online con tarjeta o efectivo. Tu reserva se confirma automáticamente.</p>
+        </div>
 
-          <div class="section-card">
-            <h3>Gestión para complejos</h3>
-            <p>
-              Los administradores pueden gestionar canchas, bloquear horarios, ver reservas, hacer check-in
-              y analizar el movimiento de su negocio.
-            </p>
-          </div>
+        <div class="why-card">
+          <span class="why-icon">📱</span>
+          <h3>Desde cualquier dispositivo</h3>
+          <p>Reservá desde el celular, la tablet o la computadora. La plataforma se adapta a tu pantalla.</p>
+        </div>
+
+        <div class="why-card">
+          <span class="why-icon">🔔</span>
+          <h3>Recordatorios por mail</h3>
+          <p>Confirmación inmediata y recordatorios para que no se te escape ningún turno.</p>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section id="socios" class="section">
-      <div class="container">
-        <h2 class="section-title">Nuestros socios</h2>
-        <p class="section-subtitle">
-          Trabajamos con complejos y aliados estratégicos para ofrecer una experiencia confiable, moderna y escalable.
-          Acá podés mostrar los nombres reales de tus socios cuando los tengas definidos.
-        </p>
-
-        <div class="partners">
-          <div class="partner">Socio 1</div>
-          <div class="partner">Socio 2</div>
-          <div class="partner">Socio 3</div>
-          <div class="partner">Socio 4</div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="container">
-        <div class="cta">
-          <h2>Entrá al sistema y empezá a reservar</h2>
+  {{-- ── Dueños (simplificado — los detalles están en /como-funciona) ── --}}
+  <section id="para-duenos" style="padding: 0 0 52px 0;">
+    <div class="container">
+      <div class="owner-cta">
+        <div>
+          <h2>Sumá tu complejo a TuCancha</h2>
           <p>
-            Si ya tenés una cuenta, podés ingresar y acceder al listado de complejos, reservar canchas,
-            guardar favoritos y administrar tus turnos.
+            Recibí reservas online 24/7, cobrá automáticamente y gestioná todo desde un panel simple.
+            Sin complicaciones técnicas.
           </p>
 
-          <div class="cta-actions">
-            @auth
-              <a href="{{ route('venues.index') }}" class="btn btn-primary">Ir a complejos</a>
-            @else
-              <a href="{{ route('login') }}" class="btn btn-primary">Iniciar sesión</a>
-              <a href="{{ route('register') }}" class="btn">Crear cuenta</a>
-            @endauth
+          <div class="owner-cta-actions">
+            <a href="{{ route('planes') }}" class="btn" style="background:#fff; color:#111; border-radius:14px; padding:12px 28px; font-size:15px;">
+              Quiero sumarme →
+            </a>
+            <a href="{{ url('/como-funciona') }}" class="btn btn-ghost" style="border-radius:14px; padding:12px 24px; font-size:14px;">
+              Ver cómo funciona
+            </a>
           </div>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section id="contacto" class="contact">
-      <div class="container">
-        <div class="contact-card">
-          <h2 class="section-title" style="margin-bottom:10px;">Contactanos</h2>
-          <p class="section-subtitle" style="margin-bottom:22px;">
-            Si querés sumar tu complejo a la plataforma o tenés dudas sobre el sistema, escribinos.
-          </p>
+  {{-- ── FAQ ──────────────────────────────────────────────────────── --}}
+  <section id="faq" class="section" style="padding-top: 0;">
+    <div class="container">
+      <div class="section-head">
+        <span class="section-label">Dudas frecuentes</span>
+        <h2 class="section-title">Preguntas frecuentes</h2>
+        <p class="section-subtitle">Todo lo que necesitás saber antes de hacer tu primera reserva.</p>
+      </div>
 
-          @if(session('success'))
-            <div style="margin-bottom:14px; padding:12px 14px; border-radius:12px; background:#e8f7ee; color:#157347; border:1px solid #cfe9d7;">
-                {{ session('success') }}
-            </div>
-        @endif
-
-        @if($errors->any())
-            <div style="margin-bottom:14px; padding:12px 14px; border-radius:12px; background:#f8d7da; color:#842029; border:1px solid #f1b9c0;">
-                Revisá los campos del formulario.
-            </div>
-        @endif
-
-          <div class="contact-grid">
-            <div class="contact-box">
-              <h3>¿Querés unirte a TuCancha?</h3>
-              <p>
-                Si administrás un complejo deportivo, podemos ayudarte a digitalizar tus reservas,
-                pagos y control diario.
-              </p>
-            </div>
-
-            <form method="POST" action="{{ route('contact.send') }}" class="contact-form">
-            @csrf
-
-            <input
-                type="text"
-                name="name"
-                value="{{ old('name') }}"
-                placeholder="Tu nombre"
-                required
-            >
-
-            <input
-                type="email"
-                name="email"
-                value="{{ old('email') }}"
-                placeholder="Tu email"
-                required
-            >
-
-            <input
-                type="text"
-                name="reason"
-                value="{{ old('reason') }}"
-                placeholder="Motivo de contacto"
-                required
-            >
-
-            <textarea
-                name="message"
-                rows="5"
-                placeholder="Contanos tu consulta"
-                required
-            >{{ old('message') }}</textarea>
-
-            <button type="submit" class="btn btn-primary">Enviar consulta</button>
-            </form>
+      <div class="faq-list">
+        <div class="faq-item">
+          <button class="faq-trigger" onclick="toggleFaq(this)">
+            <span class="faq-trigger-text">¿Cómo reservo una cancha?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-body">
+            Creá una cuenta, explorá los complejos, elegí la cancha y el horario.
+            Confirmás la reserva, pagás online y recibís la confirmación por mail en segundos.
           </div>
         </div>
 
-        <div class="footer">
-          © {{ date('Y') }} TuCancha — Sistema de reservas deportivas.
+        <div class="faq-item">
+          <button class="faq-trigger" onclick="toggleFaq(this)">
+            <span class="faq-trigger-text">¿Cómo sé si mi reserva está confirmada?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-body">
+            Una vez aprobado el pago tu reserva pasa a estado <strong>Confirmada</strong> automáticamente.
+            Recibís un mail con los detalles y un código de verificación para presentar en el complejo.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-trigger" onclick="toggleFaq(this)">
+            <span class="faq-trigger-text">¿Puedo cancelar una reserva?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-body">
+            Sí. Podés cancelar desde "Mis reservas" antes de que empiece el turno.
+            Si el pago fue procesado, se inicia el reintegro automáticamente a través de Mercado Pago.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-trigger" onclick="toggleFaq(this)">
+            <span class="faq-trigger-text">¿Qué métodos de pago aceptan?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-body">
+            Aceptamos todos los métodos de Mercado Pago: tarjetas de crédito y débito, transferencia bancaria
+            y efectivo en puntos de pago. El proceso es 100% seguro.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-trigger" onclick="toggleFaq(this)">
+            <span class="faq-trigger-text">¿Cómo me registro?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-body">
+            Hacé clic en "Crear cuenta", completá tu nombre, mail y contraseña.
+            En menos de un minuto tenés tu cuenta lista. No se requiere tarjeta para registrarse.
+          </div>
         </div>
       </div>
-    </section>
-  </main>
-</body>
-</html>
+    </div>
+  </section>
+
+@endsection
+
+@push('scripts')
+<script>
+  function toggleFaq(trigger) {
+    const item = trigger.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  }
+</script>
+@endpush

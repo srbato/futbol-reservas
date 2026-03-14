@@ -9,8 +9,14 @@ use Illuminate\Support\Facades\Storage;
 
 class VenueController extends Controller
 {
-    public function create()
+    public function create(Request $request)
     {
+        $user = $request->user();
+        if ($user->role !== 'super_admin' && Venue::where('owner_user_id', $user->id)->exists()) {
+            return redirect()->route('va.dashboard')
+                ->with('error', 'Ya tenés un complejo creado. Solo podés administrar un complejo por cuenta.');
+        }
+
         return view('va.venues.create');
     }
 
@@ -26,8 +32,14 @@ class VenueController extends Controller
             'lng' => ['nullable', 'numeric', 'between:-180,180'],
         ]);
 
+        $user = $request->user();
+        if ($user->role !== 'super_admin' && Venue::where('owner_user_id', $user->id)->exists()) {
+            return redirect()->route('va.dashboard')
+                ->with('error', 'Ya tenés un complejo creado. Solo podés administrar un complejo por cuenta.');
+        }
+
         $venue = new Venue();
-        $venue->owner_user_id = $request->user()->id;
+        $venue->owner_user_id = $user->id;
         $venue->name = $data['name'];
         $venue->description = $data['description'] ?? null;
         $venue->address = $data['address'] ?? null;
@@ -62,14 +74,13 @@ class VenueController extends Controller
         }
 
        $data = $request->validate([
-            'name'             => ['required', 'string', 'max:120'],
-            'description'      => ['nullable', 'string', 'max:255'],
-            'cover_image'      => ['nullable', 'image', 'max:4096'],
-            'address'          => ['nullable', 'string', 'max:200'],
-            'zone'             => ['nullable', 'string', 'max:120'],
-            'lat'              => ['nullable', 'numeric', 'between:-90,90'],
-            'lng'              => ['nullable', 'numeric', 'between:-180,180'],
-            'mp_access_token'  => ['nullable', 'string', 'max:255'],
+            'name'        => ['required', 'string', 'max:120'],
+            'description' => ['nullable', 'string', 'max:255'],
+            'cover_image' => ['nullable', 'image', 'max:4096'],
+            'address'     => ['nullable', 'string', 'max:200'],
+            'zone'        => ['nullable', 'string', 'max:120'],
+            'lat'         => ['nullable', 'numeric', 'between:-90,90'],
+            'lng'         => ['nullable', 'numeric', 'between:-180,180'],
         ]);
 
         $venue->name        = $data['name'];
@@ -78,13 +89,6 @@ class VenueController extends Controller
         $venue->zone        = $data['zone'] ?? null;
         $venue->lat         = $data['lat'] ?? null;
         $venue->lng         = $data['lng'] ?? null;
-
-        // Solo actualizamos el token si el admin escribió algo nuevo
-        // (no los puntos de placeholder que mostramos cuando ya hay uno guardado)
-        $nuevoToken = $data['mp_access_token'] ?? null;
-        if ($nuevoToken && !str_starts_with($nuevoToken, '••')) {
-            $venue->mp_access_token = $nuevoToken;
-        }
 
         if ($request->hasFile('cover_image')) {
             if ($venue->cover_image_path) {

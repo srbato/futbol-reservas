@@ -19,19 +19,31 @@ class CheckinController extends Controller
             'code' => ['required','string']
         ]);
 
-        $reservation = Reservation::where('verification_code', $data['code'])->first();
+        $user = $request->user();
+
+        $reservation = Reservation::where('verification_code', $data['code'])
+            ->when($user->role !== 'super_admin', function ($q) use ($user) {
+                $q->whereHas('field.venue', function ($q2) use ($user) {
+                    $q2->where('owner_user_id', $user->id);
+                });
+            })
+            ->first();
 
         if (!$reservation) {
-            return back()->with('error','Código inválido');
+            return back()->with('error', 'Código inválido o no pertenece a tus canchas.');
+        }
+
+        if ($reservation->status === 'CHECKED_IN') {
+            return back()->with('error', 'Esta reserva ya fue validada.');
         }
 
         if ($reservation->status !== 'PAID') {
-            return back()->with('error','La reserva no está pagada');
+            return back()->with('error', 'La reserva no está pagada.');
         }
 
         $reservation->status = 'CHECKED_IN';
         $reservation->save();
 
-        return back()->with('success','Check-in realizado correctamente');
+        return back()->with('success', 'Check-in realizado correctamente.');
     }
 }

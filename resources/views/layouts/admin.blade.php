@@ -137,6 +137,7 @@
       }
     }
   </style>
+  @stack('styles')
 </head>
 <body>
   @php
@@ -183,13 +184,26 @@
             Mensajes
           </a>
         @endif
+
+        @if(auth()->user()->role === 'super_admin')
+          <a href="{{ route('sa.plans.index') }}" class="{{ request()->routeIs('sa.plans.*') ? 'active' : '' }}">
+            Planes
+          </a>
+        @endif
       </nav>
+
+      @php
+        $userHasVenue = auth()->user()->role === 'super_admin'
+            || \App\Models\Venue::where('owner_user_id', auth()->id())->exists();
+      @endphp
 
       <div class="admin-section-title">Gestión</div>
       <nav class="admin-nav">
-        <a href="{{ route('va.venues.create') }}" class="{{ request()->routeIs('va.venues.create') ? 'active' : '' }}">
-          Crear complejo
-        </a>
+        @if(!$userHasVenue)
+          <a href="{{ route('va.venues.create') }}" class="{{ request()->routeIs('va.venues.create') ? 'active' : '' }}">
+            Crear complejo
+          </a>
+        @endif
       </nav>
 
       <div class="admin-section-title">Navegación</div>

@@ -11,6 +11,10 @@ use App\Http\Controllers\PaymentDevController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReservationCancelController;
 use App\Http\Controllers\ReservationController;
+use App\Http\Controllers\RecurringReservationController;
+use App\Http\Controllers\ReservationBatchCheckoutController;
+use App\Http\Controllers\ReservationBatchMercadoPagoController;
+use App\Http\Controllers\VenueAdmin\FieldRecurringDiscountController as VaFieldRecurringDiscountController;
 use App\Http\Controllers\ReservationViewController;
 use App\Http\Controllers\SystemMessageDismissController;
 use App\Http\Controllers\VenueController;
@@ -30,7 +34,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\VenueAdminMembershipController;
-use App\Http\Controllers\VenueAdmin\MercadoPagoOAuthController;
+use App\Http\Controllers\MercadoPagoOAuthController;
+use App\Http\Controllers\SuperAdmin\MembershipPlanController;
+use App\Http\Controllers\ReferralController;
+use App\Models\MembershipPlan;
 
 
 /*
@@ -42,6 +49,19 @@ use App\Http\Controllers\VenueAdmin\MercadoPagoOAuthController;
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
+
+Route::get('/como-funciona', function () {
+    return view('como-funciona');
+})->name('como-funciona');
+
+Route::get('/nosotros', function () {
+    return view('nosotros');
+})->name('nosotros');
+
+Route::get('/planes', function () {
+    $plans = MembershipPlan::where('is_active', true)->orderBy('sort_order')->get();
+    return view('planes', compact('plans'));
+})->name('planes');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -93,6 +113,10 @@ Route::get('/fields/{field}/availability', [AvailabilityController::class, 'show
 
 Route::middleware(['auth', 'active.user'])->group(function () {
     Route::post('/reservations', [ReservationController::class, 'store'])->name('reservations.store');
+    Route::post('/reservations/recurring', [RecurringReservationController::class, 'store'])->name('reservations.recurring');
+
+    Route::get('/batches/{batch}/checkout', [ReservationBatchCheckoutController::class, 'show'])->name('batches.checkout');
+    Route::post('/batches/{batch}/mercadopago', [ReservationBatchMercadoPagoController::class, 'checkout'])->name('batches.mercadopago');
 
     Route::get('/reservations/{reservation}', [ReservationViewController::class, 'show'])
         ->name('reservations.show');
@@ -111,6 +135,10 @@ Route::middleware(['auth', 'active.user'])->group(function () {
 
     Route::post('/reservations/{reservation}/cancel', [ReservationCancelController::class, 'cancelByUser'])
         ->name('reservations.cancel');
+
+    Route::get('/referral', [ReferralController::class, 'index'])->name('referral.index');
+    Route::post('/referral/redeem-reservation/{reservation}', [ReferralController::class, 'redeemReservation'])->name('referral.redeem_reservation');
+    Route::post('/referral/redeem-month/{reward}', [ReferralController::class, 'redeemMonth'])->name('referral.redeem_month');
 });
 
 /*
@@ -121,6 +149,29 @@ Route::middleware(['auth', 'active.user'])->group(function () {
 
 Route::post('/webhooks/mercadopago', [MercadoPagoWebhookController::class, 'handle'])
     ->name('webhooks.mercadopago');
+
+Route::get('/batch-success/{batch}', function (\App\Models\ReservationBatch $batch) {
+    $batch->load(['field.venue', 'reservations' => fn($q) => $q->orderBy('start_at')]);
+    return view('batches.success', compact('batch'));
+})->name('batches.success');
+
+Route::get('/batch-pending/{batch}', function (\App\Models\ReservationBatch $batch) {
+    return view('batches.pending', compact('batch'));
+})->name('batches.pending');
+
+Route::get('/batch-failure/{batch}', function (\App\Models\ReservationBatch $batch) {
+    $batch->load(['field.venue']);
+    return view('batches.failure', compact('batch'));
+})->name('batches.failure');
+
+Route::get('/batches/{batch}/status', function (\App\Models\ReservationBatch $batch) {
+    $user = auth()->user();
+    if (!$user) return response()->json(['error' => 'unauthenticated'], 401);
+    if ($batch->user_id !== $user->id && $user->role !== 'super_admin') {
+        return response()->json(['error' => 'forbidden'], 403);
+    }
+    return response()->json(['status' => $batch->status]);
+})->middleware('auth')->name('batches.status');
 
 Route::get('/reservation-success/{reservation}', function (\App\Models\Reservation $reservation) {
     return view('reservations.success', compact('reservation'));
@@ -243,6 +294,10 @@ Route::middleware(['auth', 'active.user', 'role:venue_admin,super_admin'])->pref
         Route::get('/reports', [VaReportsController::class, 'index'])->name('va.reports');
         Route::get('/reports/export', [VaReportsController::class, 'export'])->name('va.reports.export');
 
+        // Recurring discounts
+        Route::post('/recurring-discounts', [VaFieldRecurringDiscountController::class, 'store'])->name('va.recurring_discounts.store');
+        Route::post('/recurring-discounts/{recurringDiscount}/delete', [VaFieldRecurringDiscountController::class, 'destroy'])->name('va.recurring_discounts.destroy');
+
         // Mercado Pago OAuth
         Route::get('/venues/{venue}/mp-connect', [MercadoPagoOAuthController::class, 'redirect'])->name('va.mp_oauth.redirect');
         Route::post('/venues/{venue}/mp-disconnect', [MercadoPagoOAuthController::class, 'disconnect'])->name('va.mp_oauth.disconnect');
@@ -302,10 +357,29 @@ Route::middleware(['auth', 'active.user'])->group(function () {
     Route::post('/sa/users/{user}/activate',
         [UserManagementController::class, 'activate']
     )->name('sa.users.activate');
+
+    Route::get('/sa/plans', [MembershipPlanController::class, 'index'])
+        ->name('sa.plans.index');
+
+    Route::post('/sa/plans/{plan}', [MembershipPlanController::class, 'update'])
+        ->name('sa.plans.update');
 });
 
+// Solo devuelve el status; el usuario debe ser dueño de la reserva o super_admin.
+// Si no está autenticado (ej: regresó de MP sin sesión activa) devuelve 401
+// para que el frontend muestre mensaje apropiado.
 Route::get('/reservations/{reservation}/status', function (\App\Models\Reservation $reservation) {
+    $user = auth()->user();
+
+    if (!$user) {
+        return response()->json(['error' => 'unauthenticated'], 401);
+    }
+
+    if ($reservation->user_id !== $user->id && $user->role !== 'super_admin') {
+        return response()->json(['error' => 'forbidden'], 403);
+    }
+
     return response()->json(['status' => $reservation->status]);
-});
+})->middleware('auth');
 
 require __DIR__ . '/auth.php';

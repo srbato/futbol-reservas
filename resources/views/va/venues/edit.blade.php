@@ -61,36 +61,6 @@
           </div>
         @endif
 
-        {{-- Sección Mercado Pago --}}
-        <div style="border:1px solid #e0e0e0; border-radius:12px; padding:16px; background:#fafafa;">
-          <div style="font-weight:700; margin-bottom:4px;">Mercado Pago</div>
-          <div style="font-size:13px; color:#666; margin-bottom:12px;">
-            Pegá tu <strong>Access Token de producción</strong> para que los pagos de este complejo lleguen directamente a tu cuenta.
-            Lo encontrás en
-            <a href="https://www.mercadopago.com.ar/developers/panel/app" target="_blank">mercadopago.com.ar → Desarrolladores → Credenciales de producción</a>.
-          </div>
-
-          @if($venue->mp_access_token)
-            <div style="margin-bottom:10px; padding:10px 14px; background:#e8f5e9; border-radius:8px; color:#2e7d32; font-size:13px; font-weight:600;">
-              ✓ Cuenta de Mercado Pago conectada
-            </div>
-          @endif
-
-          <div>
-            <label style="font-size:13px;">Access Token</label><br>
-            <input
-              name="mp_access_token"
-              type="password"
-              value="{{ old('mp_access_token', $venue->mp_access_token ? '••••••••••••••••' : '') }}"
-              placeholder="APP_USR-..."
-              autocomplete="off"
-              style="width:100%; padding:10px; border:1px solid #ddd; border-radius:10px; font-family:monospace; font-size:13px;">
-            <div style="font-size:12px; color:#999; margin-top:4px;">
-              Dejá el campo vacío si no querés modificarlo.
-            </div>
-          </div>
-        </div>
-
         <div style="display:flex; gap:10px; align-items:center;">
           <button type="submit" style="padding:10px 14px; border:0; background:#111; color:#fff; border-radius:10px; cursor:pointer;">
             Guardar
@@ -99,5 +69,41 @@
         </div>
       </div>
     </form>
+  </div>
+
+  {{-- Sección Mercado Pago (fuera del form principal, acciones propias) --}}
+  <div class="admin-card" style="margin-top:18px; max-width:700px;">
+    <div style="font-weight:700; font-size:16px; margin-bottom:4px;">Mercado Pago</div>
+    <div style="font-size:13px; color:#666; margin-bottom:16px;">
+      Conectá tu cuenta de Mercado Pago para que los cobros de este complejo lleguen directamente a tu billetera.
+    </div>
+
+    @if($venue->mp_access_token)
+      <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+        <div style="padding:10px 16px; background:#e8f5e9; border:1px solid #c8e6c9; border-radius:10px; color:#2e7d32; font-size:14px; font-weight:600;">
+          ✓ Cuenta conectada
+        </div>
+
+        <form method="POST" action="{{ route('va.mp_oauth.disconnect', $venue) }}"
+              onsubmit="return confirm('¿Desconectar la cuenta de Mercado Pago de este complejo?')">
+          @csrf
+          <button type="submit"
+                  style="padding:10px 16px; border:1px solid #ddd; background:#fff; border-radius:10px; cursor:pointer; font-size:14px; color:#666;">
+            Desconectar
+          </button>
+        </form>
+      </div>
+    @else
+      <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+        <div style="padding:10px 16px; background:#fff3cd; border:1px solid #ffeaa7; border-radius:10px; color:#856404; font-size:14px;">
+          Sin cuenta conectada — los pagos irán a la cuenta general de TuCancha.
+        </div>
+
+        <a href="{{ route('va.mp_oauth.redirect', $venue) }}"
+           style="padding:10px 16px; background:#009ee3; color:#fff; border-radius:10px; text-decoration:none; font-size:14px; font-weight:600;">
+          Conectar Mercado Pago
+        </a>
+      </div>
+    @endif
   </div>
 @endsection

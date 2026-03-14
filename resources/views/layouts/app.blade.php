@@ -273,11 +273,18 @@
     text-decoration: none;
     border: 1px solid #ddd;
     background: #fff;
+    color: #111;
     padding: 10px 16px;
     border-radius: 10px;
     font-weight: 700;
+    font-size: 14px;
+    font-family: inherit;
     transition: all .15s ease;
     width: auto;
+    cursor: pointer;
+    line-height: 1.4;
+    -webkit-appearance: none;
+    appearance: none;
   }
 
   .btn:hover {
@@ -603,19 +610,89 @@
       max-width: 88%;
     }
   }
+
+  /* ── Mobile ────────────────────────────────────── */
+  @media (max-width: 600px) {
+    .site-header-inner {
+      padding: 10px 16px;
+      gap: 10px;
+    }
+
+    .site-nav {
+      gap: 6px;
+    }
+
+    .site-nav a,
+    .site-nav button {
+      padding: 7px 11px;
+      font-size: 13px;
+    }
+
+    .site-main {
+      padding: 16px 14px 32px 14px;
+    }
+
+    .page-card {
+      padding: 14px;
+    }
+
+    .hero {
+      grid-template-columns: 1fr;
+      padding: 22px 18px;
+      min-height: unset;
+      margin-bottom: 18px;
+    }
+
+    .hero h1 {
+      font-size: 32px;
+    }
+
+    .hero p {
+      font-size: 15px;
+    }
+
+    .hero-box {
+      padding: 16px;
+    }
+
+    .hero-box strong {
+      font-size: 30px;
+    }
+
+    .section-title {
+      font-size: 22px;
+    }
+
+    .grid-venues {
+      grid-template-columns: 1fr;
+    }
+
+    .toolbar {
+      padding: 14px;
+      gap: 10px;
+    }
+
+    .toolbar input,
+    .toolbar select {
+      min-width: 0;
+      width: 100%;
+    }
+  }
+
+  @stack('styles')
 </style>
 </head>
 <body>
   <header class="site-header">
     <div class="site-header-inner">
-      <a href="{{ route('venues.index') }}" class="brand">TuCancha</a>
+      <a href="{{ route('home') }}" class="brand">TuCancha</a>
 
       <nav class="site-nav">
         <a href="{{ route('venues.index') }}">Complejos</a>
 
         @auth
           @if(auth()->user()->role === 'user')
-            <a href="{{ route('membership.become') }}">Hacete socio</a>
+            <a href="{{ route('planes') }}">Hacete socio</a>
           @endif
 
         <div class="user-menu-wrap">
@@ -637,8 +714,9 @@
 
             <div id="userDropdown" class="user-dropdown">
               <a href="{{ route('profile.edit') }}">Perfil</a>
-              <a href="/my-reservations">Mis reservas</a>
+              <a href="{{ route('my_reservations') }}">Mis reservas</a>
               <a href="{{ route('venues.favorites') }}">Favoritos</a>
+              <a href="{{ route('referral.index') }}">Mis referidos</a>
 
               @if(in_array(auth()->user()->role, ['venue_admin', 'super_admin']))
                 <a href="{{ route('va.dashboard') }}">Panel admin</a>

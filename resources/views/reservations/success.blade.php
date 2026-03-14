@@ -40,7 +40,7 @@
             <p style="margin:0;"><strong>Horario:</strong> {{ $reservation->start_at->format('H:i') }} - {{ $reservation->end_at->format('H:i') }}</p>
             <p style="margin:0;"><strong>Estado actual:</strong> {{ $reservation->status }}</p>
 
-            @if($reservation->status === 'PAID')
+            @if($reservation->status === 'PAID' && auth()->check() && auth()->id() === $reservation->user_id)
                 <p style="margin:0;">
                     <strong>Código de verificación:</strong>
                     <span style="font-size:22px; font-weight:800;">
@@ -87,8 +87,21 @@
         attempts++;
 
         fetch(`/reservations/${reservationId}/status`)
-            .then(r => r.json())
+            .then(r => {
+                if (r.status === 401) {
+                    // Sesión expirada: redirigir al login
+                    window.location.href = '/login';
+                    return null;
+                }
+                if (r.status === 403) {
+                    document.getElementById('pollingText').innerText = 'No tenés permiso para ver esta reserva.';
+                    document.getElementById('pollingDot').style.background = '#842029';
+                    return null;
+                }
+                return r.json();
+            })
             .then(data => {
+                if (!data) return;
                 if (data.status === 'PAID') {
                     window.location.reload();
                 } else {

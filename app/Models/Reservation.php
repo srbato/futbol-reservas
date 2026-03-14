@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Reservation extends Model
 {
     protected $fillable = [
+        'batch_id',
         'field_id',
         'user_id',
         'start_at',
@@ -21,7 +22,9 @@ class Reservation extends Model
         'payment_external_id',
         'payment_status',
         'mp_preference_id',
+        'payment_mp_token_owner',
         'reminder_sent',
+        'referral_reward_id',
     ];
 
     protected $casts = [
@@ -39,5 +42,10 @@ class Reservation extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function batch(): BelongsTo
+    {
+        return $this->belongsTo(ReservationBatch::class, 'batch_id');
     }
 }

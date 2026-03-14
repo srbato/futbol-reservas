@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Reservation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class MercadoPagoController extends Controller
 {
@@ -55,23 +56,32 @@ class MercadoPagoController extends Controller
 
         // Sin marketplace por ahora
 
-        $response = Http::withoutVerifying()
+        $response = Http::withOptions(['verify' => !app()->isLocal()])
             ->withToken($accessToken)
             ->post('https://api.mercadopago.com/checkout/preferences', $payload);
 
         if (!$response->successful()) {
-            dd($response->status(), $response->json(), $response->body());
+            Log::error('MercadoPago: error al crear preferencia de pago', [
+                'reservation_id' => $reservation->id,
+                'status'         => $response->status(),
+            ]);
+            return back()->with('error', 'No se pudo iniciar el pago. Por favor, intentá de nuevo.');
         }
 
         $data = $response->json();
 
         if (!isset($data['init_point'])) {
-            dd('Mercado Pago no devolvió init_point', $data);
+            Log::error('MercadoPago: respuesta sin init_point', [
+                'reservation_id' => $reservation->id,
+                'response'       => $data,
+            ]);
+            return back()->with('error', 'Respuesta inesperada de Mercado Pago. Por favor, intentá de nuevo.');
         }
 
         $reservation->update([
-            'payment_provider'  => 'mercadopago',
-            'mp_preference_id'  => $data['id'] ?? null,
+            'payment_provider'       => 'mercadopago',
+            'mp_preference_id'       => $data['id'] ?? null,
+            'payment_mp_token_owner' => $isMarketplace ? 'venue' : 'platform',
         ]);
 
         return redirect()->away($data['init_point']);

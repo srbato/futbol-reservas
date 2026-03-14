@@ -73,7 +73,7 @@
             </a>
 
             <x-primary-button class="rounded-xl px-5 py-3">
-                Ingresar
+                Crear cuenta
             </x-primary-button>
         </div>
     </form>

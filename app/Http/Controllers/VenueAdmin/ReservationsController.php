@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\VenueAdmin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\ReservationCancelledMail;
 use App\Models\Reservation;
+use App\Services\MercadoPagoRefundService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class ReservationsController extends Controller
 {
@@ -56,19 +59,18 @@ class ReservationsController extends Controller
         $user = $request->user();
 
         $date = $request->query('date')
-            ? \Carbon\Carbon::parse($request->query('date'))
+            ? Carbon::parse($request->query('date'))
             : now();
 
         $fieldId = $request->query('field_id');
+        $dayOfWeek = $date->dayOfWeek;
 
         $startDay = $date->copy()->startOfDay();
-        $endDay = $date->copy()->addDay()->startOfDay();
+        $endDay   = $date->copy()->addDay()->startOfDay();
 
         $fields = \App\Models\Field::query()
-            ->whereHas('venue', function ($q) use ($user) {
-                $q->where('owner_user_id', $user->id);
-            })
-            ->with(['venue', 'price'])
+            ->whereHas('venue', fn($q) => $q->where('owner_user_id', $user->id))
+            ->with(['venue', 'price', 'schedules'])
             ->orderBy('name')
             ->get();
 
@@ -79,17 +81,46 @@ class ReservationsController extends Controller
         $reservations = Reservation::query()
             ->where('start_at', '>=', $startDay)
             ->where('start_at', '<', $endDay)
-            ->whereHas('field.venue', function ($q) use ($user) {
-                $q->where('owner_user_id', $user->id);
-            })
+            ->whereHas('field.venue', fn($q) => $q->where('owner_user_id', $user->id))
             ->with(['user', 'field'])
             ->get();
 
-        // Agrupar reservas por cancha + hora de inicio
+        // Mapa: "field_id|HH:MM" => reservation
         $reservationMap = [];
         foreach ($reservations as $reservation) {
             $key = $reservation->field_id . '|' . $reservation->start_at->format('H:i');
             $reservationMap[$key] = $reservation;
+        }
+
+        // Generar slots desde los horarios reales de cada cancha
+        $slotSet = [];
+        foreach ($fields as $field) {
+            $schedule = $field->schedules->firstWhere('day_of_week', $dayOfWeek);
+            if (!$schedule) {
+                continue;
+            }
+            $slotMinutes = $field->slot_minutes ?: 60;
+            $current = Carbon::parse($schedule->open_time);
+            $close   = Carbon::parse($schedule->close_time);
+            while ($current < $close) {
+                $slotSet[$current->format('H:i')] = true;
+                $current->addMinutes($slotMinutes);
+            }
+        }
+
+        // Incluir también los start_at reales (cubre reservas fuera del horario habitual)
+        foreach ($reservations as $res) {
+            $slotSet[$res->start_at->format('H:i')] = true;
+        }
+
+        ksort($slotSet);
+        $slots = array_keys($slotSet);
+
+        // Fallback si no hay horarios configurados
+        if (empty($slots)) {
+            for ($h = 8; $h <= 23; $h++) {
+                $slots[] = str_pad($h, 2, '0', STR_PAD_LEFT) . ':00';
+            }
         }
 
         return view('va.reservations.agenda', compact(
@@ -97,11 +128,12 @@ class ReservationsController extends Controller
             'fields',
             'reservations',
             'reservationMap',
-            'fieldId'
+            'fieldId',
+            'slots'
         ));
     }
 
-    public function cancel(Request $request, Reservation $reservation)
+    public function cancel(Request $request, Reservation $reservation, MercadoPagoRefundService $refundService)
     {
         $user = $request->user();
 
@@ -115,11 +147,26 @@ class ReservationsController extends Controller
             return back()->with('error', 'Esta reserva no se puede cancelar.');
         }
 
+        $refundResult = $refundService->refund($reservation);
+
         $reservation->update([
-            'status' => 'CANCELLED',
+            'status'     => 'CANCELLED',
             'expires_at' => null,
         ]);
 
-        return back()->with('success', 'Reserva cancelada por el administrador.');
+        $reservation->loadMissing(['user', 'field.venue']);
+
+        if ($reservation->user?->email) {
+            Mail::to($reservation->user->email)
+                ->send(new ReservationCancelledMail($reservation, 'user'));
+        }
+
+        $message = match ($refundResult) {
+            true  => 'Reserva cancelada. El reembolso fue procesado correctamente.',
+            false => 'Reserva cancelada. No se pudo procesar el reembolso automáticamente — revisá los logs.',
+            null  => 'Reserva cancelada por el administrador.',
+        };
+
+        return back()->with('success', $message);
     }
 }

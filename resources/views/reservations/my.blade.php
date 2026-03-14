@@ -32,7 +32,7 @@
       <a href="{{ route('venues.index') }}" class="btn btn-primary">Ver complejos</a>
     </div>
   @else
-    <div class="grid" style="grid-template-columns:repeat(auto-fit, minmax(340px, 1fr));">
+    <div class="grid" style="grid-template-columns:repeat(auto-fit, minmax(min(340px, 100%), 1fr));">
       @foreach($reservations as $r)
         <article class="venue-card" style="border-radius:18px;">
           <div class="venue-card-body" style="padding:20px;">

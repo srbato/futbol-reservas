@@ -12,7 +12,7 @@
       <p>Una reserva fue cancelada por el usuario.</p>
     @else
       <h1 style="margin-top:0;">❌ Tu reserva fue cancelada</h1>
-      <p>Hola {{ $reservation->user->name }}, tu reserva fue cancelada correctamente.</p>
+      <p>Hola {{ $reservation->user->name }}, tu reserva fue cancelada.</p>
     @endif
 
     <hr style="border:none; border-top:1px solid #eee; margin:20px 0;">

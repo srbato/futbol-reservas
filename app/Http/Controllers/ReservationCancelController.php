@@ -4,12 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Mail\ReservationCancelledMail;
 use App\Models\Reservation;
+use App\Services\MercadoPagoRefundService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
 class ReservationCancelController extends Controller
 {
-    public function cancelByUser(Request $request, Reservation $reservation)
+    public function cancelByUser(Request $request, Reservation $reservation, MercadoPagoRefundService $refundService)
     {
         $user = $request->user();
 
@@ -21,6 +22,8 @@ class ReservationCancelController extends Controller
             return back()->with('error', 'Esta reserva no se puede cancelar.');
         }
 
+        $refundResult = $refundService->refund($reservation);
+
         $reservation->update([
             'status'     => 'CANCELLED',
             'expires_at' => null,
@@ -28,17 +31,21 @@ class ReservationCancelController extends Controller
 
         $reservation->loadMissing(['user', 'field.venue.owner']);
 
-        // Mail al usuario
         Mail::to($reservation->user->email)
             ->send(new ReservationCancelledMail($reservation, 'user'));
 
-        // Mail al dueño del complejo
         $venueOwner = $reservation->field->venue->owner;
         if ($venueOwner && $venueOwner->email) {
             Mail::to($venueOwner->email)
                 ->send(new ReservationCancelledMail($reservation, 'admin'));
         }
 
-        return back()->with('success', 'Reserva cancelada correctamente.');
+        $message = match ($refundResult) {
+            true  => 'Reserva cancelada. El reembolso fue procesado correctamente.',
+            false => 'Reserva cancelada. No pudimos procesar el reembolso automáticamente — contactá soporte.',
+            null  => 'Reserva cancelada correctamente.',
+        };
+
+        return back()->with('success', $message);
     }
 }

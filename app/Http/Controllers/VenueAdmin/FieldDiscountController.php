@@ -5,6 +5,7 @@ namespace App\Http\Controllers\VenueAdmin;
 use App\Http\Controllers\Controller;
 use App\Models\Field;
 use App\Models\FieldDiscount;
+use App\Models\FieldRecurringDiscount;
 use Illuminate\Http\Request;
 
 class FieldDiscountController extends Controller
@@ -31,7 +32,13 @@ class FieldDiscountController extends Controller
             ->orderBy('start_time')
             ->get();
 
-        return view('va.discounts.index', compact('fields', 'discounts'));
+        $recurringDiscounts = FieldRecurringDiscount::query()
+            ->whereHas('field.venue', fn($q) => $q->where('owner_user_id', $user->id))
+            ->with('field.venue')
+            ->orderBy('min_occurrences')
+            ->get();
+
+        return view('va.discounts.index', compact('fields', 'discounts', 'recurringDiscounts'));
     }
 
     public function store(Request $request)

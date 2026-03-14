@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class User extends Authenticatable
 {
@@ -65,5 +66,20 @@ class User extends Authenticatable
     public function hasActiveVenueAdminSubscription(): bool
     {
         return $this->activeVenueAdminSubscription()->exists();
+    }
+
+    public function referralCode(): HasOne
+    {
+        return $this->hasOne(ReferralCode::class);
+    }
+
+    public function referralRewards(): HasMany
+    {
+        return $this->hasMany(ReferralReward::class, 'referrer_user_id');
+    }
+
+    public function availableReferralRewards(): HasMany
+    {
+        return $this->referralRewards()->where('status', 'available');
     }
 }

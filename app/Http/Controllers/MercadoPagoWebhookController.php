@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\ReservationPaidMail;
 use App\Models\Reservation;
+use App\Models\ReservationBatch;
 use App\Models\VenueAdminSubscription;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -29,7 +30,7 @@ class MercadoPagoWebhookController extends Controller
             return response()->json(['ok' => true]);
         }
 
-        $paymentResponse = Http::withoutVerifying()
+        $paymentResponse = Http::withOptions(['verify' => !app()->isLocal()])
             ->withToken(config('services.mercadopago.access_token'))
             ->get("https://api.mercadopago.com/v1/payments/{$dataId}");
 
@@ -60,6 +61,14 @@ class MercadoPagoWebhookController extends Controller
             );
         }
 
+        if (str_starts_with($externalReference, 'batch:')) {
+            return $this->handleBatchPayment(
+                $externalReference,
+                $paymentStatus,
+                $paymentId
+            );
+        }
+
         return $this->handleReservationPayment(
             $externalReference,
             $paymentStatus,
@@ -84,7 +93,7 @@ class MercadoPagoWebhookController extends Controller
             ?? config('services.mercadopago.access_token');
 
         // Re-consultamos el pago usando el token correcto
-        $paymentResponse = Http::withoutVerifying()
+        $paymentResponse = Http::withOptions(['verify' => !app()->isLocal()])
             ->withToken($accessToken)
             ->get("https://api.mercadopago.com/v1/payments/{$paymentId}");
 
@@ -127,6 +136,65 @@ class MercadoPagoWebhookController extends Controller
         return response()->json(['ok' => true]);
     }
 
+    private function handleBatchPayment(string $externalReference, ?string $paymentStatus, $paymentId)
+    {
+        $batchId = str_replace('batch:', '', $externalReference);
+        $batch = ReservationBatch::with(['reservations', 'field.venue'])->find($batchId);
+
+        if (!$batch) {
+            Log::warning('Batch no encontrado para webhook MP', ['batch_id' => $batchId]);
+            return response()->json(['ok' => true]);
+        }
+
+        $accessToken = $batch->field->venue->mp_access_token
+            ?? config('services.mercadopago.access_token');
+
+        $paymentResponse = Http::withOptions(['verify' => !app()->isLocal()])
+            ->withToken($accessToken)
+            ->get("https://api.mercadopago.com/v1/payments/{$paymentId}");
+
+        if ($paymentResponse->successful()) {
+            $paymentStatus = $paymentResponse->json()['status'] ?? $paymentStatus;
+        }
+
+        $wasPaidBefore = $batch->status === 'PAID';
+
+        $batch->payment_provider    = 'mercadopago';
+        $batch->payment_external_id = (string) $paymentId;
+        $batch->payment_status      = $paymentStatus;
+
+        if ($paymentStatus === 'approved') {
+            $batch->status     = 'PAID';
+            $batch->expires_at = null;
+        }
+
+        $batch->save();
+
+        if ($paymentStatus === 'approved' && !$wasPaidBefore) {
+            $batch->reservations()->update([
+                'status'              => 'PAID',
+                'expires_at'          => null,
+                'payment_provider'    => 'mercadopago',
+                'payment_external_id' => (string) $paymentId,
+                'payment_status'      => 'approved',
+                'payment_mp_token_owner' => $batch->payment_mp_token_owner,
+            ]);
+
+            $batch->loadMissing(['user', 'field.venue.owner']);
+
+            Mail::to($batch->user->email)
+                ->send(new \App\Mail\BatchReservationPaidMail($batch));
+
+            $venueOwner = $batch->field->venue->owner;
+            if ($venueOwner && $venueOwner->email) {
+                Mail::to($venueOwner->email)
+                    ->send(new \App\Mail\VenueAdminBatchReservationMail($batch));
+            }
+        }
+
+        return response()->json(['ok' => true]);
+    }
+
     private function handleVenueAdminSubscriptionPayment(string $externalReference, ?string $paymentStatus, $paymentId)
     {
         $subscriptionId = str_replace('venue_admin_subscription:', '', $externalReference);
@@ -158,7 +226,8 @@ class MercadoPagoWebhookController extends Controller
                 $startsAt = now();
             }
 
-            $expiresAt = $startsAt->copy()->addDays(30);
+            $days = $subscription->billing_cycle === 'annual' ? 365 : 30;
+            $expiresAt = $startsAt->copy()->addDays($days);
 
             $subscription->status = 'ACTIVE';
             $subscription->starts_at = $startsAt;
@@ -175,6 +244,8 @@ class MercadoPagoWebhookController extends Controller
         $subscription->save();
 
         if ($paymentStatus === 'approved' && !$wasActiveBefore) {
+            app(\App\Services\ReferralService::class)->processReward($subscription);
+
             Log::info('Membresía admin activada o renovada', [
                 'subscription_id' => $subscription->id,
                 'user_id' => $subscription->user_id,

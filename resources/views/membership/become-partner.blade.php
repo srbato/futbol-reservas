@@ -44,12 +44,26 @@
       </div>
 
       <div class="page-card" style="min-width:260px; padding:20px;">
-        <div style="font-size:12px; color:#666; margin-bottom:6px;">Plan mensual</div>
+        <div style="font-size:12px; color:#666; margin-bottom:4px; text-transform:uppercase; letter-spacing:.04em; font-weight:700;">
+          Plan {{ $plan->name }}
+        </div>
+        <div style="font-size:12px; color:#888; margin-bottom:8px;">
+          Facturación {{ $billingCycle === 'annual' ? 'anual' : 'mensual' }}
+        </div>
         <div style="font-size:34px; font-weight:800; line-height:1.1;">
-          ARS {{ number_format($monthlyPrice, 2, ',', '.') }}
+          ARS {{ number_format($price, 0, ',', '.') }}
         </div>
         <div class="muted" style="margin-top:8px; font-size:13px;">
-          Acceso como socio por 30 días.
+          @if($billingCycle === 'annual')
+            Pago único por 365 días de acceso.
+          @else
+            Acceso como socio por 30 días.
+          @endif
+        </div>
+        <div style="margin-top:12px;">
+          <a href="{{ route('planes') }}" style="font-size:13px; color:#666; text-decoration:underline;">
+            Cambiar plan
+          </a>
         </div>
       </div>
     </div>
@@ -101,6 +115,8 @@
 
           <form method="POST" action="{{ route('membership.checkout') }}">
             @csrf
+            <input type="hidden" name="plan_slug" value="{{ $activeSubscription->plan_slug ?? $plan->slug }}">
+            <input type="hidden" name="billing_cycle" value="{{ $activeSubscription->billing_cycle ?? $billingCycle }}">
             <button type="submit" class="btn">
               Renovar ahora
             </button>
@@ -142,14 +158,27 @@
 
         <form method="POST" action="{{ route('membership.checkout') }}">
           @csrf
+          <input type="hidden" name="plan_slug" value="{{ $plan->slug }}">
+          <input type="hidden" name="billing_cycle" value="{{ $billingCycle }}">
+
+          <div style="margin-bottom:16px;">
+            <label style="display:block; font-size:13px; color:#666; margin-bottom:6px;">
+              Código de referido (opcional)
+            </label>
+            <input type="text" name="referral_code" placeholder="Ej: JUAN-X7K2"
+              value="{{ old('referral_code') }}"
+              style="padding:10px 14px; border:1px solid #ddd; border-radius:10px; font-size:14px; width:100%; max-width:260px; font-family:monospace; text-transform:uppercase;">
+          </div>
+
           <button type="submit" class="btn btn-primary">
-            {{ $isExpired ? 'Renovar membresía' : 'Pagar membresía mensual' }}
+            {{ $isExpired ? 'Renovar membresía' : 'Activar plan ' . $plan->name }}
           </button>
         </form>
 
         <div class="muted" style="margin-top:12px; font-size:13px; line-height:1.6;">
-          Precio actual del plan:
-          <strong>ARS {{ number_format($monthlyPrice, 2, ',', '.') }}</strong>.
+          Precio:
+          <strong>ARS {{ number_format($price, 0, ',', '.') }}</strong>
+          ({{ $billingCycle === 'annual' ? 'anual' : 'mensual' }}).
         </div>
 
         <div class="muted" style="margin-top:8px; font-size:13px; line-height:1.6;">
