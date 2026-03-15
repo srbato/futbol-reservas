@@ -19,3 +19,7 @@ Schedule::command('membership:send-expiration-reminders')
 Schedule::command('reservations:send-reminders')
     ->everyMinute()
     ->withoutOverlapping();
+
+Schedule::command('reservations:purge-dead')
+    ->monthlyOn(1, '03:00')
+    ->withoutOverlapping();

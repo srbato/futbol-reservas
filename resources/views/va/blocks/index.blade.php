@@ -1,103 +1,96 @@
 @extends('layouts.admin')
 
 @section('title', 'Bloqueos de horarios')
-
 @section('page_title', 'Bloqueos')
 @section('page_subtitle', 'Bloqueá horarios manualmente por mantenimiento, torneos o eventos')
 
 @section('content')
-  <h1>Bloqueos de horarios</h1>
 
-  <div style="padding:16px; border:1px solid #eee; border-radius:16px; margin-bottom:20px; background:#fff;">
-    <h2 style="margin-top:0;">Crear bloqueo</h2>
+  {{-- Formulario de creación --}}
+  <div class="admin-card" style="margin-bottom:20px;">
+    <div class="section-title" style="margin-bottom:16px;">Nuevo bloqueo</div>
 
-    <form method="POST" action="{{ route('va.blocks.store') }}"
-          style="display:flex; gap:12px; flex-wrap:wrap; align-items:end;">
+    <form method="POST" action="{{ route('va.blocks.store') }}" class="form-row">
       @csrf
 
-      <div>
-        <label style="display:block; font-size:12px; color:#666;">Cancha</label>
-        <select name="field_id" required style="padding:8px; border:1px solid #ddd; border-radius:10px;">
+      <div class="form-group">
+        <label class="form-label">Cancha</label>
+        <select name="field_id" required class="form-control" style="width:auto;">
           <option value="">Seleccionar</option>
           @foreach($fields as $field)
-            <option value="{{ $field->id }}">
-              {{ $field->venue->name }} — {{ $field->name }}
-            </option>
+            <option value="{{ $field->id }}">{{ $field->venue->name }} — {{ $field->name }}</option>
           @endforeach
         </select>
       </div>
 
-      <div>
-        <label style="display:block; font-size:12px; color:#666;">Fecha</label>
-        <input type="date" name="date" required
-               style="padding:8px; border:1px solid #ddd; border-radius:10px;">
+      <div class="form-group">
+        <label class="form-label">Fecha</label>
+        <input type="date" name="date" required class="form-control" style="width:auto;">
       </div>
 
-      <div>
-        <label style="display:block; font-size:12px; color:#666;">Hora inicio</label>
-        <input type="time" name="start_time" required
-               style="padding:8px; border:1px solid #ddd; border-radius:10px;">
+      <div class="form-group">
+        <label class="form-label">Hora inicio</label>
+        <input type="time" name="start_time" required class="form-control" style="width:auto;">
       </div>
 
-      <div>
-        <label style="display:block; font-size:12px; color:#666;">Hora fin</label>
-        <input type="time" name="end_time" required
-               style="padding:8px; border:1px solid #ddd; border-radius:10px;">
+      <div class="form-group">
+        <label class="form-label">Hora fin</label>
+        <input type="time" name="end_time" required class="form-control" style="width:auto;">
       </div>
 
-      <div>
-        <label style="display:block; font-size:12px; color:#666;">Motivo</label>
-        <input name="reason" placeholder="Ej: mantenimiento"
-               style="padding:8px; border:1px solid #ddd; border-radius:10px; width:220px;">
+      <div class="form-group">
+        <label class="form-label">Motivo</label>
+        <input name="reason" placeholder="Ej: mantenimiento" class="form-control" style="width:200px;">
       </div>
 
-      <button type="submit"
-              style="padding:9px 14px; border:0; background:#111; color:#fff; border-radius:10px; cursor:pointer;">
-        Guardar bloqueo
-      </button>
+      <button type="submit" class="btn btn-primary">Guardar bloqueo</button>
     </form>
   </div>
 
-  <div style="padding:16px; border:1px solid #eee; border-radius:16px; background:#fff;">
-    <h2 style="margin-top:0;">Bloqueos cargados</h2>
+  {{-- Lista de bloqueos --}}
+  <div class="admin-card" style="padding:0; overflow:hidden;">
+    <div style="padding:18px 18px 14px; border-bottom:1px solid #ececec;">
+      <div class="section-title">Bloqueos cargados</div>
+    </div>
 
     @if($blocks->isEmpty())
-      <p>No hay bloqueos cargados.</p>
+      <div class="empty-state">No hay bloqueos cargados.</div>
     @else
-      <table style="width:100%; border-collapse:collapse;">
-        <tr>
-          <th style="text-align:left; padding:10px; border-bottom:1px solid #eee;">Fecha</th>
-          <th style="text-align:left; padding:10px; border-bottom:1px solid #eee;">Cancha</th>
-          <th style="text-align:left; padding:10px; border-bottom:1px solid #eee;">Horario</th>
-          <th style="text-align:left; padding:10px; border-bottom:1px solid #eee;">Motivo</th>
-          <th style="text-align:left; padding:10px; border-bottom:1px solid #eee;">Acción</th>
-        </tr>
-
-        @foreach($blocks as $block)
-          <tr>
-            <td style="padding:10px; border-bottom:1px solid #f3f3f3;">{{ \Carbon\Carbon::parse($block->date)->format('d/m/Y') }}</td>
-            <td style="padding:10px; border-bottom:1px solid #f3f3f3;">
-              {{ $block->field->venue->name }} / {{ $block->field->name }}
-            </td>
-            <td style="padding:10px; border-bottom:1px solid #f3f3f3;">
-              {{ $block->start_time }} - {{ $block->end_time }}
-            </td>
-            <td style="padding:10px; border-bottom:1px solid #f3f3f3;">
-              {{ $block->reason ?? '—' }}
-            </td>
-            <td style="padding:10px; border-bottom:1px solid #f3f3f3;">
-              <form method="POST" action="{{ route('va.blocks.destroy', $block) }}">
-                @csrf
-                <button type="submit">Eliminar</button>
-              </form>
-            </td>
-          </tr>
-        @endforeach
-      </table>
+      <div style="overflow-x:auto;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Cancha</th>
+              <th>Horario</th>
+              <th>Motivo</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach($blocks as $block)
+              <tr>
+                <td style="font-weight:600; white-space:nowrap;">
+                  {{ \Carbon\Carbon::parse($block->date)->format('d/m/Y') }}
+                </td>
+                <td>{{ $block->field->venue->name }} / {{ $block->field->name }}</td>
+                <td style="white-space:nowrap;">
+                  {{ $block->start_time }} – {{ $block->end_time }}
+                </td>
+                <td>{{ $block->reason ?? '—' }}</td>
+                <td>
+                  <form method="POST" action="{{ route('va.blocks.destroy', $block) }}"
+                        onsubmit="return confirm('¿Eliminar este bloqueo?')">
+                    @csrf
+                    <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                  </form>
+                </td>
+              </tr>
+            @endforeach
+          </tbody>
+        </table>
+      </div>
     @endif
   </div>
 
-  <p style="margin-top:16px;">
-    <a href="{{ route('va.dashboard') }}">Volver al panel</a>
-  </p>
 @endsection

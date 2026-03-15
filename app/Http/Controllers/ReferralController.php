@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PlatformPayout;
 use App\Models\ReferralReward;
 use App\Models\Reservation;
 use App\Services\ReferralService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ReferralController extends Controller
 {
@@ -35,24 +37,44 @@ class ReferralController extends Controller
             return back()->with('error', 'La reserva ya expiró.');
         }
 
-        $reward = $user->availableReferralRewards()->first();
-        if (!$reward) {
+        $result = DB::transaction(function () use ($user, $reservation) {
+            // Lock the reward row to prevent race conditions
+            $reward = $user->availableReferralRewards()->lockForUpdate()->first();
+            if (!$reward) {
+                return null;
+            }
+
+            $reward->update([
+                'status'      => 'redeemed',
+                'reward_type' => 'free_reservation',
+                'redeemed_at' => now(),
+            ]);
+
+            $reservation->update([
+                'status'             => 'PAID',
+                'expires_at'         => null,
+                'payment_provider'   => 'referral_reward',
+                'payment_status'     => 'approved',
+                'referral_reward_id' => $reward->id,
+            ]);
+
+            $reservation->loadMissing('field');
+
+            PlatformPayout::create([
+                'venue_id'           => $reservation->field->venue_id,
+                'reservation_id'     => $reservation->id,
+                'referral_reward_id' => $reward->id,
+                'amount'             => $reservation->total_amount,
+                'currency'           => $reservation->currency ?? 'ARS',
+                'status'             => 'pending',
+            ]);
+
+            return $reward;
+        });
+
+        if (!$result) {
             return back()->with('error', 'No tenés recompensas disponibles.');
         }
-
-        $reward->update([
-            'status'      => 'redeemed',
-            'reward_type' => 'free_reservation',
-            'redeemed_at' => now(),
-        ]);
-
-        $reservation->update([
-            'status'             => 'PAID',
-            'expires_at'         => null,
-            'payment_provider'   => 'referral_reward',
-            'payment_status'     => 'approved',
-            'referral_reward_id' => $reward->id,
-        ]);
 
         return redirect()
             ->route('reservations.success', $reservation)

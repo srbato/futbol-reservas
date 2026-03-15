@@ -5,12 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Field;
 use App\Models\Reservation;
 
 
 class Venue extends Model
 {
+    use SoftDeletes;
     protected $fillable = [
         'owner_user_id',
         'name',
@@ -24,6 +26,15 @@ class Venue extends Model
         'mp_access_token',
         'mp_refresh_token',
         'mp_user_id',
+        'cancellation_hours',
+        'amenities',
+    ];
+
+    protected $casts = [
+        'mp_access_token'  => 'encrypted',
+        'mp_refresh_token' => 'encrypted',
+        'is_active'        => 'boolean',
+        'amenities'        => 'array',
     ];
 
     public function fields(): HasMany

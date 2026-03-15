@@ -121,6 +121,17 @@
     background: #f5f5f5;
   }
 
+  .user-dropdown-admin {
+    background: #111 !important;
+    color: #fff !important;
+    font-weight: 600 !important;
+    margin-bottom: 4px;
+  }
+
+  .user-dropdown-admin:hover {
+    background: #222 !important;
+  }
+
   .site-main {
     max-width: 1500px;
     margin: 0 auto;
@@ -688,6 +699,7 @@
       <a href="{{ route('home') }}" class="brand">TuCancha</a>
 
       <nav class="site-nav">
+        <a href="{{ route('home') }}">Inicio</a>
         <a href="{{ route('venues.index') }}">Complejos</a>
 
         @auth
@@ -715,11 +727,12 @@
             <div id="userDropdown" class="user-dropdown">
               <a href="{{ route('profile.edit') }}">Perfil</a>
               <a href="{{ route('my_reservations') }}">Mis reservas</a>
+              <a href="{{ route('match_history') }}">Historial de partidos</a>
               <a href="{{ route('venues.favorites') }}">Favoritos</a>
               <a href="{{ route('referral.index') }}">Mis referidos</a>
 
               @if(in_array(auth()->user()->role, ['venue_admin', 'super_admin']))
-                <a href="{{ route('va.dashboard') }}">Panel admin</a>
+                <a href="{{ route('va.dashboard') }}" class="user-dropdown-admin">⚡ Panel admin</a>
               @endif
 
               <a href="{{ route('va.checkin') }}">Check-in</a>

@@ -25,6 +25,9 @@ class Reservation extends Model
         'payment_mp_token_owner',
         'reminder_sent',
         'referral_reward_id',
+        'match_result',
+        'match_outcome',
+        'notes',
     ];
 
     protected $casts = [
@@ -47,5 +50,15 @@ class Reservation extends Model
     public function batch(): BelongsTo
     {
         return $this->belongsTo(ReservationBatch::class, 'batch_id');
+    }
+
+    public function players(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ReservationPlayer::class)->with('user');
+    }
+
+    public function results(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ReservationResult::class);
     }
 }

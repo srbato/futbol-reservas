@@ -19,6 +19,7 @@ use App\Http\Controllers\ReservationViewController;
 use App\Http\Controllers\SystemMessageDismissController;
 use App\Http\Controllers\VenueController;
 use App\Http\Controllers\VenueReviewController;
+use App\Http\Controllers\SuperAdmin\PlatformPayoutController;
 use App\Http\Controllers\SuperAdmin\SystemMessageController;
 use App\Http\Controllers\SuperAdmin\UserManagementController;
 use App\Http\Controllers\VenueAdmin\CheckinController as VaCheckinController;
@@ -29,13 +30,17 @@ use App\Http\Controllers\VenueAdmin\FieldDiscountController as VaFieldDiscountCo
 use App\Http\Controllers\VenueAdmin\ReportsController as VaReportsController;
 use App\Http\Controllers\VenueAdmin\ReservationsController as VaReservationsController;
 use App\Http\Controllers\VenueAdmin\ScheduleController as VaScheduleController;
+use App\Http\Controllers\VenueAdmin\ManualReservationController as VaManualReservationController;
 use App\Http\Controllers\VenueAdmin\VenueController as VaVenueController;
+use App\Http\Controllers\VenueAdmin\VenuePayoutController as VaVenuePayoutController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\VenueAdminMembershipController;
 use App\Http\Controllers\MercadoPagoOAuthController;
 use App\Http\Controllers\SuperAdmin\MembershipPlanController;
+use App\Http\Controllers\MatchHistoryController;
+use App\Http\Controllers\ReservationPlayerController;
 use App\Http\Controllers\ReferralController;
 use App\Models\MembershipPlan;
 
@@ -91,6 +96,9 @@ Route::middleware(['auth', 'active.user'])->group(function () {
 
     Route::get('/membership/failure', [VenueAdminMembershipController::class, 'failure'])
         ->name('membership.failure');
+
+    Route::post('/membership/cancel-pending', [VenueAdminMembershipController::class, 'cancelPending'])
+        ->name('membership.cancel_pending');
 });
 
 /*
@@ -112,11 +120,17 @@ Route::get('/fields/{field}/availability', [AvailabilityController::class, 'show
 */
 
 Route::middleware(['auth', 'active.user'])->group(function () {
-    Route::post('/reservations', [ReservationController::class, 'store'])->name('reservations.store');
-    Route::post('/reservations/recurring', [RecurringReservationController::class, 'store'])->name('reservations.recurring');
+    Route::post('/reservations', [ReservationController::class, 'store'])
+        ->middleware('throttle:20,1')
+        ->name('reservations.store');
+    Route::post('/reservations/recurring', [RecurringReservationController::class, 'store'])
+        ->middleware('throttle:10,1')
+        ->name('reservations.recurring');
 
     Route::get('/batches/{batch}/checkout', [ReservationBatchCheckoutController::class, 'show'])->name('batches.checkout');
-    Route::post('/batches/{batch}/mercadopago', [ReservationBatchMercadoPagoController::class, 'checkout'])->name('batches.mercadopago');
+    Route::post('/batches/{batch}/mercadopago', [ReservationBatchMercadoPagoController::class, 'checkout'])
+        ->middleware('throttle:10,1')
+        ->name('batches.mercadopago');
 
     Route::get('/reservations/{reservation}', [ReservationViewController::class, 'show'])
         ->name('reservations.show');
@@ -136,9 +150,18 @@ Route::middleware(['auth', 'active.user'])->group(function () {
     Route::post('/reservations/{reservation}/cancel', [ReservationCancelController::class, 'cancelByUser'])
         ->name('reservations.cancel');
 
+    Route::get('/match-history', [MatchHistoryController::class, 'index'])->name('match_history');
+    Route::post('/reservations/{reservation}/result', [MatchHistoryController::class, 'updateResult'])->name('reservations.update_result');
+    Route::post('/reservations/{reservation}/players', [ReservationPlayerController::class, 'store'])->name('reservations.players.store');
+    Route::post('/reservations/{reservation}/players/{player}', [ReservationPlayerController::class, 'destroy'])->name('reservations.players.destroy');
+
     Route::get('/referral', [ReferralController::class, 'index'])->name('referral.index');
-    Route::post('/referral/redeem-reservation/{reservation}', [ReferralController::class, 'redeemReservation'])->name('referral.redeem_reservation');
-    Route::post('/referral/redeem-month/{reward}', [ReferralController::class, 'redeemMonth'])->name('referral.redeem_month');
+    Route::post('/referral/redeem-reservation/{reservation}', [ReferralController::class, 'redeemReservation'])
+        ->middleware('throttle:5,1')
+        ->name('referral.redeem_reservation');
+    Route::post('/referral/redeem-month/{reward}', [ReferralController::class, 'redeemMonth'])
+        ->middleware('throttle:5,1')
+        ->name('referral.redeem_month');
 });
 
 /*
@@ -148,42 +171,47 @@ Route::middleware(['auth', 'active.user'])->group(function () {
 */
 
 Route::post('/webhooks/mercadopago', [MercadoPagoWebhookController::class, 'handle'])
+    ->middleware('throttle:120,1')
     ->name('webhooks.mercadopago');
 
-Route::get('/batch-success/{batch}', function (\App\Models\ReservationBatch $batch) {
-    $batch->load(['field.venue', 'reservations' => fn($q) => $q->orderBy('start_at')]);
-    return view('batches.success', compact('batch'));
-})->name('batches.success');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/batch-success/{batch}', function (\App\Models\ReservationBatch $batch) {
+        abort_if($batch->user_id !== auth()->id() && auth()->user()->role !== 'super_admin', 403);
+        $batch->load(['field.venue', 'reservations' => fn($q) => $q->orderBy('start_at')]);
+        return view('batches.success', compact('batch'));
+    })->name('batches.success');
 
-Route::get('/batch-pending/{batch}', function (\App\Models\ReservationBatch $batch) {
-    return view('batches.pending', compact('batch'));
-})->name('batches.pending');
+    Route::get('/batch-pending/{batch}', function (\App\Models\ReservationBatch $batch) {
+        abort_if($batch->user_id !== auth()->id() && auth()->user()->role !== 'super_admin', 403);
+        return view('batches.pending', compact('batch'));
+    })->name('batches.pending');
 
-Route::get('/batch-failure/{batch}', function (\App\Models\ReservationBatch $batch) {
-    $batch->load(['field.venue']);
-    return view('batches.failure', compact('batch'));
-})->name('batches.failure');
+    Route::get('/batch-failure/{batch}', function (\App\Models\ReservationBatch $batch) {
+        abort_if($batch->user_id !== auth()->id() && auth()->user()->role !== 'super_admin', 403);
+        $batch->load(['field.venue']);
+        return view('batches.failure', compact('batch'));
+    })->name('batches.failure');
 
-Route::get('/batches/{batch}/status', function (\App\Models\ReservationBatch $batch) {
-    $user = auth()->user();
-    if (!$user) return response()->json(['error' => 'unauthenticated'], 401);
-    if ($batch->user_id !== $user->id && $user->role !== 'super_admin') {
-        return response()->json(['error' => 'forbidden'], 403);
-    }
-    return response()->json(['status' => $batch->status]);
-})->middleware('auth')->name('batches.status');
+    Route::get('/batches/{batch}/status', function (\App\Models\ReservationBatch $batch) {
+        abort_if($batch->user_id !== auth()->id() && auth()->user()->role !== 'super_admin', 403);
+        return response()->json(['status' => $batch->status]);
+    })->name('batches.status');
 
-Route::get('/reservation-success/{reservation}', function (\App\Models\Reservation $reservation) {
-    return view('reservations.success', compact('reservation'));
-})->name('reservations.success');
+    Route::get('/reservation-success/{reservation}', function (\App\Models\Reservation $reservation) {
+        abort_if($reservation->user_id !== auth()->id() && auth()->user()->role !== 'super_admin', 403);
+        return view('reservations.success', compact('reservation'));
+    })->name('reservations.success');
 
-Route::get('/reservation-pending/{reservation}', function (\App\Models\Reservation $reservation) {
-    return view('reservations.pending', compact('reservation'));
-})->name('reservations.pending');
+    Route::get('/reservation-pending/{reservation}', function (\App\Models\Reservation $reservation) {
+        abort_if($reservation->user_id !== auth()->id() && auth()->user()->role !== 'super_admin', 403);
+        return view('reservations.pending', compact('reservation'));
+    })->name('reservations.pending');
 
-Route::get('/reservation-failure/{reservation}', function (\App\Models\Reservation $reservation) {
-    return view('reservations.failure', compact('reservation'));
-})->name('reservations.failure');
+    Route::get('/reservation-failure/{reservation}', function (\App\Models\Reservation $reservation) {
+        abort_if($reservation->user_id !== auth()->id() && auth()->user()->role !== 'super_admin', 403);
+        return view('reservations.failure', compact('reservation'));
+    })->name('reservations.failure');
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -199,6 +227,7 @@ Route::middleware(['auth', 'active.user'])->group(function () {
         ->name('venues.unfavorite');
 
     Route::post('/venues/{venue}/reviews', [VenueReviewController::class, 'store'])
+        ->middleware('throttle:5,1')
         ->name('venues.reviews.store');
 
     Route::get('/favorites', function () {
@@ -251,12 +280,13 @@ Route::post('/contact', function (Request $request) {
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth', 'active.user', 'role:venue_admin,super_admin'])->prefix('va')->group(function () {
+Route::middleware(['auth', 'active.user', 'role:venue_admin,super_admin', 'venue.mp'])->prefix('va')->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('va.dashboard');
 
         // Venues
         Route::get('/venues/create', [VaVenueController::class, 'create'])->name('va.venues.create');
         Route::post('/venues', [VaVenueController::class, 'store'])->name('va.venues.store');
+        Route::get('/venues/{venue}/connect-mp', [VaVenueController::class, 'connectMp'])->name('va.venues.connect_mp');
         Route::get('/venues/{venue}/edit', [VaVenueController::class, 'edit'])->name('va.venues.edit');
         Route::post('/venues/{venue}', [VaVenueController::class, 'update'])->name('va.venues.update');
 
@@ -274,11 +304,14 @@ Route::middleware(['auth', 'active.user', 'role:venue_admin,super_admin'])->pref
         // Reservations / agenda
         Route::get('/reservations', [VaReservationsController::class, 'index'])->name('va.reservations.index');
         Route::post('/reservations/{reservation}/cancel', [VaReservationsController::class, 'cancel'])->name('va.reservations.cancel');
+        Route::post('/manual-reservations', [VaManualReservationController::class, 'store'])->name('va.reservations.manual_store');
         Route::get('/agenda', [VaReservationsController::class, 'agenda'])->name('va.reservations.agenda');
 
         // Check-in por código
         Route::get('/checkin', [VaCheckinController::class, 'index'])->name('va.checkin');
-        Route::post('/checkin', [VaCheckinController::class, 'store'])->name('va.checkin.store');
+        Route::post('/checkin', [VaCheckinController::class, 'store'])
+            ->middleware('throttle:30,1')
+            ->name('va.checkin.store');
 
         // Blocks
         Route::get('/blocks', [VaFieldBlockController::class, 'index'])->name('va.blocks.index');
@@ -293,6 +326,9 @@ Route::middleware(['auth', 'active.user', 'role:venue_admin,super_admin'])->pref
         // Reports
         Route::get('/reports', [VaReportsController::class, 'index'])->name('va.reports');
         Route::get('/reports/export', [VaReportsController::class, 'export'])->name('va.reports.export');
+
+        // Venue payouts (what platform owes the venue)
+        Route::get('/my-payouts', [VaVenuePayoutController::class, 'index'])->name('va.payouts.index');
 
         // Recurring discounts
         Route::post('/recurring-discounts', [VaFieldRecurringDiscountController::class, 'store'])->name('va.recurring_discounts.store');
@@ -363,6 +399,33 @@ Route::middleware(['auth', 'active.user'])->group(function () {
 
     Route::post('/sa/plans/{plan}', [MembershipPlanController::class, 'update'])
         ->name('sa.plans.update');
+
+    Route::get('/sa/payouts', [PlatformPayoutController::class, 'index'])
+        ->name('sa.payouts.index');
+
+    Route::post('/sa/payouts/{payout}/mark-paid', [PlatformPayoutController::class, 'markPaid'])
+        ->name('sa.payouts.mark_paid');
+
+    Route::post('/sa/payouts/venue/{venue}/mark-all-paid', [PlatformPayoutController::class, 'markVenuePaid'])
+        ->name('sa.payouts.mark_venue_paid');
+
+    Route::post('/sa/payouts/venue/{venue}/pay-via-mp', [PlatformPayoutController::class, 'payViaMP'])
+        ->name('sa.payouts.pay_via_mp');
+
+    Route::get('/sa/payouts/venue/{venue}/success', function (\App\Models\Venue $venue) {
+        return redirect()->route('sa.payouts.index')
+            ->with('success', "Pago a {$venue->name} procesado correctamente por Mercado Pago.");
+    })->name('sa.payouts.venue_success');
+
+    Route::get('/sa/payouts/venue/{venue}/failure', function (\App\Models\Venue $venue) {
+        return redirect()->route('sa.payouts.index')
+            ->with('error', "El pago a {$venue->name} fue rechazado o cancelado. Intentá de nuevo.");
+    })->name('sa.payouts.venue_failure');
+
+    Route::get('/sa/payouts/venue/{venue}/pending', function (\App\Models\Venue $venue) {
+        return redirect()->route('sa.payouts.index')
+            ->with('success', "El pago a {$venue->name} está pendiente de acreditación. El estado se actualizará automáticamente via webhook.");
+    })->name('sa.payouts.venue_pending');
 });
 
 // Solo devuelve el status; el usuario debe ser dueño de la reserva o super_admin.

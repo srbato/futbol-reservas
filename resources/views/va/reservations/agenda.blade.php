@@ -71,31 +71,6 @@
     font-size: 14px;
     background: #fff;
   }
-  .btn-primary {
-    padding: 8px 16px;
-    border: 0;
-    background: #111;
-    color: #fff;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-    text-decoration: none;
-    display: inline-block;
-  }
-  .btn-ghost {
-    padding: 8px 16px;
-    border: 1px solid #ddd;
-    background: #fff;
-    color: #111;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 14px;
-    text-decoration: none;
-    display: inline-block;
-  }
-  .btn-ghost:hover { background: #f8f8f8; }
-
   /* ── Resumen del día ── */
   .agenda-summary {
     display: flex;

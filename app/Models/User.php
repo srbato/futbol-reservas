@@ -82,4 +82,9 @@ class User extends Authenticatable
     {
         return $this->referralRewards()->where('status', 'available');
     }
+
+    public function reservationPlayerEntries(): HasMany
+    {
+        return $this->hasMany(ReservationPlayer::class);
+    }
 }

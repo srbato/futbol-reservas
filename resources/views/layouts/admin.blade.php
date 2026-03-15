@@ -123,6 +123,146 @@
       border-color: #f1b9c0;
     }
 
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 9px 16px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      text-decoration: none;
+      transition: opacity .15s, background .15s;
+      line-height: 1;
+      white-space: nowrap;
+    }
+    .btn:hover { opacity: .82; }
+    .btn-primary { background: #111; color: #fff; border-color: #111; }
+    .btn-ghost   { background: #fff; color: #111; border-color: #ddd; }
+    .btn-ghost:hover { background: #f6f6f6; opacity: 1; }
+    .btn-danger  { background: #842029; color: #fff; border-color: #842029; }
+    .btn-warning { background: #856404; color: #fff; border-color: #856404; }
+    .btn-success { background: #157347; color: #fff; border-color: #157347; }
+    .btn-sm { padding: 6px 12px; font-size: 13px; border-radius: 8px; }
+
+    /* ── Badges ── */
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .badge-default { background: #f1f1f1; color: #444; }
+    .badge-success { background: #d1e7dd; color: #0f5132; }
+    .badge-warning { background: #fff3cd; color: #856404; }
+    .badge-danger  { background: #f8d7da; color: #842029; }
+    .badge-info    { background: #cfe2ff; color: #084298; }
+    .badge-dark    { background: #111; color: #fff; }
+
+    /* ── Form controls ── */
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 5px;
+    }
+    .form-control {
+      padding: 9px 12px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 14px;
+      background: #fff;
+      transition: border-color .15s;
+      box-sizing: border-box;
+    }
+    .form-control:focus {
+      outline: none;
+      border-color: #111;
+    }
+    .form-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Data table ── */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    .data-table th {
+      text-align: left;
+      padding: 11px 16px;
+      background: #fafafa;
+      border-bottom: 2px solid #ececec;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: #888;
+      white-space: nowrap;
+    }
+    .data-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f3f3f3;
+      vertical-align: middle;
+    }
+    .data-table tbody tr:last-child td { border-bottom: none; }
+    .data-table tbody tr:hover td { background: #fafafa; }
+
+    /* ── Section ── */
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+    .section-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin: 0;
+    }
+    .section-subtitle {
+      font-size: 13px;
+      color: #666;
+      margin: 4px 0 0 0;
+    }
+
+    /* ── Filter bar ── */
+    .filter-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      padding: 16px 18px;
+      background: #fff;
+      border: 1px solid #ececec;
+      border-radius: 14px;
+      margin-bottom: 20px;
+    }
+
+    /* ── Empty state ── */
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: #bbb;
+      font-size: 15px;
+    }
+
     @media (max-width: 900px) {
       .admin-shell {
         flex-direction: column;
@@ -163,7 +303,7 @@
         <a href="{{ route('va.reservations.agenda') }}" class="{{ request()->routeIs('va.reservations.agenda') ? 'active' : '' }}">
           Agenda
         </a>
-        <a href="{{ route('va.reports') }}">
+        <a href="{{ route('va.reports') }}" class="{{ request()->routeIs('va.reports') ? 'active' : '' }}">
           Reportes
         </a>
         <a href="{{ route('va.blocks.index') }}" class="{{ request()->routeIs('va.blocks.*') ? 'active' : '' }}">
@@ -172,39 +312,44 @@
         <a href="{{ route('va.discounts.index') }}" class="{{ request()->routeIs('va.discounts.*') ? 'active' : '' }}">
           Descuentos
         </a>
-
-        @if(auth()->user()->role === 'super_admin')
-          <a href="{{ route('sa.users.index') }}" class="{{ request()->routeIs('sa.users.*') ? 'active' : '' }}">
-            Usuarios
-          </a>
-        @endif
-
-        @if(auth()->user()->role === 'super_admin')
-          <a href="{{ route('sa.messages.index') }}" class="{{ request()->routeIs('sa.messages.*') ? 'active' : '' }}">
-            Mensajes
-          </a>
-        @endif
-
-        @if(auth()->user()->role === 'super_admin')
-          <a href="{{ route('sa.plans.index') }}" class="{{ request()->routeIs('sa.plans.*') ? 'active' : '' }}">
-            Planes
+        @if(auth()->user()->role === 'venue_admin')
+          <a href="{{ route('va.payouts.index') }}" class="{{ request()->routeIs('va.payouts.*') ? 'active' : '' }}">
+            Mis cobros
           </a>
         @endif
       </nav>
+
+      @if(auth()->user()->role === 'super_admin')
+        <div class="admin-section-title">Super Admin</div>
+        <nav class="admin-nav">
+          <a href="{{ route('sa.users.index') }}" class="{{ request()->routeIs('sa.users.*') ? 'active' : '' }}">
+            Usuarios
+          </a>
+          <a href="{{ route('sa.messages.index') }}" class="{{ request()->routeIs('sa.messages.*') ? 'active' : '' }}">
+            Mensajes
+          </a>
+          <a href="{{ route('sa.plans.index') }}" class="{{ request()->routeIs('sa.plans.*') ? 'active' : '' }}">
+            Planes
+          </a>
+          <a href="{{ route('sa.payouts.index') }}" class="{{ request()->routeIs('sa.payouts.*') ? 'active' : '' }}">
+            Pagos a venues
+          </a>
+        </nav>
+      @endif
 
       @php
         $userHasVenue = auth()->user()->role === 'super_admin'
             || \App\Models\Venue::where('owner_user_id', auth()->id())->exists();
       @endphp
 
-      <div class="admin-section-title">Gestión</div>
-      <nav class="admin-nav">
-        @if(!$userHasVenue)
+      @if(!$userHasVenue)
+        <div class="admin-section-title">Gestión</div>
+        <nav class="admin-nav">
           <a href="{{ route('va.venues.create') }}" class="{{ request()->routeIs('va.venues.create') ? 'active' : '' }}">
             Crear complejo
           </a>
-        @endif
-      </nav>
+        </nav>
+      @endif
 
       <div class="admin-section-title">Navegación</div>
       <nav class="admin-nav">

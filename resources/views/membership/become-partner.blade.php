@@ -2,6 +2,7 @@
 
 @section('title', 'Hacete socio')
 
+
 @section('content')
   @php
     $latestStatus = $latestSubscription->status ?? null;
@@ -108,7 +109,7 @@
           <strong>{{ $activeSubscription->currency }} {{ number_format((float) $activeSubscription->monthly_price, 2, ',', '.') }}</strong>
         </div>
 
-        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
           <a href="{{ route('va.dashboard') }}" class="btn btn-primary">
             Ir al panel admin
           </a>
@@ -127,10 +128,18 @@
           <div style="padding:16px; border-radius:16px; background:#fff4db; color:#9a6700; border:1px solid #f5d48a; margin-bottom:14px;">
             <strong>Pago pendiente</strong>
             <div style="margin-top:6px;">
-              Ya generaste una solicitud de membresía. En cuanto MercadoPago confirme el pago,
-              tu acceso como socio quedará activo.
+              Hay una solicitud de membresía pendiente de pago. Si ya completaste el pago, esperá a que
+              MercadoPago lo confirme. Si el intento quedó incompleto, podés cancelarlo y volver a intentar.
             </div>
           </div>
+
+          <form method="POST" action="{{ route('membership.cancel_pending') }}" style="margin-bottom:14px;"
+                onsubmit="return confirm('¿Cancelar el intento de pago pendiente? Podrás iniciar uno nuevo a continuación.')">
+            @csrf
+            <button type="submit" class="btn" style="font-size:14px; padding:9px 16px; border-color:#ddd; color:#842029;">
+              Cancelar intento y volver a intentar
+            </button>
+          </form>
         @elseif($isExpired)
           <div style="padding:16px; border-radius:16px; background:#f8d7da; color:#842029; border:1px solid #f1b9c0; margin-bottom:14px;">
             <strong>Membresía vencida</strong>
@@ -156,6 +165,7 @@
           </div>
         @endif
 
+        @if($latestStatus !== 'PENDING_PAYMENT')
         <form method="POST" action="{{ route('membership.checkout') }}">
           @csrf
           <input type="hidden" name="plan_slug" value="{{ $plan->slug }}">
@@ -184,6 +194,7 @@
         <div class="muted" style="margin-top:8px; font-size:13px; line-height:1.6;">
           Tu acceso como <strong>venue_admin</strong> depende de que la membresía esté activa.
         </div>
+        @endif {{-- end @if($latestStatus !== 'PENDING_PAYMENT') --}}
       @endif
     </div>
   </div>
@@ -260,4 +271,5 @@
       </div>
     @endif
   </div>
+
 @endsection

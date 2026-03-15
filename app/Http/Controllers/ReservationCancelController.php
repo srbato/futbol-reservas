@@ -22,6 +22,19 @@ class ReservationCancelController extends Controller
             return back()->with('error', 'Esta reserva no se puede cancelar.');
         }
 
+        // Check venue cancellation policy
+        $reservation->loadMissing('field.venue');
+        $cancellationHours = $reservation->field->venue->cancellation_hours;
+        if ($cancellationHours !== null && $reservation->status === 'PAID') {
+            $deadline = $reservation->start_at->copy()->subHours($cancellationHours);
+            if (now()->isAfter($deadline)) {
+                return back()->with('error',
+                    "Este complejo solo permite cancelar con al menos {$cancellationHours} hora" .
+                    ($cancellationHours === 1 ? '' : 's') . " de anticipación."
+                );
+            }
+        }
+
         $refundResult = $refundService->refund($reservation);
 
         $reservation->update([

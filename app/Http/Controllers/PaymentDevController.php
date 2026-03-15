@@ -9,6 +9,14 @@ class PaymentDevController extends Controller
 {
     public function pay(Request $request, Reservation $reservation)
     {
+        // Only available in local/development environment
+        abort_if(!app()->isLocal(), 404);
+
+        // Ownership check
+        if ($reservation->user_id !== $request->user()->id && $request->user()->role !== 'super_admin') {
+            abort(403);
+        }
+
         // si ya expiró o ya está pagada, no hacemos nada raro
         if ($reservation->status !== 'PENDING_PAYMENT') {
             return redirect()->route('reservations.checkout', $reservation);

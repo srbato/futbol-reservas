@@ -167,6 +167,84 @@
         </div>
       </div>
     </div>
+
+    {{-- Players section: visible when PAID or CHECKED_IN --}}
+    @if(in_array($reservation->status, ['PAID', 'CHECKED_IN']))
+      <div class="page-card">
+        <h2 class="section-title" style="font-size:24px; margin-bottom:6px;">Jugadores del partido</h2>
+        <p class="muted" style="margin:0 0 18px 0; font-size:14px; line-height:1.6;">
+          @if($isOwner)
+            Agregá a los usuarios que jugaron con vos. Ellos podrán ver este partido en su historial y cargar el resultado.
+          @else
+            Jugadores que participaron en esta reserva.
+          @endif
+        </p>
+
+        {{-- Current player list --}}
+        @php
+          $players = $reservation->players;
+        @endphp
+
+        @if($players->isEmpty())
+          <p class="muted" style="font-size:14px; margin-bottom:18px;">Todavía no hay jugadores agregados.</p>
+        @else
+          <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:18px;">
+            @foreach($players as $rp)
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 14px; background:#f9f9f9; border:1px solid #ececec; border-radius:12px;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                  @if($rp->user->avatar_path)
+                    <img
+                      src="{{ \Illuminate\Support\Facades\Storage::url($rp->user->avatar_path) }}"
+                      alt=""
+                      style="width:34px; height:34px; border-radius:999px; object-fit:cover; border:1px solid #eee;"
+                    >
+                  @else
+                    <div style="width:34px; height:34px; border-radius:999px; background:#e9e9e9; display:flex; align-items:center; justify-content:center; font-size:14px; color:#999;">
+                      👤
+                    </div>
+                  @endif
+                  <div>
+                    <div style="font-weight:700; font-size:14px;">{{ $rp->user->name }}</div>
+                    <div style="font-size:12px; color:#888;">{{ $rp->user->email }}</div>
+                  </div>
+                </div>
+
+                @if($isOwner)
+                  <form method="POST" action="{{ route('reservations.players.destroy', [$reservation, $rp->user]) }}" style="margin:0;">
+                    @csrf
+                    <button type="submit" class="btn" style="font-size:12px; padding:6px 12px; color:#842029; border-color:#f1b9c0;">
+                      Quitar
+                    </button>
+                  </form>
+                @endif
+              </div>
+            @endforeach
+          </div>
+        @endif
+
+        {{-- Add player form (owner only) --}}
+        @if($isOwner)
+          <form method="POST" action="{{ route('reservations.players.store', $reservation) }}" style="display:flex; gap:10px; align-items:flex-start; flex-wrap:wrap;">
+            @csrf
+            <div style="flex:1; min-width:200px;">
+              <input
+                type="text"
+                name="search"
+                placeholder="Nombre exacto o email del jugador"
+                value="{{ old('search') }}"
+                style="width:100%; padding:10px 14px; border:1px solid {{ $errors->has('search') ? '#f1b9c0' : '#ddd' }}; border-radius:10px; font-size:14px; font-family:inherit;"
+              >
+              @error('search')
+                <div style="color:#842029; font-size:13px; margin-top:6px;">{{ $message }}</div>
+              @enderror
+            </div>
+            <button type="submit" class="btn btn-primary" style="white-space:nowrap;">
+              Agregar jugador
+            </button>
+          </form>
+        @endif
+      </div>
+    @endif
   </div>
 
   <style>

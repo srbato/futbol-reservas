@@ -109,10 +109,165 @@
 
   .search-btn:hover { background: #333; transform: translateY(-1px); }
 
+  /* ── Referral hero ───────────────────────────────── */
+  .referral-hero {
+    background: linear-gradient(135deg, #0f4c2a 0%, #1a7a45 100%);
+    border-radius: 28px;
+    padding: 52px 48px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .referral-hero::before {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 320px; height: 320px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.05);
+    pointer-events: none;
+  }
+
+  .referral-hero::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; left: 40px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.04);
+    pointer-events: none;
+  }
+
+  .referral-tag {
+    display: inline-block;
+    padding: 5px 14px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.15);
+    border: 1px solid rgba(255,255,255,.2);
+    font-size: 13px;
+    font-weight: 700;
+    color: #a3f0c0;
+    margin-bottom: 18px;
+    letter-spacing: .03em;
+  }
+
+  .referral-hero h2 {
+    margin: 0 0 14px 0;
+    font-size: 52px;
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    max-width: 700px;
+  }
+
+  .referral-hero h2 em {
+    font-style: normal;
+    color: #6eeaa0;
+  }
+
+  .referral-hero > p {
+    margin: 0 0 36px 0;
+    color: rgba(255,255,255,.8);
+    font-size: 18px;
+    line-height: 1.6;
+    max-width: 600px;
+  }
+
+  .referral-steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 36px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .referral-step {
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.14);
+    border-radius: 18px;
+    padding: 22px 20px;
+    backdrop-filter: blur(4px);
+  }
+
+  .referral-step-num {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #6eeaa0;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .referral-step-icon {
+    font-size: 30px;
+    display: block;
+    margin-bottom: 10px;
+    line-height: 1;
+  }
+
+  .referral-step h3 {
+    margin: 0 0 6px 0;
+    font-size: 16px;
+    font-weight: 800;
+    color: #fff;
+  }
+
+  .referral-step p {
+    margin: 0;
+    font-size: 13px;
+    color: rgba(255,255,255,.72);
+    line-height: 1.55;
+  }
+
+  .referral-hero-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+  }
+
+  .btn-referral-primary {
+    padding: 14px 32px;
+    background: #6eeaa0;
+    color: #0a3d1f;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 800;
+    text-decoration: none;
+    transition: background .15s, transform .15s;
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn-referral-primary:hover {
+    background: #4dd882;
+    transform: translateY(-2px);
+  }
+
+  .btn-referral-ghost {
+    padding: 14px 24px;
+    background: rgba(255,255,255,.1);
+    color: rgba(255,255,255,.9);
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    border: 1px solid rgba(255,255,255,.2);
+    transition: background .15s, transform .15s;
+  }
+
+  .btn-referral-ghost:hover {
+    background: rgba(255,255,255,.18);
+    transform: translateY(-2px);
+  }
+
   /* ── Why cards ───────────────────────────────────── */
   .why-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 16px;
   }
 
@@ -230,6 +385,10 @@
     .why-grid { grid-template-columns: repeat(2, 1fr); }
   }
 
+  @media (max-width: 600px) {
+    .why-grid { grid-template-columns: 1fr; }
+  }
+
   @media (max-width: 768px) {
     .hero-inner { padding: 36px 24px 32px 24px; }
     .hero-inner h1 { font-size: 38px; }
@@ -239,6 +398,14 @@
     .owner-cta h2 { font-size: 26px; }
     .search-bar { flex-direction: column; }
     .search-field { min-width: 100%; }
+    .referral-hero { padding: 36px 24px; }
+    .referral-hero h2 { font-size: 34px; }
+    .referral-hero > p { font-size: 16px; }
+    .referral-steps { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 480px) {
+    .referral-hero h2 { font-size: 28px; }
   }
 
   @media (max-width: 480px) {
@@ -295,6 +462,58 @@
     </div>
   </section>
 
+  {{-- ── Referral — sección destacada ─────────────────────────────── --}}
+  <section class="section" style="padding-bottom: 0;">
+    <div class="container">
+      <div class="referral-hero">
+        <span class="referral-tag">🎁 Programa de referidos</span>
+        <h2>Invitá un complejo.<br><em>Jugá gratis.</em></h2>
+        <p>
+          Compartí tu código único con el dueño de cualquier complejo deportivo.
+          Si se suma a TuCancha usando tu código, vos conseguís una <strong style="color:#a3f0c0;">reserva completamente gratis</strong> para usar cuando quieras.
+        </p>
+
+        <div class="referral-steps">
+          <div class="referral-step">
+            <span class="referral-step-num">Paso 01</span>
+            <span class="referral-step-icon">🔗</span>
+            <h3>Compartí tu código</h3>
+            <p>Desde tu cuenta encontrás tu código de referido único. Mandáselo al dueño del complejo donde jugás.</p>
+          </div>
+
+          <div class="referral-step">
+            <span class="referral-step-num">Paso 02</span>
+            <span class="referral-step-icon">🏟️</span>
+            <h3>El complejo se suma</h3>
+            <p>El dueño se registra en TuCancha e ingresa tu código al contratar su plan de administrador.</p>
+          </div>
+
+          <div class="referral-step">
+            <span class="referral-step-num">Paso 03</span>
+            <span class="referral-step-icon">🎉</span>
+            <h3>¡Cancha gratis para vos!</h3>
+            <p>Recibís una recompensa que podés usar para pagar cualquier reserva sin gastar un peso.</p>
+          </div>
+        </div>
+
+        <div class="referral-hero-actions">
+          @auth
+            <a href="{{ route('referral.index') }}" class="btn-referral-primary">
+              Ver mi código de referido →
+            </a>
+          @else
+            <a href="{{ route('register') }}" class="btn-referral-primary">
+              Crear cuenta y referir →
+            </a>
+          @endauth
+          <a href="{{ route('como-funciona') }}" class="btn-referral-ghost">
+            Saber más
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
   {{-- ── ¿Por qué TuCancha? ────────────────────────────────────────── --}}
   <section id="por-que" class="section">
     <div class="container">
@@ -329,6 +548,18 @@
           <span class="why-icon">🔔</span>
           <h3>Recordatorios por mail</h3>
           <p>Confirmación inmediata y recordatorios para que no se te escape ningún turno.</p>
+        </div>
+
+        <div class="why-card">
+          <span class="why-icon">📊</span>
+          <h3>Historial de partidos</h3>
+          <p>Llevá el registro de todos tus partidos jugados: estadísticas, resultados, deporte favorito y plata gastada en un solo lugar.</p>
+        </div>
+
+        <div class="why-card">
+          <span class="why-icon">👥</span>
+          <h3>Etiquetá a tus compañeros</h3>
+          <p>Agregá a los jugadores que fueron con vos al partido. Ellos pueden ver el encuentro en su historial y cargar su propio resultado.</p>
         </div>
       </div>
     </div>
@@ -420,6 +651,30 @@
           <div class="faq-body">
             Hacé clic en "Crear cuenta", completá tu nombre, mail y contraseña.
             En menos de un minuto tenés tu cuenta lista. No se requiere tarjeta para registrarse.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-trigger" onclick="toggleFaq(this)">
+            <span class="faq-trigger-text">¿Qué es el historial de partidos?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-body">
+            Es una sección de tu perfil donde podés ver todos los partidos que jugaste: cuántos fueron,
+            qué deporte jugaste más, tu complejo favorito y el total gastado. También podés cargar el resultado
+            de cada partido (ganamos, empatamos, perdimos) y ver estadísticas con gráficos.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-trigger" onclick="toggleFaq(this)">
+            <span class="faq-trigger-text">¿Puedo agregar a mis compañeros de partido?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-body">
+            Sí. Cuando reservás y pagás una cancha, desde el detalle de la reserva podés buscar a otros usuarios
+            de TuCancha por nombre o mail y agregarlos como jugadores del partido. Ellos podrán ver ese encuentro
+            en su propio historial y cargar su resultado de forma independiente al tuyo.
           </div>
         </div>
       </div>

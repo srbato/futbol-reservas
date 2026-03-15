@@ -36,11 +36,7 @@ class MercadoPagoOAuthController extends Controller
             'redirect_uri'  => $redirectUri,
         ]);
 
-        Log::info('MP OAuth redirect', [
-            'redirect_uri' => $redirectUri,
-            'client_id'    => config('services.mercadopago.client_id'),
-            'full_url'     => 'https://auth.mercadopago.com.ar/authorization?' . $query,
-        ]);
+        Log::info('MP OAuth redirect iniciado', ['venue_id' => $venue->id]);
 
         return redirect()->away('https://auth.mercadopago.com.ar/authorization?' . $query);
     }
@@ -56,13 +52,18 @@ class MercadoPagoOAuthController extends Controller
 
         // Si el usuario canceló en MP
         if ($error || !$code) {
-            return redirect()->route('va.dashboard')
-                ->with('error', 'Conectar Mercado Pago fue cancelado o falló.');
+            return $this->redirectToConnectMp(
+                session('mp_oauth_venue_id'),
+                'Conectar Mercado Pago fue cancelado. Por favor, intentá de nuevo.'
+            );
         }
 
         // Verificamos el state anti-CSRF
         if (!$state || $state !== session('mp_oauth_state')) {
-            abort(422, 'Estado inválido en OAuth de Mercado Pago.');
+            return $this->redirectToConnectMp(
+                session('mp_oauth_venue_id'),
+                'Hubo un error de seguridad en la conexión. Por favor, intentá de nuevo.'
+            );
         }
 
         $venueId = session('mp_oauth_venue_id');
@@ -93,8 +94,10 @@ class MercadoPagoOAuthController extends Controller
                 'response' => $response->body(),
             ]);
 
-            return redirect()->route('va.dashboard')
-                ->with('error', 'No se pudo conectar la cuenta de Mercado Pago. Intentá de nuevo.');
+            return $this->redirectToConnectMp(
+                $venueId,
+                'No se pudo conectar la cuenta de Mercado Pago. Por favor, intentá de nuevo.'
+            );
         }
 
         $data = $response->json();
@@ -109,6 +112,19 @@ class MercadoPagoOAuthController extends Controller
 
         return redirect()->route('va.dashboard')
             ->with('success', "Mercado Pago conectado correctamente para {$venue->name}.");
+    }
+
+    private function redirectToConnectMp(?int $venueId, string $error): \Illuminate\Http\RedirectResponse
+    {
+        session()->forget(['mp_oauth_state', 'mp_oauth_venue_id']);
+
+        $venue = $venueId ? Venue::find($venueId) : null;
+
+        if ($venue) {
+            return redirect()->route('va.venues.connect_mp', $venue)->with('error', $error);
+        }
+
+        return redirect()->route('va.dashboard')->with('error', $error);
     }
 
     /**

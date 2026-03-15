@@ -7,6 +7,7 @@
 @section('page_subtitle', 'Resumen de tus complejos y reservas')
 
 @push('styles')
+<style>
   /* ── Tabs ──────────────────────────────────────── */
   .dash-tabs {
     display: flex;
@@ -427,6 +428,7 @@
     .kpi-grid { grid-template-columns: 1fr 1fr; }
     .kpi-value { font-size: 26px; }
   }
+</style>
 @endpush
 
 @section('content')

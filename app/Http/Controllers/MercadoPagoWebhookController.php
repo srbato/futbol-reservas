@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Mail\ReservationPaidMail;
+use App\Models\PlatformPayout;
 use App\Models\Reservation;
 use App\Models\ReservationBatch;
+use App\Models\Venue;
 use App\Models\VenueAdminSubscription;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -69,6 +71,14 @@ class MercadoPagoWebhookController extends Controller
             );
         }
 
+        if (str_starts_with($externalReference, 'platform_payout:venue:')) {
+            return $this->handlePlatformPayoutPayment(
+                $externalReference,
+                $paymentStatus,
+                $paymentId
+            );
+        }
+
         return $this->handleReservationPayment(
             $externalReference,
             $paymentStatus,
@@ -103,6 +113,26 @@ class MercadoPagoWebhookController extends Controller
                 'venue_id'   => $reservation->field->venue->id,
             ]);
             // Continuamos igual con el status que ya teníamos del webhook principal
+        }
+
+        // Idempotency: if already processed with this exact payment ID, skip
+        if ($reservation->payment_external_id === (string) $paymentId && $reservation->status === 'PAID') {
+            Log::info('Webhook reserva: ya procesado, ignorando', ['payment_id' => $paymentId, 'reservation_id' => $reservation->id]);
+            return response()->json(['ok' => true]);
+        }
+
+        // Amount validation: warn if MP amount doesn't match our expected amount
+        if ($paymentResponse->successful()) {
+            $paidAmount     = (float) ($paymentResponse->json()['transaction_amount'] ?? 0);
+            $expectedAmount = (float) $reservation->total_amount;
+            if ($expectedAmount > 0 && abs($paidAmount - $expectedAmount) > 1) {
+                Log::warning('Webhook reserva: discrepancia de monto', [
+                    'reservation_id'  => $reservation->id,
+                    'expected_amount' => $expectedAmount,
+                    'paid_amount'     => $paidAmount,
+                    'payment_id'      => $paymentId,
+                ]);
+            }
         }
 
         $reservation->payment_provider    = 'mercadopago';
@@ -157,29 +187,39 @@ class MercadoPagoWebhookController extends Controller
             $paymentStatus = $paymentResponse->json()['status'] ?? $paymentStatus;
         }
 
-        $wasPaidBefore = $batch->status === 'PAID';
-
-        $batch->payment_provider    = 'mercadopago';
-        $batch->payment_external_id = (string) $paymentId;
-        $batch->payment_status      = $paymentStatus;
-
-        if ($paymentStatus === 'approved') {
-            $batch->status     = 'PAID';
-            $batch->expires_at = null;
+        // Idempotency: if already processed with this exact payment ID, skip
+        if ($batch->payment_external_id === (string) $paymentId && $batch->status === 'PAID') {
+            Log::info('Webhook batch: ya procesado, ignorando', ['payment_id' => $paymentId, 'batch_id' => $batch->id]);
+            return response()->json(['ok' => true]);
         }
 
-        $batch->save();
+        $wasPaidBefore = $batch->status === 'PAID';
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($batch, $paymentId, $paymentStatus) {
+            $batch->payment_provider    = 'mercadopago';
+            $batch->payment_external_id = (string) $paymentId;
+            $batch->payment_status      = $paymentStatus;
+
+            if ($paymentStatus === 'approved') {
+                $batch->status     = 'PAID';
+                $batch->expires_at = null;
+
+                $batch->reservations()->update([
+                    'status'                 => 'PAID',
+                    'expires_at'             => null,
+                    'payment_provider'       => 'mercadopago',
+                    'payment_external_id'    => (string) $paymentId,
+                    'payment_status'         => 'approved',
+                    'payment_mp_token_owner' => $batch->payment_mp_token_owner,
+                ]);
+            }
+
+            $batch->save();
+        });
+
+        $batch->refresh();
 
         if ($paymentStatus === 'approved' && !$wasPaidBefore) {
-            $batch->reservations()->update([
-                'status'              => 'PAID',
-                'expires_at'          => null,
-                'payment_provider'    => 'mercadopago',
-                'payment_external_id' => (string) $paymentId,
-                'payment_status'      => 'approved',
-                'payment_mp_token_owner' => $batch->payment_mp_token_owner,
-            ]);
-
             $batch->loadMissing(['user', 'field.venue.owner']);
 
             Mail::to($batch->user->email)
@@ -190,6 +230,46 @@ class MercadoPagoWebhookController extends Controller
                 Mail::to($venueOwner->email)
                     ->send(new \App\Mail\VenueAdminBatchReservationMail($batch));
             }
+        }
+
+        return response()->json(['ok' => true]);
+    }
+
+    private function handlePlatformPayoutPayment(string $externalReference, ?string $paymentStatus, $paymentId)
+    {
+        $venueId = str_replace('platform_payout:venue:', '', $externalReference);
+        $venue   = Venue::find($venueId);
+
+        if (!$venue) {
+            Log::warning('Venue no encontrado para platform_payout webhook', ['venue_id' => $venueId]);
+            return response()->json(['ok' => true]);
+        }
+
+        // Re-consultamos el pago con el token del venue para confirmar
+        if ($venue->mp_access_token) {
+            $paymentResponse = Http::withOptions(['verify' => !app()->isLocal()])
+                ->withToken($venue->mp_access_token)
+                ->get("https://api.mercadopago.com/v1/payments/{$paymentId}");
+
+            if ($paymentResponse->successful()) {
+                $paymentStatus = $paymentResponse->json()['status'] ?? $paymentStatus;
+            }
+        }
+
+        if ($paymentStatus === 'approved') {
+            $count = PlatformPayout::where('venue_id', $venue->id)
+                ->where('status', 'pending')
+                ->update([
+                    'status'  => 'paid',
+                    'paid_at' => now(),
+                    'notes'   => "Pagado vía Mercado Pago (payment #{$paymentId})",
+                ]);
+
+            Log::info('Platform payouts marcados como pagados vía MP webhook', [
+                'venue_id'   => $venueId,
+                'count'      => $count,
+                'payment_id' => $paymentId,
+            ]);
         }
 
         return response()->json(['ok' => true]);

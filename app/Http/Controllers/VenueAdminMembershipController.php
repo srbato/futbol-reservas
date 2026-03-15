@@ -188,6 +188,18 @@ class VenueAdminMembershipController extends Controller
         return redirect()->away($data['init_point']);
     }
 
+    public function cancelPending(Request $request)
+    {
+        $user = $request->user();
+
+        $user->venueAdminSubscriptions()
+            ->where('status', 'PENDING_PAYMENT')
+            ->update(['status' => 'CANCELLED']);
+
+        return redirect()->route('membership.become')
+            ->with('success', 'El intento anterior fue cancelado. Ya podés iniciar un nuevo pago.');
+    }
+
     public function success()
     {
         return redirect()

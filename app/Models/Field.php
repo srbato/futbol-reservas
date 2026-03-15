@@ -6,9 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Field extends Model
 {
+    use SoftDeletes;
     protected $fillable = [
         'venue_id','name','sport','format','slot_minutes','is_indoor','is_active','cover_image_path'
     ];

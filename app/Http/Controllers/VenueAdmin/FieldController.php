@@ -8,6 +8,7 @@ use App\Models\FieldPrice;
 use App\Models\MembershipPlan;
 use App\Models\Venue;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class FieldController extends Controller
@@ -29,7 +30,7 @@ class FieldController extends Controller
             abort(403);
         }
 
-        // Enforce plan field limit (super_admin is exempt)
+        // Enforce plan field limit (super_admin is exempt) — wrapped in transaction to prevent race condition
         if ($user->role !== 'super_admin') {
             $subscription = $user->activeVenueAdminSubscription()->first();
             $plan = $subscription?->plan_slug
@@ -37,16 +38,22 @@ class FieldController extends Controller
                 : null;
 
             if ($plan && $plan->max_fields !== null) {
-                $activeFieldCount = Field::whereHas('venue', fn($q) => $q->where('owner_user_id', $user->id))
-                    ->where('is_active', true)
-                    ->count();
+                $limitError = DB::transaction(function () use ($user, $plan) {
+                    $activeFieldCount = Field::whereHas('venue', fn($q) => $q->where('owner_user_id', $user->id))
+                        ->where('is_active', true)
+                        ->lockForUpdate()
+                        ->count();
 
-                if ($activeFieldCount >= $plan->max_fields) {
-                    return back()->with('error',
-                        "Tu plan {$plan->name} permite hasta {$plan->max_fields} " .
-                        ($plan->max_fields === 1 ? 'cancha activa' : 'canchas activas') .
-                        ". Desactivá una cancha existente o actualizá tu plan para agregar más."
-                    );
+                    if ($activeFieldCount >= $plan->max_fields) {
+                        return "Tu plan {$plan->name} permite hasta {$plan->max_fields} " .
+                            ($plan->max_fields === 1 ? 'cancha activa' : 'canchas activas') .
+                            ". Desactivá una cancha existente o actualizá tu plan para agregar más.";
+                    }
+                    return null;
+                });
+
+                if ($limitError) {
+                    return back()->with('error', $limitError);
                 }
             }
         }

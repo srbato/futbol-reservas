@@ -1,17 +1,73 @@
 @extends('layouts.admin')
 
-@section('title','Reportes')
-@section('page_title','Reportes')
-@section('page_subtitle','Ingresos y reservas')
+@section('title', 'Reportes')
+@section('page_title', 'Reportes')
+@section('page_subtitle', 'Ingresos y actividad de tus complejos')
+
+@push('styles')
+<style>
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .kpi-card {
+    background: #fff;
+    border: 1px solid #ececec;
+    border-radius: 16px;
+    padding: 20px 22px;
+  }
+  .kpi-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: #999;
+    margin-bottom: 10px;
+  }
+  .kpi-value {
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -.02em;
+  }
+  .kpi-sub {
+    font-size: 13px;
+    color: #888;
+    margin-top: 6px;
+  }
+  .occupancy-item {
+    padding: 14px 16px;
+    border: 1px solid #ececec;
+    border-radius: 12px;
+    margin-bottom: 10px;
+  }
+  .occupancy-item:last-child { margin-bottom: 0; }
+  .occupancy-bar-track {
+    width: 100%;
+    height: 8px;
+    background: #f1f1f1;
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: 12px;
+  }
+  .occupancy-bar-fill {
+    height: 8px;
+    background: #111;
+    border-radius: 999px;
+  }
+</style>
+@endpush
 
 @section('content')
-  <div class="admin-card" style="margin-bottom:20px;">
-    <form method="GET" action="{{ route('va.reports') }}"
-          style="display:flex; gap:12px; flex-wrap:wrap; align-items:end;">
-      
-      <div>
-        <label style="display:block; font-size:12px; color:#666;">Cancha</label>
-        <select name="field_id" style="padding:10px; border:1px solid #ddd; border-radius:10px;">
+
+  {{-- Filtros --}}
+  <div class="filter-bar" style="justify-content:space-between; align-items:flex-end;">
+    <form method="GET" action="{{ route('va.reports') }}" class="form-row">
+      <div class="form-group">
+        <label class="form-label">Cancha</label>
+        <select name="field_id" class="form-control" style="width:auto;">
           <option value="">Todas</option>
           @foreach($fields as $field)
             <option value="{{ $field->id }}" {{ (string)$fieldId === (string)$field->id ? 'selected' : '' }}>
@@ -21,99 +77,84 @@
         </select>
       </div>
 
-      <div>
-        <label style="display:block; font-size:12px; color:#666;">Desde</label>
+      <div class="form-group">
+        <label class="form-label">Desde</label>
         <input type="date" name="from" value="{{ $from->toDateString() }}"
-               style="padding:10px; border:1px solid #ddd; border-radius:10px;">
+               class="form-control" style="width:auto;">
       </div>
 
-      <div>
-        <label style="display:block; font-size:12px; color:#666;">Hasta</label>
+      <div class="form-group">
+        <label class="form-label">Hasta</label>
         <input type="date" name="to" value="{{ $to->toDateString() }}"
-               style="padding:10px; border:1px solid #ddd; border-radius:10px;">
+               class="form-control" style="width:auto;">
       </div>
 
-      <button type="submit"
-              style="padding:10px 14px; border:0; background:#111; color:#fff; border-radius:10px; cursor:pointer;">
-        Filtrar
-      </button>
-
-      <a href="{{ route('va.reports') }}"
-         style="padding:10px 14px; border:1px solid #ddd; border-radius:10px; text-decoration:none; color:#111;">
-        Limpiar
-      </a>
-
-      <a href="{{ route('va.reports.export', request()->query()) }}"
-        style="padding:10px 14px;margin-left:490px;border:1px solid #ddd;border-radius:10px;text-decoration:none;color:#111;">
-        Exportar CSV
-      </a>
+      <button type="submit" class="btn btn-primary">Filtrar</button>
+      <a href="{{ route('va.reports') }}" class="btn btn-ghost">Limpiar</a>
     </form>
+
+    <a href="{{ route('va.reports.export', request()->query()) }}" class="btn btn-ghost">
+      ↓ Exportar CSV
+    </a>
   </div>
 
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px; margin-bottom:20px;">
-    <div class="admin-card">
-      <h3>Hoy</h3>
-      <p><strong>${{ number_format($todayRevenue,0,',','.') }}</strong></p>
-      <p>{{ $todayReservations }} reservas</p>
+  {{-- KPIs --}}
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Hoy</div>
+      <div class="kpi-value">${{ number_format($todayRevenue, 0, ',', '.') }}</div>
+      <div class="kpi-sub">{{ $todayReservations }} reservas</div>
     </div>
-
-    <div class="admin-card">
-      <h3>Esta semana</h3>
-      <p><strong>${{ number_format($weekRevenue,0,',','.') }}</strong></p>
-      <p>{{ $weekReservations }} reservas</p>
+    <div class="kpi-card">
+      <div class="kpi-label">Esta semana</div>
+      <div class="kpi-value">${{ number_format($weekRevenue, 0, ',', '.') }}</div>
+      <div class="kpi-sub">{{ $weekReservations }} reservas</div>
     </div>
-
-    <div class="admin-card">
-      <h3>Este mes</h3>
-      <p><strong>${{ number_format($monthRevenue,0,',','.') }}</strong></p>
-      <p>{{ $monthReservations }} reservas</p>
+    <div class="kpi-card">
+      <div class="kpi-label">Este mes</div>
+      <div class="kpi-value">${{ number_format($monthRevenue, 0, ',', '.') }}</div>
+      <div class="kpi-sub">{{ $monthReservations }} reservas</div>
     </div>
   </div>
 
+  {{-- Gráfico reservas --}}
   <div class="admin-card" style="margin-bottom:20px;">
-    <h3 style="margin-top:0;">Reservas por día</h3>
+    <div class="section-title" style="margin-bottom:18px;">Reservas por día</div>
     <canvas id="reservationsChart" height="100"></canvas>
   </div>
 
-  <div class="admin-card">
-    <h3 style="margin-top:0;">Ingresos por día</h3>
+  {{-- Gráfico ingresos --}}
+  <div class="admin-card" style="margin-bottom:20px;">
+    <div class="section-title" style="margin-bottom:18px;">Ingresos por día</div>
     <canvas id="revenueChart" height="100"></canvas>
   </div>
 
-  <div class="admin-card" style="margin-top:20px;">
-  <h3 style="margin-top:0;">Ocupación por cancha en el rango</h3>
+  {{-- Ocupación por cancha --}}
+  <div class="admin-card">
+    <div class="section-title" style="margin-bottom:18px;">Ocupación por cancha en el rango</div>
 
-  @if(empty($fieldOccupancy))
-    <p>No hay datos para mostrar.</p>
-  @else
-    <div style="display:flex; flex-direction:column; gap:12px; margin-top:12px;">
+    @if(empty($fieldOccupancy))
+      <div class="empty-state">No hay datos para el rango seleccionado.</div>
+    @else
       @foreach($fieldOccupancy as $item)
-        <div style="padding:12px; border:1px solid #eee; border-radius:12px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; gap:12px; flex-wrap:wrap;">
+        <div class="occupancy-item">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
             <div>
               <strong>{{ $item['field']->name }}</strong>
-              <div style="font-size:12px; color:#666;">
-                {{ $item['field']->venue->name }}
-              </div>
+              <div style="font-size:12px; color:#888; margin-top:2px;">{{ $item['field']->venue->name }}</div>
             </div>
             <div style="text-align:right;">
-              <div style="font-weight:700;">
-                {{ $item['reserved_slots'] }}/{{ $item['total_slots'] }} slots — {{ $item['occupancy_percent'] }}%
-              </div>
-              <div style="font-size:13px; color:#666; margin-top:2px;">
-                $ {{ number_format($item['revenue'], 0, ',', '.') }} generados
-              </div>
+              <strong>{{ $item['reserved_slots'] }}/{{ $item['total_slots'] }} slots — {{ $item['occupancy_percent'] }}%</strong>
+              <div style="font-size:13px; color:#888; margin-top:2px;">${{ number_format($item['revenue'], 0, ',', '.') }}</div>
             </div>
           </div>
-
-          <div style="width:100%; height:14px; background:#f1f1f1; border-radius:999px; overflow:hidden;">
-            <div style="height:14px; width: {{ $item['occupancy_percent'] }}%; background:#111;"></div>
+          <div class="occupancy-bar-track">
+            <div class="occupancy-bar-fill" style="width:{{ $item['occupancy_percent'] }}%;"></div>
           </div>
         </div>
       @endforeach
-    </div>
-  @endif
-</div>
+    @endif
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
@@ -124,36 +165,42 @@
     new Chart(document.getElementById('reservationsChart'), {
       type: 'bar',
       data: {
-        labels: labels,
+        labels,
         datasets: [{
           label: 'Reservas',
-          data: reservationsPerDay
+          data: reservationsPerDay,
+          backgroundColor: '#111',
+          borderRadius: 6
         }]
       },
       options: {
         responsive: true,
-        plugins: {
-          legend: { display: true }
-        }
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, grid: { color: '#f0f0f0' } }, x: { grid: { display: false } } }
       }
     });
 
     new Chart(document.getElementById('revenueChart'), {
       type: 'line',
       data: {
-        labels: labels,
+        labels,
         datasets: [{
           label: 'Ingresos',
           data: revenuePerDay,
-          tension: 0.3
+          tension: 0.35,
+          borderColor: '#111',
+          backgroundColor: 'rgba(0,0,0,.05)',
+          fill: true,
+          pointBackgroundColor: '#111',
+          pointRadius: 4
         }]
       },
       options: {
         responsive: true,
-        plugins: {
-          legend: { display: true }
-        }
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, grid: { color: '#f0f0f0' } }, x: { grid: { display: false } } }
       }
     });
   </script>
+
 @endsection
