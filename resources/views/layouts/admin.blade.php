@@ -303,9 +303,11 @@
         <a href="{{ route('va.reservations.agenda') }}" class="{{ request()->routeIs('va.reservations.agenda') ? 'active' : '' }}">
           Agenda
         </a>
-        <a href="{{ route('va.reports') }}" class="{{ request()->routeIs('va.reports') ? 'active' : '' }}">
-          Reportes
-        </a>
+        @unless(auth()->user()->isVenueStaff())
+          <a href="{{ route('va.reports') }}" class="{{ request()->routeIs('va.reports') ? 'active' : '' }}">
+            Reportes
+          </a>
+        @endunless
         <a href="{{ route('va.blocks.index') }}" class="{{ request()->routeIs('va.blocks.*') ? 'active' : '' }}">
           Bloqueos
         </a>
@@ -315,6 +317,9 @@
         @if(auth()->user()->role === 'venue_admin')
           <a href="{{ route('va.payouts.index') }}" class="{{ request()->routeIs('va.payouts.*') ? 'active' : '' }}">
             Mis cobros
+          </a>
+          <a href="{{ route('va.staff.index') }}" class="{{ request()->routeIs('va.staff.*') ? 'active' : '' }}">
+            Empleados
           </a>
         @endif
       </nav>

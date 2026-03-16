@@ -17,7 +17,7 @@ class VenueController extends Controller
         $validated = $request->validate([
             'q' => ['nullable', 'string', 'max:120'],
             'zone' => ['nullable', 'string', 'max:120'],
-            'sport' => ['nullable', 'in:football,padel,tennis'],
+            'sport' => ['nullable', 'in:football,padel,tennis,basketball,volleyball'],
             'min_price' => ['nullable', 'numeric', 'min:0'],
             'max_price' => ['nullable', 'numeric', 'min:0'],
             'date' => ['nullable', 'date'],
@@ -124,7 +124,7 @@ class VenueController extends Controller
 
                 $reservationsByField = Reservation::query()
                     ->whereIn('field_id', $fieldIds)
-                    ->whereIn('status', ['PAID', 'CHECKED_IN', 'PENDING_PAYMENT'])
+                    ->whereIn('status', ['PAID', 'PENDING_PAYMENT'])
                     ->where(function ($q) {
                         $q->where('status', '!=', 'PENDING_PAYMENT')
                             ->orWhere(function ($q2) {
@@ -176,7 +176,7 @@ class VenueController extends Controller
             ->withCount([
                 'reservations as weekly_reservations_count' => function ($q) use ($startOfWeek, $endOfWeek) {
                     $q->whereBetween('start_at', [$startOfWeek, $endOfWeek])
-                        ->whereIn('status', ['PAID', 'CHECKED_IN', 'PENDING_PAYMENT']);
+                        ->whereIn('status', ['PAID', 'PENDING_PAYMENT']);
                 }
             ])
             ->orderByDesc('weekly_reservations_count')
@@ -212,8 +212,19 @@ class VenueController extends Controller
             ? auth()->user()->favoriteVenues()->where('is_active', true)->orderBy('name')->get()
             : collect();
 
+        $hasFilters = (bool) ($q || $zone || $sport || ($minPrice !== null && $minPrice !== '') || ($maxPrice !== null && $maxPrice !== '') || $date || $availableAt);
+
+        $allVenues = Venue::query()
+            ->where('is_active', true)
+            ->withAvg('reviews', 'rating')
+            ->withCount('reviews')
+            ->orderBy('name')
+            ->get(['id', 'name', 'description', 'cover_image_path', 'address', 'zone', 'lat', 'lng']);
+
         return view('venues.index', compact(
             'venues',
+            'allVenues',
+            'hasFilters',
             'zones',
             'q',
             'zone',

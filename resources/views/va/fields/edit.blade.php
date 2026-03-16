@@ -144,6 +144,13 @@
 @endpush
 
 @section('content')
+
+@include('va.partials.help-modal', [
+  'helpKey'   => 'va_field_edit',
+  'helpTitle' => 'Editar cancha',
+  'helpText'  => 'Acá editás la información de la cancha: nombre, deporte, precio por turno, precio nocturno y duración del turno. Los cambios se aplican de inmediato para nuevas reservas. Las reservas ya existentes no se ven afectadas.',
+])
+
 @php $hasNight = !is_null($field->price->night_price_per_slot ?? null); @endphp
 
 <form method="POST" action="{{ route('va.fields.update', $field) }}" enctype="multipart/form-data">
@@ -196,16 +203,18 @@
         <div class="fe-2col">
           <div>
             <label class="form-label" for="sport">Deporte</label>
-            <input id="sport" name="sport" class="form-control" style="width:100%;"
-                   value="{{ old('sport', $field->sport) }}" required
-                   placeholder="Ej: fútbol, pádel...">
+            <select id="sport" name="sport" class="form-control" style="width:100%;" onchange="updateFormat()">
+              @foreach(['football'=>'⚽ Fútbol','padel'=>'🏓 Pádel','tennis'=>'🎾 Tenis','basketball'=>'🏀 Básquet','volleyball'=>'🏐 Vóley'] as $val=>$label)
+                <option value="{{ $val }}" {{ old('sport', $field->sport) === $val ? 'selected' : '' }}>{{ $label }}</option>
+              @endforeach
+            </select>
           </div>
           <div>
-            <label class="form-label" for="format">Formato</label>
-            <input id="format" type="number" name="format" class="form-control" style="width:100%;"
-                   value="{{ old('format', $field->format) }}" min="3" max="11" required
-                   placeholder="5, 7, 11...">
-            <p class="form-hint">Jugadores por equipo</p>
+            <label class="form-label" id="format-label">Formato</label>
+            <select id="format-select" class="form-control" style="width:100%;" onchange="syncFormat()">
+            </select>
+            <input type="hidden" name="format" id="format-hidden" value="{{ old('format', $field->format) }}">
+            <p class="form-hint" id="format-hint"></p>
           </div>
         </div>
 
@@ -300,6 +309,39 @@
 </form>
 
 <script>
+  const SPORT_CONFIG = {
+    football:   { label: 'Jugadores por equipo', hint: 'Formato del partido', options: [{v:5,l:'5 (Fútbol 5)'},{v:7,l:'7 (Fútbol 7)'},{v:9,l:'9 (Fútbol 9)'},{v:11,l:'11 (Fútbol 11)'}] },
+    padel:      { label: 'Formato', hint: 'Siempre 2 jugadores por equipo', options: [{v:2,l:'2 vs 2'}] },
+    tennis:     { label: 'Modalidad', hint: '', options: [{v:1,l:'Singles (1 vs 1)'},{v:2,l:'Dobles (2 vs 2)'}] },
+    basketball: { label: 'Jugadores por equipo', hint: '', options: [{v:3,l:'3 (3x3)'},{v:5,l:'5 (5x5)'}] },
+    volleyball: { label: 'Formato', hint: 'Siempre 6 jugadores por equipo', options: [{v:6,l:'6 vs 6'}] },
+  };
+
+  function updateFormat() {
+    const sport    = document.getElementById('sport').value;
+    const config   = SPORT_CONFIG[sport] || SPORT_CONFIG.football;
+    const sel      = document.getElementById('format-select');
+    const current  = parseInt(document.getElementById('format-hidden').value) || 0;
+
+    document.getElementById('format-label').textContent = config.label;
+    document.getElementById('format-hint').textContent  = config.hint;
+
+    sel.innerHTML = '';
+    config.options.forEach(function(opt) {
+      const o = document.createElement('option');
+      o.value = opt.v;
+      o.textContent = opt.l;
+      if (opt.v === current) o.selected = true;
+      sel.appendChild(o);
+    });
+
+    syncFormat();
+  }
+
+  function syncFormat() {
+    document.getElementById('format-hidden').value = document.getElementById('format-select').value;
+  }
+
   function toggleNight(suffix) {
     const checkbox = document.getElementById('toggle_night_' + suffix);
     const panel    = document.getElementById('night_panel_' + suffix);
@@ -320,5 +362,8 @@
     };
     reader.readAsDataURL(file);
   }
+
+  // Init: populate format options for the current sport
+  updateFormat();
 </script>
 @endsection

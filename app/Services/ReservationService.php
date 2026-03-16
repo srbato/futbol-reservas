@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Events\FieldAvailabilityChanged;
 use App\Models\Field;
 use App\Models\Reservation;
 use Carbon\Carbon;
@@ -84,7 +85,7 @@ class ReservationService
 
             $overlap = Reservation::query()
                 ->where('field_id', $field->id)
-                ->whereIn('status', ['PENDING_PAYMENT', 'PAID', 'CHECKED_IN'])
+                ->whereIn('status', ['PENDING_PAYMENT', 'PAID'])
                 ->where(function ($q) {
                     $q->where('status', '!=', 'PENDING_PAYMENT')
                       ->orWhere(function ($q2) {
@@ -131,7 +132,7 @@ class ReservationService
                 $finalPrice = (float) $matchingDiscount->discount_price;
             }
 
-            return Reservation::create([
+            $reservation = Reservation::create([
                 'batch_id' => $batchId,
                 'field_id' => $field->id,
                 'user_id' => $userId,
@@ -143,6 +144,10 @@ class ReservationService
                 'expires_at' => now()->addMinutes($expiresInMinutes),
                 'verification_code' => Str::upper(Str::random(8)),
             ]);
+
+            broadcast(new FieldAvailabilityChanged($field->id, $start->toDateString()));
+
+            return $reservation;
         });
     }
 }

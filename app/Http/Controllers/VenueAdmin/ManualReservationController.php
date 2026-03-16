@@ -26,7 +26,7 @@ class ManualReservationController extends Controller
             ->findOrFail($data['field_id']);
 
         // Ensure field belongs to this admin
-        if ($field->venue->owner_user_id !== $user->id) {
+        if ($user->role !== 'super_admin' && $field->venue->owner_user_id !== $user->id && !$user->isStaffOf($field->venue->id)) {
             abort(403);
         }
 
@@ -40,7 +40,7 @@ class ManualReservationController extends Controller
 
         // Check overlap with existing active reservations
         $overlap = Reservation::where('field_id', $field->id)
-            ->whereIn('status', ['PENDING_PAYMENT', 'PAID', 'CHECKED_IN'])
+            ->whereIn('status', ['PENDING_PAYMENT', 'PAID'])
             ->where(function ($q) {
                 $q->where('status', '!=', 'PENDING_PAYMENT')
                   ->orWhere(function ($q2) {

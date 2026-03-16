@@ -87,4 +87,24 @@ class User extends Authenticatable
     {
         return $this->hasMany(ReservationPlayer::class);
     }
+
+    public function venuesAsStaff()
+    {
+        return $this->belongsToMany(Venue::class, 'venue_staff')->withTimestamps();
+    }
+
+    public function isStaffOf(int $venueId): bool
+    {
+        return $this->venuesAsStaff()->where('venue_id', $venueId)->exists();
+    }
+
+    public function isVenueStaff(): bool
+    {
+        return $this->venuesAsStaff()->exists();
+    }
+
+    public function pendingStaffInvitations()
+    {
+        return $this->hasMany(VenueStaffInvitation::class)->where('status', 'pending');
+    }
 }

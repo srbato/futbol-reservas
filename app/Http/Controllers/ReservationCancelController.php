@@ -18,7 +18,7 @@ class ReservationCancelController extends Controller
             abort(403);
         }
 
-        if (in_array($reservation->status, ['CHECKED_IN', 'CANCELLED', 'EXPIRED'])) {
+        if (in_array($reservation->status, ['CANCELLED', 'EXPIRED'])) {
             return back()->with('error', 'Esta reserva no se puede cancelar.');
         }
 

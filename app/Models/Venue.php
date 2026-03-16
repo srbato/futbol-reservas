@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
@@ -68,5 +69,31 @@ class Venue extends Model
     public function owner()
     {
         return $this->belongsTo(User::class, 'owner_user_id');
+    }
+
+    /**
+     * Scope: venues que el usuario puede administrar (dueño o staff).
+     * Super admin no necesita este scope — tiene acceso global.
+     */
+    public function scopeAccessibleBy(Builder $query, User $user): Builder
+    {
+        if ($user->role === 'super_admin') {
+            return $query;
+        }
+
+        return $query->where(function ($q) use ($user) {
+            $q->where('owner_user_id', $user->id)
+              ->orWhereHas('staff', fn ($sq) => $sq->where('users.id', $user->id));
+        });
+    }
+
+    public function staff()
+    {
+        return $this->belongsToMany(User::class, 'venue_staff')->withTimestamps();
+    }
+
+    public function staffInvitations()
+    {
+        return $this->hasMany(VenueStaffInvitation::class);
     }
 }

@@ -12,6 +12,9 @@ class VenuePayoutController extends Controller
     public function index(Request $request)
     {
         $user  = $request->user();
+
+        abort_if($user->isVenueStaff(), 403);
+
         $venue = Venue::where('owner_user_id', $user->id)->first();
 
         if (!$venue && $user->role === 'super_admin') {

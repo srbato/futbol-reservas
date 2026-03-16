@@ -31,6 +31,15 @@
     }
   @endphp
 
+  @if(auth()->user()->isVenueStaff())
+    <div class="page-card" style="margin-bottom:24px; padding:28px; background:#fff4db; border-color:#f5d48a;">
+      <div style="color:#9a6700; font-weight:800; font-size:16px; margin-bottom:6px;">No disponible</div>
+      <div style="color:#9a6700; line-height:1.6;">
+        Actualmente sos empleado de un complejo en TuCancha. Para contratar una membresía de dueño, primero pedile al dueño que te quite del staff.
+      </div>
+    </div>
+  @else
+
   <div class="page-card" style="margin-bottom:24px; padding:28px;">
     <div style="display:flex; justify-content:space-between; gap:20px; flex-wrap:wrap; align-items:flex-start;">
       <div style="max-width:760px;">
@@ -101,27 +110,38 @@
           <div style="margin-top:6px;">
             Tenés acceso como socio hasta el
             <strong>{{ $activeSubscription->expires_at?->format('d/m/Y H:i') }}</strong>.
+            @if($activeSubscription->mp_subscription_status !== 'cancelled' && $activeSubscription->mp_preapproval_id)
+              El cobro se renueva automáticamente cada {{ $activeSubscription->billing_cycle === 'annual' ? 'año' : 'mes' }}.
+            @endif
           </div>
         </div>
 
         <div class="muted" style="margin-bottom:14px; font-size:13px; line-height:1.6;">
-          Último pago registrado:
-          <strong>{{ $activeSubscription->currency }} {{ number_format((float) $activeSubscription->monthly_price, 2, ',', '.') }}</strong>
+          Plan <strong>{{ $activeSubscription->plan_slug ?? '—' }}</strong> ·
+          {{ $activeSubscription->billing_cycle === 'annual' ? 'Facturación anual' : 'Facturación mensual' }} ·
+          <strong>{{ $activeSubscription->currency }} {{ number_format((float) $activeSubscription->monthly_price, 0, ',', '.') }}</strong>
         </div>
+
+        @if($activeSubscription->mp_subscription_status === 'cancelled')
+          <div style="padding:12px 16px; border-radius:12px; background:#fff4db; color:#9a6700; border:1px solid #f5d48a; margin-bottom:14px; font-size:14px;">
+            ⚠️ Tu suscripción está cancelada. Seguirás teniendo acceso hasta el <strong>{{ $activeSubscription->expires_at?->format('d/m/Y') }}</strong>, sin cobros adicionales.
+          </div>
+        @endif
 
         <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
           <a href="{{ route('va.dashboard') }}" class="btn btn-primary">
             Ir al panel admin
           </a>
 
-          <form method="POST" action="{{ route('membership.checkout') }}">
-            @csrf
-            <input type="hidden" name="plan_slug" value="{{ $activeSubscription->plan_slug ?? $plan->slug }}">
-            <input type="hidden" name="billing_cycle" value="{{ $activeSubscription->billing_cycle ?? $billingCycle }}">
-            <button type="submit" class="btn">
-              Renovar ahora
-            </button>
-          </form>
+          @if($activeSubscription->mp_subscription_status !== 'cancelled')
+            <form method="POST" action="{{ route('membership.cancel_subscription') }}"
+                  onsubmit="return confirm('¿Cancelar la suscripción? Seguirás teniendo acceso hasta el fin del período actual, sin cobros futuros.')">
+              @csrf
+              <button type="submit" class="btn" style="color:#842029; border-color:#f1b9c0;">
+                Cancelar suscripción
+              </button>
+            </form>
+          @endif
         </div>
       @else
         @if($latestSubscription && $latestStatus === 'PENDING_PAYMENT')
@@ -170,6 +190,20 @@
           @csrf
           <input type="hidden" name="plan_slug" value="{{ $plan->slug }}">
           <input type="hidden" name="billing_cycle" value="{{ $billingCycle }}">
+
+          <div style="margin-bottom:16px;">
+            <label style="display:block; font-size:13px; color:#666; margin-bottom:6px;">
+              Email de tu cuenta MercadoPago <span style="color:#c00;">*</span>
+            </label>
+            <input type="email" name="mp_email" required
+              placeholder="tucuenta@email.com"
+              value="{{ old('mp_email') }}"
+              style="padding:10px 14px; border:1px solid #ddd; border-radius:10px; font-size:14px; width:100%; max-width:320px;">
+            <div style="font-size:12px; color:#999; margin-top:5px; line-height:1.5;">
+              Necesitamos el email de tu cuenta MercadoPago para procesar el cobro automático.
+              Puede ser diferente al email de tu cuenta en TuCancha.
+            </div>
+          </div>
 
           <div style="margin-bottom:16px;">
             <label style="display:block; font-size:13px; color:#666; margin-bottom:6px;">
@@ -271,5 +305,7 @@
       </div>
     @endif
   </div>
+
+  @endif {{-- isVenueStaff --}}
 
 @endsection

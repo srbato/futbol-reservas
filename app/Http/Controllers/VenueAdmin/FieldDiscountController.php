@@ -15,17 +15,13 @@ class FieldDiscountController extends Controller
         $user = $request->user();
 
         $fields = Field::query()
-            ->whereHas('venue', function ($q) use ($user) {
-                $q->where('owner_user_id', $user->id);
-            })
+            ->whereHas('venue', fn ($q) => $q->accessibleBy($user))
             ->with('venue')
             ->orderBy('name')
             ->get();
 
         $discounts = FieldDiscount::query()
-            ->whereHas('field.venue', function ($q) use ($user) {
-                $q->where('owner_user_id', $user->id);
-            })
+            ->whereHas('field.venue', fn ($q) => $q->accessibleBy($user))
             ->with('field.venue')
             ->orderByDesc('date')
             ->orderBy('day_of_week')
@@ -33,7 +29,7 @@ class FieldDiscountController extends Controller
             ->get();
 
         $recurringDiscounts = FieldRecurringDiscount::query()
-            ->whereHas('field.venue', fn($q) => $q->where('owner_user_id', $user->id))
+            ->whereHas('field.venue', fn ($q) => $q->accessibleBy($user))
             ->with('field.venue')
             ->orderBy('min_occurrences')
             ->get();
@@ -56,9 +52,7 @@ class FieldDiscountController extends Controller
         ]);
 
         $field = Field::query()
-            ->whereHas('venue', function ($q) use ($user) {
-                $q->where('owner_user_id', $user->id);
-            })
+            ->whereHas('venue', fn ($q) => $q->accessibleBy($user))
             ->findOrFail($data['field_id']);
 
         FieldDiscount::create([
@@ -81,7 +75,7 @@ class FieldDiscountController extends Controller
 
         $discount->load('field.venue');
 
-        if ($user->role !== 'super_admin' && $discount->field->venue->owner_user_id !== $user->id) {
+        if ($user->role !== 'super_admin' && $discount->field->venue->owner_user_id !== $user->id && !$user->isStaffOf($discount->field->venue->id)) {
             abort(403);
         }
 

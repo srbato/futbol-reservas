@@ -15,7 +15,7 @@ class VenueReviewController extends Controller
         // Verificar que el usuario haya tenido una reserva pagada o con check-in en este complejo
         $hasReservation = $venue->reservations()
             ->where('user_id', $user->id)
-            ->whereIn('status', ['PAID', 'CHECKED_IN'])
+            ->whereIn('status', ['PAID'])
             ->exists();
 
         if (!$hasReservation) {

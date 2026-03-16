@@ -228,7 +228,7 @@
                 <span class="badge">{{ $r->currency }} {{ number_format($r->total_amount, 0, ',', '.') }}</span>
               </div>
 
-              @if($r->verification_code && in_array($r->status, ['PAID', 'CHECKED_IN']))
+              @if($r->verification_code && $r->status === 'PAID')
                 <div class="page-card" style="margin-top:14px; padding:14px; border-radius:14px;">
                   <div style="font-size:12px; color:#666; margin-bottom:4px;">Código de verificación</div>
                   <div style="font-size:24px; font-weight:800; letter-spacing:0.06em;">
@@ -257,8 +257,6 @@
                   <div style="color:#842029; font-weight:700;">Reserva cancelada.</div>
                 @elseif($r->status === 'PAID')
                   <div style="color:#157347; font-weight:700;">Reserva pagada correctamente.</div>
-                @elseif($r->status === 'CHECKED_IN')
-                  <div style="color:#157347; font-weight:700;">Check-in realizado.</div>
                 @endif
 
                 @if($r->payment_status)
@@ -324,7 +322,7 @@
           $batchReservations = $batch->reservations;
           $firstSlot  = $batchReservations->first();
           $lastSlot   = $batchReservations->last();
-          $paid       = $batchReservations->whereIn('status', ['PAID', 'CHECKED_IN'])->count();
+          $paid       = $batchReservations->where('status', 'PAID')->count();
           $total      = $batchReservations->count();
           $hasPending = $batchReservations->where('status', 'PENDING_PAYMENT')
                           ->filter(fn($r) => !$r->expires_at || $r->expires_at->isFuture())
@@ -381,7 +379,7 @@
                     {{ ReservationStatus::label($slot->status) }}
                   </span>
 
-                  @if($slot->verification_code && in_array($slot->status, ['PAID', 'CHECKED_IN']))
+                  @if($slot->verification_code && $slot->status === 'PAID')
                     <span class="batch-slot-code">{{ $slot->verification_code }}</span>
                   @endif
                 </div>

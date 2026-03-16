@@ -144,7 +144,6 @@
   }
   .res-cell.status-PAID            { background: #d1e7dd; border-left-color: #198754; color: #0f5132; }
   .res-cell.status-PENDING_PAYMENT { background: #fff3cd; border-left-color: #ffc107; color: #856404; }
-  .res-cell.status-CHECKED_IN      { background: #cfe2ff; border-left-color: #0d6efd; color: #084298; }
   .res-cell.status-CANCELLED       { background: #e9ecef; border-left-color: #adb5bd; color: #6c757d; }
   .res-cell.status-EXPIRED         { background: #f8d7da; border-left-color: #dc3545; color: #842029; }
 
@@ -198,6 +197,12 @@
 
 @section('content')
 
+@include('va.partials.help-modal', [
+  'helpKey'   => 'va_agenda',
+  'helpTitle' => 'Agenda diaria',
+  'helpText'  => 'La agenda muestra en formato de grilla todos los turnos del día, organizados por cancha y horario. Solo aparecen las reservas confirmadas (pagadas). Es ideal para ver de un vistazo qué canchas están ocupadas y a qué hora.',
+])
+
 @php
   $prevDate = $date->copy()->subDay()->toDateString();
   $nextDate = $date->copy()->addDay()->toDateString();
@@ -205,7 +210,7 @@
 
   $paid    = $reservations->where('status', 'PAID')->count();
   $pending = $reservations->where('status', 'PENDING_PAYMENT')->count();
-  $total   = $reservations->whereIn('status', ['PAID', 'CHECKED_IN'])->sum('total_amount');
+  $total   = $reservations->where('status', 'PAID')->sum('total_amount');
 @endphp
 
 {{-- ── Navegación de fecha ── --}}
@@ -352,8 +357,6 @@
 
 <div class="agenda-footer">
   <a href="{{ route('va.reservations.index', array_filter(['date' => $date->toDateString()])) }}">Ver como tabla</a>
-  &nbsp;—&nbsp;
-  <a href="{{ route('va.checkin') }}">Check-in por código</a>
   &nbsp;—&nbsp;
   <a href="{{ route('va.dashboard') }}">Volver al panel</a>
 </div>

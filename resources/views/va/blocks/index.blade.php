@@ -6,6 +6,12 @@
 
 @section('content')
 
+@include('va.partials.help-modal', [
+  'helpKey'   => 'va_blocks',
+  'helpTitle' => 'Bloqueos de horario',
+  'helpText'  => 'Usá esta sección para bloquear horarios específicos en tus canchas. Los horarios bloqueados no aparecen disponibles para reservar. Es útil para mantenimientos, torneos, eventos privados o cualquier uso interno que no quieras que se reserve online.',
+])
+
   {{-- Formulario de creación --}}
   <div class="admin-card" style="margin-bottom:20px;">
     <div class="section-title" style="margin-bottom:16px;">Nuevo bloqueo</div>

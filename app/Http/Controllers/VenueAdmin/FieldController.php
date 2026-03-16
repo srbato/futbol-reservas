@@ -15,7 +15,7 @@ class FieldController extends Controller
 {
     public function create(Request $request, Venue $venue)
     {
-        if ($venue->owner_user_id !== $request->user()->id && $request->user()->role !== 'super_admin') {
+        if ($request->user()->role !== 'super_admin' && $venue->owner_user_id !== $request->user()->id) {
             abort(403);
         }
 
@@ -26,7 +26,8 @@ class FieldController extends Controller
     {
         $user = $request->user();
 
-        if ($venue->owner_user_id !== $user->id && $user->role !== 'super_admin') {
+        // Solo el dueño (o super_admin) puede crear canchas
+        if ($user->role !== 'super_admin' && $venue->owner_user_id !== $user->id) {
             abort(403);
         }
 
@@ -60,8 +61,8 @@ class FieldController extends Controller
 
         $data = $request->validate([
             'name'                 => ['required', 'string', 'max:120'],
-            'sport'                => ['required', 'string', 'max:30'],
-            'format'               => ['required', 'integer', 'min:3', 'max:11'],
+            'sport'                => ['required', 'in:football,padel,tennis,basketball,volleyball'],
+            'format'               => ['required', 'integer', 'min:1', 'max:11'],
             'slot_minutes'         => ['required', 'integer', 'min:30', 'max:180'],
             'price_per_slot'       => ['required', 'numeric', 'min:0'],
             'currency'             => ['required', 'string', 'size:3'],
@@ -96,7 +97,7 @@ class FieldController extends Controller
     {
         $field->load(['venue', 'price']);
 
-        if ($field->venue->owner_user_id !== $request->user()->id && $request->user()->role !== 'super_admin') {
+        if ($request->user()->role !== 'super_admin' && $field->venue->owner_user_id !== $request->user()->id && !$request->user()->isStaffOf($field->venue->id)) {
             abort(403);
         }
 
@@ -107,14 +108,14 @@ class FieldController extends Controller
     {
         $field->load(['venue', 'price']);
 
-        if ($field->venue->owner_user_id !== $request->user()->id && $request->user()->role !== 'super_admin') {
+        if ($request->user()->role !== 'super_admin' && $field->venue->owner_user_id !== $request->user()->id && !$request->user()->isStaffOf($field->venue->id)) {
             abort(403);
         }
 
         $data = $request->validate([
             'name'                 => ['required', 'string', 'max:120'],
-            'sport'                => ['required', 'string', 'max:30'],
-            'format'               => ['required', 'integer', 'min:3', 'max:11'],
+            'sport'                => ['required', 'in:football,padel,tennis,basketball,volleyball'],
+            'format'               => ['required', 'integer', 'min:1', 'max:11'],
             'slot_minutes'         => ['required', 'integer', 'min:30', 'max:180'],
             'price_per_slot'       => ['required', 'numeric', 'min:0'],
             'currency'             => ['required', 'string', 'size:3'],
@@ -160,7 +161,7 @@ class FieldController extends Controller
         $user = $request->user();
         $field->load('venue');
 
-        if ($field->venue->owner_user_id !== $user->id && $user->role !== 'super_admin') {
+        if ($user->role !== 'super_admin' && $field->venue->owner_user_id !== $user->id && !$user->isStaffOf($field->venue->id)) {
             abort(403);
         }
 

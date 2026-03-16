@@ -12,7 +12,7 @@ class ScheduleController extends Controller
     {
         $field->load(['venue', 'schedules']);
 
-        if ($field->venue->owner_user_id !== $request->user()->id && $request->user()->role !== 'super_admin') {
+        if ($request->user()->role !== 'super_admin' && $field->venue->owner_user_id !== $request->user()->id && !$request->user()->isStaffOf($field->venue->id)) {
             abort(403);
         }
 
@@ -25,7 +25,7 @@ class ScheduleController extends Controller
     {
         $field->load('venue');
 
-        if ($field->venue->owner_user_id !== $request->user()->id && $request->user()->role !== 'super_admin') {
+        if ($request->user()->role !== 'super_admin' && $field->venue->owner_user_id !== $request->user()->id && !$request->user()->isStaffOf($field->venue->id)) {
             abort(403);
         }
 

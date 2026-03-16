@@ -14,7 +14,7 @@ class MatchHistoryController extends Controller
     {
         $user = auth()->user();
 
-        // Reservations where user is owner OR tagged player, only PAID/CHECKED_IN, in the past
+        // Reservations where user is owner OR tagged player, only PAID, in the past
         $reservations = Reservation::with([
                 'field.venue', 'players', 'user',
                 'results' => fn($q) => $q->where('user_id', $user->id),
@@ -23,7 +23,7 @@ class MatchHistoryController extends Controller
                 $q->where('user_id', $user->id)
                     ->orWhereHas('players', fn($q2) => $q2->where('user_id', $user->id));
             })
-            ->whereIn('status', ['PAID', 'CHECKED_IN'])
+            ->whereIn('status', ['PAID'])
             ->orderByDesc('start_at')
             ->paginate(15);
 
@@ -36,7 +36,7 @@ class MatchHistoryController extends Controller
                 $q->where('user_id', $user->id)
                     ->orWhereHas('players', fn($q2) => $q2->where('user_id', $user->id));
             })
-            ->whereIn('status', ['PAID', 'CHECKED_IN'])
+            ->whereIn('status', ['PAID'])
             ->where('start_at', '<=', now())
             ->get();
 
@@ -98,7 +98,7 @@ class MatchHistoryController extends Controller
         $isTaggedPlayer = $reservation->players()->where('user_id', $user->id)->exists();
 
         abort_if(!$isOwner && !$isTaggedPlayer, 403);
-        abort_if(!in_array($reservation->status, ['PAID', 'CHECKED_IN']), 422);
+        abort_if($reservation->status !== 'PAID', 422);
         abort_if($reservation->start_at->isFuture(), 422);
 
         $data = $request->validate([

@@ -23,8 +23,8 @@ class EnsureVenueMpConnected
     {
         $user = $request->user();
 
-        // Solo aplica a venue_admin (super_admin está exento)
-        if (!$user || $user->role !== 'venue_admin') {
+        // Solo aplica a venue_admin (super_admin y staff están exentos)
+        if (!$user || $user->role !== 'venue_admin' || $user->isVenueStaff()) {
             return $next($request);
         }
 

@@ -731,11 +731,9 @@
               <a href="{{ route('venues.favorites') }}">Favoritos</a>
               <a href="{{ route('referral.index') }}">Mis referidos</a>
 
-              @if(in_array(auth()->user()->role, ['venue_admin', 'super_admin']))
+              @if(in_array(auth()->user()->role, ['venue_admin', 'super_admin']) || auth()->user()->isVenueStaff())
                 <a href="{{ route('va.dashboard') }}" class="user-dropdown-admin">⚡ Panel admin</a>
               @endif
-
-              <a href="{{ route('va.checkin') }}">Check-in</a>
 
               <form method="POST" action="{{ route('logout') }}" style="margin:0;">
                 @csrf

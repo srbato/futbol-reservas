@@ -6,6 +6,12 @@
 
 @section('content')
 
+@include('va.partials.help-modal', [
+  'helpKey'   => 'va_discounts',
+  'helpTitle' => 'Descuentos',
+  'helpText'  => 'Acá configurás precios especiales para tus canchas. Podés crear descuentos por día de la semana (ej. lunes más barato), por fecha puntual, por franja horaria o combinar varios criterios. Los descuentos se aplican automáticamente cuando los usuarios reservan en esos horarios.',
+])
+
   {{-- Descuentos por reserva recurrente --}}
   <div class="admin-card" style="margin-bottom:20px;">
     <div class="section-header">

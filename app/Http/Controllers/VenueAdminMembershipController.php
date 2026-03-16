@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\MembershipPlan;
 use App\Models\VenueAdminSubscription;
+use App\Services\MercadoPagoSubscriptionService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class VenueAdminMembershipController extends Controller
@@ -27,9 +27,7 @@ class VenueAdminMembershipController extends Controller
             ? $request->query('billing')
             : 'monthly';
 
-        // If no plan in URL, try to infer context
         if (!$planSlug) {
-            // Use plan from their existing subscription if available
             $inferredSlug = $activeSubscription?->plan_slug ?? $latestSubscription?->plan_slug;
 
             if ($inferredSlug) {
@@ -38,11 +36,9 @@ class VenueAdminMembershipController extends Controller
                     $billingCycle = $activeSubscription?->billing_cycle ?? $latestSubscription?->billing_cycle;
                 }
             } elseif ($activeSubscription || $latestSubscription) {
-                // Old subscriber with no plan_slug — default to featured plan
                 $planSlug = MembershipPlan::where('is_featured', true)->where('is_active', true)->value('slug')
                     ?? MembershipPlan::where('is_active', true)->orderBy('sort_order')->value('slug');
             } else {
-                // Brand new user — must choose a plan first
                 return redirect()->route('planes')
                     ->with('info', 'Seleccioná un plan para continuar.');
             }
@@ -84,8 +80,9 @@ class VenueAdminMembershipController extends Controller
         }
 
         $data = $request->validate([
-            'plan_slug'    => ['required', 'string', 'exists:membership_plans,slug'],
+            'plan_slug'     => ['required', 'string', 'exists:membership_plans,slug'],
             'billing_cycle' => ['required', 'in:monthly,annual'],
+            'mp_email'      => ['required', 'email'],
         ]);
 
         $plan = MembershipPlan::where('slug', $data['plan_slug'])
@@ -109,115 +106,131 @@ class VenueAdminMembershipController extends Controller
             }
         }
 
-        // Evita múltiples pagos pendientes al mismo tiempo
+        $activeSubscription = $user->activeVenueAdminSubscription()->first();
+
+        if ($activeSubscription && $activeSubscription->mp_subscription_status !== 'cancelled') {
+            return back()->with('error', 'Ya tenés una suscripción activa con cobro automático. Cancelala antes de contratar una nueva.');
+        }
+
         $pendingSubscription = $user->venueAdminSubscriptions()
             ->where('status', 'PENDING_PAYMENT')
             ->latest()
             ->first();
 
         if ($pendingSubscription) {
-            return back()->with('error', 'Ya tenés una renovación o membresía pendiente de pago.');
+            return back()->with('error', 'Ya tenés una suscripción pendiente de aprobación.');
         }
 
         $subscription = VenueAdminSubscription::create([
-            'user_id'             => $user->id,
-            'plan_slug'           => $plan->slug,
-            'billing_cycle'       => $billingCycle,
-            'status'              => 'PENDING_PAYMENT',
-            'monthly_price'       => $price,
-            'currency'            => self::CURRENCY,
-            'payment_provider'    => 'mercadopago',
-            'referral_code_used'  => $referralCode?->code,
+            'user_id'            => $user->id,
+            'plan_slug'          => $plan->slug,
+            'billing_cycle'      => $billingCycle,
+            'status'             => 'PENDING_PAYMENT',
+            'monthly_price'      => $price,
+            'currency'           => self::CURRENCY,
+            'payment_provider'   => 'mercadopago',
+            'referral_code_used' => $referralCode?->code,
         ]);
 
         $baseUrl = rtrim(config('app.url'), '/');
-        $externalReference = 'venue_admin_subscription:' . $subscription->id;
 
-        $periodLabel = $billingCycle === 'annual' ? '12 meses' : '1 mes';
+        [$ok, $response] = app(MercadoPagoSubscriptionService::class)->createPreapproval(
+            subscription: $subscription,
+            userEmail:    $data['mp_email'],
+            planName:     $plan->name,
+            price:        $price,
+            billingCycle: $billingCycle,
+            backUrl:      $baseUrl . '/membership/success',
+        );
 
-        $payload = [
-            'items' => [
-                [
-                    'title'       => "Plan {$plan->name} TuCancha — {$periodLabel}",
-                    'quantity'    => 1,
-                    'currency_id' => self::CURRENCY,
-                    'unit_price'  => (float) $price,
-                ]
-            ],
-            'external_reference' => $externalReference,
-            'back_urls' => [
-                'success' => $baseUrl . '/membership/success',
-                'failure' => $baseUrl . '/membership/failure',
-                'pending' => $baseUrl . '/membership/pending',
-            ],
-        ];
-
-        if (!str_contains($baseUrl, '127.0.0.1') && !str_contains($baseUrl, 'localhost')) {
-            $payload['notification_url'] = $baseUrl . '/webhooks/mercadopago';
-            $payload['auto_return'] = 'approved';
-        }
-
-        $response = Http::withOptions(['verify' => !app()->isLocal()])
-            ->withToken(config('services.mercadopago.access_token'))
-            ->post('https://api.mercadopago.com/checkout/preferences', $payload);
-
-        if (!$response->successful()) {
-            $subscription->update(['status' => 'CANCELLED']);
-            Log::error('MercadoPago: error al crear preferencia de membresía', [
+        if (!$ok || !isset($response['init_point'])) {
+            Log::error('MP Subscription: sin init_point en preapproval', [
                 'subscription_id' => $subscription->id,
-                'status'          => $response->status(),
+                'response'        => $response,
             ]);
-            return back()->with('error', 'No se pudo iniciar el pago de membresía. Por favor, intentá de nuevo.');
-        }
+            $subscription->delete();
 
-        $data = $response->json();
+            $mpMessage = $response['message'] ?? '';
+            if (str_contains($mpMessage, 'different countries')) {
+                $errorMsg = 'Tu cuenta de MercadoPago no es de Argentina. La suscripción requiere una cuenta de MercadoPago Argentina.';
+            } elseif (str_contains($mpMessage, 'lower than')) {
+                $errorMsg = 'El monto del plan es demasiado bajo para procesar el pago. Contactá al soporte.';
+            } else {
+                $errorMsg = 'No se pudo iniciar la suscripción con MercadoPago. Por favor, intentá de nuevo.';
+            }
 
-        if (!isset($data['init_point'])) {
-            $subscription->update(['status' => 'CANCELLED']);
-            Log::error('MercadoPago: respuesta sin init_point en membresía', [
-                'subscription_id' => $subscription->id,
-                'response'        => $data,
-            ]);
-            return back()->with('error', 'Respuesta inesperada de Mercado Pago. Por favor, intentá de nuevo.');
+            return back()->with('error', $errorMsg);
         }
 
         $subscription->update([
-            'mp_preference_id' => $data['id'] ?? null,
+            'mp_preapproval_id' => $response['id'] ?? null,
         ]);
 
-        return redirect()->away($data['init_point']);
+        return redirect()->away($response['init_point']);
+    }
+
+    public function cancelSubscription(Request $request)
+    {
+        $user = $request->user();
+
+        $subscription = $user->activeVenueAdminSubscription()->first();
+
+        if (!$subscription) {
+            return back()->with('error', 'No tenés una suscripción activa para cancelar.');
+        }
+
+        if ($subscription->mp_preapproval_id) {
+            app(MercadoPagoSubscriptionService::class)->cancelPreapproval($subscription->mp_preapproval_id);
+        }
+
+        // Keep status=ACTIVE so user retains access until expires_at
+        $subscription->update(['mp_subscription_status' => 'cancelled']);
+
+        $accessUntil = $subscription->expires_at?->format('d/m/Y') ?? 'la fecha de vencimiento';
+
+        return redirect()->route('membership.become')
+            ->with('success', "Suscripción cancelada. Seguirás teniendo acceso hasta el {$accessUntil}. No se realizarán más cobros automáticos.");
     }
 
     public function cancelPending(Request $request)
     {
         $user = $request->user();
 
+        $pending = $user->venueAdminSubscriptions()
+            ->where('status', 'PENDING_PAYMENT')
+            ->latest()
+            ->first();
+
+        if ($pending?->mp_preapproval_id) {
+            app(MercadoPagoSubscriptionService::class)->cancelPreapproval($pending->mp_preapproval_id);
+        }
+
         $user->venueAdminSubscriptions()
             ->where('status', 'PENDING_PAYMENT')
             ->update(['status' => 'CANCELLED']);
 
         return redirect()->route('membership.become')
-            ->with('success', 'El intento anterior fue cancelado. Ya podés iniciar un nuevo pago.');
+            ->with('success', 'El intento anterior fue cancelado. Ya podés iniciar una nueva suscripción.');
     }
 
     public function success()
     {
         return redirect()
             ->route('membership.become')
-            ->with('success', 'Volviste desde Mercado Pago. Si el pago fue aprobado, tu renovación se procesará automáticamente.');
+            ->with('success', 'Suscripción iniciada. En cuanto MercadoPago confirme la aprobación, tu acceso se activará automáticamente.');
     }
 
     public function pending()
     {
         return redirect()
             ->route('membership.become')
-            ->with('success', 'Tu pago quedó pendiente.');
+            ->with('success', 'Tu suscripción está pendiente de aprobación.');
     }
 
     public function failure()
     {
         return redirect()
             ->route('membership.become')
-            ->with('error', 'No se pudo completar el pago de la membresía.');
+            ->with('error', 'No se pudo completar la suscripción.');
     }
 }

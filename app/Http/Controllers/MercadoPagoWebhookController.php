@@ -8,6 +8,7 @@ use App\Models\Reservation;
 use App\Models\ReservationBatch;
 use App\Models\Venue;
 use App\Models\VenueAdminSubscription;
+use App\Services\MercadoPagoSubscriptionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -23,9 +24,18 @@ class MercadoPagoWebhookController extends Controller
         $topic  = $request->input('topic');
         $dataId = $request->input('data.id') ?? $request->input('id');
 
-        // Ignoramos merchant_order, MP también manda el evento 'payment' por separado
         if ($topic === 'merchant_order') {
             return response()->json(['ok' => true]);
+        }
+
+        // Handle subscription preapproval status change
+        if ($type === 'subscription_preapproval' && $dataId) {
+            return $this->handleSubscriptionPreapproval($dataId);
+        }
+
+        // Handle subscription automatic payment
+        if ($type === 'subscription_authorized_payment' && $dataId) {
+            return $this->handleSubscriptionAuthorizedPayment($dataId);
         }
 
         if ($type !== 'payment' || !$dataId) {
@@ -86,6 +96,138 @@ class MercadoPagoWebhookController extends Controller
         );
     }
 
+    private function handleSubscriptionPreapproval(string $preapprovalId)
+    {
+        $service = app(MercadoPagoSubscriptionService::class);
+        [$ok, $data] = $service->getPreapproval($preapprovalId);
+
+        if (!$ok) {
+            Log::error('MP Subscription: no se pudo obtener preapproval', ['preapproval_id' => $preapprovalId]);
+            return response()->json(['ok' => true]);
+        }
+
+        $externalReference = $data['external_reference'] ?? null;
+        $mpStatus          = $data['status'] ?? null;
+
+        // Find subscription: first by preapproval id, then by external_reference
+        $subscription = VenueAdminSubscription::where('mp_preapproval_id', $preapprovalId)->first();
+
+        if (!$subscription && str_starts_with((string) $externalReference, 'venue_admin_subscription:')) {
+            $subscriptionId = str_replace('venue_admin_subscription:', '', $externalReference);
+            $subscription   = VenueAdminSubscription::with('user')->find($subscriptionId);
+        }
+
+        if (!$subscription) {
+            Log::warning('MP Subscription: suscripción no encontrada para preapproval', [
+                'preapproval_id'     => $preapprovalId,
+                'external_reference' => $externalReference,
+            ]);
+            return response()->json(['ok' => true]);
+        }
+
+        $subscription->loadMissing('user');
+
+        if (!$subscription->mp_preapproval_id) {
+            $subscription->mp_preapproval_id = $preapprovalId;
+        }
+
+        $subscription->mp_subscription_status = $mpStatus;
+
+        $wasActiveBefore = $subscription->status === 'ACTIVE';
+
+        if ($mpStatus === 'authorized') {
+            if ($subscription->status === 'PENDING_PAYMENT') {
+                $user          = $subscription->user;
+                $currentActive = $user?->activeVenueAdminSubscription()->first();
+
+                if ($currentActive && $currentActive->id !== $subscription->id && $currentActive->expires_at?->isFuture()) {
+                    $startsAt = $currentActive->expires_at->copy();
+                } else {
+                    $startsAt = now();
+                }
+
+                $days = $subscription->billing_cycle === 'annual' ? 365 : 30;
+
+                $subscription->status     = 'ACTIVE';
+                $subscription->starts_at  = $startsAt;
+                $subscription->expires_at = $startsAt->copy()->addDays($days);
+
+                if ($user && $user->role === 'user') {
+                    $user->role = 'venue_admin';
+                    $user->save();
+                }
+            }
+        } elseif ($mpStatus === 'cancelled' && $subscription->status === 'PENDING_PAYMENT') {
+            $subscription->status = 'CANCELLED';
+        }
+
+        $subscription->save();
+
+        if ($mpStatus === 'authorized' && !$wasActiveBefore) {
+            app(\App\Services\ReferralService::class)->processReward($subscription);
+
+            Log::info('Suscripción activada via preapproval', [
+                'subscription_id' => $subscription->id,
+                'preapproval_id'  => $preapprovalId,
+            ]);
+        }
+
+        return response()->json(['ok' => true]);
+    }
+
+    private function handleSubscriptionAuthorizedPayment(string $paymentId)
+    {
+        $service = app(MercadoPagoSubscriptionService::class);
+        [$ok, $data] = $service->getAuthorizedPayment($paymentId);
+
+        if (!$ok) {
+            Log::error('MP Subscription: no se pudo obtener authorized_payment', ['payment_id' => $paymentId]);
+            return response()->json(['ok' => true]);
+        }
+
+        $preapprovalId = $data['preapproval_id'] ?? null;
+        $status        = $data['status'] ?? null;
+
+        if (!$preapprovalId || $status !== 'processed') {
+            return response()->json(['ok' => true]);
+        }
+
+        $subscription = VenueAdminSubscription::where('mp_preapproval_id', $preapprovalId)->first();
+
+        if (!$subscription) {
+            Log::warning('MP Subscription: suscripción no encontrada para authorized_payment', [
+                'payment_id'     => $paymentId,
+                'preapproval_id' => $preapprovalId,
+            ]);
+            return response()->json(['ok' => true]);
+        }
+
+        // Idempotency: skip if already processed this exact payment
+        if ($subscription->payment_external_id === (string) $paymentId) {
+            return response()->json(['ok' => true]);
+        }
+
+        $days      = $subscription->billing_cycle === 'annual' ? 365 : 30;
+        $baseDate  = ($subscription->expires_at?->isFuture() ? $subscription->expires_at : now());
+        $newExpiry = $baseDate->copy()->addDays($days);
+
+        $subscription->update([
+            'payment_external_id'    => (string) $paymentId,
+            'payment_status'         => 'approved',
+            'mp_subscription_status' => 'authorized',
+            'status'                 => 'ACTIVE',
+            'expires_at'             => $newExpiry,
+        ]);
+
+        Log::info('Suscripción renovada automáticamente', [
+            'subscription_id' => $subscription->id,
+            'payment_id'      => $paymentId,
+            'new_expiry'      => $newExpiry->toDateTimeString(),
+        ]);
+
+        return response()->json(['ok' => true]);
+    }
+
     private function handleReservationPayment(string $reservationId, ?string $paymentStatus, $paymentId)
     {
         $reservation = Reservation::find($reservationId);
@@ -97,12 +239,10 @@ class MercadoPagoWebhookController extends Controller
             return response()->json(['ok' => true]);
         }
 
-        // Usamos el token del venue si tiene uno, sino el de TuCancha
         $reservation->loadMissing('field.venue');
         $accessToken = $reservation->field->venue->mp_access_token
             ?? config('services.mercadopago.access_token');
 
-        // Re-consultamos el pago usando el token correcto
         $paymentResponse = Http::withOptions(['verify' => !app()->isLocal()])
             ->withToken($accessToken)
             ->get("https://api.mercadopago.com/v1/payments/{$paymentId}");
@@ -112,16 +252,13 @@ class MercadoPagoWebhookController extends Controller
                 'payment_id' => $paymentId,
                 'venue_id'   => $reservation->field->venue->id,
             ]);
-            // Continuamos igual con el status que ya teníamos del webhook principal
         }
 
-        // Idempotency: if already processed with this exact payment ID, skip
         if ($reservation->payment_external_id === (string) $paymentId && $reservation->status === 'PAID') {
             Log::info('Webhook reserva: ya procesado, ignorando', ['payment_id' => $paymentId, 'reservation_id' => $reservation->id]);
             return response()->json(['ok' => true]);
         }
 
-        // Amount validation: warn if MP amount doesn't match our expected amount
         if ($paymentResponse->successful()) {
             $paidAmount     = (float) ($paymentResponse->json()['transaction_amount'] ?? 0);
             $expectedAmount = (float) $reservation->total_amount;
@@ -142,7 +279,7 @@ class MercadoPagoWebhookController extends Controller
         $wasPaidBefore = $reservation->status === 'PAID';
 
         if ($paymentStatus === 'approved') {
-            $reservation->status    = 'PAID';
+            $reservation->status     = 'PAID';
             $reservation->expires_at = null;
         }
 
@@ -151,11 +288,9 @@ class MercadoPagoWebhookController extends Controller
         if ($paymentStatus === 'approved' && !$wasPaidBefore) {
             $reservation->loadMissing(['user', 'field.venue.owner']);
 
-            // Mail al usuario
             Mail::to($reservation->user->email)
                 ->send(new ReservationPaidMail($reservation));
 
-            // Mail al dueño del complejo
             $venueOwner = $reservation->field->venue->owner;
             if ($venueOwner && $venueOwner->email) {
                 Mail::to($venueOwner->email)
@@ -187,7 +322,6 @@ class MercadoPagoWebhookController extends Controller
             $paymentStatus = $paymentResponse->json()['status'] ?? $paymentStatus;
         }
 
-        // Idempotency: if already processed with this exact payment ID, skip
         if ($batch->payment_external_id === (string) $paymentId && $batch->status === 'PAID') {
             Log::info('Webhook batch: ya procesado, ignorando', ['payment_id' => $paymentId, 'batch_id' => $batch->id]);
             return response()->json(['ok' => true]);
@@ -245,7 +379,6 @@ class MercadoPagoWebhookController extends Controller
             return response()->json(['ok' => true]);
         }
 
-        // Re-consultamos el pago con el token del venue para confirmar
         if ($venue->mp_access_token) {
             $paymentResponse = Http::withOptions(['verify' => !app()->isLocal()])
                 ->withToken($venue->mp_access_token)
@@ -289,9 +422,9 @@ class MercadoPagoWebhookController extends Controller
             return response()->json(['ok' => true]);
         }
 
-        $subscription->payment_provider = 'mercadopago';
+        $subscription->payment_provider    = 'mercadopago';
         $subscription->payment_external_id = (string) $paymentId;
-        $subscription->payment_status = $paymentStatus;
+        $subscription->payment_status      = $paymentStatus;
 
         $wasActiveBefore = $subscription->status === 'ACTIVE';
 
@@ -306,11 +439,11 @@ class MercadoPagoWebhookController extends Controller
                 $startsAt = now();
             }
 
-            $days = $subscription->billing_cycle === 'annual' ? 365 : 30;
+            $days      = $subscription->billing_cycle === 'annual' ? 365 : 30;
             $expiresAt = $startsAt->copy()->addDays($days);
 
-            $subscription->status = 'ACTIVE';
-            $subscription->starts_at = $startsAt;
+            $subscription->status     = 'ACTIVE';
+            $subscription->starts_at  = $startsAt;
             $subscription->expires_at = $expiresAt;
 
             if ($user && $user->role === 'user') {
@@ -328,9 +461,9 @@ class MercadoPagoWebhookController extends Controller
 
             Log::info('Membresía admin activada o renovada', [
                 'subscription_id' => $subscription->id,
-                'user_id' => $subscription->user_id,
-                'starts_at' => optional($subscription->starts_at)?->toDateTimeString(),
-                'expires_at' => optional($subscription->expires_at)?->toDateTimeString(),
+                'user_id'         => $subscription->user_id,
+                'starts_at'       => optional($subscription->starts_at)?->toDateTimeString(),
+                'expires_at'      => optional($subscription->expires_at)?->toDateTimeString(),
             ]);
         }
 

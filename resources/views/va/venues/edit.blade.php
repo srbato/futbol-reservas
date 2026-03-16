@@ -256,6 +256,13 @@
 @endpush
 
 @section('content')
+
+@include('va.partials.help-modal', [
+  'helpKey'   => 'va_venue_edit',
+  'helpTitle' => 'Editar complejo',
+  'helpText'  => 'Acá editás los datos generales de tu complejo: nombre, descripción, zona, dirección, coordenadas para el mapa, imagen de portada y política de cancelación. Esta información es la que ven los usuarios al buscar un complejo.',
+])
+
 <form method="POST" action="{{ route('va.venues.update', $venue) }}" enctype="multipart/form-data">
   @csrf
 

@@ -18,6 +18,8 @@ class VenueAdminSubscription extends Model
         'payment_external_id',
         'payment_status',
         'mp_preference_id',
+        'mp_preapproval_id',
+        'mp_subscription_status',
         'starts_at',
         'expires_at',
         'reminder_sent_7d_at',

@@ -1,0 +1,142 @@
+REGISTRO DE CAMBIOS - Futbol Reservas
+======================================
+
+[2026-03-15]
+- Creado este archivo para registrar cambios de la app
+
+[2026-03-15] - Fix filtro de fecha en buscador principal
+- El input de fecha (venues/index.blade.php) no abría el calendario al hacer click.
+  Causa: el input type="date" con opacity:0 no dispara el picker al clickear fuera del ícono del calendario.
+  Fix: se agregó onclick en el label que llama a .showPicker() manualmente, y se le asignó id="dateFilterInput" al input.
+
+[2026-03-15] - Resultados de búsqueda separados de la sección de destacados
+- Al filtrar, ahora aparece un panel "Resultados de búsqueda" entre el buscador y los destacados, mostrando solo los complejos que cumplen los filtros.
+- La sección inferior "Todos los complejos" siempre muestra todos los complejos activos, sin verse afectada por los filtros.
+- El mapa también muestra siempre todos los complejos.
+- El stat del hero ahora muestra siempre el total real de complejos activos.
+- Cambios en: VenueController.php (agrega $allVenues y $hasFilters), venues/index.blade.php.
+
+[2026-03-15] - Nav activa en layout de marketing
+- Los links de navegación (Cómo funciona, Planes, Complejos, Nosotros) ahora se marcan con fondo negro y texto blanco cuando el usuario está en esa página.
+- Cambios en: layouts/marketing.blade.php.
+
+[2026-03-15] - Eliminado el estado CHECKED_IN y toda su funcionalidad
+- Removidas las rutas GET/POST /va/checkin y el CheckinController.
+- Eliminado el link "Check-in" del menú de usuario (app.blade.php).
+- Removida la opción "Validada" del filtro de reservas del venue admin.
+- Quitadas todas las referencias a CHECKED_IN en queries, filtros y lógica de negocio:
+  VenueController, AvailabilityController, DashboardController, ReservationsController (VA),
+  ReservationCancelController, VenueReviewController, MatchHistoryController,
+  ReservationPlayerController, ManualReservationController, ReservationService.
+- Quitadas las referencias en vistas: reservations/show.blade.php, reservations/my.blade.php,
+  va/reservations/index.blade.php, va/reservations/agenda.blade.php.
+- Eliminado de ReservationStatus.php el label y color de CHECKED_IN.
+- Los archivos CheckinController.php y va/checkin.blade.php quedaron sin uso (pueden borrarse).
+
+[2026-03-15] - Modales de ayuda en el panel admin
+- Se creó el partial reutilizable va/partials/help-modal.blade.php.
+- Cada pestaña del panel admin muestra una ventana explicativa al entrar por primera vez.
+- Botón "Entendido": cierra el modal pero lo vuelve a mostrar la próxima vez.
+- Botón "No mostrar nunca más": guarda en localStorage y no vuelve a aparecer.
+- Páginas con modal: dashboard, reservas, agenda, reportes, bloqueos, descuentos, horarios, editar cancha, editar complejo, retiros.
+
+[2026-03-15] - Crear/editar cancha adaptado para todos los deportes
+- El campo "Deporte" pasó de texto libre a un select con opciones: Fútbol, Pádel, Tenis, Básquet, Vóley.
+- El campo "Formato" ahora se adapta dinámicamente según el deporte seleccionado:
+    Fútbol → 5, 7, 9, 11 (jugadores por equipo)
+    Pádel  → 2 vs 2 (fijo)
+    Tenis  → Singles (1v1) o Dobles (2v2)
+    Básquet→ 3x3 o 5x5
+    Vóley  → 6 vs 6 (fijo)
+- Validación del controller: sport ahora valida contra la lista de deportes permitidos; format acepta min:1.
+- Vistas públicas (fields/show, venues/show) muestran el nombre del deporte en español con emoji.
+
+[2026-03-15] - Agenda muestra solo reservas PAID
+- La agenda del venue admin ahora solo muestra reservas con estado PAID.
+- Se excluyen: pendientes, vencidas, canceladas y checked-in.
+- Cambios en: VenueAdmin/ReservationsController.php.
+
+[2026-03-15] - Suscripciones automáticas con MercadoPago Preapproval API
+- Reemplazado el sistema de pagos únicos por suscripciones recurrentes automáticas (MP Preapproval).
+- Creada migración: add_preapproval_to_venue_admin_subscriptions (mp_preapproval_id, mp_subscription_status).
+- Creado MercadoPagoSubscriptionService con métodos: createPreapproval, cancelPreapproval, getPreapproval, getAuthorizedPayment.
+- VenueAdminMembershipController reescrito: checkout() crea preapproval y redirige a init_point de MP.
+- Agregado cancelSubscription(): cancela preapproval en MP, mantiene acceso hasta expires_at.
+- MercadoPagoWebhookController actualizado para manejar subscription_preapproval (activación) y subscription_authorized_payment (renovación automática → extiende expires_at).
+- Agregada ruta POST /membership/cancel-subscription.
+- become-partner.blade.php: botón cancelar, banner de suscripción cancelada, texto de cobro automático.
+- Agregado campo "Email de MercadoPago" en checkout (payer_email requerido por la API de MP).
+- notification_url siempre incluida en el payload (sin condición por entorno).
+- Si createPreapproval falla, el registro se elimina en lugar de quedar como CANCELLED.
+- Mensajes de error diferenciados: "different countries", monto bajo, error genérico.
+- Validación en checkout: bloquea nueva suscripción si ya hay una activa con cobro automático corriendo.
+
+[2026-03-15] - WebSockets en tiempo real con Laravel Reverb
+- Instalado laravel/reverb para broadcasting WebSocket.
+- Creado evento FieldAvailabilityChanged (broadcasteable en canal público field.{id}).
+- ReservationService dispara el evento al crear una reserva.
+- fields/show.blade.php usa Laravel Echo (CDN) para escuchar el evento y re-fetchear los slots
+  automáticamente cuando otro usuario reserva el mismo día, sin recargar la página.
+- Configurado BROADCAST_CONNECTION=reverb en .env.
+
+[2026-03-16] - WebSockets: fixes para entorno local Windows + ngrok
+- Corregido el nombre del constructor de Echo en el blade: era LaravelEcho, es Echo (el CDN IIFE lo expone así).
+- Separadas las variables de conexión para PHP vs browser:
+    REVERB_HOST=localhost / REVERB_PORT=8080 / REVERB_SCHEME=http → PHP se comunica con Reverb directamente (evita error SSL de cURL en Windows).
+    REVERB_CLIENT_HOST / REVERB_CLIENT_PORT → usados en el blade para que el browser se conecte via cloudflare tunnel.
+    REVERB_SERVER_HOSTNAME → usado por Reverb para aceptar conexiones del hostname del tunnel.
+- Agregada variable REVERB_SERVER_HOSTNAME en config/reverb.php (env('REVERB_SERVER_HOSTNAME', env('REVERB_HOST'))).
+- Corregido enabledTransports en el blade: era ['wss'] (inválido), debe ser ['ws'] con forceTLS:true.
+- Eliminado php artisan pail del script composer dev (requiere extensión pcntl, no disponible en Windows).
+- Para desarrollo se necesitan 5 terminales: ngrok (puerto 8000), cloudflared (puerto 8080), composer dev, reverb:start, schedule:work.
+- IMPORTANTE: la URL de cloudflare cambia cada vez que se reinicia cloudflared. Hay que actualizar REVERB_CLIENT_HOST y REVERB_SERVER_HOSTNAME en .env, correr config:clear y reiniciar reverb:start.
+
+[2026-03-16] - Mejoras al dashboard y reportes del venue admin
+- Dashboard: agregados KPIs de "Reservas este mes" e "Ingresos este mes".
+- Dashboard: los KPIs de semana y mes ahora muestran comparación vs período anterior en verde/rojo
+  (ej: "+3 vs semana anterior", "+$12.000 vs mes anterior").
+- Reportes: nuevo KPI "Tasa de cancelación" con color según umbral (<10% verde, 10-20% amarillo, >20% rojo).
+- Reportes: nuevo gráfico "Horarios más reservados" (reservas por hora de inicio, barra del horario pico en verde).
+- Reportes: gráfico mensual (reservas por mes + ingresos por mes) que aparece automáticamente cuando el rango supera 31 días.
+- Fix: la función HOUR() de MySQL no existe en SQLite; reemplazada por strftime('%H', start_at).
+- Cambios en: DashboardController.php, ReportsController.php, va/dashboard.blade.php, va/reports/index.blade.php.
+
+[2026-03-16] - Básquet y Vóley en el filtro de búsqueda de complejos
+- El filtro de deportes del buscador público ahora incluye Básquet y Vóley además de Fútbol, Pádel y Tenis.
+- Actualizada la validación del controller para aceptar basketball y volleyball.
+- Cambios en: VenueController.php, venues/index.blade.php.
+
+[2026-03-16] - Sistema de empleados (venue staff) - Etapa 1: invitaciones
+- Los dueños pueden invitar a usuarios registrados como empleados de sus complejos desde el panel admin.
+- El flujo es por invitación: el dueño ingresa el email → el empleado recibe un email → puede aceptar o rechazar.
+- El dueño puede ver empleados activos, invitaciones pendientes, cancelar invitaciones y quitar empleados.
+- No se puede invitar a venue_admin ni super_admin como empleados.
+- Los usuarios que son staff no pueden contratar una membresía de dueño (la página become-partner los bloquea).
+- Nuevos archivos:
+    database/migrations/2026_03_16_000001_create_venue_staff_tables.php (tablas venue_staff y venue_staff_invitations)
+    app/Models/VenueStaff.php
+    app/Models/VenueStaffInvitation.php
+    app/Http/Controllers/VenueAdmin/VenueStaffController.php
+    app/Http/Controllers/VenueStaffInvitationController.php
+    app/Mail/VenueStaffInvitationMail.php
+    resources/views/emails/staff/invitation.blade.php
+    resources/views/va/staff/index.blade.php
+- Modelos actualizados: User (venuesAsStaff, isStaffOf, isVenueStaff, pendingStaffInvitations), Venue (staff, staffInvitations).
+- Cambios en: routes/web.php, layouts/admin.blade.php (link "Empleados" solo para dueños), membership/become-partner.blade.php.
+
+[2026-03-16] - Sistema de empleados (venue staff) - Etapa 2: acceso al panel
+- Los empleados (role=user con entradas en venue_staff) ahora pueden acceder al panel admin.
+- Ven y gestionan: dashboard (sin datos de ingresos), reservas, agenda, canchas, horarios, bloqueos, descuentos.
+- No pueden ver ni acceder: reportes, retiros, empleados, membresía.
+- No pueden crear nuevas canchas ni nuevos complejos (solo el dueño).
+- Implementación:
+    Venue model: nuevo scope accessibleBy($user) — filtra por dueño O staff según el usuario.
+    RoleMiddleware: permite entrada al panel a usuarios que sean staff de al menos un complejo.
+    EnsureVenueMpConnected: exime a staff de la obligación de tener MP conectado.
+    Controllers actualizados con el scope accessibleBy: DashboardController, ReservationsController,
+      FieldBlockController, FieldDiscountController, FieldRecurringDiscountController,
+      ScheduleController, FieldController, ManualReservationController.
+    Controllers bloqueados para staff (abort 403): ReportsController, VenuePayoutController, VenueStaffController.
+    Vistas actualizadas: layouts/app.blade.php (link "Panel admin" visible para staff),
+      layouts/admin.blade.php (Reportes oculto para staff),
+      va/dashboard.blade.php (KPIs de ingresos ocultos para staff, botones de crear cancha/complejo ocultos).

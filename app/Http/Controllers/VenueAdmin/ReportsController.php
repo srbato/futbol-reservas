@@ -14,6 +14,8 @@ class ReportsController extends Controller
     {
         $user = $request->user();
 
+        abort_if($user->isVenueStaff(), 403);
+
         $fieldId = $request->query('field_id');
         $from = $request->query('from')
             ? Carbon::parse($request->query('from'))->startOfDay()
@@ -93,6 +95,67 @@ class ReportsController extends Controller
 
             $cursor->addDay();
         }
+
+        // Gráfico mensual (solo si el rango supera los 31 días)
+        $monthlyLabels = [];
+        $revenuePerMonth = [];
+        $reservationsPerMonth = [];
+        $showMonthlyChart = $from->diffInDays($to) > 31;
+
+        if ($showMonthlyChart) {
+            $monthCursor = $from->copy()->startOfMonth();
+            while ($monthCursor->lte($to)) {
+                $monthEnd = $monthCursor->copy()->endOfMonth();
+                $monthlyLabels[] = $monthCursor->format('M Y');
+                $reservationsPerMonth[] = (clone $baseQuery)
+                    ->whereBetween('start_at', [$monthCursor, $monthEnd])
+                    ->count();
+                $revenuePerMonth[] = (float) (clone $baseQuery)
+                    ->whereBetween('start_at', [$monthCursor, $monthEnd])
+                    ->sum('total_amount');
+                $monthCursor->addMonth();
+            }
+        }
+
+        // Hora pico: reservas agrupadas por hora de inicio
+        $peakHoursRaw = (clone $baseQuery)
+            ->whereBetween('start_at', [$from, $to])
+            ->selectRaw("CAST(strftime('%H', start_at) AS INTEGER) as hour, COUNT(*) as count")
+            ->groupBy('hour')
+            ->orderBy('hour')
+            ->pluck('count', 'hour')
+            ->toArray();
+
+        $peakHourLabels = [];
+        $peakHourData = [];
+        for ($h = 0; $h < 24; $h++) {
+            if (isset($peakHoursRaw[$h]) || array_sum($peakHoursRaw) > 0) {
+                $peakHourLabels[] = str_pad($h, 2, '0', STR_PAD_LEFT) . ':00';
+                $peakHourData[] = $peakHoursRaw[$h] ?? 0;
+            }
+        }
+
+        // Tasa de cancelación en el rango
+        $totalCreated = Reservation::query()
+            ->whereHas('field.venue', function ($q) use ($user) {
+                $q->where('owner_user_id', $user->id);
+            })
+            ->when($fieldId, fn ($q) => $q->where('field_id', $fieldId))
+            ->whereBetween('created_at', [$from, $to])
+            ->count();
+
+        $totalCancelled = Reservation::query()
+            ->whereHas('field.venue', function ($q) use ($user) {
+                $q->where('owner_user_id', $user->id);
+            })
+            ->when($fieldId, fn ($q) => $q->where('field_id', $fieldId))
+            ->where('status', 'CANCELLED')
+            ->whereBetween('created_at', [$from, $to])
+            ->count();
+
+        $cancellationRate = $totalCreated > 0
+            ? round(($totalCancelled / $totalCreated) * 100, 1)
+            : 0;
 
         // Ocupación por cancha en el rango filtrado
         $paidReservationsInRange = (clone $baseQuery)
@@ -174,13 +237,24 @@ class ReportsController extends Controller
             'fieldId',
             'from',
             'to',
-            'fieldOccupancy'
+            'fieldOccupancy',
+            'showMonthlyChart',
+            'monthlyLabels',
+            'revenuePerMonth',
+            'reservationsPerMonth',
+            'peakHourLabels',
+            'peakHourData',
+            'cancellationRate',
+            'totalCreated',
+            'totalCancelled'
         ));
     }
 
     public function export(Request $request)
     {
         $user = $request->user();
+
+        abort_if($user->isVenueStaff(), 403);
 
         $fieldId = $request->query('field_id');
         $from = $request->query('from')

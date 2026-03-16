@@ -66,6 +66,7 @@
     }
 
     .nav a:hover { background: #f3f3f3; }
+    .nav a.active { background: #111; color: #fff; }
 
     .nav-divider {
       width: 1px;
@@ -199,10 +200,10 @@
       <a href="{{ route('home') }}" class="brand">TuCancha</a>
 
       <nav class="nav">
-        <a href="{{ url('/como-funciona') }}">Cómo funciona</a>
-        <a href="{{ url('/planes') }}">Planes</a>
-        <a href="{{ route('venues.index') }}">Complejos</a>
-        <a href="{{ route('nosotros') }}">Nosotros</a>
+        <a href="{{ url('/como-funciona') }}" class="{{ request()->routeIs('como-funciona') ? 'active' : '' }}">Cómo funciona</a>
+        <a href="{{ url('/planes') }}" class="{{ request()->routeIs('planes') ? 'active' : '' }}">Planes</a>
+        <a href="{{ route('venues.index') }}" class="{{ request()->routeIs('venues.index') ? 'active' : '' }}">Complejos</a>
+        <a href="{{ route('nosotros') }}" class="{{ request()->routeIs('nosotros') ? 'active' : '' }}">Nosotros</a>
         <div class="nav-divider"></div>
         @auth
           <a href="{{ route('venues.index') }}" class="btn btn-primary" style="margin-left:4px;">Ver complejos</a>

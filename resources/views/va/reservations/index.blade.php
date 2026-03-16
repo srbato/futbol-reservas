@@ -10,6 +10,12 @@
 
 @section('content')
 
+@include('va.partials.help-modal', [
+  'helpKey'   => 'va_reservations',
+  'helpTitle' => 'Lista de reservas',
+  'helpText'  => 'Acá podés ver todas las reservas de tus canchas. Usá los filtros para buscar por fecha, estado o cancha. También podés cancelar reservas individuales y crear reservas manuales para clientes que pagan en el momento.',
+])
+
   {{-- Flash messages --}}
   @if(session('success'))
     <div class="alert alert-success" style="margin-bottom:16px;">{{ session('success') }}</div>
@@ -39,7 +45,6 @@
         <option value="">Todos</option>
         <option value="PENDING_PAYMENT" {{ ($status ?? '') === 'PENDING_PAYMENT' ? 'selected' : '' }}>Pendiente de pago</option>
         <option value="PAID"            {{ ($status ?? '') === 'PAID'            ? 'selected' : '' }}>Pagada</option>
-        <option value="CHECKED_IN"      {{ ($status ?? '') === 'CHECKED_IN'      ? 'selected' : '' }}>Validada</option>
         <option value="CANCELLED"       {{ ($status ?? '') === 'CANCELLED'       ? 'selected' : '' }}>Cancelada</option>
         <option value="EXPIRED"         {{ ($status ?? '') === 'EXPIRED'         ? 'selected' : '' }}>Expirada</option>
       </select>

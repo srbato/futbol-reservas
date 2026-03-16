@@ -50,7 +50,7 @@ class AvailabilityController extends Controller
 
         $reservations = Reservation::query()
             ->where('field_id', $field->id)
-            ->whereIn('status', ['PAID', 'CHECKED_IN', 'PENDING_PAYMENT'])
+            ->whereIn('status', ['PAID', 'PENDING_PAYMENT'])
             ->where(function ($q) {
                 $q->where('status', '!=', 'PENDING_PAYMENT')
                   ->orWhere(function ($q2) {

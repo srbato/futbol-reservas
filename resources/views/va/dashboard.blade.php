@@ -433,6 +433,12 @@
 
 @section('content')
 
+@include('va.partials.help-modal', [
+  'helpKey'   => 'va_dashboard',
+  'helpTitle' => 'Panel principal',
+  'helpText'  => 'Acá encontrás un resumen de toda tu actividad: reservas del día, ingresos de la semana, próxima reserva y estadísticas generales. Es el punto de partida para tener un pantallazo rápido de cómo va tu complejo.',
+])
+
   {{-- ── Membership alert ──────────────────────────────────────────────── --}}
   @if(auth()->user()->role === 'venue_admin' && $membershipAlert)
     <div class="membership-alert {{ $membershipAlert['tone'] === 'danger' ? 'danger' : 'warning' }}">
@@ -484,23 +490,57 @@
         <div class="kpi-value">{{ $stats['reservations_today_count'] }}</div>
       </div>
 
+      @unless(auth()->user()->isVenueStaff())
       <div class="kpi-card blue">
         <span class="kpi-icon">💰</span>
         <div class="kpi-label">Ingresos hoy</div>
         <div class="kpi-value" style="font-size:24px;">$ {{ number_format($revenueToday, 0, ',', '.') }}</div>
       </div>
+      @endunless
 
       <div class="kpi-card purple">
         <span class="kpi-icon">📈</span>
         <div class="kpi-label">Reservas esta semana</div>
         <div class="kpi-value">{{ $reservationsWeek }}</div>
+        @php $diffWeekRes = $reservationsWeek - $reservationsWeekPrev; @endphp
+        <div class="kpi-sub" style="color: {{ $diffWeekRes >= 0 ? '#157347' : '#842029' }}">
+          {{ $diffWeekRes >= 0 ? '+' : '' }}{{ $diffWeekRes }} vs semana anterior
+        </div>
       </div>
 
+      @unless(auth()->user()->isVenueStaff())
       <div class="kpi-card orange">
         <span class="kpi-icon">💵</span>
         <div class="kpi-label">Ingresos esta semana</div>
         <div class="kpi-value" style="font-size:22px;">$ {{ number_format($revenueWeek, 0, ',', '.') }}</div>
+        @php $diffWeekRev = $revenueWeek - $revenueWeekPrev; @endphp
+        <div class="kpi-sub" style="color: {{ $diffWeekRev >= 0 ? '#157347' : '#842029' }}">
+          {{ $diffWeekRev >= 0 ? '+' : '' }}$ {{ number_format(abs($diffWeekRev), 0, ',', '.') }} vs semana anterior
+        </div>
       </div>
+      @endunless
+
+      <div class="kpi-card blue">
+        <span class="kpi-icon">🗓️</span>
+        <div class="kpi-label">Reservas este mes</div>
+        <div class="kpi-value">{{ $reservationsMonthCurrent }}</div>
+        @php $diffMonthRes = $reservationsMonthCurrent - $reservationsMonthPrev; @endphp
+        <div class="kpi-sub" style="color: {{ $diffMonthRes >= 0 ? '#157347' : '#842029' }}">
+          {{ $diffMonthRes >= 0 ? '+' : '' }}{{ $diffMonthRes }} vs mes anterior
+        </div>
+      </div>
+
+      @unless(auth()->user()->isVenueStaff())
+      <div class="kpi-card green">
+        <span class="kpi-icon">💰</span>
+        <div class="kpi-label">Ingresos este mes</div>
+        <div class="kpi-value" style="font-size:22px;">$ {{ number_format($revenueMonth, 0, ',', '.') }}</div>
+        @php $diffMonthRev = $revenueMonth - $revenueMonthPrev; @endphp
+        <div class="kpi-sub" style="color: {{ $diffMonthRev >= 0 ? '#157347' : '#842029' }}">
+          {{ $diffMonthRev >= 0 ? '+' : '' }}$ {{ number_format(abs($diffMonthRev), 0, ',', '.') }} vs mes anterior
+        </div>
+      </div>
+      @endunless
     </div>
 
     {{-- Two columns: reservas hoy + cancha top + mis complejos --}}
@@ -581,7 +621,7 @@
   {{-- ── TAB: COMPLEJOS ────────────────────────────────────────────────── --}}
   <div id="tab-complejos" class="tab-pane">
 
-    @if(auth()->user()->role === 'super_admin' || !$venues->count())
+    @if((auth()->user()->role === 'super_admin' || !$venues->count()) && !auth()->user()->isVenueStaff())
       <div style="margin-bottom:16px;">
         <a href="{{ route('va.venues.create') }}" class="btn btn-primary">+ Crear complejo</a>
       </div>
@@ -645,11 +685,13 @@
             @endforeach
           @endif
 
+          @unless(auth()->user()->isVenueStaff())
           <div style="padding-top:4px;">
             <a href="{{ route('va.fields.create', $v) }}" class="btn btn-primary" style="font-size:13px; padding:8px 16px;">
               + Agregar cancha
             </a>
           </div>
+          @endunless
         </div>
       </div>
     @empty

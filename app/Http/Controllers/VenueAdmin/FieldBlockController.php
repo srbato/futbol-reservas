@@ -14,17 +14,13 @@ class FieldBlockController extends Controller
         $user = $request->user();
 
         $fields = Field::query()
-            ->whereHas('venue', function ($q) use ($user) {
-                $q->where('owner_user_id', $user->id);
-            })
+            ->whereHas('venue', fn ($q) => $q->accessibleBy($user))
             ->with('venue')
             ->orderBy('name')
             ->get();
 
         $blocks = FieldBlock::query()
-            ->whereHas('field.venue', function ($q) use ($user) {
-                $q->where('owner_user_id', $user->id);
-            })
+            ->whereHas('field.venue', fn ($q) => $q->accessibleBy($user))
             ->with(['field.venue'])
             ->orderByDesc('date')
             ->orderBy('start_time')
@@ -46,9 +42,7 @@ class FieldBlockController extends Controller
         ]);
 
         $field = Field::query()
-            ->whereHas('venue', function ($q) use ($user) {
-                $q->where('owner_user_id', $user->id);
-            })
+            ->whereHas('venue', fn ($q) => $q->accessibleBy($user))
             ->findOrFail($data['field_id']);
 
         FieldBlock::create([
@@ -68,7 +62,7 @@ class FieldBlockController extends Controller
 
         $block->load('field.venue');
 
-        if ($user->role !== 'super_admin' && $block->field->venue->owner_user_id !== $user->id) {
+        if ($user->role !== 'super_admin' && $block->field->venue->owner_user_id !== $user->id && !$user->isStaffOf($block->field->venue->id)) {
             abort(403);
         }
 

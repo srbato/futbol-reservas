@@ -20,7 +20,7 @@ class FieldRecurringDiscountController extends Controller
         ]);
 
         $field = Field::query()
-            ->whereHas('venue', fn($q) => $q->where('owner_user_id', $user->id))
+            ->whereHas('venue', fn ($q) => $q->accessibleBy($user))
             ->findOrFail($data['field_id']);
 
         FieldRecurringDiscount::create([
@@ -39,7 +39,7 @@ class FieldRecurringDiscountController extends Controller
 
         $recurringDiscount->load('field.venue');
 
-        if ($user->role !== 'super_admin' && $recurringDiscount->field->venue->owner_user_id !== $user->id) {
+        if ($user->role !== 'super_admin' && $recurringDiscount->field->venue->owner_user_id !== $user->id && !$user->isStaffOf($recurringDiscount->field->venue->id)) {
             abort(403);
         }
 

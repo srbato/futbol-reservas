@@ -29,9 +29,7 @@ class ReservationsController extends Controller
         $reservations = Reservation::query()
             ->where('start_at', '>=', $startDay)
             ->where('start_at', '<', $endDay)
-            ->whereHas('field.venue', function ($q) use ($user) {
-                $q->where('owner_user_id', $user->id);
-            })
+            ->whereHas('field.venue', fn ($q) => $q->accessibleBy($user))
             ->when($status, fn ($q) => $q->where('status', $status))
             ->when($fieldId, fn ($q) => $q->where('field_id', $fieldId))
             ->with(['user', 'field.venue'])
@@ -39,9 +37,7 @@ class ReservationsController extends Controller
             ->get();
 
         $fields = \App\Models\Field::query()
-            ->whereHas('venue', function ($q) use ($user) {
-                $q->where('owner_user_id', $user->id);
-            })
+            ->whereHas('venue', fn ($q) => $q->accessibleBy($user))
             ->orderBy('name')
             ->get(['id', 'name']);
 
@@ -69,7 +65,7 @@ class ReservationsController extends Controller
         $endDay   = $date->copy()->addDay()->startOfDay();
 
         $fields = \App\Models\Field::query()
-            ->whereHas('venue', fn($q) => $q->where('owner_user_id', $user->id))
+            ->whereHas('venue', fn ($q) => $q->accessibleBy($user))
             ->with(['venue', 'price', 'schedules'])
             ->orderBy('name')
             ->get();
@@ -81,7 +77,8 @@ class ReservationsController extends Controller
         $reservations = Reservation::query()
             ->where('start_at', '>=', $startDay)
             ->where('start_at', '<', $endDay)
-            ->whereHas('field.venue', fn($q) => $q->where('owner_user_id', $user->id))
+            ->whereHas('field.venue', fn ($q) => $q->accessibleBy($user))
+            ->where('status', 'PAID')
             ->with(['user', 'field'])
             ->get();
 
@@ -139,11 +136,11 @@ class ReservationsController extends Controller
 
         $reservation->load('field.venue');
 
-        if ($user->role !== 'super_admin' && $reservation->field->venue->owner_user_id !== $user->id) {
+        if ($user->role !== 'super_admin' && $reservation->field->venue->owner_user_id !== $user->id && !$user->isStaffOf($reservation->field->venue->id)) {
             abort(403);
         }
 
-        if (in_array($reservation->status, ['CHECKED_IN', 'CANCELLED', 'EXPIRED'])) {
+        if (in_array($reservation->status, ['CANCELLED', 'EXPIRED'])) {
             return back()->with('error', 'Esta reserva no se puede cancelar.');
         }
 

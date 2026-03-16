@@ -16,6 +16,11 @@ class RoleMiddleware
             abort(403);
         }
 
+        // Staff de un complejo: acceso permitido sin suscripción propia
+        if (in_array('venue_admin', $roles) && $user->isVenueStaff()) {
+            return $next($request);
+        }
+
         if (!in_array($user->role, $roles)) {
             abort(403);
         }

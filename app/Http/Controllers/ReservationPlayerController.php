@@ -13,7 +13,7 @@ class ReservationPlayerController extends Controller
     public function store(Request $request, Reservation $reservation): RedirectResponse
     {
         abort_if($reservation->user_id !== auth()->id(), 403);
-        abort_if(!in_array($reservation->status, ['PAID', 'CHECKED_IN']), 422);
+        abort_if($reservation->status !== 'PAID', 422);
 
         $data = $request->validate([
             'search' => ['required', 'string', 'max:255'],

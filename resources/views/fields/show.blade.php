@@ -257,7 +257,7 @@
 
   <div class="field-header-body">
     <div class="field-header-badges">
-      <span class="fh-badge sport">{{ ucfirst($field->sport ?? 'cancha') }}</span>
+      <span class="fh-badge sport">{{ match($field->sport ?? '') { 'football'=>'⚽ Fútbol','padel'=>'🏓 Pádel','tennis'=>'🎾 Tenis','basketball'=>'🏀 Básquet','volleyball'=>'🏐 Vóley', default=>ucfirst($field->sport ?? 'Cancha') } }}</span>
       <span class="fh-badge format">{{ $field->format ?? '?' }}v{{ $field->format ?? '?' }}</span>
       <span class="fh-badge time">{{ $field->slot_minutes }} min</span>
     </div>
@@ -531,6 +531,28 @@
     document.getElementById('recurringResultsBody').innerHTML = summaryHtml + rows + noteHtml;
     document.getElementById('recurringResultsModal').style.display = 'block';
   }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/laravel-echo@1.16.1/dist/echo.iife.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pusher-js@8.4.0/dist/web/pusher.js"></script>
+<script>
+  const echoClient = new Echo({
+    broadcaster:  'reverb',
+    key:          '{{ config('broadcasting.connections.reverb.key') }}',
+    wsHost:       '{{ env('REVERB_CLIENT_HOST', config('broadcasting.connections.reverb.options.host')) }}',
+    wsPort:       {{ env('REVERB_CLIENT_PORT', 443) }},
+    wssPort:      {{ env('REVERB_CLIENT_PORT', 443) }},
+    forceTLS:     true,
+    enabledTransports: ['ws'],
+  });
+
+  echoClient.channel('field.{{ $field->id }}')
+    .listen('.availability.changed', (e) => {
+      const currentDate = document.getElementById('datePicker').value;
+      if (e.date === currentDate) {
+        loadSlots();
+      }
+    });
 </script>
 
 {{-- Recurring modal --}}

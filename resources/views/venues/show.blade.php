@@ -396,7 +396,7 @@
           <h3 class="field-card-name">{{ $field->name }}</h3>
 
           <div class="field-card-badges">
-            <span class="field-badge sport">{{ ucfirst($field->sport ?? 'cancha') }}</span>
+            <span class="field-badge sport">{{ match($field->sport ?? '') { 'football'=>'⚽ Fútbol','padel'=>'🏓 Pádel','tennis'=>'🎾 Tenis','basketball'=>'🏀 Básquet','volleyball'=>'🏐 Vóley', default=>ucfirst($field->sport ?? 'Cancha') } }}</span>
             <span class="field-badge format">{{ $field->format ?? '?' }}v{{ $field->format ?? '?' }}</span>
             <span class="field-badge time">{{ $field->slot_minutes }} min</span>
           </div>

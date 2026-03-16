@@ -22,7 +22,6 @@ use App\Http\Controllers\VenueReviewController;
 use App\Http\Controllers\SuperAdmin\PlatformPayoutController;
 use App\Http\Controllers\SuperAdmin\SystemMessageController;
 use App\Http\Controllers\SuperAdmin\UserManagementController;
-use App\Http\Controllers\VenueAdmin\CheckinController as VaCheckinController;
 use App\Http\Controllers\VenueAdmin\DashboardController;
 use App\Http\Controllers\VenueAdmin\FieldBlockController as VaFieldBlockController;
 use App\Http\Controllers\VenueAdmin\FieldController as VaFieldController;
@@ -42,6 +41,8 @@ use App\Http\Controllers\SuperAdmin\MembershipPlanController;
 use App\Http\Controllers\MatchHistoryController;
 use App\Http\Controllers\ReservationPlayerController;
 use App\Http\Controllers\ReferralController;
+use App\Http\Controllers\VenueStaffInvitationController;
+use App\Http\Controllers\VenueAdmin\VenueStaffController as VaVenueStaffController;
 use App\Models\MembershipPlan;
 
 
@@ -99,6 +100,9 @@ Route::middleware(['auth', 'active.user'])->group(function () {
 
     Route::post('/membership/cancel-pending', [VenueAdminMembershipController::class, 'cancelPending'])
         ->name('membership.cancel_pending');
+
+    Route::post('/membership/cancel-subscription', [VenueAdminMembershipController::class, 'cancelSubscription'])
+        ->name('membership.cancel_subscription');
 });
 
 /*
@@ -156,6 +160,10 @@ Route::middleware(['auth', 'active.user'])->group(function () {
     Route::post('/reservations/{reservation}/players/{player}', [ReservationPlayerController::class, 'destroy'])->name('reservations.players.destroy');
 
     Route::get('/referral', [ReferralController::class, 'index'])->name('referral.index');
+
+    // Staff invitations
+    Route::get('/staff/invitations/{token}/accept', [VenueStaffInvitationController::class, 'accept'])->name('staff.invitations.accept');
+    Route::get('/staff/invitations/{token}/reject', [VenueStaffInvitationController::class, 'reject'])->name('staff.invitations.reject');
     Route::post('/referral/redeem-reservation/{reservation}', [ReferralController::class, 'redeemReservation'])
         ->middleware('throttle:5,1')
         ->name('referral.redeem_reservation');
@@ -307,12 +315,6 @@ Route::middleware(['auth', 'active.user', 'role:venue_admin,super_admin', 'venue
         Route::post('/manual-reservations', [VaManualReservationController::class, 'store'])->name('va.reservations.manual_store');
         Route::get('/agenda', [VaReservationsController::class, 'agenda'])->name('va.reservations.agenda');
 
-        // Check-in por código
-        Route::get('/checkin', [VaCheckinController::class, 'index'])->name('va.checkin');
-        Route::post('/checkin', [VaCheckinController::class, 'store'])
-            ->middleware('throttle:30,1')
-            ->name('va.checkin.store');
-
         // Blocks
         Route::get('/blocks', [VaFieldBlockController::class, 'index'])->name('va.blocks.index');
         Route::post('/blocks', [VaFieldBlockController::class, 'store'])->name('va.blocks.store');
@@ -337,7 +339,12 @@ Route::middleware(['auth', 'active.user', 'role:venue_admin,super_admin', 'venue
         // Mercado Pago OAuth
         Route::get('/venues/{venue}/mp-connect', [MercadoPagoOAuthController::class, 'redirect'])->name('va.mp_oauth.redirect');
         Route::post('/venues/{venue}/mp-disconnect', [MercadoPagoOAuthController::class, 'disconnect'])->name('va.mp_oauth.disconnect');
-    
+
+        // Staff
+        Route::get('/staff', [VaVenueStaffController::class, 'index'])->name('va.staff.index');
+        Route::post('/staff/invite', [VaVenueStaffController::class, 'invite'])->name('va.staff.invite');
+        Route::post('/staff/remove', [VaVenueStaffController::class, 'remove'])->name('va.staff.remove');
+        Route::post('/staff/cancel-invitation', [VaVenueStaffController::class, 'cancelInvitation'])->name('va.staff.cancel_invitation');
     });
 
     Route::get('/mp-oauth/callback', [MercadoPagoOAuthController::class, 'callback'])

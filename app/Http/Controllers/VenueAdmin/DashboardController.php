@@ -21,6 +21,12 @@ class DashboardController extends Controller
         $tomorrow = $today->copy()->addDay();
         $startOfWeek = now()->startOfWeek();
         $endOfWeek = now()->endOfWeek();
+        $startOfMonth = now()->startOfMonth();
+        $endOfMonth = now()->endOfMonth();
+        $startOfPrevWeek = now()->subWeek()->startOfWeek();
+        $endOfPrevWeek = now()->subWeek()->endOfWeek();
+        $startOfPrevMonth = now()->subMonth()->startOfMonth();
+        $endOfPrevMonth = now()->subMonth()->endOfMonth();
 
         $membershipAlert = null;
 
@@ -40,11 +46,7 @@ class DashboardController extends Controller
             }
         }
 
-        $venuesQuery = Venue::query();
-
-        if ($user->role !== 'super_admin') {
-            $venuesQuery->where('owner_user_id', $user->id);
-        }
+        $venuesQuery = Venue::accessibleBy($user);
 
         $venues = $venuesQuery
             ->with(['fields.price', 'fields.schedules', 'fields.exceptions'])
@@ -85,25 +87,21 @@ class DashboardController extends Controller
                 ->where('status', 'PENDING_PAYMENT')
                 ->count(),
 
-            'checkin_today_count' => $reservationsToday
-                ->where('status', 'CHECKED_IN')
-                ->count(),
-
             'today_revenue' => $reservationsToday
-                ->whereIn('status', ['PAID', 'CHECKED_IN'])
+                ->where('status', 'PAID')
                 ->sum('total_amount'),
         ];
 
         $nextReservation = Reservation::query()
             ->whereIn('field_id', $fieldIds)
             ->where('start_at', '>=', now())
-            ->whereIn('status', ['PENDING_PAYMENT', 'PAID', 'CHECKED_IN'])
+            ->whereIn('status', ['PENDING_PAYMENT', 'PAID'])
             ->with(['field.venue', 'user'])
             ->orderBy('start_at')
             ->first();
 
-        $validRevenueStatuses = ['PAID', 'CHECKED_IN'];
-        $visibleStatuses = ['PAID', 'CHECKED_IN', 'PENDING_PAYMENT'];
+        $validRevenueStatuses = ['PAID'];
+        $visibleStatuses = ['PAID', 'PENDING_PAYMENT'];
 
         $reservationsWeek = Reservation::query()
             ->whereIn('field_id', $fieldIds)
@@ -120,6 +118,42 @@ class DashboardController extends Controller
         $revenueWeek = (float) Reservation::query()
             ->whereIn('field_id', $fieldIds)
             ->whereBetween('start_at', [$startOfWeek, $endOfWeek])
+            ->whereIn('status', $validRevenueStatuses)
+            ->sum('total_amount');
+
+        $revenueMonth = (float) Reservation::query()
+            ->whereIn('field_id', $fieldIds)
+            ->whereBetween('start_at', [$startOfMonth, $endOfMonth])
+            ->whereIn('status', $validRevenueStatuses)
+            ->sum('total_amount');
+
+        $reservationsWeekPrev = Reservation::query()
+            ->whereIn('field_id', $fieldIds)
+            ->whereBetween('start_at', [$startOfPrevWeek, $endOfPrevWeek])
+            ->whereIn('status', $visibleStatuses)
+            ->count();
+
+        $revenueWeekPrev = (float) Reservation::query()
+            ->whereIn('field_id', $fieldIds)
+            ->whereBetween('start_at', [$startOfPrevWeek, $endOfPrevWeek])
+            ->whereIn('status', $validRevenueStatuses)
+            ->sum('total_amount');
+
+        $reservationsMonthCurrent = Reservation::query()
+            ->whereIn('field_id', $fieldIds)
+            ->whereBetween('start_at', [$startOfMonth, $endOfMonth])
+            ->whereIn('status', $visibleStatuses)
+            ->count();
+
+        $reservationsMonthPrev = Reservation::query()
+            ->whereIn('field_id', $fieldIds)
+            ->whereBetween('start_at', [$startOfPrevMonth, $endOfPrevMonth])
+            ->whereIn('status', $visibleStatuses)
+            ->count();
+
+        $revenueMonthPrev = (float) Reservation::query()
+            ->whereIn('field_id', $fieldIds)
+            ->whereBetween('start_at', [$startOfPrevMonth, $endOfPrevMonth])
             ->whereIn('status', $validRevenueStatuses)
             ->sum('total_amount');
 
@@ -251,6 +285,12 @@ class DashboardController extends Controller
             'reservationsWeek',
             'revenueToday',
             'revenueWeek',
+            'revenueMonth',
+            'reservationsWeekPrev',
+            'revenueWeekPrev',
+            'reservationsMonthCurrent',
+            'reservationsMonthPrev',
+            'revenueMonthPrev',
             'topField',
             'upcomingToday',
             'superStats',

@@ -779,6 +779,40 @@
     font-size: 15px;
   }
 
+  /* ── Search results panel ─────────────────────── */
+  .vi-search-results-panel {
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 24px;
+    padding: 28px 28px 32px;
+    margin-bottom: 28px;
+  }
+
+  .vi-search-results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .vi-search-results-header h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .vi-search-results-count {
+    font-size: 13px;
+    color: #888;
+    font-weight: 600;
+    background: #f3f3f3;
+    padding: 4px 12px;
+    border-radius: 999px;
+  }
+
   /* ── Responsive ───────────────────────────────── */
   @media (max-width: 900px) {
     .vi-hero { padding: 36px 24px 28px; }
@@ -807,7 +841,7 @@
           <p>Filtrá por zona, deporte, precio y fecha. Reservá online en segundos.</p>
         </div>
         <div class="vi-hero-stat">
-          <div class="vi-hero-stat-num">{{ $venues->count() ?: \App\Models\Venue::where('is_active', true)->count() }}</div>
+          <div class="vi-hero-stat-num">{{ $allVenues->count() }}</div>
           <div class="vi-hero-stat-label">complejos activos</div>
         </div>
       </div>
@@ -841,19 +875,22 @@
 
         {{-- Deporte --}}
         <label class="vi-filter-chip {{ ($sport ?? '') ? 'active' : '' }}">
-          ⚽ {{ match($sport ?? '') { 'football' => 'Fútbol', 'padel' => 'Pádel', 'tennis' => 'Tenis', default => 'Deporte' } }}
+          ⚽ {{ match($sport ?? '') { 'football' => 'Fútbol', 'padel' => 'Pádel', 'tennis' => 'Tenis', 'basketball' => 'Básquet', 'volleyball' => 'Vóley', default => 'Deporte' } }}
           <select name="sport" onchange="document.getElementById('venueSearchForm').submit()">
             <option value="">Todos los deportes</option>
             <option value="football" {{ ($sport ?? '') === 'football' ? 'selected' : '' }}>⚽ Fútbol</option>
             <option value="padel" {{ ($sport ?? '') === 'padel' ? 'selected' : '' }}>🏓 Pádel</option>
             <option value="tennis" {{ ($sport ?? '') === 'tennis' ? 'selected' : '' }}>🎾 Tenis</option>
+            <option value="basketball" {{ ($sport ?? '') === 'basketball' ? 'selected' : '' }}>🏀 Básquet</option>
+            <option value="volleyball" {{ ($sport ?? '') === 'volleyball' ? 'selected' : '' }}>🏐 Vóley</option>
           </select>
         </label>
 
         {{-- Fecha --}}
-        <label class="vi-filter-chip {{ ($date ?? '') ? 'active' : '' }}">
+        <label class="vi-filter-chip {{ ($date ?? '') ? 'active' : '' }}" onclick="event.preventDefault(); document.getElementById('dateFilterInput').showPicker()">
           📅 {{ ($date ?? '') ? \Carbon\Carbon::parse($date)->format('d/m') : 'Fecha' }}
           <input
+            id="dateFilterInput"
             type="date"
             name="date"
             value="{{ $date ?? '' }}"
@@ -913,7 +950,7 @@
         <span class="vi-active-filter-tag">📍 {{ $zone }}</span>
       @endif
       @if($sport ?? '')
-        <span class="vi-active-filter-tag">⚽ {{ match($sport) { 'football' => 'Fútbol', 'padel' => 'Pádel', 'tennis' => 'Tenis', default => $sport } }}</span>
+        <span class="vi-active-filter-tag">⚽ {{ match($sport) { 'football' => 'Fútbol', 'padel' => 'Pádel', 'tennis' => 'Tenis', 'basketball' => 'Básquet', 'volleyball' => 'Vóley', default => $sport } }}</span>
       @endif
       @if($date ?? '')
         <span class="vi-active-filter-tag">📅 {{ \Carbon\Carbon::parse($date)->format('d/m/Y') }}</span>
@@ -926,6 +963,75 @@
       @endif
       @if($availableAt ?? '')
         <span class="vi-active-filter-tag">🕐 {{ $availableAt }}</span>
+      @endif
+    </div>
+  @endif
+
+  {{-- ── SEARCH RESULTS PANEL (solo cuando hay filtros activos) ─────────── --}}
+  @if($hasFilters)
+    <div class="vi-search-results-panel">
+      <div class="vi-search-results-header">
+        <h2>🔍 Resultados de búsqueda</h2>
+        <span class="vi-search-results-count">{{ $venues->count() }} resultado{{ $venues->count() !== 1 ? 's' : '' }}</span>
+      </div>
+
+      @if($venues->isEmpty())
+        <div class="vi-empty">
+          <div class="vi-empty-icon">🔍</div>
+          <h3>Sin resultados</h3>
+          <p>No encontramos complejos con esos filtros. Probá ajustando la búsqueda.</p>
+        </div>
+      @else
+        <div class="vi-venues-grid">
+          @foreach($venues as $venue)
+            <article class="vi-venue-card">
+              <div class="vi-venue-img-wrap">
+                @if($venue->cover_image_path)
+                  <img src="{{ \Illuminate\Support\Facades\Storage::url($venue->cover_image_path) }}" alt="{{ $venue->name }}">
+                @else
+                  <div class="vi-venue-img-placeholder">⚽</div>
+                @endif
+                @auth
+                  @if(in_array($venue->id, $favoriteVenueIds ?? []))
+                    <form method="POST" action="{{ route('venues.unfavorite', $venue) }}" style="margin:0;">
+                      @csrf
+                      <button type="submit" class="vi-venue-fav-btn saved" title="Quitar de favoritos">❤️</button>
+                    </form>
+                  @else
+                    <form method="POST" action="{{ route('venues.favorite', $venue) }}" style="margin:0;">
+                      @csrf
+                      <button type="submit" class="vi-venue-fav-btn" title="Guardar en favoritos">🤍</button>
+                    </form>
+                  @endif
+                @endauth
+                @if($venue->zone)
+                  <div class="vi-venue-sport-badge">📍 {{ $venue->zone }}</div>
+                @endif
+              </div>
+              <div class="vi-venue-body">
+                <h3 class="vi-venue-name">{{ $venue->name }}</h3>
+                @if($venue->reviews_count > 0)
+                  <div class="vi-venue-rating">
+                    @php $rounded = round($venue->reviews_avg_rating); @endphp
+                    <span class="vi-venue-stars">
+                      @for($i = 1; $i <= 5; $i++){{ $i <= $rounded ? '★' : '☆' }}@endfor
+                    </span>
+                    <span class="vi-venue-rating-text">{{ number_format($venue->reviews_avg_rating, 1) }}</span>
+                    <span class="vi-venue-rating-count">({{ $venue->reviews_count }} reseña{{ $venue->reviews_count > 1 ? 's' : '' }})</span>
+                  </div>
+                @else
+                  <div style="font-size:13px; color:#aaa;">Sin reseñas todavía</div>
+                @endif
+                <p class="vi-venue-desc">
+                  {{ $venue->description ?? 'Reservá online y encontrá disponibilidad en pocos pasos.' }}
+                </p>
+                <div class="vi-venue-actions">
+                  <a href="{{ route('venues.show', $venue) }}" class="vi-btn-primary">Ver complejo →</a>
+                </div>
+              </div>
+            </article>
+          @endforeach
+        </div>
       @endif
     </div>
   @endif
@@ -1063,21 +1169,21 @@
     <div id="map" style="height: 380px;"></div>
   </div>
 
-  {{-- ── RESULTS ─────────────────────────────────────────────────────────── --}}
+  {{-- ── ALL VENUES ───────────────────────────────────────────────────────── --}}
   <div class="vi-results-header" id="complejos">
-    <h2>Complejos disponibles</h2>
-    <span class="vi-results-count">{{ $venues->count() }} resultado{{ $venues->count() !== 1 ? 's' : '' }}</span>
+    <h2>Todos los complejos</h2>
+    <span class="vi-results-count">{{ $allVenues->count() }} complejo{{ $allVenues->count() !== 1 ? 's' : '' }}</span>
   </div>
 
-  @if($venues->isEmpty())
+  @if($allVenues->isEmpty())
     <div class="vi-empty">
-      <div class="vi-empty-icon">🔍</div>
-      <h3>Sin resultados</h3>
-      <p>No encontramos complejos con esos filtros. Probá ajustando la búsqueda.</p>
+      <div class="vi-empty-icon">⚽</div>
+      <h3>No hay complejos todavía</h3>
+      <p>Pronto habrá complejos disponibles para reservar.</p>
     </div>
   @else
     <div class="vi-venues-grid">
-      @foreach($venues as $venue)
+      @foreach($allVenues as $venue)
         <article class="vi-venue-card">
 
           {{-- Image --}}
@@ -1234,7 +1340,7 @@
 
   // ── Google Maps ──────────────────────────────────
   const VENUES = [
-    @foreach($venues as $v)
+    @foreach($allVenues as $v)
       { id: {{ $v->id }}, name: @json($v->name), lat: {{ $v->lat ?? 'null' }}, lng: {{ $v->lng ?? 'null' }}, url: @json(route('venues.show', $v)) }@if(!$loop->last),@endif
     @endforeach
   ];

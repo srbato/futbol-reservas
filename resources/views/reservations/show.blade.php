@@ -57,13 +57,6 @@
           Esta reserva fue cancelada y ya no está activa.
         </div>
       </div>
-    @elseif($reservation->status === 'CHECKED_IN')
-      <div class="page-card" style="background:#e8f7ee; border-color:#cfe9d7;">
-        <div style="color:#157347; font-weight:700; margin-bottom:6px;">Check-in realizado</div>
-        <div style="color:#157347; line-height:1.6;">
-          El ingreso ya fue validado en el complejo.
-        </div>
-      </div>
     @endif
 
     <div style="display:grid; grid-template-columns:1.1fr .9fr; gap:18px;">
@@ -125,13 +118,13 @@
         <div class="page-card">
           <h2 class="section-title" style="font-size:24px; margin-bottom:14px;">Código de verificación</h2>
 
-          @if(in_array($reservation->status, ['PAID', 'CHECKED_IN']) && $reservation->verification_code)
+          @if($reservation->status === 'PAID' && $reservation->verification_code)
             <div style="font-size:34px; font-weight:800; letter-spacing:.08em; line-height:1.1;">
               {{ $reservation->verification_code }}
             </div>
 
             <p class="muted" style="margin:12px 0 0 0; line-height:1.6;">
-              Mostrá este código al momento de hacer el check-in en el complejo.
+              Mostrá este código al ingresar al complejo.
             </p>
           @else
             <p class="muted" style="margin:0; line-height:1.6;">
@@ -168,8 +161,8 @@
       </div>
     </div>
 
-    {{-- Players section: visible when PAID or CHECKED_IN --}}
-    @if(in_array($reservation->status, ['PAID', 'CHECKED_IN']))
+    {{-- Players section: visible when PAID --}}
+    @if($reservation->status === 'PAID')
       <div class="page-card">
         <h2 class="section-title" style="font-size:24px; margin-bottom:6px;">Jugadores del partido</h2>
         <p class="muted" style="margin:0 0 18px 0; font-size:14px; line-height:1.6;">

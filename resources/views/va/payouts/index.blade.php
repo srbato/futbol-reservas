@@ -6,6 +6,12 @@
 
 @section('content')
 
+@include('va.partials.help-modal', [
+  'helpKey'   => 'va_payouts',
+  'helpTitle' => 'Retiros y cobros',
+  'helpText'  => 'Acá se registra lo que la plataforma te debe por reservas gratuitas canjeadas en tu complejo con membresías de usuarios. Podés ver el detalle de cada reserva canjeada y el total pendiente de pago.',
+])
+
   {{-- Resumen --}}
   <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; margin-bottom:24px;">
     <div class="admin-card">

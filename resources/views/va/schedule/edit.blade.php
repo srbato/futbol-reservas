@@ -172,6 +172,13 @@
 @endpush
 
 @section('content')
+
+@include('va.partials.help-modal', [
+  'helpKey'   => 'va_schedule',
+  'helpTitle' => 'Horarios de atención',
+  'helpText'  => 'Configurá los días y horarios en que cada cancha está disponible para reservar. Por ejemplo, podés definir que la cancha 1 atiende de lunes a viernes de 8:00 a 22:00 y los sábados de 9:00 a 18:00. Solo se podrán hacer reservas dentro de estos horarios.',
+])
+
 @php
   $days = [
     1 => 'Lunes',
