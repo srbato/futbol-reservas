@@ -1,23 +1,22 @@
 <?php
 
-namespace App\Http\Controllers;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-use App\Models\Venue;
-use Illuminate\Http\Request;
-
-class FavoriteVenueController extends Controller
-{
-    public function store(Request $request, Venue $venue)
+return new class extends Migration {
+    public function up(): void
     {
-        $request->user()->favoriteVenues()->syncWithoutDetaching([$venue->id]);
-
-        return back()->with('success', 'Complejo agregado a favoritos.');
+        Schema::create('favorite_venues', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('venue_id')->constrained()->onDelete('cascade');
+            $table->timestamps();
+        });
     }
 
-    public function destroy(Request $request, Venue $venue)
+    public function down(): void
     {
-        $request->user()->favoriteVenues()->detach($venue->id);
-
-        return back()->with('success', 'Complejo quitado de favoritos.');
+        Schema::dropIfExists('favorite_venues');
     }
-}
+};
