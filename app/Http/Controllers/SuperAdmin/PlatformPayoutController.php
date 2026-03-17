@@ -11,8 +11,10 @@ use Illuminate\Support\Facades\Log;
 
 class PlatformPayoutController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        abort_if($request->user()->role !== 'super_admin', 403);
+
         // Totales pendientes por venue
         $pendingByVenue = PlatformPayout::with(['venue', 'reservation.field', 'referralReward.referred'])
             ->where('status', 'pending')

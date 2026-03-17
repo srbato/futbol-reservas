@@ -30,6 +30,7 @@ class VenueController extends Controller
     public function create(Request $request)
     {
         $user = $request->user();
+        abort_if($user->isVenueStaff(), 403);
         if ($user->role !== 'super_admin' && Venue::where('owner_user_id', $user->id)->exists()) {
             return redirect()->route('va.dashboard')
                 ->with('error', 'Ya tenés un complejo creado. Solo podés administrar un complejo por cuenta.');
@@ -40,17 +41,19 @@ class VenueController extends Controller
 
     public function store(Request $request)
     {
+        $user = $request->user();
+        abort_if($user->isVenueStaff(), 403);
+
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
             'description' => ['nullable', 'string', 'max:255'],
-            'cover_image' => ['nullable', 'image', 'max:4096'],
+            'cover_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'address' => ['nullable', 'string', 'max:200'],
             'zone' => ['nullable', 'string', 'max:120'],
             'lat' => ['nullable', 'numeric', 'between:-90,90'],
             'lng' => ['nullable', 'numeric', 'between:-180,180'],
         ]);
 
-        $user = $request->user();
         if ($user->role !== 'super_admin' && Venue::where('owner_user_id', $user->id)->exists()) {
             return redirect()->route('va.dashboard')
                 ->with('error', 'Ya tenés un complejo creado. Solo podés administrar un complejo por cuenta.');
@@ -107,7 +110,7 @@ class VenueController extends Controller
         $data = $request->validate([
             'name'               => ['required', 'string', 'max:120'],
             'description'        => ['nullable', 'string', 'max:255'],
-            'cover_image'        => ['nullable', 'image', 'max:4096'],
+            'cover_image'        => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'address'            => ['nullable', 'string', 'max:200'],
             'zone'               => ['nullable', 'string', 'max:120'],
             'lat'                => ['nullable', 'numeric', 'between:-90,90'],

@@ -699,7 +699,9 @@
         <div style="font-size:40px; margin-bottom:12px;">🏟️</div>
         <div style="font-weight:800; font-size:16px; margin-bottom:8px;">Todavía no tenés complejos</div>
         <div style="color:#888; font-size:14px; margin-bottom:20px;">Creá tu primer complejo para empezar a recibir reservas.</div>
-        <a href="{{ route('va.venues.create') }}" class="btn btn-primary">+ Crear complejo</a>
+        @if(!auth()->user()->isVenueStaff())
+          <a href="{{ route('va.venues.create') }}" class="btn btn-primary">+ Crear complejo</a>
+        @endif
       </div>
     @endforelse
   </div>

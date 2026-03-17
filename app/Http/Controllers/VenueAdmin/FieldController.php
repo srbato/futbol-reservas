@@ -15,7 +15,8 @@ class FieldController extends Controller
 {
     public function create(Request $request, Venue $venue)
     {
-        if ($request->user()->role !== 'super_admin' && $venue->owner_user_id !== $request->user()->id) {
+        $user = $request->user();
+        if ($user->role !== 'super_admin' && $venue->owner_user_id !== $user->id && !$user->isStaffOf($venue->id)) {
             abort(403);
         }
 
@@ -26,21 +27,21 @@ class FieldController extends Controller
     {
         $user = $request->user();
 
-        // Solo el dueño (o super_admin) puede crear canchas
-        if ($user->role !== 'super_admin' && $venue->owner_user_id !== $user->id) {
+        if ($user->role !== 'super_admin' && $venue->owner_user_id !== $user->id && !$user->isStaffOf($venue->id)) {
             abort(403);
         }
 
-        // Enforce plan field limit (super_admin is exempt) — wrapped in transaction to prevent race condition
+        // Enforce plan field limit against the venue owner (super_admin is exempt)
+        $owner = $venue->owner;
         if ($user->role !== 'super_admin') {
-            $subscription = $user->activeVenueAdminSubscription()->first();
+            $subscription = $owner->activeVenueAdminSubscription()->first();
             $plan = $subscription?->plan_slug
                 ? MembershipPlan::where('slug', $subscription->plan_slug)->first()
                 : null;
 
             if ($plan && $plan->max_fields !== null) {
-                $limitError = DB::transaction(function () use ($user, $plan) {
-                    $activeFieldCount = Field::whereHas('venue', fn($q) => $q->where('owner_user_id', $user->id))
+                $limitError = DB::transaction(function () use ($owner, $plan) {
+                    $activeFieldCount = Field::whereHas('venue', fn($q) => $q->where('owner_user_id', $owner->id))
                         ->where('is_active', true)
                         ->lockForUpdate()
                         ->count();
@@ -119,7 +120,7 @@ class FieldController extends Controller
             'slot_minutes'         => ['required', 'integer', 'min:30', 'max:180'],
             'price_per_slot'       => ['required', 'numeric', 'min:0'],
             'currency'             => ['required', 'string', 'size:3'],
-            'cover_image'          => ['nullable', 'image', 'max:4096'],
+            'cover_image'          => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'night_price_per_slot' => ['nullable', 'numeric', 'min:0'],
             'night_start_time'     => ['nullable', 'date_format:H:i', 'required_with:night_price_per_slot'],
             'night_end_time'       => ['nullable', 'date_format:H:i', 'required_with:night_price_per_slot', 'after:night_start_time'],

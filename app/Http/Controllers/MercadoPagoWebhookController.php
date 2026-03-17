@@ -18,7 +18,11 @@ class MercadoPagoWebhookController extends Controller
 {
     public function handle(Request $request)
     {
-        Log::info('MP webhook recibido', $request->all());
+        Log::info('MP webhook recibido', [
+            'type'    => $request->input('type'),
+            'topic'   => $request->input('topic'),
+            'data_id' => $request->input('data.id') ?? $request->input('id'),
+        ]);
 
         $type   = $request->input('type');
         $topic  = $request->input('topic');

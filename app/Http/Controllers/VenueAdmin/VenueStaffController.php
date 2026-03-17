@@ -60,10 +60,9 @@ class VenueStaffController extends Controller
             return back()->withErrors(['email' => 'Este usuario ya es empleado de este complejo.'])->withInput();
         }
 
-        // Cancel any previous pending invitation for this user+venue
+        // Remove any previous invitation for this user+venue before creating a new one
         VenueStaffInvitation::where('venue_id', $venue->id)
             ->where('user_id', $invitee->id)
-            ->where('status', 'pending')
             ->delete();
 
         $invitation = VenueStaffInvitation::create([

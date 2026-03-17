@@ -357,7 +357,7 @@ Route::middleware(['auth', 'active.user', 'role:venue_admin,super_admin', 'venue
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth', 'active.user'])->group(function () {
+Route::middleware(['auth', 'active.user', 'role:super_admin'])->group(function () {
     Route::get('/sa/users', [UserManagementController::class, 'index'])
         ->name('sa.users.index');
 
@@ -374,7 +374,7 @@ Route::middleware(['auth', 'active.user'])->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth', 'active.user'])->group(function () {
+Route::middleware(['auth', 'active.user', 'role:super_admin'])->group(function () {
     Route::get('/sa/messages', [SystemMessageController::class, 'index'])
         ->name('sa.messages.index');
 

@@ -347,7 +347,7 @@
             || \App\Models\Venue::where('owner_user_id', auth()->id())->exists();
       @endphp
 
-      @if(!$userHasVenue)
+      @if(!$userHasVenue && !auth()->user()->isVenueStaff())
         <div class="admin-section-title">Gestión</div>
         <nav class="admin-nav">
           <a href="{{ route('va.venues.create') }}" class="{{ request()->routeIs('va.venues.create') ? 'active' : '' }}">
