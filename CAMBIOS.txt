@@ -140,3 +140,82 @@ REGISTRO DE CAMBIOS - Futbol Reservas
     Vistas actualizadas: layouts/app.blade.php (link "Panel admin" visible para staff),
       layouts/admin.blade.php (Reportes oculto para staff),
       va/dashboard.blade.php (KPIs de ingresos ocultos para staff, botones de crear cancha/complejo ocultos).
+
+[2026-03-18] - Impersonación de usuarios desde el superadmin
+- El superadmin puede iniciar sesión como cualquier usuario no-superadmin con un botón en /sa/users.
+- Al hacer click en "Ingresar como", se loguea directamente como ese usuario y redirige a /.
+- Para volver, el superadmin cierra sesión manualmente.
+- Cambios en: SuperAdmin/UserManagementController.php (impersonate()), sa/users/index.blade.php, routes/web.php.
+
+[2026-03-18] - Separación de mensajes manuales y mensajes de sistema en superadmin
+- Los mensajes automáticos (recordatorios de membresía) ya no aparecen mezclados con los mensajes creados manualmente por el superadmin.
+- Agregado campo is_system (boolean, default false) a la tabla system_messages.
+- SendMembershipExpirationReminders ahora crea los mensajes con is_system=true.
+- SuperAdmin/SystemMessageController separa $messages (manuales) y $systemMessages (automáticos).
+- Vista sa/messages/index.blade.php: sección "Mensajes creados" (manuales) y sección "Notificaciones automáticas" (solo lectura, solo se pueden eliminar).
+- Migración: 2026_03_18_105617_add_is_system_to_system_messages_table.php.
+
+[2026-03-18] - Fix: mensajes no desaparecen después de cerrarlos
+- La ruta system-messages.dismiss estaba dentro del grupo middleware role:super_admin, causando 403 para usuarios normales.
+- Fix: ruta movida al grupo auth general.
+- Cambios en: routes/web.php.
+
+[2026-03-18] - Fix: mensajes pasan a ser globales al eliminar el usuario destinatario
+- Al eliminar un usuario desde el panel superadmin, sus mensajes dirigidos quedaban con target_user_id=null y se volvían visibles para todos.
+- Fix: se eliminan todos los SystemMessage del usuario antes de borrarlo.
+- Cambios en: SuperAdmin/UserManagementController.php (destroy()).
+
+[2026-03-18] - Rediseño de "Vista Global" en el dashboard del superadmin
+- La pestaña Vista Global ahora muestra estadísticas de la plataforma en lugar de estadísticas de complejos.
+- KPIs: total de usuarios, usuarios nuevos hoy, suscripciones activas, suscripciones vencidas, ingresos mensuales totales, ingresos anuales/semestrales totales.
+- Tabla de venue admins con su plan, ciclo de facturación, estado y vencimiento.
+- Fix de ingresos anuales: se sumaba monthly_price × 12 cuando monthly_price ya almacena el total pagado.
+- Cambios en: VenueAdmin/DashboardController.php, va/dashboard.blade.php.
+
+[2026-03-18] - Sistema de referidos ocultado (sin eliminar)
+- El sistema de referidos queda deshabilitado visualmente y las rutas bloqueadas para usuarios no-superadmin.
+- Eliminados los links de "Mis referidos" del navbar y del checkout.
+- Eliminados los bloques de referidos en welcome.blade.php y como-funciona.blade.php.
+- Eliminado el input de código de referido del checkout de membresía.
+- Las rutas de referidos ahora requieren role:super_admin (no accesibles por usuarios normales).
+- Toda la lógica backend (ReferralService, modelos) permanece intacta para poder reactivarse.
+- Eliminados también los links "Mis cobros" (venue admin) y "Pagos a venues" (superadmin) del sidebar.
+- Cambios en: routes/web.php, layouts/app.blade.php, layouts/admin.blade.php, welcome.blade.php, como-funciona.blade.php, membership/become-partner.blade.php.
+
+[2026-03-18] - Planes semestral/anual configurables desde el superadmin
+- El superadmin puede cambiar el tipo de plan largo plazo entre Anual (12 meses) y Semestral (6 meses) desde /sa/plans.
+- Nuevo campo long_term_months (tinyint, default 12) en membership_plans y venue_admin_subscriptions.
+- MercadoPagoSubscriptionService usa long_term_months para la frecuencia del preapproval en lugar de hardcodear 12.
+- MercadoPagoWebhookController usa long_term_months * 30 para calcular días de acceso en lugar de 365.
+- Todos los labels "Anual/Semestral" en vistas son ahora dinámicos via $plan->longTermLabel().
+- MembershipPlan: nuevos métodos longTermMonths(), longTermLabel(), annualTotalPrice() actualizado.
+- Migración: 2026_03_18_113047_add_long_term_months_to_membership_plans_and_subscriptions.php.
+- Cambios en: MembershipPlan.php, VenueAdminSubscription.php, MercadoPagoSubscriptionService.php, MercadoPagoWebhookController.php, VenueAdminMembershipController.php, SuperAdmin/MembershipPlanController.php, sa/plans/index.blade.php, planes.blade.php, membership/become-partner.blade.php.
+
+[2026-03-18] - Sistema de período de prueba gratuito (Opción A: sin tarjeta)
+- Los planes pueden tener un período de prueba configurable (trial_days) desde /sa/plans.
+- El usuario activa el trial con un botón "Empezar X días gratis" sin ingresar tarjeta ni cuenta de MP.
+- Al activar el trial: se crea una suscripción con status=TRIAL, el rol pasa a venue_admin, acceso inmediato al panel admin.
+- Al vencer el trial: comando membership:process-trials envía email (TrialEndingMail) + notificación interna y revoca el acceso (rol vuelve a user, status=EXPIRED).
+- El trial solo puede usarse una vez por usuario (bloqueado por whereNotNull('trial_ends_at')).
+- Después del trial, el usuario ve el formulario normal de MercadoPago para contratar un plan pago.
+- Si el superadmin cancela el rol venue_admin, el trial se cancela inmediatamente.
+- Eliminado el bloque free_trial del payload de MercadoPago (no funcionaba de forma confiable en Argentina).
+- Actualmente solo el plan Starter tiene trial_days=7. Pro y Full tienen trial_days=0.
+- Nuevos archivos: ProcessMembershipTrials.php, TrialEndingMail.php, emails/membership/trial-ending.blade.php.
+- Migración: 2026_03_18_114320_add_trial_to_membership_plans_and_subscriptions.php.
+- Cambios en: User.php (activeVenueAdminSubscription incluye TRIAL), VenueAdminMembershipController.php (startTrial(), cancelSubscription actualizado), MercadoPagoSubscriptionService.php, routes/web.php, routes/console.php, membership/become-partner.blade.php, planes.blade.php.
+
+[2026-03-18] - Ocultar complejos cuando el dueño no tiene suscripción activa
+- Si un venue admin pierde su suscripción, sus complejos dejan de aparecer en búsquedas, top reservados, mejor puntuados y con descuentos.
+- Si alguien entra directo por URL al complejo, recibe 404.
+- Al renovar la suscripción, los complejos vuelven a aparecer automáticamente.
+- Los datos (canchas, reservas, horarios) nunca se eliminan, solo se oculta el acceso público.
+- Implementado via scope scopeWithActiveOwner() en el modelo Venue.
+- Cambios en: Venue.php (nuevo scope), VenueController.php (scope aplicado en todas las queries y en show()).
+
+[2026-03-18] - Cambio de rol venue_admin crea suscripción especial automáticamente
+- Cuando el superadmin cambia el rol de un usuario a venue_admin, se crea automáticamente una suscripción gratuita con plan_slug='special', precio $0 y vencimiento en 100 años.
+- Esto evita que el usuario quede bloqueado por el chequeo de suscripción activa del RoleMiddleware.
+- Al quitar el rol venue_admin, todas las suscripciones activas/trial del usuario se cancelan inmediatamente.
+- Cambios en: SuperAdmin/UserManagementController.php (updateRole()).
