@@ -280,7 +280,7 @@
   @stack('styles')
 </head>
 <body>
-  @php
+@php
     $adminSubscription = null;
 
     if (auth()->check() && auth()->user()->role === 'venue_admin') {
@@ -315,9 +315,6 @@
           Descuentos
         </a>
         @if(auth()->user()->role === 'venue_admin')
-          <a href="{{ route('va.payouts.index') }}" class="{{ request()->routeIs('va.payouts.*') ? 'active' : '' }}">
-            Mis cobros
-          </a>
           <a href="{{ route('va.staff.index') }}" class="{{ request()->routeIs('va.staff.*') ? 'active' : '' }}">
             Empleados
           </a>
@@ -335,9 +332,6 @@
           </a>
           <a href="{{ route('sa.plans.index') }}" class="{{ request()->routeIs('sa.plans.*') ? 'active' : '' }}">
             Planes
-          </a>
-          <a href="{{ route('sa.payouts.index') }}" class="{{ request()->routeIs('sa.payouts.*') ? 'active' : '' }}">
-            Pagos a venues
           </a>
         </nav>
       @endif

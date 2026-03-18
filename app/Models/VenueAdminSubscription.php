@@ -11,6 +11,8 @@ class VenueAdminSubscription extends Model
         'user_id',
         'plan_slug',
         'billing_cycle',
+        'long_term_months',
+        'trial_ends_at',
         'status',
         'monthly_price',
         'currency',
@@ -30,8 +32,9 @@ class VenueAdminSubscription extends Model
 
     protected $casts = [
         'monthly_price' => 'decimal:2',
-        'starts_at' => 'datetime',
-        'expires_at' => 'datetime',
+        'starts_at'     => 'datetime',
+        'expires_at'    => 'datetime',
+        'trial_ends_at' => 'datetime',
         'reminder_sent_7d_at' => 'datetime',
         'reminder_sent_2d_at' => 'datetime',
         'reminder_sent_0d_at' => 'datetime',

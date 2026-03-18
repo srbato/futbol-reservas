@@ -694,7 +694,7 @@
 </style>
 </head>
 <body>
-  <header class="site-header">
+<header class="site-header">
     <div class="site-header-inner">
       <a href="{{ route('home') }}" class="brand">TuCancha</a>
 
@@ -729,9 +729,8 @@
               <a href="{{ route('my_reservations') }}">Mis reservas</a>
               <a href="{{ route('match_history') }}">Historial de partidos</a>
               <a href="{{ route('venues.favorites') }}">Favoritos</a>
-              <a href="{{ route('referral.index') }}">Mis referidos</a>
 
-              @if(in_array(auth()->user()->role, ['venue_admin', 'super_admin']) || auth()->user()->isVenueStaff())
+@if(in_array(auth()->user()->role, ['venue_admin', 'super_admin']) || auth()->user()->isVenueStaff())
                 <a href="{{ route('va.dashboard') }}" class="user-dropdown-admin">⚡ Panel admin</a>
               @endif
 
@@ -818,18 +817,20 @@
     </div>
 
     <script>
-      function dismissSystemMessage(messageId) {
-        fetch(`/system-messages/${messageId}/dismiss`, {
+      (function() {
+        fetch(`/system-messages/{{ $activeSystemMessage->id }}/dismiss`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'X-CSRF-TOKEN': '{{ csrf_token() }}',
             'Accept': 'application/json'
           }
-        }).then(() => {
-          const modal = document.getElementById('systemMessageModal');
-          if (modal) modal.remove();
         });
+      })();
+
+      function dismissSystemMessage(messageId) {
+        const modal = document.getElementById('systemMessageModal');
+        if (modal) modal.remove();
       }
     </script>
   @endif

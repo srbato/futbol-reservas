@@ -462,58 +462,6 @@
     </div>
   </section>
 
-  {{-- ── Referral — sección destacada ─────────────────────────────── --}}
-  <section class="section" style="padding-bottom: 0;">
-    <div class="container">
-      <div class="referral-hero">
-        <span class="referral-tag">🎁 Programa de referidos</span>
-        <h2>Invitá un complejo.<br><em>Jugá gratis.</em></h2>
-        <p>
-          Compartí tu código único con el dueño de cualquier complejo deportivo.
-          Si se suma a TuCancha usando tu código, vos conseguís una <strong style="color:#a3f0c0;">reserva completamente gratis</strong> para usar cuando quieras.
-        </p>
-
-        <div class="referral-steps">
-          <div class="referral-step">
-            <span class="referral-step-num">Paso 01</span>
-            <span class="referral-step-icon">🔗</span>
-            <h3>Compartí tu código</h3>
-            <p>Desde tu cuenta encontrás tu código de referido único. Mandáselo al dueño del complejo donde jugás.</p>
-          </div>
-
-          <div class="referral-step">
-            <span class="referral-step-num">Paso 02</span>
-            <span class="referral-step-icon">🏟️</span>
-            <h3>El complejo se suma</h3>
-            <p>El dueño se registra en TuCancha e ingresa tu código al contratar su plan de administrador.</p>
-          </div>
-
-          <div class="referral-step">
-            <span class="referral-step-num">Paso 03</span>
-            <span class="referral-step-icon">🎉</span>
-            <h3>¡Cancha gratis para vos!</h3>
-            <p>Recibís una recompensa que podés usar para pagar cualquier reserva sin gastar un peso.</p>
-          </div>
-        </div>
-
-        <div class="referral-hero-actions">
-          @auth
-            <a href="{{ route('referral.index') }}" class="btn-referral-primary">
-              Ver mi código de referido →
-            </a>
-          @else
-            <a href="{{ route('register') }}" class="btn-referral-primary">
-              Crear cuenta y referir →
-            </a>
-          @endauth
-          <a href="{{ route('como-funciona') }}" class="btn-referral-ghost">
-            Saber más
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
-
   {{-- ── ¿Por qué TuCancha? ────────────────────────────────────────── --}}
   <section id="por-que" class="section">
     <div class="container">

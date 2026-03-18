@@ -20,6 +20,13 @@ class SystemMessageController extends Controller
 
         $messages = SystemMessage::query()
             ->with('targetUser')
+            ->where('is_system', false)
+            ->latest()
+            ->get();
+
+        $systemMessages = SystemMessage::query()
+            ->with('targetUser')
+            ->where('is_system', true)
             ->latest()
             ->get();
 
@@ -32,7 +39,7 @@ class SystemMessageController extends Controller
             self::DEFAULT_MEMBERSHIP_PRICE
         );
 
-        return view('sa.messages.index', compact('messages', 'users', 'membershipPrice'));
+        return view('sa.messages.index', compact('messages', 'systemMessages', 'users', 'membershipPrice'));
     }
 
     public function updateMembershipPrice(Request $request)

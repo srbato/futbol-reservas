@@ -18,7 +18,7 @@ class VenuePayoutController extends Controller
         $venue = Venue::where('owner_user_id', $user->id)->first();
 
         if (!$venue && $user->role === 'super_admin') {
-            return redirect()->route('sa.payouts.index');
+            return redirect()->route('va.dashboard');
         }
 
         if (!$venue) {

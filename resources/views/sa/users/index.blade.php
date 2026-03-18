@@ -124,6 +124,14 @@
                         </form>
                       @endif
 
+                      @if($user->role !== 'super_admin')
+                        <form method="POST" action="{{ route('sa.users.impersonate', $user) }}"
+                              onsubmit="return confirm('¿Iniciar sesión como {{ $user->name }}?')">
+                          @csrf
+                          <button type="submit" class="btn btn-sm" style="background:#6f42c1; color:#fff;">Ingresar como</button>
+                        </form>
+                      @endif
+
                       <form method="POST" action="{{ route('sa.users.destroy', $user) }}"
                             onsubmit="return confirm('¿Eliminar definitivamente este usuario?')">
                         @csrf

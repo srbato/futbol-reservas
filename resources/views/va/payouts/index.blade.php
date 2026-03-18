@@ -37,17 +37,7 @@
     </div>
   </div>
 
-  {{-- Explicación --}}
-  <div class="admin-card" style="margin-bottom:24px; background:#fffbeb; border-color:#fde68a;">
-    <div style="font-size:14px; color:#92400e; line-height:1.65;">
-      <strong>¿Por qué aparecen estos cobros?</strong><br>
-      Cuando un usuario canjea una reserva gratis (beneficio por referidos) en tu complejo, la plataforma absorbe el costo de esa reserva.
-      Estos registros muestran cuánto te debe la plataforma por esas reservas.
-      El pago puede procesarse automáticamente vía Mercado Pago o marcarse manualmente por el administrador.
-    </div>
-  </div>
-
-  {{-- Pendientes --}}
+{{-- Pendientes --}}
   <div style="margin-bottom:32px;">
     <div class="section-title" style="margin-bottom:16px;">Pendientes de pago ({{ $pending->count() }})</div>
 

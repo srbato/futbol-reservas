@@ -7,6 +7,7 @@ use App\Models\Field;
 use App\Models\Reservation;
 use App\Models\User;
 use App\Models\Venue;
+use App\Models\VenueAdminSubscription;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -229,31 +230,35 @@ class DashboardController extends Controller
 
         $superStats = null;
         $recentUsers = collect();
-        $topVenue = null;
+        $venueAdmins = collect();
 
         if ($user->role === 'super_admin') {
+            $paidStatuses = ['ACTIVE', 'EXPIRED'];
+
+            $revenueMonthly = (float) VenueAdminSubscription::whereIn('status', $paidStatuses)
+                ->where('billing_cycle', 'monthly')
+                ->sum('monthly_price');
+
+            $revenueAnnual = (float) VenueAdminSubscription::whereIn('status', $paidStatuses)
+                ->where('billing_cycle', 'annual')
+                ->sum('monthly_price');
+
             $superStats = [
-                'users_count' => User::count(),
-                'venue_admins_count' => User::where('role', 'venue_admin')->count(),
-                'super_admins_count' => User::where('role', 'super_admin')->count(),
-                'venues_count' => Venue::count(),
-                'fields_count' => Field::count(),
-                'reservations_today_count' => Reservation::query()
-                    ->whereBetween('start_at', [$today, $tomorrow])
-                    ->whereIn('status', $visibleStatuses)
-                    ->count(),
-                'revenue_today' => (float) Reservation::query()
-                    ->whereBetween('start_at', [$today, $tomorrow])
-                    ->whereIn('status', $validRevenueStatuses)
-                    ->sum('total_amount'),
-                'reservations_week_count' => Reservation::query()
-                    ->whereBetween('start_at', [$startOfWeek, $endOfWeek])
-                    ->whereIn('status', $visibleStatuses)
-                    ->count(),
-                'revenue_week' => (float) Reservation::query()
-                    ->whereBetween('start_at', [$startOfWeek, $endOfWeek])
-                    ->whereIn('status', $validRevenueStatuses)
-                    ->sum('total_amount'),
+                'users_count'              => User::count(),
+                'users_today'              => User::whereDate('created_at', today())->count(),
+                'subscriptions_active'     => VenueAdminSubscription::where('status', 'ACTIVE')
+                                                ->where('expires_at', '>', now())
+                                                ->count(),
+                'subscriptions_expired'    => VenueAdminSubscription::where(function ($q) {
+                                                $q->where('status', 'EXPIRED')
+                                                  ->orWhere(function ($q2) {
+                                                      $q2->where('status', 'ACTIVE')
+                                                         ->where('expires_at', '<', now());
+                                                  });
+                                             })->count(),
+                'revenue_monthly_total'    => $revenueMonthly,
+                'revenue_annual_total'     => $revenueAnnual,
+                'revenue_subscriptions'    => $revenueMonthly + $revenueAnnual,
             ];
 
             $recentUsers = User::query()
@@ -261,19 +266,13 @@ class DashboardController extends Controller
                 ->take(8)
                 ->get();
 
-            $topVenue = Reservation::query()
-                ->join('fields', 'fields.id', '=', 'reservations.field_id')
-                ->join('venues', 'venues.id', '=', 'fields.venue_id')
-                ->select(
-                    'venues.id as venue_id',
-                    'venues.name as venue_name',
-                    DB::raw('COUNT(reservations.id) as reservations_count')
-                )
-                ->whereBetween('reservations.start_at', [$startOfWeek, $endOfWeek])
-                ->whereIn('reservations.status', $visibleStatuses)
-                ->groupBy('venues.id', 'venues.name')
-                ->orderByDesc('reservations_count')
-                ->first();
+            $venueAdmins = User::where('role', 'venue_admin')
+                ->with(['venueAdminSubscriptions' => function ($q) {
+                    $q->whereIn('status', ['ACTIVE', 'EXPIRED'])
+                      ->latest('created_at');
+                }])
+                ->orderBy('name')
+                ->get();
         }
 
         return view('va.dashboard', compact(
@@ -295,7 +294,7 @@ class DashboardController extends Controller
             'upcomingToday',
             'superStats',
             'recentUsers',
-            'topVenue',
+            'venueAdmins',
             'membershipAlert'
         ));
     }

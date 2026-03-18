@@ -120,7 +120,6 @@
                 <tr>
                   <th>Reserva</th>
                   <th>Cancha</th>
-                  <th>Usuario que canjeó</th>
                   <th>Fecha</th>
                   <th>Monto</th>
                   <th></th>
@@ -136,7 +135,6 @@
                       </a>
                     </td>
                     <td>{{ $payout->reservation->field->name ?? '—' }}</td>
-                    <td>{{ $payout->referralReward->referred->name ?? '—' }}</td>
                     <td style="color:#888; white-space:nowrap;">
                       {{ $payout->created_at->format('d/m/Y H:i') }}
                     </td>

@@ -758,88 +758,143 @@
   @if(auth()->user()->role === 'super_admin')
     <div id="tab-global" class="tab-pane">
 
-      <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));">
+      {{-- Usuarios --}}
+      <div style="font-size:13px; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:.05em; margin-bottom:10px;">Usuarios</div>
+      <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); margin-bottom:24px;">
         <div class="kpi-card">
-          <span class="kpi-icon">👤</span>
+          <span class="kpi-icon">👥</span>
           <div class="kpi-label">Usuarios totales</div>
           <div class="kpi-value">{{ $superStats['users_count'] }}</div>
         </div>
         <div class="kpi-card green">
-          <span class="kpi-icon">🏟️</span>
-          <div class="kpi-label">Admins de complejo</div>
-          <div class="kpi-value">{{ $superStats['venue_admins_count'] }}</div>
-        </div>
-        <div class="kpi-card blue">
-          <span class="kpi-icon">⚙️</span>
-          <div class="kpi-label">Superadmins</div>
-          <div class="kpi-value">{{ $superStats['super_admins_count'] }}</div>
-        </div>
-        <div class="kpi-card purple">
-          <span class="kpi-icon">🏟️</span>
-          <div class="kpi-label">Complejos</div>
-          <div class="kpi-value">{{ $superStats['venues_count'] }}</div>
-        </div>
-        <div class="kpi-card orange">
-          <span class="kpi-icon">⚽</span>
-          <div class="kpi-label">Canchas</div>
-          <div class="kpi-value">{{ $superStats['fields_count'] }}</div>
-        </div>
-        <div class="kpi-card green">
-          <span class="kpi-icon">📅</span>
-          <div class="kpi-label">Reservas hoy</div>
-          <div class="kpi-value">{{ $superStats['reservations_today_count'] }}</div>
-        </div>
-        <div class="kpi-card blue">
-          <span class="kpi-icon">💰</span>
-          <div class="kpi-label">Ingresos hoy</div>
-          <div class="kpi-value" style="font-size:20px;">$ {{ number_format($superStats['revenue_today'], 0, ',', '.') }}</div>
-        </div>
-        <div class="kpi-card purple">
-          <span class="kpi-icon">📈</span>
-          <div class="kpi-label">Reservas semana</div>
-          <div class="kpi-value">{{ $superStats['reservations_week_count'] }}</div>
-        </div>
-        <div class="kpi-card orange">
-          <span class="kpi-icon">💵</span>
-          <div class="kpi-label">Ingresos semana</div>
-          <div class="kpi-value" style="font-size:18px;">$ {{ number_format($superStats['revenue_week'], 0, ',', '.') }}</div>
+          <span class="kpi-icon">🆕</span>
+          <div class="kpi-label">Nuevos hoy</div>
+          <div class="kpi-value">{{ $superStats['users_today'] }}</div>
         </div>
       </div>
 
-      <div class="dash-two-col">
-        <div class="dash-card">
-          <h3 class="dash-card-title"><span>🔥</span> Complejo más reservado</h3>
-          @if($topVenue)
-            <div class="top-field-card" style="margin-bottom:0;">
-              <div class="label">Esta semana</div>
-              <div class="name">{{ $topVenue->venue_name }}</div>
-              <div class="sub">{{ $topVenue->reservations_count }} reserva{{ $topVenue->reservations_count > 1 ? 's' : '' }}</div>
-            </div>
-          @else
-            <div style="color:#aaa; font-size:14px;">Todavía no hay suficientes datos.</div>
-          @endif
+      {{-- Suscripciones --}}
+      <div style="font-size:13px; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:.05em; margin-bottom:10px;">Suscripciones</div>
+      <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); margin-bottom:24px;">
+        <div class="kpi-card green">
+          <span class="kpi-icon">✅</span>
+          <div class="kpi-label">Activas</div>
+          <div class="kpi-value">{{ $superStats['subscriptions_active'] }}</div>
         </div>
+        <div class="kpi-card orange">
+          <span class="kpi-icon">❌</span>
+          <div class="kpi-label">No renovadas / vencidas</div>
+          <div class="kpi-value">{{ $superStats['subscriptions_expired'] }}</div>
+        </div>
+      </div>
 
-        <div class="dash-card">
-          <h3 class="dash-card-title"><span>🆕</span> Usuarios recientes</h3>
-          @if($recentUsers->isEmpty())
-            <div style="color:#aaa; font-size:14px;">No hay usuarios recientes.</div>
-          @else
-            <div style="display:flex; flex-direction:column; gap:10px;">
-              @foreach($recentUsers as $u)
-                <div style="padding:10px 12px; border:1px solid #f0f0f0; border-radius:12px; background:#fafafa;">
+      {{-- Ingresos por suscripciones --}}
+      <div style="font-size:13px; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:.05em; margin-bottom:10px;">Ingresos por suscripciones</div>
+      <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); margin-bottom:24px;">
+        <div class="kpi-card blue">
+          <span class="kpi-icon">💰</span>
+          <div class="kpi-label">Total acumulado</div>
+          <div class="kpi-value" style="font-size:18px;">$ {{ number_format($superStats['revenue_subscriptions'], 0, ',', '.') }}</div>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-icon">📅</span>
+          <div class="kpi-label">De planes mensuales</div>
+          <div class="kpi-value" style="font-size:18px;">$ {{ number_format($superStats['revenue_monthly_total'], 0, ',', '.') }}</div>
+        </div>
+        <div class="kpi-card purple">
+          <span class="kpi-icon">📆</span>
+          <div class="kpi-label">De planes anuales</div>
+          <div class="kpi-value" style="font-size:18px;">$ {{ number_format($superStats['revenue_annual_total'], 0, ',', '.') }}</div>
+        </div>
+      </div>
+
+      {{-- Tabla admins y suscripciones --}}
+      <div style="font-size:13px; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:.05em; margin-bottom:10px;">Admins de complejo</div>
+      <div class="admin-card" style="padding:0; overflow:hidden; margin-bottom:24px;">
+        <div style="overflow-x:auto;">
+          <table class="data-table" style="min-width:700px;">
+            <thead>
+              <tr>
+                <th>Usuario</th>
+                <th>Email</th>
+                <th>Suscripción</th>
+                <th>Tipo</th>
+                <th>Vencimiento</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              @forelse($venueAdmins as $admin)
+                @php $sub = $admin->venueAdminSubscriptions->first(); @endphp
+                <tr>
+                  <td><strong>{{ $admin->name }}</strong></td>
+                  <td style="color:#555; font-size:13px;">{{ $admin->email }}</td>
+                  <td>
+                    @if($sub)
+                      <span class="badge badge-success">Con suscripción</span>
+                    @else
+                      <span class="badge badge-default">Sin suscripción</span>
+                    @endif
+                  </td>
+                  <td>
+                    @if($sub)
+                      @if($sub->billing_cycle === 'annual')
+                        <span class="badge" style="background:#6f42c1; color:#fff;">{{ $sub->long_term_months === 6 ? 'Semestral' : 'Anual' }}</span>
+                      @else
+                        <span class="badge badge-default">Mensual</span>
+                      @endif
+                    @else
+                      <span style="color:#ccc;">—</span>
+                    @endif
+                  </td>
+                  <td style="font-size:13px; color:#555;">
+                    @if($sub?->expires_at)
+                      {{ $sub->expires_at->format('d/m/Y') }}
+                    @else
+                      <span style="color:#ccc;">—</span>
+                    @endif
+                  </td>
+                  <td>
+                    @if(!$sub)
+                      <span class="badge badge-danger">Sin plan</span>
+                    @elseif($sub->status === 'ACTIVE' && $sub->expires_at?->gt(now()))
+                      <span class="badge badge-success">Activa</span>
+                    @else
+                      <span class="badge badge-warning">Vencida</span>
+                    @endif
+                  </td>
+                </tr>
+              @empty
+                <tr>
+                  <td colspan="6" style="text-align:center; color:#aaa; padding:20px;">No hay admins de complejo registrados.</td>
+                </tr>
+              @endforelse
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {{-- Usuarios recientes --}}
+      <div class="dash-card" style="margin-top:8px;">
+        <h3 class="dash-card-title"><span>🆕</span> Últimos usuarios registrados</h3>
+        @if($recentUsers->isEmpty())
+          <div style="color:#aaa; font-size:14px;">No hay usuarios recientes.</div>
+        @else
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            @foreach($recentUsers as $u)
+              <div style="padding:10px 12px; border:1px solid #f0f0f0; border-radius:12px; background:#fafafa; display:flex; justify-content:space-between; align-items:center;">
+                <div>
                   <div style="font-weight:700; font-size:14px;">{{ $u->name }}</div>
                   <div style="font-size:12px; color:#888; margin-top:2px;">{{ $u->email }}</div>
-                  <div style="margin-top:6px;">
-                    <span style="display:inline-block; padding:2px 8px; background:#111; color:#fff; border-radius:999px; font-size:11px; font-weight:700;">
-                      {{ $u->role }}
-                    </span>
-                  </div>
                 </div>
-              @endforeach
-            </div>
-          @endif
-        </div>
+                <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+                  <span style="display:inline-block; padding:2px 8px; background:#111; color:#fff; border-radius:999px; font-size:11px; font-weight:700;">{{ $u->role }}</span>
+                  <span style="font-size:11px; color:#bbb;">{{ $u->created_at?->format('d/m/Y') }}</span>
+                </div>
+              </div>
+            @endforeach
+          </div>
+        @endif
       </div>
     </div>
   @endif

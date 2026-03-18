@@ -79,7 +79,7 @@
     </form>
   </div>
 
-  {{-- Lista de mensajes --}}
+  {{-- Lista de mensajes manuales --}}
   <div class="admin-card">
     <div class="section-title" style="margin-bottom:16px;">Mensajes creados</div>
 
@@ -121,5 +121,37 @@
       @endforeach
     @endif
   </div>
+
+  {{-- Notificaciones automáticas del sistema --}}
+  @if($systemMessages->isNotEmpty())
+    <div class="admin-card" style="margin-top:20px;">
+      <div class="section-title" style="margin-bottom:4px;">Notificaciones automáticas</div>
+      <div class="muted" style="font-size:13px; margin-bottom:16px;">Generadas por el sistema (recordatorios de membresía, etc.). No fueron creadas por vos.</div>
+
+      @foreach($systemMessages as $message)
+        <div class="message-card {{ $message->is_active ? 'is-active' : 'is-inactive' }}" style="background:#fafafa;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;">
+            <div style="flex:1; min-width:0;">
+              <div class="message-title" style="font-size:14px;">{{ $message->title }}</div>
+              <div class="message-body" style="font-size:13px;">{{ $message->body }}</div>
+              <div class="message-meta">
+                <span>Para: <strong>{{ $message->targetUser ? $message->targetUser->name : 'Todos' }}</strong></span>
+                <span class="badge {{ $message->is_active ? 'badge-success' : 'badge-default' }}">
+                  {{ $message->is_active ? 'Activo' : 'Inactivo' }}
+                </span>
+              </div>
+            </div>
+            <div style="flex-shrink:0;">
+              <form method="POST" action="{{ route('sa.messages.destroy', $message) }}"
+                    onsubmit="return confirm('¿Eliminar esta notificación?')">
+                @csrf
+                <button type="submit" class="btn btn-ghost btn-sm">Eliminar</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      @endforeach
+    </div>
+  @endif
 
 @endsection

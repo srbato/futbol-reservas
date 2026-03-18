@@ -61,13 +61,18 @@ class VenueAdminMembershipController extends Controller
             ? $plan->annualTotalPrice()
             : (float) $plan->monthly_price;
 
+        $trialAvailable = $plan->hasTrial() && !$user->venueAdminSubscriptions()
+            ->whereNotNull('trial_ends_at')
+            ->exists();
+
         return view('membership.become-partner', compact(
             'plan',
             'billingCycle',
             'price',
             'activeSubscription',
             'latestSubscription',
-            'subscriptionHistory'
+            'subscriptionHistory',
+            'trialAvailable'
         ));
     }
 
@@ -108,6 +113,10 @@ class VenueAdminMembershipController extends Controller
 
         $activeSubscription = $user->activeVenueAdminSubscription()->first();
 
+        if ($activeSubscription && $activeSubscription->status === 'TRIAL') {
+            return back()->with('error', 'Actualmente estás en período de prueba. Esperá a que venza para contratar un plan pago.');
+        }
+
         if ($activeSubscription && $activeSubscription->mp_subscription_status !== 'cancelled') {
             return back()->with('error', 'Ya tenés una suscripción activa con cobro automático. Cancelala antes de contratar una nueva.');
         }
@@ -121,15 +130,29 @@ class VenueAdminMembershipController extends Controller
             return back()->with('error', 'Ya tenés una suscripción pendiente de aprobación.');
         }
 
+        // Trial solo si el plan lo tiene Y el usuario nunca usó un trial antes
+        $trialDays = 0;
+        if ($plan->hasTrial()) {
+            $usedTrial = $user->venueAdminSubscriptions()
+                ->whereNotNull('trial_ends_at')
+                ->exists();
+
+            if (!$usedTrial) {
+                $trialDays = (int) $plan->trial_days;
+            }
+        }
+
         $subscription = VenueAdminSubscription::create([
             'user_id'            => $user->id,
             'plan_slug'          => $plan->slug,
             'billing_cycle'      => $billingCycle,
+            'long_term_months'   => $billingCycle === 'annual' ? $plan->longTermMonths() : 1,
             'status'             => 'PENDING_PAYMENT',
             'monthly_price'      => $price,
             'currency'           => self::CURRENCY,
             'payment_provider'   => 'mercadopago',
             'referral_code_used' => $referralCode?->code,
+            'trial_ends_at'      => $trialDays > 0 ? now()->addDays($trialDays) : null,
         ]);
 
         $baseUrl = rtrim(config('app.url'), '/');
@@ -169,6 +192,65 @@ class VenueAdminMembershipController extends Controller
         return redirect()->away($response['init_point']);
     }
 
+    public function startTrial(Request $request)
+    {
+        $user = $request->user();
+
+        if ($user->role === 'super_admin') {
+            return back()->with('error', 'Tu usuario ya tiene acceso total al sistema.');
+        }
+
+        $data = $request->validate([
+            'plan_slug' => ['required', 'string', 'exists:membership_plans,slug'],
+        ]);
+
+        $plan = MembershipPlan::where('slug', $data['plan_slug'])
+            ->where('is_active', true)
+            ->firstOrFail();
+
+        if (!$plan->hasTrial()) {
+            return back()->with('error', 'Este plan no tiene período de prueba disponible.');
+        }
+
+        $usedTrial = $user->venueAdminSubscriptions()
+            ->whereNotNull('trial_ends_at')
+            ->exists();
+
+        if ($usedTrial) {
+            return back()->with('error', 'Ya usaste el período de prueba anteriormente.');
+        }
+
+        $activeSubscription = $user->activeVenueAdminSubscription()->first();
+        if ($activeSubscription) {
+            return back()->with('error', 'Ya tenés una suscripción activa.');
+        }
+
+        $trialDays   = (int) $plan->trial_days;
+        $trialEndsAt = now()->addDays($trialDays);
+
+        VenueAdminSubscription::create([
+            'user_id'          => $user->id,
+            'plan_slug'        => $plan->slug,
+            'billing_cycle'    => 'monthly',
+            'long_term_months' => 1,
+            'status'           => 'TRIAL',
+            'monthly_price'    => $plan->monthly_price,
+            'currency'         => self::CURRENCY,
+            'payment_provider' => null,
+            'trial_ends_at'    => $trialEndsAt,
+            'starts_at'        => now(),
+            'expires_at'       => $trialEndsAt,
+        ]);
+
+        if ($user->role === 'user') {
+            $user->role = 'venue_admin';
+            $user->save();
+        }
+
+        return redirect()->route('va.dashboard')
+            ->with('success', "¡Período de prueba activado! Tenés {$trialDays} días de acceso gratuito al panel admin. Al finalizar, podrás contratar un plan.");
+    }
+
     public function cancelSubscription(Request $request)
     {
         $user = $request->user();
@@ -177,6 +259,21 @@ class VenueAdminMembershipController extends Controller
 
         if (!$subscription) {
             return back()->with('error', 'No tenés una suscripción activa para cancelar.');
+        }
+
+        if ($subscription->status === 'TRIAL') {
+            $subscription->update([
+                'status'     => 'CANCELLED',
+                'expires_at' => now(),
+            ]);
+
+            if ($user->role === 'venue_admin') {
+                $user->role = 'user';
+                $user->save();
+            }
+
+            return redirect()->route('membership.become')
+                ->with('success', 'Período de prueba cancelado. Perdiste el acceso al panel admin.');
         }
 
         if ($subscription->mp_preapproval_id) {

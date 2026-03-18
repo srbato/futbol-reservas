@@ -112,6 +112,7 @@ class SendMembershipExpirationReminders extends Command
             'body' => $body,
             'target_user_id' => $user->id,
             'is_active' => true,
+            'is_system' => true,
         ]);
     }
 

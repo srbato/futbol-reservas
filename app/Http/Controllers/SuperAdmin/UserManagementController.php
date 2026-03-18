@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
+use App\Models\SystemMessage;
 use App\Models\User;
+use App\Models\VenueAdminSubscription;
 use Illuminate\Http\Request;
 
 class UserManagementController extends Controller
@@ -44,8 +46,38 @@ class UserManagementController extends Controller
             'role' => ['required', 'in:user,venue_admin,super_admin'],
         ]);
 
-        $user->role = $data['role'];
+        $oldRole = $user->role;
+        $newRole = $data['role'];
+
+        $user->role = $newRole;
         $user->save();
+
+        // Otorgar acceso especial sin vencimiento al pasar a venue_admin
+        if ($newRole === 'venue_admin' && $oldRole !== 'venue_admin') {
+            $hasActive = $user->activeVenueAdminSubscription()->exists();
+
+            if (!$hasActive) {
+                VenueAdminSubscription::create([
+                    'user_id'          => $user->id,
+                    'plan_slug'        => 'special',
+                    'billing_cycle'    => 'monthly',
+                    'long_term_months' => 1,
+                    'status'           => 'ACTIVE',
+                    'monthly_price'    => 0,
+                    'currency'         => 'ARS',
+                    'payment_provider' => null,
+                    'starts_at'        => now(),
+                    'expires_at'       => now()->addYears(100),
+                ]);
+            }
+        }
+
+        // Al quitar el rol de venue_admin, cancelar suscripciones activas
+        if ($oldRole === 'venue_admin' && $newRole !== 'venue_admin') {
+            $user->venueAdminSubscriptions()
+                ->whereIn('status', ['ACTIVE', 'TRIAL'])
+                ->update(['status' => 'CANCELLED', 'expires_at' => now()]);
+        }
 
         return back()->with('success', 'Rol actualizado correctamente.');
     }
@@ -59,6 +91,8 @@ class UserManagementController extends Controller
         if ($request->user()->id === $user->id) {
             return back()->with('error', 'No podés eliminar tu propio usuario.');
         }
+
+        SystemMessage::where('target_user_id', $user->id)->delete();
 
         $user->delete();
 
@@ -91,5 +125,20 @@ class UserManagementController extends Controller
         $user->save();
 
         return back()->with('success', 'Usuario activado.');
+    }
+
+    public function impersonate(Request $request, User $user)
+    {
+        if ($request->user()->role !== 'super_admin') {
+            abort(403);
+        }
+
+        if ($request->user()->id === $user->id) {
+            return back()->with('error', 'No podés impersonarte a vos mismo.');
+        }
+
+        auth()->login($user);
+
+        return redirect('/');
     }
 }

@@ -584,68 +584,6 @@
     </div>
   </section>
 
-  {{-- ── Referral — el beneficio más importante ──────────────────── --}}
-  <section class="cf-referral">
-    <div class="container">
-      <div class="cf-referral-inner">
-        <span class="cf-referral-tag">⭐ El beneficio más importante</span>
-        <h2>Invitá un complejo.<br><em>Jugá gratis.</em></h2>
-        <p>
-          Cada usuario de TuCancha tiene un <strong style="color:#a3f0c0;">código de referido único</strong>.
-          Si compartís ese código con el dueño de un complejo y se suma a la plataforma usándolo,
-          vos recibís una reserva 100% gratuita para usar cuando quieras. Sin vencimiento.
-        </p>
-
-        <div class="cf-referral-steps">
-          <div class="cf-referral-step">
-            <span class="cf-referral-step-num">Paso 01</span>
-            <span class="cf-referral-step-icon">🔗</span>
-            <h3>Obtené tu código</h3>
-            <p>
-              Iniciá sesión y andá a la sección "Programa de referidos" en tu perfil.
-              Ahí encontrás tu código único y el link directo para compartir.
-            </p>
-          </div>
-
-          <div class="cf-referral-step">
-            <span class="cf-referral-step-num">Paso 02</span>
-            <span class="cf-referral-step-icon">🏟️</span>
-            <h3>El complejo se registra con tu código</h3>
-            <p>
-              El dueño del complejo crea su cuenta en TuCancha e ingresa tu código al contratar su plan de administrador.
-              ¡Así de simple!
-            </p>
-          </div>
-
-          <div class="cf-referral-step">
-            <span class="cf-referral-step-num">Paso 03</span>
-            <span class="cf-referral-step-icon">🎉</span>
-            <h3>Recibís tu recompensa</h3>
-            <p>
-              Automáticamente se acredita en tu cuenta una recompensa para pagar tu próxima reserva.
-              La recompensa se aplica al momento de confirmar el pago.
-            </p>
-          </div>
-        </div>
-
-        <div class="cf-referral-actions">
-          @auth
-            <a href="{{ route('referral.index') }}" class="btn-cf-referral">
-              Ver mi código de referido →
-            </a>
-          @else
-            <a href="{{ route('register') }}" class="btn-cf-referral">
-              Crear cuenta y empezar →
-            </a>
-          @endauth
-          <a href="{{ route('venues.index') }}" class="btn-cf-ghost">
-            Explorar complejos
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
-
   {{-- ── CTA final ────────────────────────────────────────────────── --}}
   <section class="final-cta">
     <div class="container">

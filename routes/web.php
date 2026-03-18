@@ -80,6 +80,9 @@ Route::get('/dashboard', function () {
 */
 
 Route::middleware(['auth', 'active.user'])->group(function () {
+    Route::post('/system-messages/{message}/dismiss', [SystemMessageDismissController::class, 'store'])
+        ->name('system-messages.dismiss');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -103,6 +106,9 @@ Route::middleware(['auth', 'active.user'])->group(function () {
 
     Route::post('/membership/cancel-subscription', [VenueAdminMembershipController::class, 'cancelSubscription'])
         ->name('membership.cancel_subscription');
+
+    Route::post('/membership/start-trial', [VenueAdminMembershipController::class, 'startTrial'])
+        ->name('membership.start_trial');
 });
 
 /*
@@ -159,16 +165,16 @@ Route::middleware(['auth', 'active.user'])->group(function () {
     Route::post('/reservations/{reservation}/players', [ReservationPlayerController::class, 'store'])->name('reservations.players.store');
     Route::post('/reservations/{reservation}/players/{player}', [ReservationPlayerController::class, 'destroy'])->name('reservations.players.destroy');
 
-    Route::get('/referral', [ReferralController::class, 'index'])->name('referral.index');
+    Route::get('/referral', [ReferralController::class, 'index'])->name('referral.index')->middleware('role:super_admin');
 
     // Staff invitations
     Route::get('/staff/invitations/{token}/accept', [VenueStaffInvitationController::class, 'accept'])->name('staff.invitations.accept');
     Route::get('/staff/invitations/{token}/reject', [VenueStaffInvitationController::class, 'reject'])->name('staff.invitations.reject');
     Route::post('/referral/redeem-reservation/{reservation}', [ReferralController::class, 'redeemReservation'])
-        ->middleware('throttle:5,1')
+        ->middleware(['throttle:5,1', 'role:super_admin'])
         ->name('referral.redeem_reservation');
     Route::post('/referral/redeem-month/{reward}', [ReferralController::class, 'redeemMonth'])
-        ->middleware('throttle:5,1')
+        ->middleware(['throttle:5,1', 'role:super_admin'])
         ->name('referral.redeem_month');
 });
 
@@ -329,8 +335,8 @@ Route::middleware(['auth', 'active.user', 'role:venue_admin,super_admin', 'venue
         Route::get('/reports', [VaReportsController::class, 'index'])->name('va.reports');
         Route::get('/reports/export', [VaReportsController::class, 'export'])->name('va.reports.export');
 
-        // Venue payouts (what platform owes the venue)
-        Route::get('/my-payouts', [VaVenuePayoutController::class, 'index'])->name('va.payouts.index');
+        // Venue payouts (what platform owes the venue) — hidden until referral system is re-enabled
+        Route::get('/my-payouts', [VaVenuePayoutController::class, 'index'])->name('va.payouts.index')->middleware('role:super_admin');
 
         // Recurring discounts
         Route::post('/recurring-discounts', [VaFieldRecurringDiscountController::class, 'store'])->name('va.recurring_discounts.store');
@@ -390,9 +396,6 @@ Route::middleware(['auth', 'active.user', 'role:super_admin'])->group(function (
     Route::post('/sa/messages/{message}/delete', [SystemMessageController::class, 'destroy'])
         ->name('sa.messages.destroy');
 
-    Route::post('/system-messages/{message}/dismiss', [SystemMessageDismissController::class, 'store'])
-        ->name('system-messages.dismiss');
-
     Route::post('/sa/users/{user}/deactivate',
         [UserManagementController::class, 'deactivate']
     )->name('sa.users.deactivate');
@@ -401,12 +404,18 @@ Route::middleware(['auth', 'active.user', 'role:super_admin'])->group(function (
         [UserManagementController::class, 'activate']
     )->name('sa.users.activate');
 
+    Route::post('/sa/users/{user}/impersonate',
+        [UserManagementController::class, 'impersonate']
+    )->name('sa.users.impersonate');
+
     Route::get('/sa/plans', [MembershipPlanController::class, 'index'])
         ->name('sa.plans.index');
 
     Route::post('/sa/plans/{plan}', [MembershipPlanController::class, 'update'])
         ->name('sa.plans.update');
 
+    // SA payouts — hidden until referral system is re-enabled
+    /*
     Route::get('/sa/payouts', [PlatformPayoutController::class, 'index'])
         ->name('sa.payouts.index');
 
@@ -433,6 +442,7 @@ Route::middleware(['auth', 'active.user', 'role:super_admin'])->group(function (
         return redirect()->route('sa.payouts.index')
             ->with('success', "El pago a {$venue->name} está pendiente de acreditación. El estado se actualizará automáticamente via webhook.");
     })->name('sa.payouts.venue_pending');
+    */
 });
 
 // Solo devuelve el status; el usuario debe ser dueño de la reserva o super_admin.

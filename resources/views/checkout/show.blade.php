@@ -77,22 +77,7 @@
     </div>
 
     <div style="display:grid; gap:16px;">
-    @if(isset($availableReward) && $availableReward && $reservation->status === 'PENDING_PAYMENT' && (!$reservation->expires_at || $reservation->expires_at->isFuture()))
-      <div class="page-card" style="border:2px solid #4ade80; background:#f0fdf4;">
-        <div style="font-size:13px; color:#166534; font-weight:700; margin-bottom:8px;">🎁 Tenés una reserva gratis disponible</div>
-        <p style="font-size:14px; color:#166534; margin:0 0 14px 0;">
-          Podés usar tu recompensa de referido para pagar esta reserva sin costo.
-        </p>
-        <form method="POST" action="{{ route('referral.redeem_reservation', $reservation) }}">
-          @csrf
-          <button type="submit" style="padding:10px 20px; background:#166534; color:#fff; border:none; border-radius:10px; font-size:14px; font-weight:700; cursor:pointer;">
-            Usar recompensa gratis
-          </button>
-        </form>
-      </div>
-    @endif
-
-    <div class="page-card">
+<div class="page-card">
       <div style="font-size:12px; color:#666; margin-bottom:6px;">Resumen del pago</div>
       <div style="font-size:38px; font-weight:800; line-height:1.1; margin-bottom:14px;">
         {{ $reservation->currency }} {{ number_format($reservation->total_amount, 0, ',', '.') }}

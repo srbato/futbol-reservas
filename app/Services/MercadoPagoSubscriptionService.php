@@ -21,20 +21,21 @@ class MercadoPagoSubscriptionService
 
     public function createPreapproval(VenueAdminSubscription $subscription, string $userEmail, string $planName, float $price, string $billingCycle, string $backUrl): array
     {
-        // monthly: frequency=1 month; annual: frequency=12 months
-        $frequency = $billingCycle === 'annual' ? 12 : 1;
+        $frequency = $billingCycle === 'annual' ? $subscription->long_term_months : 1;
 
         $baseUrl = rtrim(config('app.url'), '/');
+
+        $autoRecurring = [
+            'frequency'          => $frequency,
+            'frequency_type'     => 'months',
+            'transaction_amount' => $price,
+            'currency_id'        => 'ARS',
+        ];
 
         $payload = [
             'reason'           => "Plan {$planName} TuCancha",
             'payer_email'      => $userEmail,
-            'auto_recurring'   => [
-                'frequency'          => $frequency,
-                'frequency_type'     => 'months',
-                'transaction_amount' => $price,
-                'currency_id'        => 'ARS',
-            ],
+            'auto_recurring'   => $autoRecurring,
             'back_url'           => $backUrl,
             'notification_url'   => $baseUrl . '/webhooks/mercadopago',
             'external_reference' => 'venue_admin_subscription:' . $subscription->id,

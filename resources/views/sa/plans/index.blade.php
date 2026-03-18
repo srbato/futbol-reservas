@@ -43,11 +43,11 @@
               ARS {{ number_format($plan->monthly_price, 0, ',', '.') }}
             </strong>
             &nbsp;·&nbsp;
-            Anual:
+            {{ $plan->longTermLabel() }}:
             <strong style="color:#111;">
               ARS {{ number_format($plan->annualTotalPrice(), 0, ',', '.') }}
             </strong>
-            ({{ $plan->annual_discount_percentage }}% off)
+            ({{ $plan->annual_discount_percentage }}% off · {{ $plan->longTermMonths() }} meses)
           </div>
         </div>
 
@@ -92,7 +92,36 @@
             </div>
 
             <div>
-              <label style="display:block; font-size:12px; color:#666; margin-bottom:6px;">Descuento anual (%)</label>
+              <label style="display:block; font-size:12px; color:#666; margin-bottom:6px;">Días de prueba gratuita (0 = sin prueba)</label>
+              <input
+                type="number"
+                name="trial_days"
+                value="{{ old('trial_days', $plan->trial_days) }}"
+                min="0"
+                max="30"
+                required
+                style="padding:10px 12px; border:1px solid #ddd; border-radius:10px; width:100%; font-size:14px;"
+              >
+              <div style="font-size:11px; color:#888; margin-top:4px;">
+                @if($plan->trial_days > 0)
+                  <span style="color:#157347; font-weight:600;">✓ {{ $plan->trial_days }} días gratis activos</span>
+                @else
+                  Sin período de prueba
+                @endif
+              </div>
+            </div>
+
+            <div>
+              <label style="display:block; font-size:12px; color:#666; margin-bottom:6px;">Tipo de plan largo plazo</label>
+              <select name="long_term_months" required
+                style="padding:10px 12px; border:1px solid #ddd; border-radius:10px; width:100%; font-size:14px;">
+                <option value="12" {{ (old('long_term_months', $plan->long_term_months) == 12) ? 'selected' : '' }}>Anual (12 meses)</option>
+                <option value="6"  {{ (old('long_term_months', $plan->long_term_months) == 6)  ? 'selected' : '' }}>Semestral (6 meses)</option>
+              </select>
+            </div>
+
+            <div>
+              <label style="display:block; font-size:12px; color:#666; margin-bottom:6px;">Descuento largo plazo (%)</label>
               <input
                 type="number"
                 name="annual_discount_percentage"
@@ -104,7 +133,7 @@
                 style="padding:10px 12px; border:1px solid #ddd; border-radius:10px; width:100%; font-size:14px;"
               >
               <div style="font-size:11px; color:#888; margin-top:4px;">
-                Precio anual resultante: ARS {{ number_format($plan->annualTotalPrice(), 0, ',', '.') }}
+                Precio {{ $plan->longTermLabel() }} resultante: ARS {{ number_format($plan->annualTotalPrice(), 0, ',', '.') }}
               </div>
             </div>
 
@@ -169,7 +198,7 @@
         <strong>Mensual:</strong> el usuario paga el precio mensual del plan y obtiene 30 días de acceso.
       </p>
       <p style="margin:0 0 8px 0;">
-        <strong>Anual:</strong> el usuario paga <code>precio_mensual × 12 × (1 − descuento%)</code> de una sola vez y obtiene 365 días de acceso.
+        <strong>Anual / Semestral:</strong> el usuario paga <code>precio_mensual × meses × (1 − descuento%)</code> de una sola vez y obtiene acceso por esa cantidad de meses (12 o 6).
       </p>
       <p style="margin:0;">
         El <strong>slug</strong> del plan (starter, pro, full) no se puede cambiar desde acá ya que identifica el plan en el código.

@@ -16,6 +16,10 @@ Schedule::command('membership:send-expiration-reminders')
     ->dailyAt('09:00')
     ->withoutOverlapping();
 
+Schedule::command('membership:process-trials')
+    ->dailyAt('08:00')
+    ->withoutOverlapping();
+
 Schedule::command('reservations:send-reminders')
     ->everyMinute()
     ->withoutOverlapping();

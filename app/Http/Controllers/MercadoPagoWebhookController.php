@@ -150,11 +150,13 @@ class MercadoPagoWebhookController extends Controller
                     $startsAt = now();
                 }
 
-                $days = $subscription->billing_cycle === 'annual' ? 365 : 30;
+                $billingDays = $subscription->billing_cycle === 'annual' ? ($subscription->long_term_months * 30) : 30;
+                $trialDays   = $subscription->trial_ends_at ? (int) now()->diffInDays($subscription->trial_ends_at, false) : 0;
+                $trialDays   = max(0, $trialDays);
 
                 $subscription->status     = 'ACTIVE';
                 $subscription->starts_at  = $startsAt;
-                $subscription->expires_at = $startsAt->copy()->addDays($days);
+                $subscription->expires_at = $startsAt->copy()->addDays($trialDays + $billingDays);
 
                 if ($user && $user->role === 'user') {
                     $user->role = 'venue_admin';
@@ -211,7 +213,7 @@ class MercadoPagoWebhookController extends Controller
             return response()->json(['ok' => true]);
         }
 
-        $days      = $subscription->billing_cycle === 'annual' ? 365 : 30;
+        $days      = $subscription->billing_cycle === 'annual' ? ($subscription->long_term_months * 30) : 30;
         $baseDate  = ($subscription->expires_at?->isFuture() ? $subscription->expires_at : now());
         $newExpiry = $baseDate->copy()->addDays($days);
 
@@ -443,7 +445,7 @@ class MercadoPagoWebhookController extends Controller
                 $startsAt = now();
             }
 
-            $days      = $subscription->billing_cycle === 'annual' ? 365 : 30;
+            $days      = $subscription->billing_cycle === 'annual' ? ($subscription->long_term_months * 30) : 30;
             $expiresAt = $startsAt->copy()->addDays($days);
 
             $subscription->status     = 'ACTIVE';

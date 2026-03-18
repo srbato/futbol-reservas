@@ -96,4 +96,21 @@ class Venue extends Model
     {
         return $this->hasMany(VenueStaffInvitation::class);
     }
+
+    /**
+     * Scope: solo venues cuyo dueño tiene suscripción activa (o es super_admin).
+     */
+    public function scopeWithActiveOwner(Builder $query): Builder
+    {
+        return $query->whereHas('owner', function ($q) {
+            $q->where('role', 'super_admin')
+              ->orWhereHas('venueAdminSubscriptions', function ($sq) {
+                  $sq->whereIn('status', ['ACTIVE', 'TRIAL'])
+                     ->whereNotNull('starts_at')
+                     ->where('starts_at', '<=', now())
+                     ->whereNotNull('expires_at')
+                     ->where('expires_at', '>', now());
+              });
+        });
+    }
 }

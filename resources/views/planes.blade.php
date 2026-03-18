@@ -343,7 +343,7 @@
   <div class="billing-toggle-wrap">
     <div class="billing-toggle">
       <button class="billing-opt active" onclick="setBilling('monthly', this)">Mensual</button>
-      <button class="billing-opt" onclick="setBilling('annual', this)">Anual</button>
+      <button class="billing-opt" onclick="setBilling('annual', this)">{{ $plans->first()->longTermLabel() }}</button>
     </div>
     <span class="annual-badge" id="annualBadge" style="opacity:0; transition:opacity .2s;">
     Ahorrás {{ $plans->max('annual_discount_percentage') }}%
@@ -357,7 +357,9 @@
 
         @foreach($plans as $plan)
         <div class="plan-card {{ $plan->is_featured ? 'featured' : '' }}">
-          @if($plan->is_featured)
+          @if($plan->hasTrial())
+            <div class="plan-popular-badge" style="background:#157347;">🎁 {{ $plan->trial_days }} días gratis</div>
+          @elseif($plan->is_featured)
             <div class="plan-popular-badge">⭐ Más popular</div>
           @endif
           <p class="plan-name">{{ $plan->name }}</p>
@@ -384,9 +386,14 @@
             <li class="plan-feature"><span class="plan-feature-icon">✓</span> Soporte por mail</li>
           </ul>
 
+          @if($plan->hasTrial())
+            <div style="font-size:12px; color:#157347; font-weight:600; text-align:center; margin-bottom:10px;">
+              {{ $plan->trial_days }} días gratis · luego se cobra automáticamente
+            </div>
+          @endif
           <a id="{{ $plan->slug }}-btn"
              href="{{ route('membership.become') }}?plan={{ $plan->slug }}&billing=monthly"
-             class="plan-btn">Empezar</a>
+             class="plan-btn">{{ $plan->hasTrial() ? 'Empezar gratis' : 'Empezar' }}</a>
         </div>
         @endforeach
 
@@ -445,7 +452,7 @@
             <span class="faq-icon">+</span>
           </button>
           <div class="faq-body">
-            El pago se realiza una vez al mes (o al año si elegís el plan anual) a través de Mercado Pago.
+            El pago se realiza una vez al mes (o cada {{ $plans->first()->longTermMonths() }} meses si elegís el plan {{ strtolower($plans->first()->longTermLabel()) }}) a través de Mercado Pago.
             Podés pagar con tarjeta de crédito, débito o transferencia. Al aprobarse el pago,
             tu acceso se activa o renueva automáticamente.
           </div>

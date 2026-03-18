@@ -55,7 +55,7 @@ class User extends Authenticatable
     public function activeVenueAdminSubscription()
     {
         return $this->venueAdminSubscriptions()
-            ->where('status', 'ACTIVE')
+            ->whereIn('status', ['ACTIVE', 'TRIAL'])
             ->whereNotNull('starts_at')
             ->where('starts_at', '<=', now())
             ->whereNotNull('expires_at')

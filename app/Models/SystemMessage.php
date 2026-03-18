@@ -13,10 +13,12 @@ class SystemMessage extends Model
         'body',
         'target_user_id',
         'is_active',
+        'is_system',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'is_system' => 'boolean',
     ];
 
     public function targetUser(): BelongsTo

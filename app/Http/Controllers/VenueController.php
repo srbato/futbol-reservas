@@ -34,6 +34,7 @@ class VenueController extends Controller
 
         $zones = Venue::query()
             ->where('is_active', true)
+            ->withActiveOwner()
             ->whereNotNull('zone')
             ->where('zone', '!=', '')
             ->select('zone')
@@ -43,6 +44,7 @@ class VenueController extends Controller
 
         $venuesQuery = Venue::query()
             ->where('is_active', true)
+            ->withActiveOwner()
 
             ->when($q, function ($query) use ($q) {
                 $query->where(function ($qq) use ($q) {
@@ -171,6 +173,7 @@ class VenueController extends Controller
 
         $topReservedVenues = Venue::query()
             ->where('is_active', true)
+            ->withActiveOwner()
             ->withAvg('reviews', 'rating')
             ->withCount('reviews')
             ->withCount([
@@ -187,6 +190,7 @@ class VenueController extends Controller
 
         $discountedVenues = Venue::query()
             ->where('is_active', true)
+            ->withActiveOwner()
             ->whereHas('fields.discounts', function ($q) {
                 $q->where('is_active', true);
             })
@@ -200,6 +204,7 @@ class VenueController extends Controller
 
         $bestRatedVenues = Venue::query()
             ->where('is_active', true)
+            ->withActiveOwner()
             ->withAvg('reviews', 'rating')
             ->withCount('reviews')
             ->orderByDesc('reviews_avg_rating')
@@ -216,6 +221,7 @@ class VenueController extends Controller
 
         $allVenues = Venue::query()
             ->where('is_active', true)
+            ->withActiveOwner()
             ->withAvg('reviews', 'rating')
             ->withCount('reviews')
             ->orderBy('name')
@@ -243,6 +249,13 @@ class VenueController extends Controller
 
     public function show(Venue $venue)
     {
+        // Si el dueño no tiene suscripción activa, el complejo no está disponible
+        $venue->loadMissing('owner');
+        $owner = $venue->owner;
+        if ($owner && $owner->role !== 'super_admin' && !$owner->hasActiveVenueAdminSubscription()) {
+            abort(404);
+        }
+
         $venue->load([
             'fields' => fn($q) => $q->where('is_active', true),
             'fields.price',
