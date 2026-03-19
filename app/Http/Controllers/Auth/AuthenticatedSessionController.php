@@ -36,7 +36,7 @@ class AuthenticatedSessionController extends Controller
             ]);
         }
 
-        return redirect()->intended(route('venues.index'));
+        return redirect()->route('venues.index');
     }
 
     /**

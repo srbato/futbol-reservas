@@ -238,3 +238,22 @@ REGISTRO DE CAMBIOS - Futbol Reservas
 - Stats bar (Canchas, Calificación, Servicios) en venues/show: revertida a fila horizontal única (una al lado de la otra) con scroll horizontal si no entran, en lugar del grid 2×2 que se había aplicado.
 - Meta chips (zona, dirección, política de cancelación) en venues/show: ahora usan flex-wrap:nowrap + overflow-x:auto para que siempre queden en una sola fila horizontal con scroll suave, sin romperse a nueva línea.
 - Cambios en: venues/show.blade.php, layouts/marketing.blade.php.
+
+[2026-03-19] - Mensajes de validación en español
+- Creados los archivos lang/es/auth.php, lang/es/validation.php y lang/es/passwords.php con todos los mensajes en español.
+- Nombres de campos traducidos: nombre, correo electrónico, contraseña, confirmación de contraseña.
+- APP_LOCALE y APP_FALLBACK_LOCALE cambiados a "es" en .env.
+
+[2026-03-19] - Login y registro con Google (OAuth)
+- Instalado laravel/socialite.
+- Creado GoogleAuthController: redirige a Google y maneja el callback. Si el email ya existe lo vincula; si no, crea el usuario.
+- Migración: columna google_id (nullable, unique) en la tabla users.
+- Rutas: GET /auth/google y GET /auth/google/callback.
+- Botones "Continuar con Google" / "Registrarse con Google" con ícono oficial en login.blade.php y register.blade.php.
+- Fix SSL en Windows: el callback usa GuzzleHttp con verify:false para evitar el error cURL 60.
+- Credenciales en .env: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI.
+
+[2026-03-19] - Redirect post-login/registro a la lista de complejos
+- Después de iniciar sesión, registrarse o autenticarse con Google, el usuario es redirigido a /venues en lugar de la home.
+- Cambiado de redirect()->intended() a redirect()->route('venues.index') para evitar que la sesión "intended" apunte a la home.
+- Cambios en: AuthenticatedSessionController.php, RegisteredUserController.php, GoogleAuthController.php.

@@ -56,6 +56,10 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
+// Google OAuth
+Route::get('/auth/google', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'redirect'])->name('auth.google');
+Route::get('/auth/google/callback', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'callback']);
+
 Route::get('/como-funciona', function () {
     $plan = \App\Models\MembershipPlan::where('is_active', true)->first();
     $longTermMonths = $plan ? $plan->longTermMonths() : 12;
