@@ -507,8 +507,8 @@
     </div>
   </section>
 
-  {{-- ── Stats ───────────────────────────────────────────────────────── --}}
-  <section class="stats-section">
+  {{-- ── Stats (ocultas hasta tener datos reales) ───────────────────── --}}
+  {{-- <section class="stats-section">
     <div class="container">
       <div class="stats-band">
         <div class="stats-grid">
@@ -527,6 +527,36 @@
           <div class="stat-item">
             <div class="stat-number" data-target="100">0</div>
             <div class="stat-label">Canchas disponibles</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section> --}}
+
+  {{-- ── Propuestas de valor ──────────────────────────────────────────── --}}
+  <section class="stats-section">
+    <div class="container">
+      <div class="stats-band">
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div style="font-size:36px; line-height:1; margin-bottom:12px;">⚡</div>
+            <div class="stat-label" style="font-size:15px; font-weight:700; color:#111;">Reservas al instante</div>
+            <div class="stat-label" style="margin-top:4px; font-weight:400;">Sin llamadas ni esperas</div>
+          </div>
+          <div class="stat-item">
+            <div style="font-size:36px; line-height:1; margin-bottom:12px;">💳</div>
+            <div class="stat-label" style="font-size:15px; font-weight:700; color:#111;">Cobro automático</div>
+            <div class="stat-label" style="margin-top:4px; font-weight:400;">Directo a tu cuenta de MP</div>
+          </div>
+          <div class="stat-item">
+            <div style="font-size:36px; line-height:1; margin-bottom:12px;">📊</div>
+            <div class="stat-label" style="font-size:15px; font-weight:700; color:#111;">Panel completo</div>
+            <div class="stat-label" style="margin-top:4px; font-weight:400;">Reservas, agenda y reportes</div>
+          </div>
+          <div class="stat-item">
+            <div style="font-size:36px; line-height:1; margin-bottom:12px;">🚀</div>
+            <div class="stat-label" style="font-size:15px; font-weight:700; color:#111;">Sin comisiones</div>
+            <div class="stat-label" style="margin-top:4px; font-weight:400;">Precio fijo, sin sorpresas</div>
           </div>
         </div>
       </div>
@@ -589,8 +619,8 @@
             <h3>Creciendo junto a la comunidad</h3>
             <p>
               Seguimos sumando complejos, escuchando a los usuarios y lanzando
-              funcionalidades nuevas. Reservas recurrentes, descuentos, check-in
-              con código, reportes. Y hay mucho más por venir.
+              funcionalidades nuevas. Reservas recurrentes, descuentos, historial
+              de partidos, reportes. Y hay mucho más por venir.
             </p>
           </div>
         </div>

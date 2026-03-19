@@ -57,7 +57,10 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('/como-funciona', function () {
-    return view('como-funciona');
+    $plan = \App\Models\MembershipPlan::where('is_active', true)->first();
+    $longTermMonths = $plan ? $plan->longTermMonths() : 12;
+    $longTermLabel = $longTermMonths === 6 ? 'semestral' : 'anual';
+    return view('como-funciona', compact('longTermLabel', 'longTermMonths'));
 })->name('como-funciona');
 
 Route::get('/nosotros', function () {

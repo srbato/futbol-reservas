@@ -381,7 +381,6 @@
             <li class="plan-feature"><span class="plan-feature-icon">✓</span> Cobro por Mercado Pago</li>
             <li class="plan-feature"><span class="plan-feature-icon">✓</span> Panel de administración</li>
             <li class="plan-feature"><span class="plan-feature-icon">✓</span> Mails automáticos</li>
-            <li class="plan-feature"><span class="plan-feature-icon">✓</span> Check-in con código</li>
             <li class="plan-feature"><span class="plan-feature-icon">✓</span> Reportes de actividad</li>
             <li class="plan-feature"><span class="plan-feature-icon">✓</span> Soporte por mail</li>
           </ul>

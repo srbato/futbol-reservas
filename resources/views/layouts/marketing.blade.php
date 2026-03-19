@@ -179,11 +179,83 @@
 
     .footer-copy { font-size: 13px; color: #aaa; }
 
+    /* ── Hamburger ───────────────────────────────────── */
+    .hamburger {
+      display: none;
+      background: none;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      cursor: pointer;
+      padding: 8px 10px;
+      flex-direction: column;
+      gap: 5px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 20px;
+      height: 2px;
+      background: #111;
+      border-radius: 2px;
+      transition: transform .2s, opacity .2s;
+    }
+
+    .mobile-nav {
+      display: none;
+      flex-direction: column;
+      gap: 2px;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-bottom: 1px solid #ececec;
+      padding: 12px 16px 16px;
+      z-index: 200;
+      box-shadow: 0 8px 24px rgba(0,0,0,.08);
+    }
+
+    .mobile-nav.open { display: flex; }
+
+    .mobile-nav a {
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #333;
+      display: block;
+    }
+
+    .mobile-nav a:hover { background: #f5f5f5; }
+    .mobile-nav a.active { background: #111; color: #fff; }
+
+    .mobile-nav-divider { border-top: 1px solid #ececec; margin: 8px 0; }
+
+    .mobile-nav .mobile-cta {
+      display: block;
+      padding: 13px 14px;
+      border-radius: 12px;
+      background: #111;
+      color: #fff !important;
+      font-size: 15px;
+      font-weight: 700;
+      text-align: center;
+      margin-top: 4px;
+    }
+
     /* ── Responsive ──────────────────────────────────── */
     @media (max-width: 768px) {
       .section { padding: 36px 0; }
       .section-title { font-size: 28px; }
       .footer-inner { flex-direction: column; align-items: flex-start; gap: 16px; }
+    }
+
+    @media (max-width: 640px) {
+      .header { position: relative; }
+      .nav { display: none; }
+      .hamburger { display: flex; }
     }
 
     @media (max-width: 480px) {
@@ -212,7 +284,25 @@
           <a href="{{ route('register') }}" class="btn btn-primary" style="margin-left:4px;">Crear cuenta</a>
         @endauth
       </nav>
+
+      <button class="hamburger" id="hamburgerBtn" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
     </div>
+
+    <nav class="mobile-nav" id="mobileNav">
+      <a href="{{ url('/como-funciona') }}" class="{{ request()->routeIs('como-funciona') ? 'active' : '' }}">Cómo funciona</a>
+      <a href="{{ url('/planes') }}" class="{{ request()->routeIs('planes') ? 'active' : '' }}">Planes</a>
+      <a href="{{ route('venues.index') }}" class="{{ request()->routeIs('venues.index') ? 'active' : '' }}">Complejos</a>
+      <a href="{{ route('nosotros') }}" class="{{ request()->routeIs('nosotros') ? 'active' : '' }}">Nosotros</a>
+      <div class="mobile-nav-divider"></div>
+      @auth
+        <a href="{{ route('venues.index') }}" class="mobile-cta">Ver complejos</a>
+      @else
+        <a href="{{ route('login') }}" style="padding:12px 14px; border-radius:12px; font-weight:600; color:#333;">Ingresar</a>
+        <a href="{{ route('register') }}" class="mobile-cta">Crear cuenta</a>
+      @endauth
+    </nav>
   </header>
 
   <main>
@@ -237,6 +327,19 @@
   </footer>
 
   @stack('scripts')
+
+<script>
+  const hamburgerBtn = document.getElementById('hamburgerBtn');
+  const mobileNav    = document.getElementById('mobileNav');
+  if (hamburgerBtn) {
+    hamburgerBtn.addEventListener('click', () => mobileNav.classList.toggle('open'));
+    document.addEventListener('click', (e) => {
+      if (!hamburgerBtn.contains(e.target) && !mobileNav.contains(e.target)) {
+        mobileNav.classList.remove('open');
+      }
+    });
+  }
+</script>
 
 </body>
 </html>

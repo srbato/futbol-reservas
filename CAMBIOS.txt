@@ -219,3 +219,22 @@ REGISTRO DE CAMBIOS - Futbol Reservas
 - Esto evita que el usuario quede bloqueado por el chequeo de suscripción activa del RoleMiddleware.
 - Al quitar el rol venue_admin, todas las suscripciones activas/trial del usuario se cancelan inmediatamente.
 - Cambios en: SuperAdmin/UserManagementController.php (updateRole()).
+
+[2026-03-19] - Correcciones de contenido en páginas de presentación
+- Card "Pagá seguro con Mercado Pago": texto actualizado para aclarar que se puede pagar con cualquier método de pago disponible dentro de Mercado Pago (tarjeta, saldo, etc.), no solo con saldo de MP.
+- Misma corrección aplicada en la sección "Cómo funciona".
+- Pregunta frecuente de reserva: eliminada la mención al "código de verificación para presentar en el complejo" (esa funcionalidad fue quitada).
+- Pregunta frecuente de cancelación: aclarado que se puede cancelar dentro del período establecido por el complejo, no solo "antes de que empiece el turno".
+- Paso 2 de "Cómo funciona" (para administradores): el período ahora es dinámico según configuración del superadmin (mensual / semestral / anual) en lugar de decir siempre "pago mensual".
+- Sección de estadísticas numéricas en "Nosotros" (usuarios activos, reservas, etc.): ocultada visualmente con display:none (no eliminada) y reemplazada por una sección alternativa que no menciona métricas específicas ya que la plataforma aún no tiene complejos activos.
+- Cards de planes (Starter, Pro, Full): eliminada la línea "Check-in por código" en las tres cards.
+- Botón que se superponía con los controles nativos del mapa de Google Maps: movido o eliminado.
+- Cambios en: como-funciona.blade.php, nosotros.blade.php, planes.blade.php, welcome.blade.php, venues/show.blade.php.
+
+[2026-03-19] - Mejoras de responsividad mobile en páginas de presentación y detalle de complejo
+- Botones/links del nav en páginas de presentación (layouts/marketing.blade.php): ajustados para que se vean correctamente en móvil.
+- Elementos desplegables (calendario de fechas, selects, etc.): corregido el z-index y el overflow para que no queden cortados en pantallas chicas.
+- Amenities del complejo (WiFi, Parrilla, Baños, etc.) en venues/show: cambiadas de flex-wrap desalineado a un grid de 2 columnas para verse ordenadas en mobile.
+- Stats bar (Canchas, Calificación, Servicios) en venues/show: revertida a fila horizontal única (una al lado de la otra) con scroll horizontal si no entran, en lugar del grid 2×2 que se había aplicado.
+- Meta chips (zona, dirección, política de cancelación) en venues/show: ahora usan flex-wrap:nowrap + overflow-x:auto para que siempre queden en una sola fila horizontal con scroll suave, sin romperse a nueva línea.
+- Cambios en: venues/show.blade.php, layouts/marketing.blade.php.

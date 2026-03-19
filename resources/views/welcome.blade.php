@@ -396,8 +396,10 @@
     .why-grid { grid-template-columns: 1fr; }
     .owner-cta { padding: 36px 24px; flex-direction: column; align-items: flex-start; }
     .owner-cta h2 { font-size: 26px; }
-    .search-bar { flex-direction: column; }
+    .search-bar { flex-direction: column; gap: 10px; }
     .search-field { min-width: 100%; }
+    .search-field select,
+    .search-field input { font-size: 16px; } /* evita zoom en iOS */
     .referral-hero { padding: 36px 24px; }
     .referral-hero h2 { font-size: 34px; }
     .referral-hero > p { font-size: 16px; }
@@ -482,8 +484,8 @@
 
         <div class="why-card">
           <span class="why-icon">💳</span>
-          <h3>Pago seguro con Mercado Pago</h3>
-          <p>Pagá online con tarjeta o efectivo. Tu reserva se confirma automáticamente.</p>
+          <h3>Pago 100% seguro</h3>
+          <p>Pagá online con tarjeta de crédito, débito, transferencia o efectivo a través de Mercado Pago. Tu reserva se confirma automáticamente.</p>
         </div>
 
         <div class="why-card">
@@ -565,7 +567,7 @@
           </button>
           <div class="faq-body">
             Una vez aprobado el pago tu reserva pasa a estado <strong>Confirmada</strong> automáticamente.
-            Recibís un mail con los detalles y un código de verificación para presentar en el complejo.
+            Recibís un mail con todos los detalles: complejo, cancha, día y horario reservado.
           </div>
         </div>
 
@@ -575,7 +577,7 @@
             <span class="faq-icon">+</span>
           </button>
           <div class="faq-body">
-            Sí. Podés cancelar desde "Mis reservas" antes de que empiece el turno.
+            Sí. Podés cancelar desde "Mis reservas" dentro del período de cancelación que establece cada complejo.
             Si el pago fue procesado, se inicia el reintegro automáticamente a través de Mercado Pago.
           </div>
         </div>

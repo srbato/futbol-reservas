@@ -281,6 +281,16 @@
   @media (max-width: 640px) {
     .venue-hero { height: 160px; }
     .venue-header-title { font-size: 20px; }
+    /* Stats: una fila horizontal, scroll si no entran */
+    .venue-stats-bar { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .venue-stat { min-width: 90px; flex-shrink: 0; padding: 10px 12px; }
+    .venue-stat-value { font-size: 22px; }
+    /* Meta chips: en fila, scroll si no entran */
+    .venue-meta-row { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .venue-meta-chip { font-size: 11px; padding: 3px 9px; white-space: nowrap; flex-shrink: 0; }
+    /* Amenity pills: grid de 2 columnas */
+    .amenity-pills-grid { grid-template-columns: 1fr 1fr !important; }
+    .fields-grid { grid-template-columns: 1fr; }
   }
 </style>
 @endpush
@@ -330,7 +340,7 @@
     @endif
 
     @if(!empty($venueAmenities))
-      <div style="display:flex; flex-wrap:wrap; gap:6px;">
+      <div class="amenity-pills-grid" style="display:grid; grid-template-columns: repeat(3, auto); gap:6px; justify-content:start;">
         @foreach($venueAmenities as $key)
           @if(isset($allAmenities[$key]))
             <span class="amenity-pill">{{ $allAmenities[$key]['emoji'] }} {{ $allAmenities[$key]['label'] }}</span>

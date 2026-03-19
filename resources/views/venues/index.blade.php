@@ -531,21 +531,13 @@
   }
 
   .vi-map-label {
-    position: absolute;
-    top: 14px;
-    left: 14px;
-    z-index: 10;
-    background: #fff;
-    border: 1px solid #e8e8e8;
-    border-radius: 12px;
-    padding: 8px 14px;
-    font-size: 13px;
-    font-weight: 700;
-    color: #111;
-    box-shadow: 0 2px 10px rgba(0,0,0,.08);
     display: flex;
     align-items: center;
     gap: 6px;
+    margin-bottom: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #111;
   }
 
   /* ── Results header ───────────────────────────── */
@@ -826,6 +818,17 @@
     .vi-hero-text h1 { font-size: 28px; }
     .vi-venues-grid { grid-template-columns: 1fr; }
     .vi-adv-grid { grid-template-columns: 1fr 1fr; }
+    /* Evita zoom automático en iOS */
+    .vi-adv-field input,
+    .vi-adv-field select { font-size: 16px; }
+    .vi-search-bar input { font-size: 16px; }
+    /* Chips de filtro: un poco más compactos */
+    .vi-filter-chip { font-size: 12px; padding: 6px 11px; }
+    .vi-filters-row { gap: 6px; }
+  }
+
+  @media (max-width: 400px) {
+    .vi-adv-grid { grid-template-columns: 1fr; }
   }
 @endpush
 
@@ -1164,8 +1167,8 @@
   @endauth
 
   {{-- ── MAP ───────────────────────────────────────────────────────────── --}}
+  <div class="vi-map-label">🗺️ Mapa de complejos</div>
   <div class="vi-map-wrap">
-    <div class="vi-map-label">🗺️ Mapa de complejos</div>
     <div id="map" style="height: 380px;"></div>
   </div>
 

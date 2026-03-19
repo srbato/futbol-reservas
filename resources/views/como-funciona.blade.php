@@ -471,15 +471,15 @@
         <div class="step-card">
           <span class="step-number">Paso 03</span>
           <span class="step-icon">💳</span>
-          <h3>Pagá con Mercado Pago</h3>
-          <p>Usá tarjeta de crédito, débito, transferencia o efectivo. El pago es 100% seguro y tu turno se confirma al instante.</p>
+          <h3>Pagá de forma segura</h3>
+          <p>Elegí el método que prefieras: tarjeta de crédito, débito, transferencia o efectivo. El pago se procesa a través de Mercado Pago y tu turno se confirma al instante.</p>
         </div>
 
         <div class="step-card">
           <span class="step-number">Paso 04</span>
           <span class="step-icon">✅</span>
           <h3>¡Listo! Recibís confirmación por mail</h3>
-          <p>Te llega un mail con todos los datos de tu reserva y un código de verificación para presentar en el complejo el día del turno.</p>
+          <p>Te llega un mail con todos los datos de tu reserva: complejo, cancha, día y horario. Presentate el día del turno y a jugar.</p>
         </div>
       </div>
     </div>
@@ -564,7 +564,7 @@
           <span class="step-number">Paso 02</span>
           <span class="step-icon">⭐</span>
           <h3>Suscribite al plan</h3>
-          <p>Activá tu cuenta como administrador de complejo. Un único pago mensual para acceder a todas las funciones del sistema.</p>
+          <p>Activá tu cuenta como administrador de complejo. Elegí entre pago mensual o {{ $longTermLabel }} para acceder a todas las funciones del sistema.</p>
         </div>
 
         <div class="step-card owner-step">
