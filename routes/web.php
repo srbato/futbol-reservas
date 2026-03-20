@@ -307,7 +307,7 @@ Route::middleware(['auth', 'active.user', 'role:venue_admin,super_admin', 'venue
         // Geocode
         Route::get('/geocode', function(\Illuminate\Http\Request $request) {
             $address = $request->query('address');
-            $key = env('GOOGLE_MAPS_API_KEY');
+            $key = env('GOOGLE_GEOCODING_API_KEY');
             $url = 'https://maps.googleapis.com/maps/api/geocode/json?address=' . urlencode($address) . '&key=' . $key;
             $response = \Illuminate\Support\Facades\Http::withoutVerifying()->get($url);
             \Illuminate\Support\Facades\Log::info('Geocode response', ['body' => $response->json()]);
