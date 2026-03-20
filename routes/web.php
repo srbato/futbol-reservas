@@ -304,6 +304,16 @@ Route::post('/contact', function (Request $request) {
 Route::middleware(['auth', 'active.user', 'role:venue_admin,super_admin', 'venue.mp'])->prefix('va')->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('va.dashboard');
 
+        // Geocode
+        Route::get('/geocode', function(\Illuminate\Http\Request $request) {
+            $address = $request->query('address');
+            $key = env('GOOGLE_MAPS_API_KEY');
+            $url = 'https://maps.googleapis.com/maps/api/geocode/json?address=' . urlencode($address) . '&key=' . $key;
+            $response = \Illuminate\Support\Facades\Http::withoutVerifying()->get($url);
+            \Illuminate\Support\Facades\Log::info('Geocode response', ['body' => $response->json()]);
+            return response()->json($response->json());
+        })->name('va.geocode');
+
         // Venues
         Route::get('/venues/create', [VaVenueController::class, 'create'])->name('va.venues.create');
         Route::post('/venues', [VaVenueController::class, 'store'])->name('va.venues.store');

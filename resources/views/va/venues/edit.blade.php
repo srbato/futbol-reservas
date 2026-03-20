@@ -309,17 +309,16 @@
                  placeholder="Ej: Palermo, GBA Norte...">
         </div>
 
-        <div class="field-group field-group-2">
-          <div>
-            <label class="form-label" for="lat">Latitud</label>
-            <input id="lat" name="lat" class="form-control" style="width:100%;"
-                   value="{{ old('lat', $venue->lat) }}" placeholder="-34.6037">
-          </div>
-          <div>
-            <label class="form-label" for="lng">Longitud</label>
-            <input id="lng" name="lng" class="form-control" style="width:100%;"
-                   value="{{ old('lng', $venue->lng) }}" placeholder="-58.3816">
-          </div>
+        <input type="hidden" id="lat" name="lat" value="{{ old('lat', $venue->lat) }}">
+        <input type="hidden" id="lng" name="lng" value="{{ old('lng', $venue->lng) }}">
+
+        <div>
+          <button type="button" id="geocodeBtn" onclick="geocodeAddress()"
+                  style="padding:9px 18px; background:#111; color:#fff; border:none; border-radius:8px; font-size:14px; cursor:pointer;">
+            📍 Buscar ubicación en el mapa
+          </button>
+          <p id="geocodeMsg" style="font-size:13px; margin-top:6px; color:#666;"></p>
+          <div id="mapPreview" style="display:none; margin-top:10px; border-radius:10px; overflow:hidden; height:220px;"></div>
         </div>
 
       </div>
@@ -458,6 +457,49 @@
       if (placeholder) placeholder.style.display = 'none';
     };
     reader.readAsDataURL(file);
+  }
+
+  // Inicializar mapa si ya hay coordenadas guardadas
+  window.addEventListener('load', function() {
+    const lat = parseFloat(document.getElementById('lat').value);
+    const lng = parseFloat(document.getElementById('lng').value);
+    if (lat && lng) showMap(lat, lng);
+  });
+
+  function geocodeAddress() {
+    const address = document.getElementById('address').value.trim();
+    if (!address) {
+      document.getElementById('geocodeMsg').textContent = 'Ingresá una dirección primero.';
+      return;
+    }
+    const msg = document.getElementById('geocodeMsg');
+    msg.textContent = 'Buscando...';
+    fetch(`{{ route('va.geocode') }}?address=${encodeURIComponent(address)}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.status === 'OK') {
+          const loc = data.results[0].geometry.location;
+          document.getElementById('lat').value = loc.lat;
+          document.getElementById('lng').value = loc.lng;
+          msg.style.color = '#16a34a';
+          msg.textContent = '✓ Ubicación encontrada: ' + data.results[0].formatted_address;
+          showMap(loc.lat, loc.lng);
+        } else {
+          msg.style.color = '#dc2626';
+          msg.textContent = 'No se encontró la dirección. Intentá con más detalle (ciudad, país).';
+        }
+      })
+      .catch(() => {
+        msg.style.color = '#dc2626';
+        msg.textContent = 'Error al buscar la dirección.';
+      });
+  }
+
+  function showMap(lat, lng) {
+    const div = document.getElementById('mapPreview');
+    div.style.display = 'block';
+    div.innerHTML = `<iframe width="100%" height="220" frameborder="0" style="border:0;"
+      src="https://www.google.com/maps?q=${lat},${lng}&z=16&output=embed" allowfullscreen></iframe>`;
   }
 </script>
 @endsection

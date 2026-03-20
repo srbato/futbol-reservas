@@ -386,7 +386,7 @@
     <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;">
       <button onclick="filterSport(null)" class="sport-filter-btn active" data-sport="">Todos</button>
       @foreach($sports as $sport)
-        <button onclick="filterSport('{{ $sport }}')" class="sport-filter-btn" data-sport="{{ $sport }}">{{ ucfirst($sport) }}</button>
+        <button onclick="filterSport('{{ $sport }}')" class="sport-filter-btn" data-sport="{{ $sport }}">{{ match($sport) { 'football'=>'⚽ Fútbol','padel'=>'🏓 Pádel','tennis'=>'🎾 Tenis','basketball'=>'🏀 Básquet','volleyball'=>'🏐 Vóley', default=>ucfirst($sport) } }}</button>
       @endforeach
     </div>
   @endif
