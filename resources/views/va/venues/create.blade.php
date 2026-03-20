@@ -24,7 +24,7 @@
 
         <div>
           <label>Dirección</label><br>
-          <input name="address"
+          <input id="address" name="address"
                  style="width:100%; padding:10px; border:1px solid #ddd; border-radius:10px;">
         </div>
 
