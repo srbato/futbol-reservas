@@ -43,6 +43,8 @@ use App\Http\Controllers\ReservationPlayerController;
 use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\VenueStaffInvitationController;
 use App\Http\Controllers\VenueAdmin\VenueStaffController as VaVenueStaffController;
+use App\Http\Controllers\VenueAdmin\FaltaUnoSettingController as VaFaltaUnoSettingController;
+use App\Http\Controllers\FaltaUnoController;
 use App\Models\MembershipPlan;
 
 
@@ -126,6 +128,7 @@ Route::middleware(['auth', 'active.user'])->group(function () {
 
 Route::get('/venues', [VenueController::class, 'index'])->name('venues.index');
 Route::get('/venues/{venue}', [VenueController::class, 'show'])->name('venues.show');
+Route::get('/falta-uno', [FaltaUnoController::class, 'index'])->name('falta-uno.index');
 
 Route::get('/fields/{field}', [FieldController::class, 'show'])->name('fields.show');
 Route::get('/fields/{field}/availability', [AvailabilityController::class, 'show'])->name('fields.availability');
@@ -177,6 +180,13 @@ Route::middleware(['auth', 'active.user'])->group(function () {
     // Staff invitations
     Route::get('/staff/invitations/{token}/accept', [VenueStaffInvitationController::class, 'accept'])->name('staff.invitations.accept');
     Route::get('/staff/invitations/{token}/reject', [VenueStaffInvitationController::class, 'reject'])->name('staff.invitations.reject');
+
+    // Falta Uno
+    Route::get('/fields/{field}/falta-uno/create', [FaltaUnoController::class, 'create'])->name('falta-uno.create');
+    Route::post('/fields/{field}/falta-uno', [FaltaUnoController::class, 'store'])->name('falta-uno.store');
+    Route::post('/falta-uno/{game}/join', [FaltaUnoController::class, 'join'])->name('falta-uno.join');
+    Route::post('/falta-uno/{game}/cancel', [FaltaUnoController::class, 'cancel'])->name('falta-uno.cancel');
+
     Route::post('/referral/redeem-reservation/{reservation}', [ReferralController::class, 'redeemReservation'])
         ->middleware(['throttle:5,1', 'role:super_admin'])
         ->name('referral.redeem_reservation');
@@ -199,6 +209,38 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/batch-success/{batch}', function (\App\Models\ReservationBatch $batch) {
         abort_if($batch->user_id !== auth()->id() && auth()->user()->role !== 'super_admin', 403);
         $batch->load(['field.venue', 'reservations' => fn($q) => $q->orderBy('start_at')]);
+
+        // Si el batch sigue pendiente, verificamos directamente con MP
+        if ($batch->status === 'PENDING_PAYMENT' && $batch->mp_preference_id) {
+            $accessToken = $batch->field->venue->mp_access_token
+                ?? config('services.mercadopago.access_token');
+            try {
+                $mpResponse = \Illuminate\Support\Facades\Http::withOptions(['verify' => !app()->isLocal()])
+                    ->withToken($accessToken)
+                    ->get('https://api.mercadopago.com/v1/payments/search', [
+                        'external_reference' => 'batch:' . $batch->id,
+                        'sort'               => 'date_created',
+                        'criteria'           => 'desc',
+                        'limit'              => 1,
+                    ]);
+                if ($mpResponse->successful()) {
+                    $payment  = ($mpResponse->json('results') ?? [])[0] ?? null;
+                    if (($payment['status'] ?? null) === 'approved') {
+                        app(\App\Http\Controllers\MercadoPagoWebhookController::class);
+                        // Re-usar la lógica del webhook disparando un request interno no es trivial,
+                        // así que actualizamos el batch directamente
+                        $batch->reservations->each(fn($r) => $r->update(['status' => 'PAID', 'expires_at' => null]));
+                        $batch->update(['status' => 'PAID', 'payment_status' => 'approved',
+                            'payment_external_id' => (string) ($payment['id'] ?? '')]);
+                        \Illuminate\Support\Facades\Log::info('Batch marcado PAID desde success URL', ['batch_id' => $batch->id]);
+                        $batch->refresh()->load(['field.venue', 'reservations' => fn($q) => $q->orderBy('start_at')]);
+                    }
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Error verificando batch en success URL', ['batch_id' => $batch->id, 'error' => $e->getMessage()]);
+            }
+        }
+
         return view('batches.success', compact('batch'));
     })->name('batches.success');
 
@@ -218,21 +260,71 @@ Route::middleware(['auth'])->group(function () {
         return response()->json(['status' => $batch->status]);
     })->name('batches.status');
 
-    Route::get('/reservation-success/{reservation}', function (\App\Models\Reservation $reservation) {
-        abort_if($reservation->user_id !== auth()->id() && auth()->user()->role !== 'super_admin', 403);
-        return view('reservations.success', compact('reservation'));
-    })->name('reservations.success');
-
-    Route::get('/reservation-pending/{reservation}', function (\App\Models\Reservation $reservation) {
-        abort_if($reservation->user_id !== auth()->id() && auth()->user()->role !== 'super_admin', 403);
-        return view('reservations.pending', compact('reservation'));
-    })->name('reservations.pending');
-
-    Route::get('/reservation-failure/{reservation}', function (\App\Models\Reservation $reservation) {
-        abort_if($reservation->user_id !== auth()->id() && auth()->user()->role !== 'super_admin', 403);
-        return view('reservations.failure', compact('reservation'));
-    })->name('reservations.failure');
 });
+
+// Rutas de retorno de MercadoPago — sin middleware auth para que funcionen aunque la sesión se pierda en el redirect
+Route::get('/reservation-success/{reservation}', function (\App\Models\Reservation $reservation, \Illuminate\Http\Request $request) {
+    // Verificación de pertenencia (sin explotar si no hay sesión)
+    $userId = auth()->id();
+    $isOwner = $userId && ($reservation->user_id === $userId || optional(auth()->user())->role === 'super_admin');
+
+    // Verificar y actualizar el pago usando el payment_id que MP manda en la URL
+    if ($reservation->status === 'PENDING_PAYMENT') {
+        $paymentId     = $request->query('payment_id') ?: $request->query('collection_id');
+        $mpStatus      = $request->query('status') ?: $request->query('collection_status');
+
+        if ($paymentId && $mpStatus === 'approved') {
+            try {
+                $reservation->loadMissing('field.venue');
+                $accessToken = $reservation->field->venue->mp_access_token
+                    ?? config('services.mercadopago.access_token');
+
+                // Verificamos el pago directamente contra la API de MP con el ID recibido
+                $mpResponse = \Illuminate\Support\Facades\Http::withOptions(['verify' => !app()->isLocal()])
+                    ->withToken($accessToken)
+                    ->get("https://api.mercadopago.com/v1/payments/{$paymentId}");
+
+                if ($mpResponse->successful() && $mpResponse->json('status') === 'approved') {
+                    $reservation->update([
+                        'status'              => 'PAID',
+                        'payment_status'      => 'approved',
+                        'payment_provider'    => 'mercadopago',
+                        'payment_external_id' => (string) $paymentId,
+                        'expires_at'          => null,
+                    ]);
+                    $reservation->loadMissing(['user', 'field.venue.owner']);
+                    \Illuminate\Support\Facades\Mail::to($reservation->user->email)
+                        ->send(new \App\Mail\ReservationPaidMail($reservation));
+                    $venueOwner = $reservation->field->venue->owner;
+                    if ($venueOwner?->email) {
+                        \Illuminate\Support\Facades\Mail::to($venueOwner->email)
+                            ->send(new \App\Mail\VenueAdminReservationMail($reservation));
+                    }
+                    \Illuminate\Support\Facades\Log::info('Reserva marcada PAID desde success URL', [
+                        'reservation_id' => $reservation->id,
+                        'payment_id'     => $paymentId,
+                    ]);
+                    $reservation->refresh();
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Error verificando pago en success URL', [
+                    'reservation_id' => $reservation->id,
+                    'error'          => $e->getMessage(),
+                ]);
+            }
+        }
+    }
+
+    return view('reservations.success', compact('reservation'));
+})->name('reservations.success');
+
+Route::get('/reservation-pending/{reservation}', function (\App\Models\Reservation $reservation) {
+    return view('reservations.pending', compact('reservation'));
+})->name('reservations.pending');
+
+Route::get('/reservation-failure/{reservation}', function (\App\Models\Reservation $reservation) {
+    return view('reservations.failure', compact('reservation'));
+})->name('reservations.failure');
 
 /*
 |--------------------------------------------------------------------------
@@ -327,6 +419,7 @@ Route::middleware(['auth', 'active.user', 'role:venue_admin,super_admin', 'venue
         Route::get('/fields/{field}/edit', [VaFieldController::class, 'edit'])->name('va.fields.edit');
         Route::post('/fields/{field}', [VaFieldController::class, 'update'])->name('va.fields.update');
         Route::post('/fields/{field}/toggle-active', [VaFieldController::class, 'toggleActive'])->name('va.fields.toggle_active');
+        Route::post('/fields/{field}/falta-uno-settings', [VaFaltaUnoSettingController::class, 'update'])->name('va.fields.falta_uno_settings');
 
         // Schedules
         Route::get('/fields/{field}/schedule', [VaScheduleController::class, 'edit'])->name('va.schedule.edit');

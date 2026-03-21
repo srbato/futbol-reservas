@@ -308,6 +308,67 @@
   </div>
 </form>
 
+{{-- ── Falta Uno ── --}}
+@php $fuSetting = $field->faltaUnoSetting; @endphp
+<form method="POST" action="{{ route('va.fields.falta_uno_settings', $field) }}" style="max-width:780px; margin-top:20px;">
+  @csrf
+  <div class="fe-section">
+    <p class="fe-section-title">⚽ Falta Uno</p>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:16px;">
+      <div>
+        <div style="font-weight:700; font-size:14px; margin-bottom:2px;">Habilitar Falta Uno en esta cancha</div>
+        <div style="font-size:13px; color:#666;">Los usuarios podrán iniciar partidos abiertos y otros se unen para completar el equipo.</div>
+      </div>
+      <label class="toggle-switch" title="Habilitar Falta Uno">
+        <input type="checkbox" id="toggle_falta_uno" name="enabled" value="1"
+               {{ $fuSetting?->enabled ? 'checked' : '' }}
+               onchange="toggleFaltaUnoPanel()">
+        <span class="toggle-track"></span>
+      </label>
+    </div>
+
+    <div id="falta_uno_panel" style="display:{{ $fuSetting?->enabled ? 'block' : 'none' }}; border-top:1px solid #f0f0f0; padding-top:16px;">
+      <div class="fe-2col" style="margin-bottom:14px;">
+        <div>
+          <label class="form-label">Límite para cancelar con reembolso</label>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <input type="number" name="refund_deadline_minutes" class="form-control"
+                   style="width:100px;" min="0" max="10080"
+                   value="{{ old('refund_deadline_minutes', $fuSetting?->refund_deadline_minutes ?? 60) }}">
+            <span style="font-size:13px; color:#555;">minutos antes del partido</span>
+          </div>
+          <p class="form-hint">El iniciador puede cancelar y recibir reembolso hasta X minutos antes del partido.</p>
+        </div>
+        <div>
+          <label class="form-label">Límite para que se llene el partido</label>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <input type="number" name="fill_deadline_minutes" class="form-control"
+                   style="width:100px;" min="0" max="10080"
+                   value="{{ old('fill_deadline_minutes', $fuSetting?->fill_deadline_minutes ?? 120) }}">
+            <span style="font-size:13px; color:#555;">minutos antes del partido</span>
+          </div>
+          <p class="form-hint">Si el partido no se llena X minutos antes, se cancela automáticamente y el slot vuelve a estar disponible. Sin reembolso.</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px;">
+      <button type="submit" class="btn btn-primary" style="padding:9px 20px; font-size:13px;">
+        Guardar configuración Falta Uno
+      </button>
+    </div>
+  </div>
+</form>
+
+<script>
+  function toggleFaltaUnoPanel() {
+    const cb    = document.getElementById('toggle_falta_uno');
+    const panel = document.getElementById('falta_uno_panel');
+    panel.style.display = cb.checked ? 'block' : 'none';
+  }
+</script>
+
 <script>
   const SPORT_CONFIG = {
     football:   { label: 'Jugadores por equipo', hint: 'Formato del partido', options: [{v:5,l:'5 (Fútbol 5)'},{v:7,l:'7 (Fútbol 7)'},{v:9,l:'9 (Fútbol 9)'},{v:11,l:'11 (Fútbol 11)'}] },

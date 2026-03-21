@@ -104,7 +104,20 @@ class ReservationService
                 abort(409, 'Ese horario ya está reservado.');
             }
 
-            $basePrice = (float) ($field->price?->price_per_slot ?? 0);
+            // Precio nocturno
+            $basePrice  = (float) ($field->price?->price_per_slot ?? 0);
+            $nightPrice = $field->price?->night_price_per_slot ? (float) $field->price->night_price_per_slot : null;
+            $nightStart = $field->price?->night_start_time ?? null;
+            $nightEnd   = $field->price?->night_end_time ?? null;
+
+            if ($nightPrice !== null && $nightStart && $nightEnd) {
+                $nightStartCarbon = Carbon::parse($date->toDateString() . ' ' . $nightStart);
+                $nightEndCarbon   = Carbon::parse($date->toDateString() . ' ' . $nightEnd);
+                if ($nightStartCarbon < $end && $nightEndCarbon > $start) {
+                    $basePrice = $nightPrice;
+                }
+            }
+
             $finalPrice = $basePrice;
 
             $matchingDiscount = $field->discounts()

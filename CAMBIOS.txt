@@ -257,3 +257,141 @@ REGISTRO DE CAMBIOS - Futbol Reservas
 - Después de iniciar sesión, registrarse o autenticarse con Google, el usuario es redirigido a /venues en lugar de la home.
 - Cambiado de redirect()->intended() a redirect()->route('venues.index') para evitar que la sesión "intended" apunte a la home.
 - Cambios en: AuthenticatedSessionController.php, RegisteredUserController.php, GoogleAuthController.php.
+
+[2026-03-20] - Geocodificación server-side con segunda API key
+- La geocodificación de dirección en crear/editar complejo ahora usa una API key separada (GOOGLE_GEOCODING_API_KEY) sin restricciones de HTTP referer.
+- Esto permite que el servidor de Laravel llame a la Geocoding API sin ser rechazado por Google.
+- La API key de Maps (GOOGLE_MAPS_API_KEY) sigue siendo la misma con restricción de HTTP referer para el mapa público.
+- Nueva variable en .env: GOOGLE_GEOCODING_API_KEY.
+- Cambios en: routes/web.php.
+
+[2026-03-20] - Fix botones de deporte en detalle de complejo
+- Los botones de filtro por deporte en venues/show.blade.php ahora muestran el nombre en español (Fútbol, Pádel, etc.) en lugar del valor interno (football, padel, etc.).
+- Cambios en: venues/show.blade.php.
+
+[2026-03-20] - Nueva rama git "secundaria"
+- Creada rama "secundaria" para desarrollar funcionalidades nuevas sin tocar la rama "main".
+- El flujo habitual es: desarrollar en "secundaria" → commits → merge a "main" cuando esté estable.
+
+[2026-03-20] - Sistema Falta Uno (partido con lugar libre)
+DESCRIPCIÓN: Permite a un usuario iniciar un partido de cualquier deporte indicando cuántos jugadores
+trae él y cuántos faltan. Paga solo su proporción, el partido se publica y otros jugadores se anotan.
+
+Fase 1 - Base de datos:
+- Migración: 2026_03_20_100001_create_falta_uno_tables.php
+  - Tabla falta_uno_settings: configuración por cancha (enabled, refund_deadline_minutes, fill_deadline_minutes)
+  - Tabla falta_uno_games: partidos (field_id, reservation_id, initiator_user_id, total_players, initiator_players,
+    players_needed, status [open/full/cancelled/expired], start_at, amount_paid, cancelled_at)
+  - Tabla falta_uno_participants: participantes que se unen (game_id, user_id, status [confirmed/cancelled])
+
+Fase 2 - Modelos:
+- FaltaUnoSetting.php: relación con Field, enabled casteado como boolean.
+- FaltaUnoGame.php: helpers confirmedCount(), remainingSlots(), isFull(), canRefund(), hasPassedFillDeadline().
+- FaltaUnoParticipant.php: relaciones con FaltaUnoGame y User.
+- Field.php: nuevas relaciones faltaUnoSetting() (hasOne) y faltaUnoGames() (hasMany).
+
+Fase 3 - Controladores:
+- FaltaUnoController: create() muestra formulario, store() crea reserva + game, join() agrega participante,
+  cancel() cancela el partido y notifica a todos.
+- VenueAdmin/FaltaUnoSettingController: update() guarda/crea la configuración de Falta Uno por cancha.
+
+Fase 4 - Rutas:
+- GET  /fields/{field}/falta-uno/create → falta-uno.create
+- POST /fields/{field}/falta-uno        → falta-uno.store
+- POST /falta-uno/{game}/join           → falta-uno.join
+- POST /falta-uno/{game}/cancel         → falta-uno.cancel
+- POST /va/fields/{field}/falta-uno-settings → va.fields.falta_uno_settings
+
+Fase 5 - Vistas:
+- resources/views/falta-uno/create.blade.php: formulario hero con glassmorphism, controles +/- para jugadores,
+  preview de precio dinámico con 4 stats + barra total, JS que fetchea precio real del slot.
+- resources/views/va/fields/edit.blade.php: sección "Falta Uno" con toggle enabled + deadlines.
+- resources/views/venues/show.blade.php:
+  - Sección "⚡ Falta Uno" con tarjetas por partido, animación SVG circular (relleno proporcional a jugadores).
+  - Botón "⚡ Iniciar partido" en cada card de cancha si Falta Uno está habilitado.
+  - Acciones: Unirse, Cancelar (solo iniciador), ya anotado (deshabilitado).
+
+Fase 6 - Emails y comando de expiración:
+- FaltaUnoJoinedMail: avisa al iniciador cuando alguien se une.
+- FaltaUnoFullMail: avisa al iniciador cuando el partido se completó.
+- FaltaUnoCancelledMail: avisa a todos los participantes cuando el iniciador cancela.
+- FaltaUnoExpiredMail: avisa al iniciador cuando el partido vence sin llenarse.
+- Comando: php artisan falta-uno:process-expired (--dry-run)
+  Marca como expired los partidos open cuyo fill_deadline pasó, cancela la reserva, envía FaltaUnoExpiredMail.
+  Programado cada 5 minutos en routes/console.php.
+
+Fixes dentro del sistema Falta Uno:
+- Fix: route('checkout.show') no existía → corregido a route('reservations.checkout').
+- Fix: precio proporcional ignoraba precio nocturno y descuentos → se usa $reservation->total_amount
+  (calculado por ReservationService) y se divide proporcional al número de jugadores.
+- Fix: fmt() en JS redondeaba mal (1.5 → 2) → corregido con Math.round(n * 100) / 100 + toLocaleString.
+
+[2026-03-20] - Fix: precio nocturno en ReservationService
+- ReservationService.createSingle() ahora aplica el precio nocturno antes de verificar descuentos.
+- Antes solo tomaba price_per_slot; ahora detecta si el turno cae en la franja nocturna y usa night_price_per_slot.
+- Variables: night_price_per_slot, night_start_time, night_end_time del modelo FieldPrice.
+- Cambios en: app/Services/ReservationService.php.
+
+[2026-03-20] - Fix variables de entorno para proxies y cookies
+- Agregado TRUSTED_PROXIES=* para que Laravel detecte correctamente el IP y protocolo detrás de Cloudflare.
+- Agregado SESSION_SECURE_COOKIE=false para que las sesiones funcionen en entorno de desarrollo HTTP.
+
+[2026-03-20] - Rutas de resultado de pago movidas fuera del middleware auth
+- Las rutas /reservation-success/{reservation}, /reservation-pending/{reservation}, /reservation-failure/{reservation}
+  fueron movidas fuera del grupo auth para que MP pueda redirigir sin requerir sesión.
+- La ruta reservation-success ahora verifica el pago con la API de MP usando payment_id y status de la query string:
+  si el estado es "approved", llama a la API de MP y marca la reserva como PAID automáticamente.
+- Cambios en: routes/web.php.
+
+═══════════════════════════════════════════════════════════════════
+⚠️  BUG CONOCIDO: Pantalla negra "Not Found" al volver desde MercadoPago
+═══════════════════════════════════════════════════════════════════
+DESCRIPCIÓN:
+Al pagar correctamente en MercadoPago y hacer click en "Volver a la tienda", aparece una
+pantalla completamente negra con el texto "Not Found". La reserva queda en estado PENDING_PAYMENT.
+El dinero sí se debita correctamente de la cuenta del pagador.
+
+SÍNTOMAS OBSERVADOS:
+- La pantalla negra viene de Cloudflare (el túnel), no de Laravel.
+- Los logs de Laravel no registran NINGUNA entrada para esas requests → la request nunca llega a PHP.
+- La URL de redirect de MP tiene el formato correcto:
+  /reservation-success/{id}?payment_id=...&status=approved&collection_status=approved
+- Reservation 94 fue corregida manualmente vía php artisan tinker llamando a la API de MP y marcando PAID.
+
+HIPÓTESIS POSIBLES (ninguna confirmada):
+1. Cloudflare bloquea la URL de back_url porque contiene parámetros que parecen sospechosos o porque
+   el token de MP en la URL activa algún filtro de seguridad del túnel.
+2. La URL de APP_URL en .env no coincide exactamente con la URL del túnel activo al momento del redirect
+   (el túnel Cloudflare cambia cada vez que se reinicia cloudflared).
+3. MP recuerda la back_url con la que se creó la preferencia (URL vieja del tunnel) y redirige a esa URL
+   aunque el tunnel haya cambiado — Cloudflare resuelve el hostname del tunnel antiguo con "Not Found".
+4. Hay un loop de HTTPS redirect o un manejo incorrecto del protocolo entre Cloudflare y Laravel que
+   hace que la URL final sea inaccesible.
+5. El usuario que intentó pagar tenía un error en su sesión (sesión rota/inconsistente) que pudo
+   interferir con el flujo de pago, aunque esto no explicaría el "Not Found" antes de llegar a Laravel.
+
+ESTADO: RESUELTO (ver abajo).
+═══════════════════════════════════════════════════════════════════
+
+[2026-03-21] - Fix: pantalla negra "Not Found" al volver desde MercadoPago
+- Causa raíz confirmada: APP_URL apuntaba a una URL de Cloudflare free tunnel (trycloudflare.com),
+  que cambia cada vez que se reinicia cloudflared. Las back_urls de MP quedan grabadas en la preferencia
+  con la URL del momento de creación; si el tunnel se reinicia antes de que el usuario vuelva, MP
+  redirige a una URL inexistente → Cloudflare devuelve "Not Found" sin que la request llegue a Laravel.
+- Fix: APP_URL cambiado a la URL fija de ngrok (certifiable-crazily-madelene.ngrok-free.dev),
+  que no cambia entre reinicios porque es una URL permanente de la cuenta ngrok.
+- El tunnel de Cloudflare sigue usándose exclusivamente para Reverb/WebSockets (puerto 8080),
+  a través de REVERB_CLIENT_HOST y REVERB_SERVER_HOSTNAME — completamente independiente de APP_URL.
+- Cambios en: .env (APP_URL).
+
+[2026-03-21] - Página global de Falta Uno (/falta-uno)
+- Los partidos Falta Uno ya no aparecen en la página de detalle del complejo (venues/show).
+- Nueva página /falta-uno que muestra todos los partidos abiertos de todos los complejos,
+  ordenados por fecha, con filtro por deporte (Fútbol, Pádel, Tenis, Básquet, Vóley).
+- Cada card muestra: complejo (link), cancha, deporte, fecha, hora, jugadores confirmados,
+  animación SVG circular de progreso, y botón de acción (Unirme / Ya anotado / Cancelar).
+- El botón "⚡ Iniciar partido" en las cards de cancha dentro de venues/show se mantiene.
+- Link "⚡ Falta Uno" agregado al navbar principal (visible para todos, sin requerir login).
+- Nuevos archivos: resources/views/falta-uno/index.blade.php.
+- Cambios en: FaltaUnoController.php (nuevo método index()), routes/web.php (nueva ruta GET /falta-uno),
+  layouts/app.blade.php (link en nav), venues/show.blade.php (removida la sección de partidos).

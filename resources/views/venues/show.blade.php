@@ -419,6 +419,11 @@
           <a href="{{ route('fields.show', $field) }}" class="btn btn-primary" style="margin-top:4px; text-align:center;">
             Ver disponibilidad →
           </a>
+          @if($field->faltaUnoSetting?->enabled)
+            <a href="{{ route('falta-uno.create', $field) }}" class="btn btn-ghost" style="margin-top:6px; text-align:center; font-size:13px;">
+              ⚡ Iniciar partido
+            </a>
+          @endif
         </div>
       </article>
     @endforeach

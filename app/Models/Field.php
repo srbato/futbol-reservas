@@ -50,4 +50,14 @@ class Field extends Model
         return $this->hasMany(FieldRecurringDiscount::class);
     }
 
+    public function faltaUnoSetting(): HasOne
+    {
+        return $this->hasOne(FaltaUnoSetting::class);
+    }
+
+    public function faltaUnoGames(): HasMany
+    {
+        return $this->hasMany(FaltaUnoGame::class);
+    }
+
 }

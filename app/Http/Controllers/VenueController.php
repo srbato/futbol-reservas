@@ -259,12 +259,22 @@ class VenueController extends Controller
         $venue->load([
             'fields' => fn($q) => $q->where('is_active', true),
             'fields.price',
+            'fields.faltaUnoSetting',
             'reviews.user',
         ]);
 
         $averageRating = round($venue->reviews->avg('rating') ?? 0, 1);
 
-        return view('venues.show', compact('venue', 'averageRating'));
+        // Partidos falta uno abiertos (con reserva pagada y partido en el futuro)
+        $faltaUnoGames = \App\Models\FaltaUnoGame::whereHas('field', fn($q) => $q->where('venue_id', $venue->id))
+            ->whereIn('status', ['open', 'full'])
+            ->whereHas('reservation', fn($q) => $q->where('status', 'PAID'))
+            ->where('start_at', '>', now())
+            ->with(['field', 'initiator', 'activeParticipants.user'])
+            ->orderBy('start_at')
+            ->get();
+
+        return view('venues.show', compact('venue', 'averageRating', 'faltaUnoGames'));
     }
 
     private function venueMatchesAdvancedFilters(

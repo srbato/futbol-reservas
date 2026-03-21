@@ -701,6 +701,7 @@
       <nav class="site-nav">
         <a href="{{ route('home') }}">Inicio</a>
         <a href="{{ route('venues.index') }}">Complejos</a>
+        <a href="{{ route('falta-uno.index') }}">⚡ Falta Uno</a>
 
         @auth
           @if(auth()->user()->role === 'user')

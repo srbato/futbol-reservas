@@ -27,3 +27,7 @@ Schedule::command('reservations:send-reminders')
 Schedule::command('reservations:purge-dead')
     ->monthlyOn(1, '03:00')
     ->withoutOverlapping();
+
+Schedule::command('falta-uno:process-expired')
+    ->everyFiveMinutes()
+    ->withoutOverlapping();
