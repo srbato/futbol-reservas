@@ -22,6 +22,7 @@ class VenueController extends Controller
             'max_price' => ['nullable', 'numeric', 'min:0'],
             'date' => ['nullable', 'date'],
             'available_at' => ['nullable', 'date_format:H:i'],
+            'falta_uno' => ['nullable', 'in:1,0'],
         ]);
 
         $q = $validated['q'] ?? null;
@@ -31,6 +32,7 @@ class VenueController extends Controller
         $maxPrice = $validated['max_price'] ?? null;
         $date = $validated['date'] ?? null;
         $availableAt = $validated['available_at'] ?? null;
+        $faltaUno = $request->query('falta_uno') === '1';
 
         $zones = Venue::query()
             ->where('is_active', true)
@@ -63,6 +65,15 @@ class VenueController extends Controller
                 });
             })
 
+            ->when($faltaUno, function ($query) {
+                $query->whereHas('fields', function ($qf) {
+                    $qf->where('is_active', true)
+                        ->whereHas('faltaUnoSetting', function ($qs) {
+                            $qs->where('enabled', true);
+                        });
+                });
+            })
+
             // Si NO hay fecha, filtramos por precio base en SQL
             ->when(($minPrice !== null && $minPrice !== '') && !$date, function ($query) use ($minPrice) {
                 $query->whereHas('fields.price', function ($qp) use ($minPrice) {
@@ -78,6 +89,10 @@ class VenueController extends Controller
 
             ->withAvg('reviews', 'rating')
             ->withCount('reviews')
+            ->withCount(['fields as falta_uno_count' => function ($q) {
+                $q->where('is_active', true)
+                  ->whereHas('faltaUnoSetting', fn($s) => $s->where('enabled', true));
+            }])
             ->orderBy('name');
 
         $venues = $venuesQuery->get([
@@ -217,7 +232,7 @@ class VenueController extends Controller
             ? auth()->user()->favoriteVenues()->where('is_active', true)->orderBy('name')->get()
             : collect();
 
-        $hasFilters = (bool) ($q || $zone || $sport || ($minPrice !== null && $minPrice !== '') || ($maxPrice !== null && $maxPrice !== '') || $date || $availableAt);
+        $hasFilters = (bool) ($q || $zone || $sport || ($minPrice !== null && $minPrice !== '') || ($maxPrice !== null && $maxPrice !== '') || $date || $availableAt || $faltaUno);
 
         $allVenues = Venue::query()
             ->where('is_active', true)
@@ -239,6 +254,7 @@ class VenueController extends Controller
             'maxPrice',
             'date',
             'availableAt',
+            'faltaUno',
             'favoriteVenueIds',
             'favorites',
             'topReservedVenues',

@@ -395,3 +395,317 @@ ESTADO: RESUELTO (ver abajo).
 - Nuevos archivos: resources/views/falta-uno/index.blade.php.
 - Cambios en: FaltaUnoController.php (nuevo método index()), routes/web.php (nueva ruta GET /falta-uno),
   layouts/app.blade.php (link en nav), venues/show.blade.php (removida la sección de partidos).
+
+[2026-03-22] - Reestructuración completa del sistema Falta Uno
+
+DESCRIPCIÓN: Expansión mayor del sistema Falta Uno con perfil deportivo por usuario, sistema de
+calificaciones entre jugadores, chat grupal temporal, estadísticas personales, notificaciones por
+mail, animaciones de cambio de categoría, y filtros de género/categoría al crear partidos.
+
+Fase 1 - Migraciones (5 nuevas):
+- 2026_03_22_122531_create_falta_uno_sport_profiles_table: perfil deportivo por usuario por deporte
+  (sport, category, gender, age_group, games_played, wins, draws, losses, average_rating)
+- 2026_03_22_122532_add_filters_to_falta_uno_games_table: +gender_filter, +category_filter
+- 2026_03_22_122533_add_stats_to_falta_uno_participants_table: +goals, +assists, +result, +stats_submitted_at
+- 2026_03_22_122534_create_falta_uno_messages_table: chat grupal por partido
+- 2026_03_22_122534_create_falta_uno_ratings_table: calificaciones entre jugadores (score 1-5)
+
+Fase 2 - Modelos:
+- FaltaUnoSportProfile.php (nuevo): getCategoriesForSport() diferencia padel (primera...octava) de
+  otros deportes (recreativo/intermedio/avanzado/competitivo). recalculateCategory() ajusta categoría
+  basado en promedio de últimos 10 ratings (mín. 5 partidos para activarse).
+- FaltaUnoMessage.php (nuevo): mensajes del chat grupal.
+- FaltaUnoRating.php (nuevo): calificaciones post-partido entre jugadores.
+- FaltaUnoGame.php: +gender_filter, +category_filter en fillable, relaciones messages()/ratings(),
+  método isFinished().
+- FaltaUnoParticipant.php: +goals, +assists, +result, +stats_submitted_at.
+- User.php: +faltaUnoSportProfiles() HasMany, +sportProfileFor(sport).
+
+Fase 3 - Controladores (5 nuevos, 1 modificado):
+- FaltaUnoSportProfileController: CRUD del perfil deportivo por deporte (index/create/store/edit/update).
+- FaltaUnoChatController: index (cargar chat + canal Reverb), store (guardar + broadcast mensaje).
+- FaltaUnoRatingController: create (form de calificación post-partido), store (guardar ratings +
+  recalcular categoría + disparar FaltaUnoCategoryChanged si hubo cambio).
+- FaltaUnoStatsController: store (cargar goles/asistencias/resultado personal, actualizar stats del perfil).
+- FaltaUnoProfilePublicController: show (perfil deportivo público con stats y últimos 10 partidos).
+- FaltaUnoController: store() agrega gender_filter/category_filter + dispatch NotifyFaltaUnoCreated;
+  join() valida perfil deportivo obligatorio y compatibilidad con filtros; index() acepta ?gender= y ?category=.
+
+Fase 4 - Events y Jobs:
+- FaltaUnoChatMessageSent (evento Reverb): canal privado falta-uno.{game_id}, payload con user+body.
+- FaltaUnoCategoryChanged (evento Reverb): canal privado user.{user_id}, payload con sport/old/new/direction.
+- FaltaUnoParticipantJoined (evento Reverb): canal público falta-uno-games, actualiza contador en index.
+- NotifyFaltaUnoCreated (job queued): busca hasta 50 usuarios con perfil deportivo compatible
+  (mismo deporte, género y categoría), les envía FaltaUnoInvitationMail.
+
+Fase 5 - Mails:
+- FaltaUnoInvitationMail + emails/falta-uno/invitation.blade.php: invitación a usuarios compatibles
+  cuando se crea un partido. Incluye deporte, cancha, complejo, fecha/hora, cuántos faltan, link.
+
+Fase 6 - Rutas (12 nuevas en web.php, 2 canales en channels.php):
+- /mi-perfil-deportivo (GET/POST/PUT) — perfil deportivo propio.
+- /jugadores/{user}/perfil (GET) — perfil deportivo público.
+- /falta-uno/{game}/chat (GET/POST) — chat grupal.
+- /falta-uno/{game}/stats (POST) — carga de estadísticas personales.
+- /falta-uno/{game}/calificar (GET/POST) — calificación post-partido.
+- Canal privado falta-uno.{gameId}: solo participantes confirmados e iniciador.
+- Canal privado user.{userId}: solo el propio usuario.
+
+Fase 7 - Vistas (8 nuevas, 2 modificadas):
+- falta-uno/sport-profile/index.blade.php: lista de perfiles deportivos por deporte con badges y stats.
+- falta-uno/sport-profile/create.blade.php: formulario con select dinámico de categorías según deporte,
+  radio de género, select de edad (solo padel). Padel tiene categorías primera→octava + grupos de edad
+  sub10, sub12, sub14, sub16, sub18, 19a25, 26a34, +35...+60. Resto de deportes: recreativo/intermedio/
+  avanzado/competitivo.
+- falta-uno/sport-profile/edit.blade.php: mismo formulario pre-rellenado.
+- falta-uno/sport-profile/public-show.blade.php: perfil público con ApexCharts (CDN), stats PJ/PG/PE/PP,
+  promedio de calificaciones, últimos 10 partidos.
+- falta-uno/chat.blade.php: chat en tiempo real con JS puro + Echo/Reverb (sin Alpine.js que no estaba
+  cargado). Aviso de auto-eliminación al finalizar el partido.
+- falta-uno/rate.blade.php: formulario de calificación con estrellas interactivas (1-5) por jugador.
+- falta-uno/stats.blade.php: formulario de carga de resultado personal (goles, asistencias, W/D/L).
+- falta-uno/index.blade.php: agregados filtros de género/categoría, badges en cards, banner para
+  usuarios sin perfil deportivo, script Reverb con canvas-confetti al subir de categoría y mensaje
+  motivacional al bajar. Contador actualizado en tiempo real via FaltaUnoParticipantJoined.
+- falta-uno/create.blade.php: agregados campos gender_filter (radio M/F/Mixto) y category_filter
+  (select dinámico según deporte de la cancha).
+- profile/edit.blade.php: sección "Perfil deportivo" integrada con lista de perfiles por deporte,
+  stats resumidas y links a crear/editar.
+
+Fase 8 - Comando de purge:
+- PurgeFaltaUnoChats.php: falta-uno:purge-chats, elimina mensajes de partidos finalizados hace +3 horas.
+  Corre cada hora via scheduler (routes/console.php).
+
+Categorías de padel: primera, segunda, tercera, cuarta, quinta, sexta, séptima, octava.
+Grupos de edad: sub10, sub12, sub14, sub16, sub18, 19a25 (nuevo), 26a34 (nuevo), +35...+60.
+
+Fixes dentro de esta reestructuración:
+- Bug: categorías de padel aparecían en deportes que no son padel → select ahora usa
+  getCategoriesForSport() según el deporte de la cancha.
+- Bug: chat enviaba mensaje duplicado (optimistic update + Reverb) → al recibir evento Reverb,
+  se ignora si user.id === AUTH_USER_ID.
+- Bug: Error 500 en perfil público (ParseError Blade con match() dentro de @json()) → lógica movida
+  al controlador como $chartData PHP puro.
+- Bug: category_filter se guardaba como "" en vez de null → cambiado ?? por ?: en store().
+- Bug: filtro de categoría en index no filtraba correctamente (orWhereNull hacía que siempre
+  aparecieran partidos sin categoría) → eliminado el orWhereNull.
+
+[2026-03-22] - Advertencia y reembolso opcional al desactivar cancha (superAdmin)
+- Al desactivar una cancha con reservas futuras pagas/pendientes, ahora aparece un modal de confirmación
+  en lugar de desactivar inmediatamente.
+- El modal muestra: lista scrolleable de reservas afectadas (fecha, hora, usuario, monto, estado),
+  total de reservas y monto total a reembolsar, toggle animado "Reembolsar automáticamente" (default: OFF).
+- Dos opciones al confirmar:
+  · Con reembolso: cancela reservas y procesa reembolso via MercadoPago. Si el reembolso falla,
+    anota [REEMBOLSO PENDIENTE] en el campo notes de la reserva para gestión manual.
+  · Sin reembolso: desactiva la cancha sin tocar las reservas existentes.
+- Si no hay reservas futuras afectadas, la cancha se desactiva normalmente sin modal.
+- El botón "Activar" sigue siendo un POST directo sin confirmación.
+- Cambios en: VenueAdmin/FieldController.php (toggleActive() reescrito con flujo de confirmación),
+  va/dashboard.blade.php (botón Desactivar pasa a fetch + modal JS).
+- Los partidos Falta Uno ya no aparecen en la página de detalle del complejo (venues/show).
+- Nueva página /falta-uno que muestra todos los partidos abiertos de todos los complejos,
+  ordenados por fecha, con filtro por deporte (Fútbol, Pádel, Tenis, Básquet, Vóley).
+- Cada card muestra: complejo (link), cancha, deporte, fecha, hora, jugadores confirmados,
+  animación SVG circular de progreso, y botón de acción (Unirme / Ya anotado / Cancelar).
+- El botón "⚡ Iniciar partido" en las cards de cancha dentro de venues/show se mantiene.
+- Link "⚡ Falta Uno" agregado al navbar principal (visible para todos, sin requerir login).
+- Nuevos archivos: resources/views/falta-uno/index.blade.php.
+- Cambios en: FaltaUnoController.php (nuevo método index()), routes/web.php (nueva ruta GET /falta-uno),
+  layouts/app.blade.php (link en nav), venues/show.blade.php (removida la sección de partidos).
+
+[2026-03-22] - Rango de categorías en Falta Uno (reemplaza categoría única)
+- El campo category_filter (string único) fue reemplazado por category_min + category_max para permitir
+  especificar un rango de categorías aceptadas al crear un partido (ej: "Tercera - Quinta").
+- Migración: 2026_03_22_143407_update_falta_uno_games_category_and_reminder.php
+  · Elimina category_filter, agrega category_min (nullable string), category_max (nullable string),
+    reminder_sent_at (nullable timestamp).
+- FaltaUnoGame.php: +category_min, +category_max, +reminder_sent_at en fillable y casts.
+  Nuevo método isInCategoryRange(string $category): bool — compara por posición en el array ordenado
+  del deporte para saber si una categoría cae dentro del rango.
+- FaltaUnoController: store() valida y guarda category_min/category_max; index() filtra en PHP usando
+  isInCategoryRange() (no en SQL); join() valida con mensaje "Este partido acepta categorías X - Y."
+- NotifyFaltaUnoCreated: corregido bug — usaba category_filter (campo eliminado). Ahora filtra con
+  whereIn('category', $validCats) calculando el rango por índice en el array ordenado.
+- create.blade.php: dos selects "Desde / Hasta" con JS que evita seleccionar min > max.
+- index.blade.php: badge muestra rango ("Segunda - Quinta"), categoría única, o parcial.
+- invitation.blade.php: corregido bug — mostraba $game->category_filter (campo eliminado).
+
+[2026-03-22] - Sistema de recordatorios automáticos para partidos Falta Uno incompletos
+- Nuevo comando: falta-uno:send-reminders (--dry-run).
+  Ventana: entre 90 y 30 minutos antes del fill_deadline del partido.
+  Destinatarios: perfiles deportivos del mismo deporte, rango de categorías, género requerido,
+  que no sean el iniciador ni participantes confirmados. Hasta 100 por partido.
+  Marca reminder_sent_at al enviar — nunca se manda dos veces al mismo partido.
+  Registrado en scheduler cada 5 minutos.
+- FaltaUnoReminderMail + emails/falta-uno/reminder.blade.php: email urgente con cabecera roja,
+  badge con slots disponibles, countdown en minutos al cierre, CTA "¡Me apunto!".
+- Fix NotifyFaltaUnoCreated: Mail::queue() sin ->to() no tenía destinatario. Corregido a
+  Mail::to($profile->user)->queue(). Mismo bug corregido en el comando de recordatorios.
+
+[2026-03-22] - Sistema de calificación rediseñado: evaluación de nivel en vez de estrellas
+- Reemplazadas las estrellas 1-5 por tres opciones explícitas:
+  Por debajo / A la altura / Por encima de su categoría actual.
+- Migración: 2026_03_22_145608_update_falta_uno_ratings_replace_score_with_assessment.php
+  · Elimina columna score (int), agrega assessment enum('below','match','above').
+- FaltaUnoRating.php: score reemplazado por assessment en fillable.
+- FaltaUnoRatingController: validación in:below,match,above. average_rating calculado con
+  mapeo (below=1, match=3, above=5).
+- FaltaUnoSportProfile::recalculateCategory(): nueva lógica por votos. Sube si >= 60% son
+  'above'; baja si >= 60% son 'below'. Mínimo 5 partidos jugados.
+- rate.blade.php: reemplazadas estrellas Alpine.js (no estaba cargado, bug crítico) por tres
+  botones con JS vanilla. Muestra categoría actual del evaluado. Validación client-side al submit.
+
+[2026-03-22] - Sección "Mis partidos" en el perfil del usuario
+- Agregada sección "Mis partidos" en profile/edit.blade.php entre el perfil deportivo y zona peligrosa.
+- Muestra partidos donde el usuario es iniciador O participante confirmado, en dos grupos:
+  · Próximos: partidos futuros con badge de estado.
+  · Historial: partidos pasados con botones "Calificar" y "Stats".
+- Botón "Calificar" aparece si: partido terminado, usuario no calificó aún, hay otros participantes.
+- Máximo 15 partidos, ordenados por fecha descendente.
+
+[2026-03-22] - Fixes en el sistema de stats post-partido
+- FaltaUnoStatsController: iniciador no podía cargar stats. Nuevo método resolveParticipant()
+  crea el registro de participante on-demand con firstOrCreate() si el usuario es el iniciador.
+- stats.blade.php: campos dinámicos según deporte:
+  · Fútbol: Goles + Asistencias. Básquet: Puntos + Asistencias. Vóley: Puntos + Aces.
+  · Pádel / Tenis: solo Resultado, sin campos numéricos y sin opción Empate.
+- FaltaUnoStatsController::store(): redirect cambiado de back() a profile.edit.
+
+[2026-03-22] - Sistema de notificaciones internas
+DESCRIPCIÓN: Campana en el navbar con badge en tiempo real, dropdown de notificaciones y
+8 tipos de notificaciones que reemplazan o complementan los mails existentes.
+
+Base de datos:
+- Migración: tabla notifications (Laravel database driver nativo).
+- Migración: post_game_notified_at timestamp nullable en falta_uno_games.
+
+8 clases de notificación (app/Notifications/):
+- FaltaUnoNewGameNotification: nuevo partido compatible con perfil. REEMPLAZA mail de invitación.
+- FaltaUnoReminderNotification: cupo por cerrarse. REEMPLAZA mail de recordatorio.
+- FaltaUnoPlayerJoinedNotification: alguien se unió (paralelo al mail al iniciador).
+- FaltaUnoGameFullNotification: partido completo (paralelo al mail al iniciador).
+- FaltaUnoCancelledNotification: partido cancelado (paralelo al mail a participantes).
+- FaltaUnoPostGameNotification: 30 min después del inicio, notifica a iniciador + participantes
+  para cargar stats y calificar. Link directo a /falta-uno/{id}/calificar. Sin equivalente en mail.
+- ReservationReminderNotification: recordatorio de reserva próxima (paralelo al mail).
+- ReservationConfirmedNotification: reserva confirmada (paralelo al mail).
+
+Broadcast en tiempo real:
+- app/Events/NotificationCreated.php: ShouldBroadcastNow en canal privado user.{id}.
+  Payload: { unread_count: N }. Badge del navbar se actualiza sin recargar.
+- AppServiceProvider::boot(): observer en DatabaseNotification::created dispara el broadcast
+  automáticamente al guardarse cualquier notificación.
+
+Nuevos archivos:
+- NotificationController: markRead(id) marca como leída y redirige a action_url; markAllRead().
+- FaltaUnoNotifyPostGame command: busca juegos con start_at < now()-30min, status IN (open,full),
+  post_game_notified_at IS NULL. Registrado en scheduler cada 5 minutos.
+
+Rutas: POST /notifications/{id}/read, POST /notifications/mark-all-read.
+
+Navbar (layouts/app.blade.php):
+- Icono campana con badge rojo (número no leídas, "9+" si supera 9).
+- Dropdown con 5 notificaciones más recientes: icon + title + body + tiempo relativo.
+- Items no leídos con fondo destacado. Botón "Marcar todas como leídas".
+- Click en item: POST mark-read, redirect a action_url. Cierra al hacer click fuera.
+- Echo escucha notification.created para actualizar badge en tiempo real.
+
+[2026-03-22] - Mejoras de UX: 14 issues resueltos (análisis completo de flujo de usuario)
+
+DESCRIPCIÓN: Análisis completo del flujo del usuario desde que entra a la web hasta que termina
+un partido, con corrección de features desconectadas, vistas confusas y problemas de discoverability.
+
+--- PRIORIDAD ALTA ---
+
+1. Perfil deportivo: requisito oculto y duplicado
+- FaltaUnoSportProfileController::index/store/update() ahora redirigen a /profile#sport-profile.
+- El botón "Unirse" en /falta-uno sin perfil deportivo ya no muestra un error genérico:
+  redirige directamente a /profile#sport-profile con mensaje explicativo.
+- El banner de aviso en el index de Falta Uno apunta a /profile#sport-profile.
+- La ruta /mi-perfil-deportivo sigue existiendo pero redirige al perfil general.
+
+2. Hub post-partido para Falta Uno
+- Nuevo método FaltaUnoController::show() con ruta GET /falta-uno/{game} (nombre: falta-uno.show).
+- Nueva vista falta-uno/show.blade.php: muestra participantes, estado del partido, chat, stats,
+  calificaciones y todas las acciones disponibles en un solo lugar.
+- Las cards del index de Falta Uno linkean al hub desde el nombre de la cancha.
+- Fix posterior: @endif faltante en show.blade.php línea 167 (bloque @auth/@endauth mal cerrado).
+
+3. Crear partido Falta Uno difícil de descubrir
+- Botón "+ Crear partido" agregado en el header del index /falta-uno → /venues?falta_uno=1.
+- Estado vacío del index mejorado con CTA explícito.
+- VenueController: nuevo filtro ?falta_uno=1 que muestra solo complejos con al menos una cancha
+  habilitada para Falta Uno (via whereHas('faltaUnoSetting')).
+- Badge "⚡ Falta Uno" en las cards de complejos que tienen canchas habilitadas.
+- Banner informativo en /venues cuando se navega desde el contexto de Falta Uno.
+
+4. Actividad fragmentada en 3 secciones
+- MyReservationsController inyecta los partidos Falta Uno del usuario autenticado.
+- Vista reservations/my.blade.php ampliada con tabs "Historial" y "⚡ Falta Uno".
+- Dropdown del usuario: "Mis reservas" renombrado a "Mi actividad".
+
+--- PRIORIDAD MEDIA ---
+
+5. Notificaciones sin página completa
+- Nueva ruta GET /notifications → NotificationController::index().
+- Nueva vista notifications/index.blade.php con listado paginado de todas las notificaciones.
+- Link "Ver todas las notificaciones →" agregado al pie del dropdown de notificaciones.
+
+6. Chat no linkeable desde el perfil
+- Secciones "Próximos" e "Historial" en profile/edit.blade.php ahora incluyen links
+  al chat (/falta-uno/{game}/chat) y a la vista de detalle del partido.
+
+7. Formulario Falta Uno no valida disponibilidad del slot
+- En falta-uno/create.blade.php, el JS que hace fetch de disponibilidad ahora verifica
+  slot.available === false antes de habilitar el botón submit.
+- Si el slot no está disponible, se muestra un mensaje de error inline y el botón queda deshabilitado.
+
+8. Perfil público sin entrada visible
+- Los nombres de participantes en las cards del index de Falta Uno son ahora <a> links
+  a route('sport-profile.public', $participante->user).
+
+9. Dashboard vacío
+- La ruta /dashboard (auth+verified) ahora redirige a /my-reservations en lugar de mostrar
+  la vista genérica de Jetstream/Breeze.
+
+--- PRIORIDAD BAJA ---
+
+10. Stats paralelas desconectadas
+- FaltaUnoProfilePublicController carga el historial de reservas convencionales con resultado.
+- Vista public-show.blade.php muestra sección de W/D/L de reservas convencionales
+  además de las stats de Falta Uno.
+
+11. Checkout sin resumen del partido creado
+- checkout/show.blade.php (o equivalente) ahora muestra session('info') como banner informativo
+  al inicio, mostrando el resumen del partido Falta Uno recién creado.
+
+12. Filtros con categorías incompatibles en URL
+- En falta-uno/index.blade.php, los links de filtro por deporte eliminan el parámetro
+  ?category del query string al cambiar de deporte.
+
+13. Navegación sin estado activo
+- layouts/app.blade.php usa request()->routeIs() para resaltar el link activo en el header
+  (Complejos, Falta Uno) con clase CSS diferenciada.
+
+14. System message se descarta antes de ser leído
+- En layouts/app.blade.php, el fetch de dismiss del system message fue movido al handler
+  del botón "Cerrar" en lugar de ejecutarse al cargar la página.
+
+Archivos modificados principales:
+- app/Http/Controllers/FaltaUnoController.php
+- app/Http/Controllers/FaltaUnoSportProfileController.php
+- app/Http/Controllers/VenueController.php
+- app/Http/Controllers/NotificationController.php
+- app/Http/Controllers/MyReservationsController.php
+- app/Http/Controllers/FaltaUnoProfilePublicController.php
+- routes/web.php
+- resources/views/falta-uno/index.blade.php
+- resources/views/falta-uno/create.blade.php
+- resources/views/falta-uno/show.blade.php (nuevo)
+- resources/views/falta-uno/sport-profile/public-show.blade.php
+- resources/views/layouts/app.blade.php
+- resources/views/profile/edit.blade.php
+- resources/views/reservations/my.blade.php
+- resources/views/notifications/index.blade.php (nuevo)
+- resources/views/venues/index.blade.php

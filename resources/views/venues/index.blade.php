@@ -972,6 +972,16 @@
 
   {{-- ── SEARCH RESULTS PANEL (solo cuando hay filtros activos) ─────────── --}}
   @if($hasFilters)
+    @if(($faltaUno ?? false))
+      <div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7); border:1px solid #bbf7d0; border-radius:16px; padding:14px 18px; margin-bottom:18px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+        <span style="font-size:22px;">⚡</span>
+        <div style="flex:1;">
+          <div style="font-size:14px; font-weight:800; color:#15803d;">Complejos con Falta Uno habilitado</div>
+          <div style="font-size:12px; color:#16a34a; margin-top:2px;">Estos complejos tienen al menos una cancha donde podés crear partidos Falta Uno.</div>
+        </div>
+        <a href="{{ route('falta-uno.index') }}" style="font-size:13px; color:#15803d; font-weight:700; text-decoration:underline;">Ver partidos disponibles →</a>
+      </div>
+    @endif
     <div class="vi-search-results-panel">
       <div class="vi-search-results-header">
         <h2>🔍 Resultados de búsqueda</h2>
@@ -1009,6 +1019,9 @@
                 @endauth
                 @if($venue->zone)
                   <div class="vi-venue-sport-badge">📍 {{ $venue->zone }}</div>
+                @endif
+                @if(($venue->falta_uno_count ?? 0) > 0)
+                  <div style="position:absolute; top:10px; left:10px; background:#4ade80; color:#052e16; font-size:11px; font-weight:800; padding:3px 10px; border-radius:999px; backdrop-filter:blur(4px);">⚡ Falta Uno</div>
                 @endif
               </div>
               <div class="vi-venue-body">

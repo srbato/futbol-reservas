@@ -5,3 +5,16 @@ use Illuminate\Support\Facades\Broadcast;
 Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });
+
+Broadcast::channel('falta-uno.{gameId}', function ($user, $gameId) {
+    $game = \App\Models\FaltaUnoGame::find($gameId);
+    if (!$game) {
+        return false;
+    }
+    return $game->initiator_user_id === $user->id
+        || $game->participants()->where('user_id', $user->id)->where('status', 'confirmed')->exists();
+});
+
+Broadcast::channel('user.{userId}', function ($user, $userId) {
+    return (int) $user->id === (int) $userId;
+});

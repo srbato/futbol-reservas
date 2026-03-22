@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+// FaltaUnoSportProfile used via HasMany relation below
 
 class User extends Authenticatable
 {
@@ -107,5 +108,15 @@ class User extends Authenticatable
     public function pendingStaffInvitations()
     {
         return $this->hasMany(VenueStaffInvitation::class)->where('status', 'pending');
+    }
+
+    public function faltaUnoSportProfiles(): HasMany
+    {
+        return $this->hasMany(FaltaUnoSportProfile::class);
+    }
+
+    public function sportProfileFor(string $sport): ?FaltaUnoSportProfile
+    {
+        return $this->faltaUnoSportProfiles()->where('sport', $sport)->first();
     }
 }

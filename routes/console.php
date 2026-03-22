@@ -31,3 +31,15 @@ Schedule::command('reservations:purge-dead')
 Schedule::command('falta-uno:process-expired')
     ->everyFiveMinutes()
     ->withoutOverlapping();
+
+Schedule::command('falta-uno:send-reminders')
+    ->everyFiveMinutes()
+    ->withoutOverlapping();
+
+Schedule::command('falta-uno:purge-chats')
+    ->hourly()
+    ->withoutOverlapping();
+
+Schedule::command('falta-uno:notify-post-game')
+    ->everyFiveMinutes()
+    ->withoutOverlapping();

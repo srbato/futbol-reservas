@@ -11,6 +11,14 @@ class FaltaUnoParticipant extends Model
         'game_id',
         'user_id',
         'status',
+        'goals',
+        'assists',
+        'result',
+        'stats_submitted_at',
+    ];
+
+    protected $casts = [
+        'stats_submitted_at' => 'datetime',
     ];
 
     public function game(): BelongsTo

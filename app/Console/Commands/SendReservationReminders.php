@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Mail\ReservationReminderMail;
 use App\Models\Reservation;
+use App\Notifications\ReservationReminderNotification;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
@@ -31,6 +32,8 @@ class SendReservationReminders extends Command
 
             Mail::to($reservation->user->email)
                 ->send(new ReservationReminderMail($reservation));
+
+            $reservation->user->notify(new ReservationReminderNotification($reservation));
 
             $reservation->update(['reminder_sent' => true]);
 

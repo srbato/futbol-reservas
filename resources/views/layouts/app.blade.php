@@ -132,6 +132,164 @@
     background: #222 !important;
   }
 
+  /* ── Notificaciones ────────────────────────────────── */
+  .notif-wrap {
+    position: relative;
+  }
+
+  .notif-bell {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 999px;
+    padding: 9px 12px;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    position: relative;
+    gap: 0;
+  }
+
+  .notif-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #e53935;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 999px;
+    min-width: 17px;
+    height: 17px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    border: 2px solid #fff;
+    line-height: 1;
+  }
+
+  .notif-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 340px;
+    background: #fff;
+    border: 1px solid #ececec;
+    border-radius: 16px;
+    box-shadow: 0 10px 28px rgba(0,0,0,.10);
+    display: none;
+    z-index: 200;
+    overflow: hidden;
+  }
+
+  .notif-dropdown.open {
+    display: block;
+  }
+
+  .notif-dropdown-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px 8px 14px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .notif-dropdown-header span {
+    font-size: 13px;
+    font-weight: 700;
+    color: #111;
+  }
+
+  .notif-mark-all {
+    font-size: 12px;
+    color: #555;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline;
+  }
+
+  .notif-mark-all:hover {
+    color: #111;
+  }
+
+  .notif-list {
+    max-height: 340px;
+    overflow-y: auto;
+  }
+
+  .notif-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid #f7f7f7;
+    transition: background .12s;
+    text-decoration: none;
+    color: #111;
+  }
+
+  .notif-item:hover {
+    background: #f9f9f9;
+  }
+
+  .notif-item.unread {
+    background: #f0f7ff;
+  }
+
+  .notif-item.unread:hover {
+    background: #e4f0fd;
+  }
+
+  .notif-icon {
+    font-size: 20px;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .notif-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .notif-title {
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .notif-body {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .notif-time {
+    font-size: 11px;
+    color: #aaa;
+    margin-top: 3px;
+  }
+
+  .notif-empty {
+    padding: 24px 16px;
+    text-align: center;
+    color: #aaa;
+    font-size: 13px;
+  }
+
   .site-main {
     max-width: 1500px;
     margin: 0 auto;
@@ -699,14 +857,67 @@
       <a href="{{ route('home') }}" class="brand">TuCancha</a>
 
       <nav class="site-nav">
-        <a href="{{ route('home') }}">Inicio</a>
-        <a href="{{ route('venues.index') }}">Complejos</a>
-        <a href="{{ route('falta-uno.index') }}">⚡ Falta Uno</a>
+        <a href="{{ route('home') }}"
+           @if(request()->routeIs('home')) style="background:#f4f4f4; font-weight:700;" @endif>Inicio</a>
+        <a href="{{ route('venues.index') }}"
+           @if(request()->routeIs('venues.*')) style="background:#f4f4f4; font-weight:700;" @endif>Complejos</a>
+        <a href="{{ route('falta-uno.index') }}"
+           @if(request()->routeIs('falta-uno.*')) style="background:#111; color:#fff; border-color:#111; font-weight:700;" @endif>⚡ Falta Uno</a>
 
         @auth
           @if(auth()->user()->role === 'user')
             <a href="{{ route('planes') }}">Hacete socio</a>
           @endif
+
+        @php $unreadCount = auth()->user()->unreadNotifications()->count(); @endphp
+        <div class="notif-wrap">
+            <button type="button" class="notif-bell" id="notifBellBtn" onclick="toggleNotifDropdown()" aria-label="Notificaciones">
+                🔔
+                @if($unreadCount > 0)
+                    <span class="notif-badge" id="notifBadge">{{ $unreadCount > 9 ? '9+' : $unreadCount }}</span>
+                @else
+                    <span class="notif-badge" id="notifBadge" style="display:none;">0</span>
+                @endif
+            </button>
+
+            <div id="notifDropdown" class="notif-dropdown">
+                <div class="notif-dropdown-header">
+                    <span>Notificaciones</span>
+                    <form method="POST" action="{{ route('notifications.mark_all_read') }}" style="margin:0;">
+                        @csrf
+                        <button type="submit" class="notif-mark-all">Marcar todas como leídas</button>
+                    </form>
+                </div>
+
+                <div class="notif-list" id="notifList">
+                    @php
+                        $notifications = auth()->user()->notifications()->latest()->limit(5)->get();
+                    @endphp
+
+                    @forelse($notifications as $notif)
+                        <form method="POST" action="{{ route('notifications.read', $notif->id) }}" style="margin:0;">
+                            @csrf
+                            <button type="submit" class="notif-item {{ $notif->read_at ? '' : 'unread' }}" style="width:100%; text-align:left; border:0; background:transparent; font-family:inherit;">
+                                <span class="notif-icon">{{ $notif->data['icon'] ?? '🔔' }}</span>
+                                <span class="notif-content">
+                                    <span class="notif-title">{{ $notif->data['title'] ?? '' }}</span>
+                                    <span class="notif-body">{{ $notif->data['body'] ?? '' }}</span>
+                                    <span class="notif-time">{{ $notif->created_at->diffForHumans() }}</span>
+                                </span>
+                            </button>
+                        </form>
+                    @empty
+                        <div class="notif-empty">Sin notificaciones</div>
+                    @endforelse
+                </div>
+                <div style="border-top:1px solid #f0f0f0; padding:10px 14px; text-align:center;">
+                    <a href="{{ route('notifications.index') }}"
+                       style="font-size:13px; color:#555; text-decoration:none; font-weight:700;">
+                        Ver todas las notificaciones →
+                    </a>
+                </div>
+            </div>
+        </div>
 
         <div class="user-menu-wrap">
             <button type="button" class="user-menu-button" onclick="toggleUserMenu()"
@@ -727,8 +938,7 @@
 
             <div id="userDropdown" class="user-dropdown">
               <a href="{{ route('profile.edit') }}">Perfil</a>
-              <a href="{{ route('my_reservations') }}">Mis reservas</a>
-              <a href="{{ route('match_history') }}">Historial de partidos</a>
+              <a href="{{ route('my_reservations') }}">Mi actividad</a>
               <a href="{{ route('venues.favorites') }}">Favoritos</a>
 
 @if(in_array(auth()->user()->role, ['venue_admin', 'super_admin']) || auth()->user()->isVenueStaff())
@@ -766,19 +976,76 @@
       const menu = document.getElementById('userDropdown');
       if (!menu) return;
       menu.classList.toggle('open');
+      // cerrar notificaciones si está abierto
+      document.getElementById('notifDropdown')?.classList.remove('open');
+    }
+
+    function toggleNotifDropdown() {
+      const dropdown = document.getElementById('notifDropdown');
+      if (!dropdown) return;
+      dropdown.classList.toggle('open');
+      // cerrar user menu si está abierto
+      document.getElementById('userDropdown')?.classList.remove('open');
     }
 
     document.addEventListener('click', function (event) {
-      const wrap = document.querySelector('.user-menu-wrap');
-      const menu = document.getElementById('userDropdown');
+      const userWrap  = document.querySelector('.user-menu-wrap');
+      const userMenu  = document.getElementById('userDropdown');
+      const notifWrap = document.querySelector('.notif-wrap');
+      const notifMenu = document.getElementById('notifDropdown');
 
-      if (!wrap || !menu) return;
-
-      if (!wrap.contains(event.target)) {
-        menu.classList.remove('open');
+      if (userWrap && userMenu && !userWrap.contains(event.target)) {
+        userMenu.classList.remove('open');
+      }
+      if (notifWrap && notifMenu && !notifWrap.contains(event.target)) {
+        notifMenu.classList.remove('open');
       }
     });
   </script>
+
+@auth
+  <script src="https://js.pusher.com/8.4.0/pusher.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/laravel-echo@1.16.1/dist/echo.iife.js"></script>
+  <script>
+    (function () {
+      const wsHost    = '{{ env("REVERB_CLIENT_HOST", env("REVERB_HOST", "localhost")) }}';
+      const wsPort    = {{ env("REVERB_CLIENT_PORT", env("REVERB_PORT", 443)) }};
+      const reverbKey = '{{ config("broadcasting.connections.reverb.key") }}';
+
+      if (!reverbKey) return;
+
+      const echo = new Echo({
+        broadcaster: 'reverb',
+        key: reverbKey,
+        wsHost: wsHost,
+        wsPort: wsPort,
+        wssPort: wsPort,
+        forceTLS: true,
+        enabledTransports: ['ws'],
+        authEndpoint: '/broadcasting/auth',
+        auth: {
+          headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+          },
+        },
+      });
+
+      echo.private('user.{{ auth()->id() }}')
+        .listen('.notification.created', function (data) {
+          const count = data.unread_count ?? 0;
+          const badge = document.getElementById('notifBadge');
+          if (!badge) return;
+
+          if (count > 0) {
+            badge.textContent = count > 9 ? '9+' : count;
+            badge.style.display = 'flex';
+          } else {
+            badge.style.display = 'none';
+          }
+        });
+    })();
+  </script>
+@endauth
 
 
 @auth
@@ -818,8 +1085,11 @@
     </div>
 
     <script>
-      (function() {
-        fetch(`/system-messages/{{ $activeSystemMessage->id }}/dismiss`, {
+      function dismissSystemMessage(messageId) {
+        const modal = document.getElementById('systemMessageModal');
+        if (modal) modal.remove();
+
+        fetch(`/system-messages/${messageId}/dismiss`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -827,11 +1097,6 @@
             'Accept': 'application/json'
           }
         });
-      })();
-
-      function dismissSystemMessage(messageId) {
-        const modal = document.getElementById('systemMessageModal');
-        if (modal) modal.remove();
       }
     </script>
   @endif

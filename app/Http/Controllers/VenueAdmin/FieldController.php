@@ -6,9 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Field;
 use App\Models\FieldPrice;
 use App\Models\MembershipPlan;
+use App\Models\Reservation;
 use App\Models\Venue;
+use App\Services\MercadoPagoRefundService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
 class FieldController extends Controller
@@ -157,7 +161,7 @@ class FieldController extends Controller
         return redirect()->route('va.dashboard');
     }
 
-    public function toggleActive(Request $request, Field $field)
+    public function toggleActive(Request $request, Field $field, MercadoPagoRefundService $refundService)
     {
         $user = $request->user();
         $field->load('venue');
@@ -189,10 +193,69 @@ class FieldController extends Controller
             }
         }
 
+        // --- Lógica de desactivación con verificación de reservas futuras ---
+        if ($field->is_active) {
+            $futureReservations = Reservation::where('field_id', $field->id)
+                ->where('start_at', '>', now())
+                ->whereIn('status', ['PAID', 'PENDING_PAYMENT'])
+                ->with('user')
+                ->orderBy('start_at')
+                ->get();
+
+            // Si hay reservas futuras y no viene confirmación explícita, pedimos confirmación
+            if ($futureReservations->isNotEmpty() && !$request->boolean('confirmed')) {
+                $reservationsData = $futureReservations->map(fn($r) => [
+                    'id'           => $r->id,
+                    'date'         => $r->start_at->format('d/m/Y'),
+                    'time'         => $r->start_at->format('H:i') . '–' . $r->end_at->format('H:i'),
+                    'user_name'    => $r->user?->name ?? 'Sin nombre',
+                    'status'       => $r->status,
+                    'total_amount' => $r->total_amount,
+                    'currency'     => $r->currency,
+                ]);
+
+                return response()->json([
+                    'requires_confirmation' => true,
+                    'field_name'            => $field->name,
+                    'reservations'          => $reservationsData,
+                    'total_amount'          => $futureReservations->sum('total_amount'),
+                    'currency'              => $futureReservations->first()->currency,
+                ]);
+            }
+
+            // Tiene confirmación: procesar reembolsos si corresponde
+            if ($futureReservations->isNotEmpty() && $request->boolean('refund')) {
+                foreach ($futureReservations as $reservation) {
+                    $refundResult = $refundService->refund($reservation);
+
+                    if ($refundResult === false) {
+                        // El reembolso falló: anotarlo en notas para gestión manual
+                        $reservation->notes = trim(($reservation->notes ?? '') . "\n[REEMBOLSO PENDIENTE] Cancha desactivada el " . now()->format('d/m/Y H:i') . '. Procesar manualmente.');
+                    }
+
+                    $reservation->update([
+                        'status'     => 'CANCELLED',
+                        'expires_at' => null,
+                        'notes'      => $reservation->notes,
+                    ]);
+
+                    Log::info('Reserva cancelada por desactivación de cancha', [
+                        'reservation_id' => $reservation->id,
+                        'field_id'       => $field->id,
+                        'refund_result'  => $refundResult,
+                    ]);
+                }
+            }
+        }
+
         $field->is_active = !$field->is_active;
         $field->save();
 
         $estado = $field->is_active ? 'activada' : 'desactivada';
+
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true, 'message' => "La cancha \"{$field->name}\" fue {$estado}."]);
+        }
 
         return redirect()->route('va.dashboard')
             ->with('success', "La cancha \"{$field->name}\" fue {$estado}.");

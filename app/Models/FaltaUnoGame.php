@@ -16,14 +16,21 @@ class FaltaUnoGame extends Model
         'initiator_players',
         'players_needed',
         'status',
+        'gender_filter',
+        'category_min',
+        'category_max',
+        'reminder_sent_at',
+        'post_game_notified_at',
         'start_at',
         'amount_paid',
         'cancelled_at',
     ];
 
     protected $casts = [
-        'start_at'     => 'datetime',
-        'cancelled_at' => 'datetime',
+        'start_at'          => 'datetime',
+        'cancelled_at'           => 'datetime',
+        'reminder_sent_at'       => 'datetime',
+        'post_game_notified_at'  => 'datetime',
         'amount_paid'  => 'decimal:2',
     ];
 
@@ -51,6 +58,44 @@ class FaltaUnoGame extends Model
     {
         return $this->hasMany(FaltaUnoParticipant::class, 'game_id')
             ->where('status', 'confirmed');
+    }
+
+    public function messages(): HasMany
+    {
+        return $this->hasMany(FaltaUnoMessage::class, 'game_id');
+    }
+
+    public function ratings(): HasMany
+    {
+        return $this->hasMany(FaltaUnoRating::class, 'game_id');
+    }
+
+    /** Verifica si una categoría cae dentro del rango [category_min, category_max] del partido */
+    public function isInCategoryRange(string $category): bool
+    {
+        if (!$this->category_min && !$this->category_max) {
+            return true;
+        }
+
+        $cats   = FaltaUnoSportProfile::getCategoriesForSport($this->field->sport);
+        $userIdx = array_search($category, $cats);
+
+        if ($userIdx === false) {
+            return true; // categoría desconocida, permitir
+        }
+
+        $minSearch = $this->category_min ? array_search($this->category_min, $cats) : false;
+        $maxSearch = $this->category_max ? array_search($this->category_max, $cats) : false;
+        $minIdx = $minSearch !== false ? $minSearch : 0;
+        $maxIdx = $maxSearch !== false ? $maxSearch : count($cats) - 1;
+
+        return $userIdx >= $minIdx && $userIdx <= $maxIdx;
+    }
+
+    /** Si el partido ya terminó (la hora de inicio ya pasó) */
+    public function isFinished(): bool
+    {
+        return $this->start_at->lt(now());
     }
 
     /** Jugadores confirmados = los del iniciador + los que se unieron */

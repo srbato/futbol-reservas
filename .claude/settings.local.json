@@ -2,7 +2,17 @@
   "permissions": {
     "allow": [
       "Bash(cd:*)",
-      "Bash(php artisan:*)"
+      "Bash(php artisan:*)",
+      "Bash(composer require:*)",
+      "Bash(git -C /c/Users/Santi/futbol-reservas add CAMBIOS.txt app/Http/Controllers/Auth/AuthenticatedSessionController.php app/Http/Controllers/Auth/RegisteredUserController.php app/Http/Controllers/Auth/GoogleAuthController.php app/Models/User.php composer.json composer.lock config/services.php resources/views/auth/login.blade.php resources/views/auth/register.blade.php routes/web.php database/migrations/2026_03_19_175440_add_google_id_to_users_table.php lang/)",
+      "Bash(git -C:*)",
+      "Bash(python3 -c \":*)",
+      "Bash(git checkout:*)",
+      "Bash(ls /c/Users/Santi/futbol-reservas/app/Models/FaltaUno*)",
+      "Bash(grep -A5 \"function falta\\\\|function profile\\\\|protected $fillable\")",
+      "Bash(*)",
+      "Write(*)",
+      "Edit(*)"
     ]
   }
 }

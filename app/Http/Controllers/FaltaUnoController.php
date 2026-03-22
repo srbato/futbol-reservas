@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\FaltaUnoParticipantJoined;
+use App\Jobs\NotifyFaltaUnoCreated;
 use App\Mail\FaltaUnoCancelledMail;
 use App\Mail\FaltaUnoJoinedMail;
 use App\Mail\FaltaUnoFullMail;
@@ -9,6 +11,9 @@ use App\Models\FaltaUnoGame;
 use App\Models\FaltaUnoParticipant;
 use App\Models\Field;
 use App\Models\Venue;
+use App\Notifications\FaltaUnoCancelledNotification;
+use App\Notifications\FaltaUnoGameFullNotification;
+use App\Notifications\FaltaUnoPlayerJoinedNotification;
 use App\Services\ReservationService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -24,7 +29,9 @@ class FaltaUnoController extends Controller
      */
     public function index(Request $request)
     {
-        $sport = $request->query('sport');
+        $sport    = $request->query('sport');
+        $gender   = $request->query('gender');
+        $category = $request->query('category');
 
         $games = FaltaUnoGame::with([
                 'field.venue',
@@ -36,10 +43,38 @@ class FaltaUnoController extends Controller
             ->whereHas('reservation', fn($q) => $q->where('status', 'PAID'))
             ->where('start_at', '>', now())
             ->when($sport, fn($q) => $q->whereHas('field', fn($q2) => $q2->where('sport', $sport)))
+            ->when($gender, fn($q) => $q->where(fn($q2) => $q2->where('gender_filter', $gender)->orWhere('gender_filter', 'mixed')))
             ->orderBy('start_at')
-            ->get();
+            ->get()
+            ->when($category, fn($coll) => $coll->filter(fn($game) => $game->isInCategoryRange($category)));
 
-        return view('falta-uno.index', compact('games', 'sport'));
+        return view('falta-uno.index', compact('games', 'sport', 'gender', 'category'));
+    }
+
+    /**
+     * Hub de detalle del partido.
+     */
+    public function show(FaltaUnoGame $game)
+    {
+        $game->load([
+            'field.venue',
+            'field.faltaUnoSetting',
+            'activeParticipants.user',
+            'initiator',
+            'reservation',
+            'ratings',
+        ]);
+
+        $userId      = auth()->id();
+        $isInitiator = $userId && $game->initiator_user_id === $userId;
+        $isJoined    = $userId && $game->activeParticipants->contains('user_id', $userId);
+        $isParticipant = $isInitiator || $isJoined;
+
+        $yaCalifico = $userId
+            ? \App\Models\FaltaUnoRating::where('game_id', $game->id)->where('rater_user_id', $userId)->exists()
+            : false;
+
+        return view('falta-uno.show', compact('game', 'isInitiator', 'isJoined', 'isParticipant', 'yaCalifico'));
     }
 
     /**
@@ -71,6 +106,9 @@ class FaltaUnoController extends Controller
             'start_at'          => ['required', 'date', 'after:now'],
             'total_players'     => ['required', 'integer', 'min:2', 'max:100'],
             'initiator_players' => ['required', 'integer', 'min:1'],
+            'gender_filter'     => ['nullable', 'in:male,female,mixed'],
+            'category_min'      => ['nullable', 'string'],
+            'category_max'      => ['nullable', 'string'],
         ]);
 
         $totalPlayers     = (int) $data['total_players'];
@@ -113,9 +151,14 @@ class FaltaUnoController extends Controller
                 'status'            => 'open',
                 'start_at'          => $start,
                 'amount_paid'       => $amountToPay,
+                'gender_filter'     => $data['gender_filter'] ?? 'mixed',
+                'category_min'      => $data['category_min'] ?: null,
+                'category_max'      => $data['category_max'] ?: null,
             ]);
 
             DB::commit();
+
+            NotifyFaltaUnoCreated::dispatch($game);
 
         } catch (\Throwable $e) {
             DB::rollBack();
@@ -149,6 +192,26 @@ class FaltaUnoController extends Controller
             return back()->with('error', 'Sos el iniciador del partido.');
         }
 
+        // Check sport profile
+        $game->loadMissing('field');
+        $sport   = $game->field->sport;
+        $profile = $user->sportProfileFor($sport);
+
+        if (!$profile) {
+            return redirect('/profile#sport-profile')
+                ->with('error', 'Completá tu perfil deportivo para poder unirte a partidos Falta Uno.');
+        }
+
+        if ($game->gender_filter !== 'mixed' && $profile->gender !== $game->gender_filter) {
+            $genderLabel = $game->gender_filter === 'male' ? 'masculino' : 'femenino';
+            return back()->with('error', "Este partido es solo para jugadores de género {$genderLabel}.");
+        }
+
+        if (($game->category_min || $game->category_max) && !$game->isInCategoryRange($profile->category)) {
+            $range = ucfirst($game->category_min ?? 'cualquiera') . ' – ' . ucfirst($game->category_max ?? 'cualquiera');
+            return back()->with('error', "Este partido acepta categorías {$range}. Tu categoría es {$profile->category}.");
+        }
+
         $alreadyJoined = FaltaUnoParticipant::where('game_id', $game->id)
             ->where('user_id', $user->id)
             ->where('status', 'confirmed')
@@ -168,13 +231,18 @@ class FaltaUnoController extends Controller
             // Notificar al iniciador
             $game->loadMissing('initiator');
             Mail::to($game->initiator->email)->send(new FaltaUnoJoinedMail($game, $user));
+            $game->initiator->notify(new FaltaUnoPlayerJoinedNotification($game, $user));
 
             // Si se completó el partido, actualizar status y notificar
             if ($game->isFull()) {
                 $game->update(['status' => 'full']);
                 Mail::to($game->initiator->email)->send(new FaltaUnoFullMail($game));
+                $game->initiator->notify(new FaltaUnoGameFullNotification($game));
             }
         });
+
+        $game->load('activeParticipants');
+        broadcast(new FaltaUnoParticipantJoined($game));
 
         return back()->with('success', '¡Te anotaste! Presentate en el complejo el día del partido.');
     }
@@ -204,6 +272,7 @@ class FaltaUnoController extends Controller
                 foreach ($game->activeParticipants as $participant) {
                     Mail::to($participant->user->email)
                         ->send(new FaltaUnoCancelledMail($game, $participant->user));
+                    $participant->user->notify(new FaltaUnoCancelledNotification($game));
                 }
             }
 

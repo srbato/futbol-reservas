@@ -45,6 +45,12 @@ use App\Http\Controllers\VenueStaffInvitationController;
 use App\Http\Controllers\VenueAdmin\VenueStaffController as VaVenueStaffController;
 use App\Http\Controllers\VenueAdmin\FaltaUnoSettingController as VaFaltaUnoSettingController;
 use App\Http\Controllers\FaltaUnoController;
+use App\Http\Controllers\FaltaUnoSportProfileController;
+use App\Http\Controllers\FaltaUnoProfilePublicController;
+use App\Http\Controllers\FaltaUnoChatController;
+use App\Http\Controllers\FaltaUnoStatsController;
+use App\Http\Controllers\FaltaUnoRatingController;
+use App\Http\Controllers\NotificationController;
 use App\Models\MembershipPlan;
 
 
@@ -79,7 +85,7 @@ Route::get('/planes', function () {
 })->name('planes');
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    return redirect()->route('my_reservations');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 /*
@@ -129,6 +135,7 @@ Route::middleware(['auth', 'active.user'])->group(function () {
 Route::get('/venues', [VenueController::class, 'index'])->name('venues.index');
 Route::get('/venues/{venue}', [VenueController::class, 'show'])->name('venues.show');
 Route::get('/falta-uno', [FaltaUnoController::class, 'index'])->name('falta-uno.index');
+Route::get('/falta-uno/{game}', [FaltaUnoController::class, 'show'])->name('falta-uno.show');
 
 Route::get('/fields/{field}', [FieldController::class, 'show'])->name('fields.show');
 Route::get('/fields/{field}/availability', [AvailabilityController::class, 'show'])->name('fields.availability');
@@ -181,11 +188,38 @@ Route::middleware(['auth', 'active.user'])->group(function () {
     Route::get('/staff/invitations/{token}/accept', [VenueStaffInvitationController::class, 'accept'])->name('staff.invitations.accept');
     Route::get('/staff/invitations/{token}/reject', [VenueStaffInvitationController::class, 'reject'])->name('staff.invitations.reject');
 
-    // Falta Uno
+    // Falta Uno — partidos
     Route::get('/fields/{field}/falta-uno/create', [FaltaUnoController::class, 'create'])->name('falta-uno.create');
     Route::post('/fields/{field}/falta-uno', [FaltaUnoController::class, 'store'])->name('falta-uno.store');
     Route::post('/falta-uno/{game}/join', [FaltaUnoController::class, 'join'])->name('falta-uno.join');
     Route::post('/falta-uno/{game}/cancel', [FaltaUnoController::class, 'cancel'])->name('falta-uno.cancel');
+
+    // Perfil deportivo propio
+    Route::get('/mi-perfil-deportivo', [FaltaUnoSportProfileController::class, 'index'])->name('sport-profile.index');
+    Route::get('/mi-perfil-deportivo/crear', [FaltaUnoSportProfileController::class, 'create'])->name('sport-profile.create');
+    Route::post('/mi-perfil-deportivo', [FaltaUnoSportProfileController::class, 'store'])->name('sport-profile.store');
+    Route::get('/mi-perfil-deportivo/{sport}/editar', [FaltaUnoSportProfileController::class, 'edit'])->name('sport-profile.edit');
+    Route::put('/mi-perfil-deportivo/{sport}', [FaltaUnoSportProfileController::class, 'update'])->name('sport-profile.update');
+
+    // Perfil deportivo público
+    Route::get('/jugadores/{user}/perfil', [FaltaUnoProfilePublicController::class, 'show'])->name('sport-profile.public');
+
+    // Chat
+    Route::get('/falta-uno/{game}/chat', [FaltaUnoChatController::class, 'index'])->name('falta-uno.chat');
+    Route::post('/falta-uno/{game}/chat', [FaltaUnoChatController::class, 'store'])->name('falta-uno.chat.store');
+
+    // Stats personales
+    Route::get('/falta-uno/{game}/stats', [FaltaUnoStatsController::class, 'create'])->name('falta-uno.stats');
+    Route::post('/falta-uno/{game}/stats', [FaltaUnoStatsController::class, 'store'])->name('falta-uno.stats.store');
+
+    // Calificaciones
+    Route::get('/falta-uno/{game}/calificar', [FaltaUnoRatingController::class, 'create'])->name('falta-uno.rate');
+    Route::post('/falta-uno/{game}/calificar', [FaltaUnoRatingController::class, 'store'])->name('falta-uno.rate.store');
+
+    // Notificaciones internas
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.mark_all_read');
 
     Route::post('/referral/redeem-reservation/{reservation}', [ReferralController::class, 'redeemReservation'])
         ->middleware(['throttle:5,1', 'role:super_admin'])
@@ -295,6 +329,7 @@ Route::get('/reservation-success/{reservation}', function (\App\Models\Reservati
                     $reservation->loadMissing(['user', 'field.venue.owner']);
                     \Illuminate\Support\Facades\Mail::to($reservation->user->email)
                         ->send(new \App\Mail\ReservationPaidMail($reservation));
+                    $reservation->user->notify(new \App\Notifications\ReservationConfirmedNotification($reservation));
                     $venueOwner = $reservation->field->venue->owner;
                     if ($venueOwner?->email) {
                         \Illuminate\Support\Facades\Mail::to($venueOwner->email)

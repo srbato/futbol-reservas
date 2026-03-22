@@ -30,6 +30,16 @@ class MyReservationsController extends Controller
             ->filter(fn($b) => $b->reservations->whereNotIn('status', ['CANCELLED', 'EXPIRED'])->isNotEmpty())
             ->values();
 
-        return view('reservations.my', compact('reservations', 'batches'));
+        $misPartidos = \App\Models\FaltaUnoGame::with(['field.venue', 'activeParticipants'])
+            ->where(function($q) use ($userId) {
+                $q->where('initiator_user_id', $userId)
+                  ->orWhereHas('participants', fn($q2) => $q2->where('user_id', $userId)->where('status', 'confirmed'));
+            })
+            ->whereIn('status', ['open', 'full', 'expired', 'cancelled'])
+            ->orderByDesc('start_at')
+            ->limit(20)
+            ->get();
+
+        return view('reservations.my', compact('reservations', 'batches', 'misPartidos'));
     }
 }

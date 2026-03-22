@@ -432,6 +432,63 @@
           <p class="fu-hint">Los demás se unen desde la plataforma y pagan en el complejo.</p>
         </div>
 
+        <div class="fu-divider"></div>
+
+        {{-- Filtro de género --}}
+        <div class="fu-input-group">
+          <label class="fu-label">
+            <span class="fu-label-icon">👤</span> Género de los jugadores
+          </label>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            @foreach(['mixed'=>'Mixto', 'male'=>'Solo masculino', 'female'=>'Solo femenino'] as $val => $gLabel)
+              <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:13px; font-weight:600; color:#555;">
+                <input type="radio" name="gender_filter" value="{{ $val }}"
+                       {{ old('gender_filter', 'mixed') === $val ? 'checked' : '' }}>
+                {{ $gLabel }}
+              </label>
+            @endforeach
+          </div>
+          <p class="fu-hint">Solo jugadores con el género seleccionado podrán unirse.</p>
+        </div>
+
+        <div class="fu-divider"></div>
+
+        {{-- Filtro de categoría (rango) --}}
+        @php $sportCategories = \App\Models\FaltaUnoSportProfile::getCategoriesForSport($field->sport); @endphp
+        <div class="fu-input-group">
+          <label class="fu-label">
+            <span class="fu-label-icon">🏅</span> Rango de categorías aceptadas
+          </label>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <div style="flex:1;">
+              <div style="font-size:11px; color:#aaa; font-weight:600; margin-bottom:4px; text-transform:uppercase; letter-spacing:.05em;">Desde</div>
+              <select id="category_min" name="category_min" class="form-control" style="width:100%; font-size:14px;" onchange="syncCategoryMax()">
+                <option value="">Cualquiera</option>
+                @foreach($sportCategories as $cat)
+                  <option value="{{ $cat }}" {{ old('category_min') === $cat ? 'selected' : '' }}>
+                    {{ ucfirst($cat) }}
+                  </option>
+                @endforeach
+              </select>
+            </div>
+            <div style="font-size:20px; color:#ccc; padding-top:18px;">→</div>
+            <div style="flex:1;">
+              <div style="font-size:11px; color:#aaa; font-weight:600; margin-bottom:4px; text-transform:uppercase; letter-spacing:.05em;">Hasta</div>
+              <select id="category_max" name="category_max" class="form-control" style="width:100%; font-size:14px;" onchange="syncCategoryMin()">
+                <option value="">Cualquiera</option>
+                @foreach($sportCategories as $cat)
+                  <option value="{{ $cat }}" {{ old('category_max') === $cat ? 'selected' : '' }}>
+                    {{ ucfirst($cat) }}
+                  </option>
+                @endforeach
+              </select>
+            </div>
+          </div>
+          <p class="fu-hint">Dejá ambos en "Cualquiera" para aceptar jugadores de todo nivel.</p>
+        </div>
+
+        <div class="fu-divider"></div>
+
         {{-- Preview --}}
         <div class="fu-preview" id="fuPreview">
           <p class="fu-preview-title">Resumen del partido</p>
@@ -504,9 +561,16 @@
     recalculate();
   }
 
-  // Consulta el precio real del slot a la API de disponibilidad
+  let slotAvailable = true;
+
+  // Consulta el precio real del slot y verifica disponibilidad
   function fetchSlotPrice(dateTimeStr) {
     clearTimeout(fetchTimer);
+
+    // Limpiar error de disponibilidad previo
+    const errEl = document.getElementById('slotAvailError');
+    if (errEl) errEl.remove();
+
     fetchTimer = setTimeout(async () => {
       try {
         const dt   = new Date(dateTimeStr);
@@ -517,8 +581,37 @@
         const data = await res.json();
 
         const slot = (data.slots || []).find(s => s.start_at === time);
-        currentSlotPrice = slot ? slot.price : FALLBACK_PRICE;
+
+        if (slot && slot.available === false) {
+          slotAvailable = false;
+          currentSlotPrice = slot.price ?? FALLBACK_PRICE;
+
+          // Mostrar error inline
+          let errDiv = document.getElementById('slotAvailError');
+          if (!errDiv) {
+            errDiv = document.createElement('div');
+            errDiv.id = 'slotAvailError';
+            errDiv.className = 'fu-error';
+            errDiv.style.marginTop = '8px';
+            document.getElementById('start_at').closest('.fu-input-group').appendChild(errDiv);
+          }
+          errDiv.textContent = 'Este horario no está disponible. Por favor elegí otro.';
+
+          // Deshabilitar submit
+          document.querySelector('.fu-submit').disabled = true;
+          document.querySelector('.fu-submit').style.opacity = '0.5';
+          document.querySelector('.fu-submit').style.cursor = 'not-allowed';
+        } else {
+          slotAvailable = true;
+          currentSlotPrice = (slot && slot.price) ? slot.price : FALLBACK_PRICE;
+
+          // Habilitar submit
+          document.querySelector('.fu-submit').disabled = false;
+          document.querySelector('.fu-submit').style.opacity = '1';
+          document.querySelector('.fu-submit').style.cursor = 'pointer';
+        }
       } catch {
+        slotAvailable = true;
         currentSlotPrice = FALLBACK_PRICE;
       }
       recalculate();
@@ -554,6 +647,35 @@
   });
 
   recalculate();
+
+  // Sincroniza selects de categoría: min no puede superar max y viceversa
+  const CATEGORY_ORDER = @json($sportCategories);
+
+  function catIndex(val) {
+    return val === '' ? -1 : CATEGORY_ORDER.indexOf(val);
+  }
+
+  function syncCategoryMax() {
+    const minSel = document.getElementById('category_min');
+    const maxSel = document.getElementById('category_max');
+    const minIdx = catIndex(minSel.value);
+    if (minIdx === -1) return;
+    const maxIdx = catIndex(maxSel.value);
+    if (maxIdx !== -1 && maxIdx < minIdx) {
+      maxSel.value = minSel.value;
+    }
+  }
+
+  function syncCategoryMin() {
+    const minSel = document.getElementById('category_min');
+    const maxSel = document.getElementById('category_max');
+    const maxIdx = catIndex(maxSel.value);
+    if (maxIdx === -1) return;
+    const minIdx = catIndex(minSel.value);
+    if (minIdx !== -1 && minIdx > maxIdx) {
+      minSel.value = maxSel.value;
+    }
+  }
 </script>
 
 @endsection

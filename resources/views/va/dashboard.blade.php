@@ -672,14 +672,18 @@
                 <div style="display:flex; gap:6px; align-items:center; flex-shrink:0; flex-wrap:wrap;">
                   <a href="{{ route('va.fields.edit', $f) }}" class="field-link">Editar</a>
                   <a href="{{ route('va.schedule.edit', $f) }}" class="field-link">Horarios</a>
-                  <form method="POST" action="{{ route('va.fields.toggle_active', $f) }}" style="margin:0;">
-                    @csrf
-                    @if($f->is_active)
-                      <button type="submit" class="toggle-active-btn deactivate">Desactivar</button>
-                    @else
+                  @if($f->is_active)
+                    <button
+                      type="button"
+                      class="toggle-active-btn deactivate"
+                      onclick="handleDeactivate({{ $f->id }}, '{{ addslashes($f->name) }}', '{{ route('va.fields.toggle_active', $f) }}')"
+                    >Desactivar</button>
+                  @else
+                    <form method="POST" action="{{ route('va.fields.toggle_active', $f) }}" style="margin:0;">
+                      @csrf
                       <button type="submit" class="toggle-active-btn activate">Activar</button>
-                    @endif
-                  </form>
+                    </form>
+                  @endif
                 </div>
               </div>
             @endforeach
@@ -899,6 +903,58 @@
     </div>
   @endif
 
+  {{-- ── MODAL: Confirmar desactivación de cancha con reservas activas ── --}}
+  <div id="deactivate-modal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,.5); align-items:center; justify-content:center; padding:16px;">
+    <div style="background:#fff; border-radius:20px; width:100%; max-width:540px; box-shadow:0 20px 60px rgba(0,0,0,.2); overflow:hidden;">
+
+      {{-- Header --}}
+      <div style="padding:24px 28px 0;">
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
+          <div>
+            <div style="font-size:18px; font-weight:800; color:#111; margin-bottom:4px;">Esta cancha tiene reservas activas</div>
+            <div id="deactivate-modal-subtitle" style="font-size:13px; color:#888;"></div>
+          </div>
+          <button onclick="closeDeactivateModal()" style="background:none; border:none; cursor:pointer; padding:4px; color:#aaa; font-size:20px; line-height:1; flex-shrink:0;">&times;</button>
+        </div>
+      </div>
+
+      {{-- Lista de reservas --}}
+      <div style="padding:16px 28px 0;">
+        <div style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:#999; margin-bottom:8px;">Reservas afectadas</div>
+        <div id="deactivate-reservations-list" style="max-height:220px; overflow-y:auto; border:1px solid #f0f0f0; border-radius:12px;">
+          {{-- Se rellena por JS --}}
+        </div>
+      </div>
+
+      {{-- Totales --}}
+      <div style="padding:12px 28px 0;">
+        <div id="deactivate-total-summary" style="font-size:13px; color:#555; background:#f8f8f8; border-radius:10px; padding:10px 14px;"></div>
+      </div>
+
+      {{-- Toggle reembolso --}}
+      <div style="padding:16px 28px 0;">
+        <label style="display:flex; align-items:center; gap:12px; cursor:pointer; padding:14px 16px; border:2px solid #f0f0f0; border-radius:12px; transition:border-color .15s;" id="refund-label">
+          <div style="position:relative; flex-shrink:0;">
+            <input type="checkbox" id="refund-toggle" style="position:absolute; opacity:0; width:0; height:0;" onchange="updateRefundToggle()">
+            <div id="refund-track" style="width:44px; height:24px; background:#ddd; border-radius:999px; transition:background .2s; position:relative;">
+              <div id="refund-thumb" style="position:absolute; top:3px; left:3px; width:18px; height:18px; background:#fff; border-radius:50%; box-shadow:0 1px 4px rgba(0,0,0,.2); transition:left .2s;"></div>
+            </div>
+          </div>
+          <div>
+            <div style="font-weight:700; font-size:14px; color:#111;">Reembolsar automáticamente las reservas pagas</div>
+            <div style="font-size:12px; color:#888; margin-top:2px;">Solo aplica a reservas con estado PAID a través de Mercado Pago</div>
+          </div>
+        </label>
+      </div>
+
+      {{-- Acciones --}}
+      <div style="padding:20px 28px; display:flex; gap:10px; justify-content:flex-end;">
+        <button onclick="closeDeactivateModal()" style="padding:10px 20px; border-radius:10px; border:1px solid #e0e0e0; background:#fff; font-size:14px; font-weight:600; color:#555; cursor:pointer;">Cancelar</button>
+        <button id="confirm-deactivate-btn" onclick="confirmDeactivate()" style="padding:10px 20px; border-radius:10px; border:none; background:#ef4444; color:#fff; font-size:14px; font-weight:700; cursor:pointer;">Desactivar cancha</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     function showTab(tabName) {
       document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
@@ -913,6 +969,136 @@
     document.addEventListener('DOMContentLoaded', () => {
       const saved = localStorage.getItem('va_dashboard_active_tab') || 'resumen';
       showTab(saved);
+    });
+
+    // ── Lógica del modal de desactivación ──────────────────────────────────
+
+    let _deactivateUrl = null;
+    let _deactivateToken = '{{ csrf_token() }}';
+
+    function updateRefundToggle() {
+      const checked = document.getElementById('refund-toggle').checked;
+      const track   = document.getElementById('refund-track');
+      const thumb   = document.getElementById('refund-thumb');
+      const label   = document.getElementById('refund-label');
+      track.style.background = checked ? '#111' : '#ddd';
+      thumb.style.left       = checked ? '23px' : '3px';
+      label.style.borderColor = checked ? '#111' : '#f0f0f0';
+    }
+
+    function closeDeactivateModal() {
+      const modal = document.getElementById('deactivate-modal');
+      modal.style.display = 'none';
+      _deactivateUrl = null;
+    }
+
+    function handleDeactivate(fieldId, fieldName, url) {
+      _deactivateUrl = url;
+
+      // Primer request: verifica si hay reservas futuras
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': _deactivateToken,
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({ confirmed: false }),
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.requires_confirmation) {
+          openDeactivateModal(data);
+        } else if (data.success) {
+          window.location.reload();
+        } else {
+          alert(data.message || 'Ocurrió un error.');
+        }
+      })
+      .catch(() => alert('Error de red. Intentá nuevamente.'));
+    }
+
+    function openDeactivateModal(data) {
+      // Subtítulo
+      document.getElementById('deactivate-modal-subtitle').textContent =
+        '"' + data.field_name + '" tiene ' + data.reservations.length +
+        (data.reservations.length === 1 ? ' reserva activa' : ' reservas activas') + '.';
+
+      // Lista de reservas
+      const list = document.getElementById('deactivate-reservations-list');
+      list.innerHTML = '';
+      data.reservations.forEach((r, i) => {
+        const statusLabel = r.status === 'PAID' ? 'Paga' : 'Pendiente de pago';
+        const statusColor = r.status === 'PAID' ? '#16a34a' : '#d97706';
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex; justify-content:space-between; align-items:center; padding:10px 14px; font-size:13px;' +
+          (i > 0 ? 'border-top:1px solid #f0f0f0;' : '');
+        row.innerHTML =
+          '<div>' +
+            '<span style="font-weight:700; color:#111;">' + r.date + '</span>' +
+            '<span style="color:#888; margin-left:6px;">' + r.time + '</span>' +
+            '<span style="display:block; color:#555; font-size:12px; margin-top:2px;">' + r.user_name + '</span>' +
+          '</div>' +
+          '<div style="text-align:right;">' +
+            '<span style="font-weight:700; color:#111;">' + r.currency + ' ' + Number(r.total_amount).toLocaleString('es-AR') + '</span>' +
+            '<span style="display:block; font-size:11px; font-weight:700; color:' + statusColor + '; margin-top:2px;">' + statusLabel + '</span>' +
+          '</div>';
+        list.appendChild(row);
+      });
+
+      // Total
+      const totalFormatted = Number(data.total_amount).toLocaleString('es-AR', { minimumFractionDigits: 0 });
+      document.getElementById('deactivate-total-summary').innerHTML =
+        '<strong>' + data.reservations.length + '</strong> ' +
+        (data.reservations.length === 1 ? 'reserva afectada' : 'reservas afectadas') +
+        ' &nbsp;·&nbsp; Monto total: <strong>' + data.currency + ' ' + totalFormatted + '</strong>';
+
+      // Reset toggle
+      document.getElementById('refund-toggle').checked = false;
+      updateRefundToggle();
+
+      // Mostrar modal
+      const modal = document.getElementById('deactivate-modal');
+      modal.style.display = 'flex';
+    }
+
+    function confirmDeactivate() {
+      if (!_deactivateUrl) return;
+      const refund = document.getElementById('refund-toggle').checked;
+      const btn = document.getElementById('confirm-deactivate-btn');
+      btn.disabled = true;
+      btn.textContent = 'Procesando...';
+
+      fetch(_deactivateUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': _deactivateToken,
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({ confirmed: true, refund: refund }),
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          closeDeactivateModal();
+          window.location.reload();
+        } else {
+          btn.disabled = false;
+          btn.textContent = 'Desactivar cancha';
+          alert(data.message || 'Ocurrió un error al desactivar la cancha.');
+        }
+      })
+      .catch(() => {
+        btn.disabled = false;
+        btn.textContent = 'Desactivar cancha';
+        alert('Error de red. Intentá nuevamente.');
+      });
+    }
+
+    // Cerrar modal al hacer click en el fondo
+    document.getElementById('deactivate-modal').addEventListener('click', function(e) {
+      if (e.target === this) closeDeactivateModal();
     });
   </script>
 

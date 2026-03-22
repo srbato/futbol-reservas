@@ -182,6 +182,13 @@
       Recurrentes
       <span class="my-tab-count">{{ $batches->count() }}</span>
     </button>
+    <button class="my-tab" onclick="switchTab('historial', this)">
+      Historial
+    </button>
+    <button class="my-tab" onclick="switchTab('faltauno', this)">
+      ⚡ Falta Uno
+      <span class="my-tab-count">{{ $misPartidos->count() }}</span>
+    </button>
   </div>
 
   {{-- ── Panel: turnos individuales ────────────────────────────────── --}}
@@ -406,6 +413,105 @@
           </div>
         </div>
       @endforeach
+    @endif
+  </div>
+
+  {{-- ── Panel: historial ────────────────────────────────── --}}
+  <div id="panel-historial" class="tab-panel">
+    <div class="page-card" style="padding:20px;">
+      <p class="muted" style="margin:0 0 12px;">Tu historial completo de partidos y reservas pasadas.</p>
+      <a href="{{ route('match_history') }}" class="btn btn-primary">Ver historial de partidos →</a>
+    </div>
+  </div>
+
+  {{-- ── Panel: Falta Uno ────────────────────────────────── --}}
+  <div id="panel-faltauno" class="tab-panel">
+    @if($misPartidos->isEmpty())
+      <div class="page-card" style="text-align:center; padding:36px 24px;">
+        <div style="font-size:36px; margin-bottom:10px;">⚡</div>
+        <h3 style="margin:0 0 8px;">No participaste en ningún partido Falta Uno</h3>
+        <p class="muted" style="margin-bottom:14px;">Unite a un partido o creá el tuyo.</p>
+        <a href="{{ route('falta-uno.index') }}" class="btn btn-primary">Ver partidos Falta Uno</a>
+      </div>
+    @else
+      @php
+        $proximosPartidos = $misPartidos->filter(fn($g) => $g->start_at->isFuture());
+        $partidosPasados  = $misPartidos->filter(fn($g) => $g->start_at->isPast());
+        $userId = auth()->id();
+      @endphp
+      @if($proximosPartidos->isNotEmpty())
+        <h3 style="font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:#aaa; margin:0 0 10px;">Próximos</h3>
+        <div style="display:grid; gap:10px; margin-bottom:20px;">
+          @foreach($proximosPartidos as $pg)
+          @php
+            $esIniciador = $pg->initiator_user_id === $userId;
+            $sportLabel  = match($pg->field->sport ?? '') {
+              'football'   => '⚽ Fútbol', 'padel' => '🏓 Pádel',
+              'tennis'     => '🎾 Tenis',  'basketball' => '🏀 Básquet',
+              'volleyball' => '🏐 Vóley',  default => ucfirst($pg->field->sport ?? ''),
+            };
+          @endphp
+          <div style="display:flex; align-items:center; gap:14px; padding:12px 16px; background:#fff; border:1px solid #ececec; border-radius:12px; flex-wrap:wrap; box-shadow:0 2px 6px rgba(0,0,0,.03);">
+            <div style="font-size:22px;">{{ explode(' ', $sportLabel)[0] }}</div>
+            <div style="flex:1; min-width:140px;">
+              <div style="font-weight:700; font-size:14px;">{{ $pg->field->name }} · {{ $pg->field->venue->name }}</div>
+              <div style="font-size:12px; color:#888; margin-top:2px;">
+                {{ $pg->start_at->format('d/m/Y H:i') }} hs
+                @if($esIniciador) · <span style="color:#2563eb;">Organizador</span> @endif
+              </div>
+            </div>
+            <span style="font-size:12px; font-weight:700; padding:3px 10px; border-radius:999px;
+                         background:{{ $pg->status === 'full' ? '#dcfce7' : '#fef9c3' }};
+                         color:{{ $pg->status === 'full' ? '#15803d' : '#854d0e' }};">
+              {{ $pg->status === 'full' ? 'Completo' : 'Buscando jugadores' }}
+            </span>
+            <a href="{{ route('falta-uno.show', $pg) }}"
+               style="font-size:12px; padding:5px 14px; border:1.5px solid #e0e0e0; border-radius:8px; color:#333; text-decoration:none; font-weight:600; white-space:nowrap;">
+              Ver partido
+            </a>
+          </div>
+          @endforeach
+        </div>
+      @endif
+      @if($partidosPasados->isNotEmpty())
+        <h3 style="font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:#aaa; margin:0 0 10px;">Historial</h3>
+        <div style="display:grid; gap:10px;">
+          @foreach($partidosPasados as $pg)
+          @php
+            $esIniciador = $pg->initiator_user_id === $userId;
+            $sportLabel  = match($pg->field->sport ?? '') {
+              'football'   => '⚽ Fútbol', 'padel' => '🏓 Pádel',
+              'tennis'     => '🎾 Tenis',  'basketball' => '🏀 Básquet',
+              'volleyball' => '🏐 Vóley',  default => ucfirst($pg->field->sport ?? ''),
+            };
+            $yaCalifico = App\Models\FaltaUnoRating::where('game_id', $pg->id)
+              ->where('rater_user_id', $userId)->exists();
+          @endphp
+          <div style="display:flex; align-items:center; gap:14px; padding:12px 16px; background:#fff; border:1px solid #ececec; border-radius:12px; flex-wrap:wrap; box-shadow:0 2px 6px rgba(0,0,0,.03);">
+            <div style="font-size:22px; opacity:.6;">{{ explode(' ', $sportLabel)[0] }}</div>
+            <div style="flex:1; min-width:140px;">
+              <div style="font-weight:700; font-size:14px; color:#444;">{{ $pg->field->name }} · {{ $pg->field->venue->name }}</div>
+              <div style="font-size:12px; color:#aaa; margin-top:2px;">
+                {{ $pg->start_at->format('d/m/Y H:i') }} hs
+                @if($esIniciador) · <span style="color:#888;">Organizador</span> @endif
+              </div>
+            </div>
+            <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+              @if(!$yaCalifico)
+                <a href="{{ route('falta-uno.rate', $pg) }}"
+                   style="font-size:12px; padding:5px 12px; background:#fef3c7; border-radius:8px; color:#92400e; text-decoration:none; font-weight:700; white-space:nowrap;">
+                  ★ Calificar
+                </a>
+              @endif
+              <a href="{{ route('falta-uno.show', $pg) }}"
+                 style="font-size:12px; padding:5px 12px; background:#f4f4f4; border-radius:8px; color:#555; text-decoration:none; font-weight:600; white-space:nowrap;">
+                Ver partido
+              </a>
+            </div>
+          </div>
+          @endforeach
+        </div>
+      @endif
     @endif
   </div>
 
