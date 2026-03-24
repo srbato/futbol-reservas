@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('falta_uno_ratings', function (Blueprint $table) {
             $table->dropColumn('score');
-            $table->enum('assessment', ['below', 'match', 'above'])->after('rated_user_id');
+            $table->enum('assessment', ['below', 'match', 'above'])->default('match')->after('rated_user_id');
         });
     }
 
