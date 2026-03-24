@@ -36,7 +36,8 @@ class VenueController extends Controller
                 ->with('error', 'Ya tenés un complejo creado. Solo podés administrar un complejo por cuenta.');
         }
 
-        return view('va.venues.create');
+        $amenitiesList = self::amenitiesList();
+        return view('va.venues.create', compact('amenitiesList'));
     }
 
     public function store(Request $request)
@@ -44,14 +45,19 @@ class VenueController extends Controller
         $user = $request->user();
         abort_if($user->isVenueStaff(), 403);
 
+        $validAmenityKeys = array_keys(self::amenitiesList());
+
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:120'],
-            'description' => ['nullable', 'string', 'max:255'],
-            'cover_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
-            'address' => ['nullable', 'string', 'max:200'],
-            'zone' => ['nullable', 'string', 'max:120'],
-            'lat' => ['nullable', 'numeric', 'between:-90,90'],
-            'lng' => ['nullable', 'numeric', 'between:-180,180'],
+            'name'               => ['required', 'string', 'max:120'],
+            'description'        => ['nullable', 'string', 'max:255'],
+            'cover_image'        => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'address'            => ['nullable', 'string', 'max:200'],
+            'zone'               => ['nullable', 'string', 'max:120'],
+            'lat'                => ['nullable', 'numeric', 'between:-90,90'],
+            'lng'                => ['nullable', 'numeric', 'between:-180,180'],
+            'cancellation_hours' => ['nullable', 'integer', 'min:1', 'max:720'],
+            'amenities'          => ['nullable', 'array'],
+            'amenities.*'        => ['string', 'in:' . implode(',', $validAmenityKeys)],
         ]);
 
         if ($user->role !== 'super_admin' && Venue::where('owner_user_id', $user->id)->exists()) {
@@ -60,14 +66,16 @@ class VenueController extends Controller
         }
 
         $venue = new Venue();
-        $venue->owner_user_id = $user->id;
-        $venue->name = $data['name'];
-        $venue->description = $data['description'] ?? null;
-        $venue->address = $data['address'] ?? null;
-        $venue->zone = $data['zone'] ?? null;
-        $venue->lat = $data['lat'] ?? null;
-        $venue->lng = $data['lng'] ?? null;
-        $venue->is_active = true;
+        $venue->owner_user_id      = $user->id;
+        $venue->name               = $data['name'];
+        $venue->description        = $data['description'] ?? null;
+        $venue->address            = $data['address'] ?? null;
+        $venue->zone               = $data['zone'] ?? null;
+        $venue->lat                = $data['lat'] ?? null;
+        $venue->lng                = $data['lng'] ?? null;
+        $venue->cancellation_hours = $data['cancellation_hours'] ?? null;
+        $venue->amenities          = $data['amenities'] ?? [];
+        $venue->is_active          = true;
 
         if ($request->hasFile('cover_image')) {
             $path = $request->file('cover_image')->store('venues', 'public');
