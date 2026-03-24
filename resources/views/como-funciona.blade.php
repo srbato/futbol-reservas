@@ -9,61 +9,164 @@
   }
 
   .cf-hero-inner {
-    background: linear-gradient(135deg, #111 0%, #1f1f1f 100%);
+    position: relative;
     border-radius: 28px;
-    padding: 52px 48px;
-    color: #fff;
+    overflow: hidden;
+    min-height: 420px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
+    color: #fff;
   }
 
-  .cf-hero-inner h1 {
-    margin: 0 0 14px 0;
-    font-size: 54px;
-    line-height: 1.04;
-    letter-spacing: -0.03em;
+  .cf-hero-bg {
+    position: absolute;
+    inset: 0;
+    background-image: url('/Images/hero-cancha.webp');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    opacity: 0.35;
+    z-index: 0;
   }
 
-  .cf-hero-inner p {
-    margin: 0;
-    color: rgba(255,255,255,.78);
+  @media (max-width: 768px) {
+    .cf-hero-bg {
+      background-attachment: scroll;
+    }
+  }
+
+  .cf-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(10,30,18,0.82) 0%, rgba(15,47,26,0.88) 60%, rgba(10,20,14,0.92) 100%);
+    z-index: 1;
+  }
+
+  .cf-hero-blob-1 {
+    position: absolute;
+    top: -60px;
+    left: -80px;
+    width: 340px;
+    height: 340px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(74,222,128,0.12) 0%, transparent 70%);
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .cf-hero-blob-2 {
+    position: absolute;
+    bottom: -80px;
+    right: -60px;
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(34,197,94,0.1) 0%, transparent 70%);
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .cf-hero-content {
+    position: relative;
+    z-index: 3;
+    padding: 72px 48px;
+    max-width: 800px;
+  }
+
+  .cf-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 18px;
+    border-radius: 999px;
+    background: rgba(74,222,128,0.15);
+    border: 1px solid rgba(74,222,128,0.35);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: #6eeaa0;
+    margin-bottom: 28px;
+  }
+
+  .cf-hero-badge-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #6eeaa0;
+    animation: cf-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes cf-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  .cf-hero-content h1 {
+    margin: 0 0 20px 0;
+    font-size: 68px;
+    line-height: 1.02;
+    letter-spacing: -0.04em;
+  }
+
+  .cf-hero-content h1 em {
+    font-style: normal;
+    color: #6eeaa0;
+  }
+
+  .cf-hero-content p {
+    margin: 0 auto 32px auto;
+    color: rgba(255,255,255,0.76);
     font-size: 19px;
-    line-height: 1.6;
+    line-height: 1.65;
+    max-width: 560px;
+  }
+
+  .cf-hero-pills {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .cf-hero-pill {
+    padding: 10px 20px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.14);
+    backdrop-filter: blur(8px);
+    font-size: 13px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.88);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  @media (max-width: 768px) {
+    .cf-hero-content { padding: 52px 24px; }
+    .cf-hero-content h1 { font-size: 38px; }
+    .cf-hero-content p { font-size: 16px; }
+  }
+
+  @media (max-width: 480px) {
+    .cf-hero { padding: 16px 0 0 0; }
+    .cf-hero-content h1 { font-size: 30px; }
   }
 
   /* ── Flow sections ───────────────────────────────── */
-  .flow-section { padding: 56px 0; }
+  .flow-section { padding: 64px 0; }
 
   .flow-section + .flow-section {
     padding-top: 0;
   }
 
-  /* ── Audience toggle ─────────────────────────────── */
-  .audience-tabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 40px;
-  }
-
-  .audience-tab {
-    padding: 10px 22px;
-    border-radius: 999px;
-    border: 1px solid #e0e0e0;
-    background: #fff;
-    font-size: 14px;
-    font-weight: 700;
-    color: #555;
-    cursor: default;
-  }
-
-  .audience-tab.active {
-    background: #111;
-    color: #fff;
-    border-color: #111;
-  }
-
-  .audience-tab.owner.active {
-    background: #1a3a2a;
-    border-color: #1a3a2a;
+  /* ── Section fondo jugadores ─────────────────────── */
+  .cf-players-section {
+    padding: 72px 0;
+    background: #f7f7f8;
   }
 
   /* ── Steps grid ──────────────────────────────────── */
@@ -74,7 +177,6 @@
     position: relative;
   }
 
-  /* Connecting line between cards */
   .steps-grid::before {
     content: '';
     position: absolute;
@@ -82,7 +184,7 @@
     left: calc(25% + 8px);
     right: calc(25% + 8px);
     height: 2px;
-    background: linear-gradient(to right, #e0e0e0, #e0e0e0);
+    background: linear-gradient(to right, #22c55e33, #22c55e, #22c55e33);
     z-index: 0;
     pointer-events: none;
   }
@@ -90,24 +192,39 @@
   .step-card {
     background: #fff;
     border: 1px solid #ececec;
+    border-left: 4px solid #22c55e;
     border-radius: 20px;
     padding: 28px 22px 24px 22px;
-    box-shadow: 0 2px 12px rgba(0,0,0,.03);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.03);
     transition: transform .2s, box-shadow .2s;
     position: relative;
     z-index: 1;
+    overflow: hidden;
+  }
+
+  .step-card-ghost-num {
+    position: absolute;
+    top: -10px;
+    right: 12px;
+    font-size: 80px;
+    font-weight: 900;
+    line-height: 1;
+    color: rgba(34,197,94,0.07);
+    pointer-events: none;
+    user-select: none;
+    letter-spacing: -0.04em;
   }
 
   .step-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 10px 28px rgba(0,0,0,.09);
+    box-shadow: 0 10px 32px rgba(34,197,94,0.15);
   }
 
   .step-number {
     font-size: 13px;
     font-weight: 800;
     letter-spacing: .06em;
-    color: #bbb;
+    color: #22c55e;
     margin-bottom: 16px;
     display: block;
     text-transform: uppercase;
@@ -134,21 +251,17 @@
     line-height: 1.65;
   }
 
-  /* Owner variant — subtle green accent */
-  .step-card.owner-step {
-    border-color: #d4ede0;
-    background: #fcfffe;
-  }
-
-  .step-card.owner-step .step-number {
-    color: #4ade80;
-  }
-
   /* ── Divider ─────────────────────────────────────── */
   .flow-divider {
     border: none;
     border-top: 1px solid #e8e8e8;
     margin: 0;
+  }
+
+  /* ── Historial section ────────────────────────────── */
+  .cf-historial-section {
+    padding: 72px 0;
+    background: #fff;
   }
 
   /* ── Feature highlight cards ─────────────────────── */
@@ -163,7 +276,25 @@
     border: 1px solid #ececec;
     border-radius: 20px;
     padding: 28px 24px;
-    box-shadow: 0 2px 12px rgba(0,0,0,.03);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+    transition: transform .2s, box-shadow .2s;
+  }
+
+  .feature-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.08);
+  }
+
+  .feature-card-icon-wrap {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: #f0fdf4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    margin-bottom: 16px;
   }
 
   .feature-card-icon {
@@ -180,223 +311,158 @@
 
   .feature-card p {
     margin: 0;
-    color: #666;
+    color: #555;
     font-size: 14px;
-    line-height: 1.65;
+    line-height: 1.7;
   }
 
   .feature-card ul {
-    margin: 10px 0 0 0;
-    padding-left: 18px;
-    color: #666;
+    margin: 12px 0 0 0;
+    padding: 0;
+    list-style: none;
+    color: #555;
     font-size: 14px;
-    line-height: 1.8;
+    line-height: 1.9;
+  }
+
+  .feature-card ul li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .feature-card ul li::before {
+    content: '✓';
+    color: #22c55e;
+    font-weight: 800;
+    flex-shrink: 0;
+    margin-top: 1px;
   }
 
   @media (max-width: 900px) {
     .feature-cards { grid-template-columns: 1fr; }
   }
 
-  /* ── Referral highlight ──────────────────────────── */
-  .cf-referral {
-    padding: 56px 0 0 0;
-  }
-
-  .cf-referral-inner {
-    background: linear-gradient(135deg, #0f4c2a 0%, #1a7a45 100%);
-    border-radius: 28px;
-    padding: 52px 48px;
-    color: #fff;
+  /* ── Sección dueños ──────────────────────────────── */
+  .cf-owners-section {
+    padding: 72px 0;
+    background: #0f1712;
     position: relative;
     overflow: hidden;
   }
 
-  .cf-referral-inner::before {
-    content: '';
+  .cf-owners-bg {
     position: absolute;
-    top: -80px; right: -80px;
-    width: 320px; height: 320px;
-    border-radius: 50%;
-    background: rgba(255,255,255,.05);
-    pointer-events: none;
+    inset: 0;
+    background-image: url('/Images/admin-viendo-telefono-y-complejo.webp');
+    background-size: cover;
+    background-position: center;
+    opacity: 0.08;
+    z-index: 0;
   }
 
-  .cf-referral-inner::after {
-    content: '';
-    position: absolute;
-    bottom: -60px; left: 40px;
-    width: 200px; height: 200px;
-    border-radius: 50%;
-    background: rgba(255,255,255,.04);
-    pointer-events: none;
-  }
-
-  .cf-referral-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 16px;
-    border-radius: 999px;
-    background: rgba(255,255,255,.15);
-    border: 1px solid rgba(255,255,255,.22);
-    font-size: 13px;
-    font-weight: 800;
-    color: #a3f0c0;
-    margin-bottom: 20px;
-    letter-spacing: .04em;
-    text-transform: uppercase;
-  }
-
-  .cf-referral-inner h2 {
-    margin: 0 0 16px 0;
-    font-size: 52px;
-    line-height: 1.02;
-    letter-spacing: -0.03em;
-    max-width: 700px;
-  }
-
-  .cf-referral-inner h2 em {
-    font-style: normal;
-    color: #6eeaa0;
-  }
-
-  .cf-referral-inner > p {
-    margin: 0 0 36px 0;
-    color: rgba(255,255,255,.82);
-    font-size: 18px;
-    line-height: 1.65;
-    max-width: 620px;
-  }
-
-  .cf-referral-steps {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
-    margin-bottom: 36px;
+  .cf-owners-section .container {
     position: relative;
     z-index: 1;
   }
 
-  .cf-referral-step {
-    background: rgba(255,255,255,.1);
-    border: 1px solid rgba(255,255,255,.14);
-    border-radius: 18px;
-    padding: 24px 20px;
-    backdrop-filter: blur(4px);
+  .cf-owners-section .section-head .section-label {
+    background: rgba(74,222,128,0.15) !important;
+    color: #6eeaa0 !important;
+    border: 1px solid rgba(74,222,128,0.25);
   }
 
-  .cf-referral-step-num {
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    color: #6eeaa0;
-    margin-bottom: 10px;
-    display: block;
-  }
-
-  .cf-referral-step-icon {
-    font-size: 30px;
-    display: block;
-    margin-bottom: 10px;
-    line-height: 1;
-  }
-
-  .cf-referral-step h3 {
-    margin: 0 0 8px 0;
-    font-size: 16px;
-    font-weight: 800;
+  .cf-owners-section .section-head .section-title {
     color: #fff;
   }
 
-  .cf-referral-step p {
-    margin: 0;
-    font-size: 13px;
-    color: rgba(255,255,255,.72);
-    line-height: 1.6;
+  .cf-owners-section .section-head .section-subtitle {
+    color: rgba(255,255,255,0.62);
   }
 
-  .cf-referral-actions {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
+  .owners-steps-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
     position: relative;
-    z-index: 1;
   }
 
-  .btn-cf-referral {
-    padding: 14px 32px;
-    background: #6eeaa0;
-    color: #0a3d1f;
-    border-radius: 14px;
-    font-size: 15px;
+  .owner-step-card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-left: 4px solid #22c55e;
+    border-radius: 20px;
+    padding: 28px 22px 24px 22px;
+    backdrop-filter: blur(6px);
+    transition: transform .2s, box-shadow .2s, background .2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .owner-step-card-ghost-num {
+    position: absolute;
+    top: -10px;
+    right: 12px;
+    font-size: 80px;
+    font-weight: 900;
+    line-height: 1;
+    color: rgba(110,234,160,0.08);
+    pointer-events: none;
+    user-select: none;
+    letter-spacing: -0.04em;
+  }
+
+  .owner-step-card:hover {
+    transform: translateY(-4px);
+    background: rgba(255,255,255,0.1);
+    box-shadow: 0 10px 32px rgba(34,197,94,0.2);
+  }
+
+  .owner-step-card .step-number {
+    color: #6eeaa0;
+  }
+
+  .owner-step-card h3 {
+    margin: 0 0 8px 0;
+    font-size: 18px;
     font-weight: 800;
-    text-decoration: none;
-    transition: background .15s, transform .15s;
-    display: inline-block;
+    color: #fff;
+    line-height: 1.2;
   }
 
-  .btn-cf-referral:hover {
-    background: #4dd882;
-    transform: translateY(-2px);
-  }
-
-  .btn-cf-ghost {
-    padding: 14px 24px;
-    background: rgba(255,255,255,.1);
-    color: rgba(255,255,255,.9);
-    border-radius: 14px;
+  .owner-step-card p {
+    margin: 0;
+    color: rgba(255,255,255,0.62);
     font-size: 14px;
-    font-weight: 700;
-    text-decoration: none;
-    border: 1px solid rgba(255,255,255,.2);
-    transition: background .15s, transform .15s;
-    display: inline-block;
+    line-height: 1.65;
   }
 
-  .btn-cf-ghost:hover {
-    background: rgba(255,255,255,.18);
-    transform: translateY(-2px);
-  }
-
-  @media (max-width: 900px) {
-    .cf-referral-steps { grid-template-columns: 1fr; }
-  }
-
-  @media (max-width: 768px) {
-    .cf-referral-inner { padding: 36px 24px; }
-    .cf-referral-inner h2 { font-size: 34px; }
-    .cf-referral-inner > p { font-size: 16px; }
-  }
-
-  @media (max-width: 480px) {
-    .cf-referral-inner h2 { font-size: 28px; }
-  }
-
-  /* ── Final CTA ───────────────────────────────────── */
+  /* ── CTA final ───────────────────────────────────── */
   .final-cta {
-    padding: 56px 0;
+    padding: 72px 0;
+    background: #111;
   }
 
   .final-cta-inner {
-    background: #f7f7f8;
-    border: 1px solid #ececec;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.1);
     border-radius: 28px;
-    padding: 48px;
+    padding: 56px 48px;
     text-align: center;
   }
 
   .final-cta-inner h2 {
-    margin: 0 0 12px 0;
-    font-size: 36px;
-    letter-spacing: -0.02em;
+    margin: 0 0 14px 0;
+    font-size: 40px;
+    letter-spacing: -0.03em;
+    color: #fff;
   }
 
   .final-cta-inner p {
-    margin: 0 0 28px 0;
-    color: #666;
+    margin: 0 0 32px 0;
+    color: rgba(255,255,255,0.62);
     font-size: 16px;
-    line-height: 1.6;
+    line-height: 1.65;
     max-width: 500px;
     margin-left: auto;
     margin-right: auto;
@@ -409,24 +475,55 @@
     flex-wrap: wrap;
   }
 
+  .btn-cf-primary {
+    padding: 14px 32px;
+    background: #22c55e;
+    color: #052e14;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 800;
+    text-decoration: none;
+    transition: background .15s, transform .15s;
+    display: inline-block;
+    border: none;
+  }
+
+  .btn-cf-primary:hover {
+    background: #16a34a;
+    transform: translateY(-2px);
+    color: #fff;
+  }
+
+  .btn-cf-ghost {
+    padding: 14px 24px;
+    background: rgba(255,255,255,0.07);
+    color: rgba(255,255,255,0.88);
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    border: 1px solid rgba(255,255,255,0.2);
+    transition: background .15s, transform .15s;
+    display: inline-block;
+  }
+
+  .btn-cf-ghost:hover {
+    background: rgba(255,255,255,0.14);
+    transform: translateY(-2px);
+  }
+
   /* ── Responsive ──────────────────────────────────── */
   @media (max-width: 1024px) {
-    .steps-grid { grid-template-columns: repeat(2, 1fr); }
+    .steps-grid,
+    .owners-steps-grid { grid-template-columns: repeat(2, 1fr); }
     .steps-grid::before { display: none; }
   }
 
   @media (max-width: 768px) {
-    .cf-hero-inner { padding: 36px 24px; }
-    .cf-hero-inner h1 { font-size: 34px; }
-    .cf-hero-inner p { font-size: 16px; }
-    .steps-grid { grid-template-columns: 1fr; }
+    .steps-grid,
+    .owners-steps-grid { grid-template-columns: 1fr; }
     .final-cta-inner { padding: 36px 24px; }
-    .final-cta-inner h2 { font-size: 26px; }
-  }
-
-  @media (max-width: 480px) {
-    .cf-hero { padding: 16px 0 0 0; }
-    .cf-hero-inner h1 { font-size: 28px; }
+    .final-cta-inner h2 { font-size: 28px; }
   }
 @endpush
 
@@ -436,16 +533,35 @@
   <section class="cf-hero">
     <div class="container">
       <div class="cf-hero-inner">
-        <h1>¿Cómo funciona TuCancha?</h1>
-        <p>Reservar nunca fue tan fácil.</p>
+        <div class="cf-hero-bg"></div>
+        <div class="cf-hero-overlay"></div>
+        <div class="cf-hero-blob-1"></div>
+        <div class="cf-hero-blob-2"></div>
+        <div class="cf-hero-content">
+          <div class="cf-hero-badge" data-aos="fade-down">
+            <span class="cf-hero-badge-dot"></span>
+            Guía paso a paso
+          </div>
+          <h1 data-aos="fade-up" data-aos-delay="80">
+            ¿Cómo funciona<br><em>TuCancha?</em>
+          </h1>
+          <p data-aos="fade-up" data-aos-delay="160">
+            Reservar nunca fue tan fácil. Desde que entrás hasta que pisás la cancha, todo en unos pocos clics.
+          </p>
+          <div class="cf-hero-pills" data-aos="fade-up" data-aos-delay="240">
+            <div class="cf-hero-pill">⚡ Sin llamadas</div>
+            <div class="cf-hero-pill">💳 Pago seguro</div>
+            <div class="cf-hero-pill">📲 Confirmación al instante</div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
   {{-- ── Pasos para el usuario ────────────────────────────────────── --}}
-  <section class="flow-section">
+  <section class="cf-players-section">
     <div class="container">
-      <div class="section-head">
+      <div class="section-head" data-aos="fade-up">
         <span class="section-label" style="background:#e8f7ee; color:#157347;">Para usuarios</span>
         <h2 class="section-title">Reservá en 4 pasos</h2>
         <p class="section-subtitle">
@@ -454,28 +570,32 @@
       </div>
 
       <div class="steps-grid">
-        <div class="step-card">
+        <div class="step-card" data-aos="fade-up" data-aos-delay="0">
+          <span class="step-card-ghost-num">01</span>
           <span class="step-number">Paso 01</span>
           <span class="step-icon">🔍</span>
           <h3>Buscá un complejo</h3>
           <p>Explorá los complejos disponibles en tu ciudad. Filtrá por deporte, fecha y horario para encontrar el que mejor te quede.</p>
         </div>
 
-        <div class="step-card">
+        <div class="step-card" data-aos="fade-up" data-aos-delay="100">
+          <span class="step-card-ghost-num">02</span>
           <span class="step-number">Paso 02</span>
           <span class="step-icon">📅</span>
           <h3>Elegí cancha, día y horario</h3>
           <p>Revisá la disponibilidad en tiempo real. Ves qué turnos están libres, cuáles tienen descuento y el precio de cada uno.</p>
         </div>
 
-        <div class="step-card">
+        <div class="step-card" data-aos="fade-up" data-aos-delay="200">
+          <span class="step-card-ghost-num">03</span>
           <span class="step-number">Paso 03</span>
           <span class="step-icon">💳</span>
           <h3>Pagá de forma segura</h3>
           <p>Elegí el método que prefieras: tarjeta de crédito, débito, transferencia o efectivo. El pago se procesa a través de Mercado Pago y tu turno se confirma al instante.</p>
         </div>
 
-        <div class="step-card">
+        <div class="step-card" data-aos="fade-up" data-aos-delay="300">
+          <span class="step-card-ghost-num">04</span>
           <span class="step-number">Paso 04</span>
           <span class="step-icon">✅</span>
           <h3>¡Listo! Recibís confirmación por mail</h3>
@@ -485,12 +605,10 @@
     </div>
   </section>
 
-  <hr class="flow-divider">
-
   {{-- ── Funciones extra para usuarios ────────────────────────────── --}}
-  <section class="flow-section">
+  <section class="cf-historial-section">
     <div class="container">
-      <div class="section-head">
+      <div class="section-head" data-aos="fade-up">
         <span class="section-label" style="background:#e8f0ff; color:#1a4a9a;">Más que reservas</span>
         <h2 class="section-title">Tu historial deportivo</h2>
         <p class="section-subtitle">
@@ -499,8 +617,8 @@
       </div>
 
       <div class="feature-cards">
-        <div class="feature-card">
-          <span class="feature-card-icon">📊</span>
+        <div class="feature-card" data-aos="fade-left">
+          <div class="feature-card-icon-wrap">📊</div>
           <h3>Historial de partidos</h3>
           <p>Después de cada partido pagado o validado en el complejo, el encuentro queda registrado en tu historial. Ahí podés ver:</p>
           <ul>
@@ -512,26 +630,26 @@
           </ul>
         </div>
 
-        <div class="feature-card">
-          <span class="feature-card-icon">👥</span>
+        <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
+          <div class="feature-card-icon-wrap">👥</div>
           <h3>Etiquetá a tus compañeros</h3>
           <p>
             ¿Fuiste con amigos? Desde el detalle de tu reserva podés agregarlos buscándolos por nombre
             o mail. Ellos ven el partido en su propio historial aunque no hayan reservado.
           </p>
-          <p style="margin-top:10px;">
+          <p style="margin-top:10px; color:#555; font-size:14px; line-height:1.7;">
             Ideal para cuando uno del grupo reserva por todos: nadie pierde el registro del partido.
           </p>
         </div>
 
-        <div class="feature-card">
-          <span class="feature-card-icon">🏆</span>
+        <div class="feature-card" data-aos="fade-right">
+          <div class="feature-card-icon-wrap">🏆</div>
           <h3>Resultados independientes</h3>
           <p>
             Cada jugador carga su propio resultado: si ganaron, empataron o perdieron, y el marcador si quieren.
             Como cada uno puede haber estado en un equipo diferente, los resultados son completamente independientes.
           </p>
-          <p style="margin-top:10px;">
+          <p style="margin-top:10px; color:#555; font-size:14px; line-height:1.7;">
             El gráfico de torta en tu historial refleja solo tus propios resultados.
           </p>
         </div>
@@ -539,42 +657,45 @@
     </div>
   </section>
 
-  <hr class="flow-divider">
-
   {{-- ── Pasos para el dueño ─────────────────────────────────────── --}}
-  <section class="flow-section">
+  <section class="cf-owners-section">
+    <div class="cf-owners-bg"></div>
     <div class="container">
-      <div class="section-head">
-        <span class="section-label" style="background:#f0fdf4; color:#166534;">Para dueños de complejos</span>
+      <div class="section-head" data-aos="fade-up">
+        <span class="section-label">Para dueños de complejos</span>
         <h2 class="section-title">Empezá a recibir reservas</h2>
         <p class="section-subtitle">
           Configurá tu complejo una vez y empezá a recibir turnos online las 24 horas, cobrado automáticamente.
         </p>
       </div>
 
-      <div class="steps-grid">
-        <div class="step-card owner-step">
+      <div class="owners-steps-grid">
+        <div class="owner-step-card" data-aos="fade-up" data-aos-delay="0">
+          <span class="owner-step-card-ghost-num">01</span>
           <span class="step-number">Paso 01</span>
           <span class="step-icon">👤</span>
           <h3>Creá tu cuenta</h3>
           <p>Registrate en TuCancha con tu mail. En menos de un minuto tenés acceso a tu panel de administración.</p>
         </div>
 
-        <div class="step-card owner-step">
+        <div class="owner-step-card" data-aos="fade-up" data-aos-delay="100">
+          <span class="owner-step-card-ghost-num">02</span>
           <span class="step-number">Paso 02</span>
           <span class="step-icon">⭐</span>
           <h3>Suscribite al plan</h3>
           <p>Activá tu cuenta como administrador de complejo. Elegí entre pago mensual o {{ $longTermLabel }} para acceder a todas las funciones del sistema.</p>
         </div>
 
-        <div class="step-card owner-step">
+        <div class="owner-step-card" data-aos="fade-up" data-aos-delay="200">
+          <span class="owner-step-card-ghost-num">03</span>
           <span class="step-number">Paso 03</span>
           <span class="step-icon">🏟️</span>
           <h3>Cargá tus canchas y horarios</h3>
           <p>Configurá cada cancha: deporte, formato, precio por turno, días y horarios de atención. También podés cargar fotos y aplicar descuentos.</p>
         </div>
 
-        <div class="step-card owner-step">
+        <div class="owner-step-card" data-aos="fade-up" data-aos-delay="300">
+          <span class="owner-step-card-ghost-num">04</span>
           <span class="step-number">Paso 04</span>
           <span class="step-icon">🚀</span>
           <h3>Empezá a recibir reservas</h3>
@@ -587,15 +708,15 @@
   {{-- ── CTA final ────────────────────────────────────────────────── --}}
   <section class="final-cta">
     <div class="container">
-      <div class="final-cta-inner">
+      <div class="final-cta-inner" data-aos="fade-up">
         <h2>¿Listo para empezar?</h2>
         <p>Tanto si querés reservar una cancha como si querés sumar tu complejo, estás a un clic de distancia.</p>
 
         <div class="final-cta-actions">
-          <a href="{{ route('venues.index') }}" class="btn btn-primary" style="padding:14px 32px; font-size:15px; border-radius:14px;">
+          <a href="{{ route('venues.index') }}" class="btn-cf-primary">
             Ver complejos
           </a>
-          <a href="{{ route('planes') }}" class="btn" style="padding:14px 32px; font-size:15px; border-radius:14px;">
+          <a href="{{ route('planes') }}" class="btn-cf-ghost">
             Sumar mi complejo
           </a>
         </div>

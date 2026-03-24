@@ -813,64 +813,64 @@
       </div>
 
       {{-- Tabla admins y suscripciones --}}
-      <div style="font-size:13px; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:.05em; margin-bottom:10px;">Admins de complejo</div>
-      <div class="admin-card" style="padding:0; overflow:hidden; margin-bottom:24px;">
-        <div style="overflow-x:auto;">
-          <table class="data-table" style="min-width:700px;">
+      <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Admins de complejo</p>
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden mb-6">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm" style="min-width:700px;">
             <thead>
-              <tr>
-                <th>Usuario</th>
-                <th>Email</th>
-                <th>Suscripción</th>
-                <th>Tipo</th>
-                <th>Vencimiento</th>
-                <th>Estado</th>
+              <tr class="border-b border-slate-200 bg-slate-50">
+                <th class="text-left px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Usuario</th>
+                <th class="text-left px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Email</th>
+                <th class="text-left px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Suscripción</th>
+                <th class="text-left px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Tipo</th>
+                <th class="text-left px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Vencimiento</th>
+                <th class="text-left px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Estado</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody class="divide-y divide-slate-100">
               @forelse($venueAdmins as $admin)
                 @php $sub = $admin->venueAdminSubscriptions->first(); @endphp
-                <tr>
-                  <td><strong>{{ $admin->name }}</strong></td>
-                  <td style="color:#555; font-size:13px;">{{ $admin->email }}</td>
-                  <td>
+                <tr class="hover:bg-slate-50 transition-colors">
+                  <td class="px-5 py-3 font-semibold text-slate-900">{{ $admin->name }}</td>
+                  <td class="px-5 py-3 text-slate-500 text-xs">{{ $admin->email }}</td>
+                  <td class="px-5 py-3">
                     @if($sub)
-                      <span class="badge badge-success">Con suscripción</span>
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">Con suscripción</span>
                     @else
-                      <span class="badge badge-default">Sin suscripción</span>
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-500">Sin suscripción</span>
                     @endif
                   </td>
-                  <td>
+                  <td class="px-5 py-3">
                     @if($sub)
                       @if($sub->billing_cycle === 'annual')
-                        <span class="badge" style="background:#6f42c1; color:#fff;">{{ $sub->long_term_months === 6 ? 'Semestral' : 'Anual' }}</span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-violet-100 text-violet-700">{{ $sub->long_term_months === 6 ? 'Semestral' : 'Anual' }}</span>
                       @else
-                        <span class="badge badge-default">Mensual</span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-500">Mensual</span>
                       @endif
                     @else
-                      <span style="color:#ccc;">—</span>
+                      <span class="text-slate-300 text-xs">—</span>
                     @endif
                   </td>
-                  <td style="font-size:13px; color:#555;">
+                  <td class="px-5 py-3 text-xs text-slate-500 whitespace-nowrap">
                     @if($sub?->expires_at)
                       {{ $sub->expires_at->format('d/m/Y') }}
                     @else
-                      <span style="color:#ccc;">—</span>
+                      <span class="text-slate-300">—</span>
                     @endif
                   </td>
-                  <td>
+                  <td class="px-5 py-3">
                     @if(!$sub)
-                      <span class="badge badge-danger">Sin plan</span>
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700">Sin plan</span>
                     @elseif($sub->status === 'ACTIVE' && $sub->expires_at?->gt(now()))
-                      <span class="badge badge-success">Activa</span>
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">Activa</span>
                     @else
-                      <span class="badge badge-warning">Vencida</span>
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">Vencida</span>
                     @endif
                   </td>
                 </tr>
               @empty
                 <tr>
-                  <td colspan="6" style="text-align:center; color:#aaa; padding:20px;">No hay admins de complejo registrados.</td>
+                  <td colspan="6" class="px-5 py-8 text-center text-sm text-slate-400">No hay admins de complejo registrados.</td>
                 </tr>
               @endforelse
             </tbody>

@@ -4,257 +4,6 @@
 @section('page_title', 'Editar complejo')
 @section('page_subtitle', 'Actualizá los datos, servicios e imagen de tu complejo')
 
-@push('styles')
-<style>
-  .edit-grid {
-    display: grid;
-    gap: 20px;
-    max-width: 780px;
-  }
-
-  .edit-section {
-    background: #fff;
-    border: 1px solid #ececec;
-    border-radius: 16px;
-    padding: 22px 24px;
-    box-shadow: 0 2px 12px rgba(0,0,0,.03);
-  }
-
-  .edit-section-title {
-    font-size: 13px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .07em;
-    color: #888;
-    margin: 0 0 16px 0;
-    padding-bottom: 12px;
-    border-bottom: 1px solid #f0f0f0;
-  }
-
-  .field-group {
-    display: grid;
-    gap: 14px;
-  }
-
-  .field-group-2 {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .form-hint {
-    font-size: 12px;
-    color: #999;
-    margin: 5px 0 0 0;
-    line-height: 1.5;
-  }
-
-  /* Amenities */
-  .amenity-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-    gap: 8px;
-  }
-
-  .amenity-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 9px 12px;
-    border: 1.5px solid #e5e5e5;
-    border-radius: 10px;
-    cursor: pointer;
-    user-select: none;
-    transition: border-color .15s, background .15s;
-    font-size: 13px;
-    color: #333;
-  }
-
-  .amenity-item:hover {
-    border-color: #bbb;
-    background: #fafafa;
-  }
-
-  .amenity-item.is-checked {
-    border-color: #111;
-    background: #f5f5f5;
-    font-weight: 600;
-    color: #111;
-  }
-
-  .amenity-item input[type=checkbox] {
-    display: none;
-  }
-
-  .amenity-check {
-    width: 18px;
-    height: 18px;
-    border: 1.5px solid #ccc;
-    border-radius: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    transition: background .15s, border-color .15s;
-    font-size: 11px;
-    color: transparent;
-  }
-
-  .amenity-item.is-checked .amenity-check {
-    background: #111;
-    border-color: #111;
-    color: #fff;
-  }
-
-  /* Image upload */
-  .image-upload-wrap {
-    display: flex;
-    gap: 20px;
-    align-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  .image-preview-wrap {
-    position: relative;
-    flex-shrink: 0;
-  }
-
-  .image-preview-wrap img {
-    width: 180px;
-    height: 120px;
-    object-fit: cover;
-    border-radius: 12px;
-    border: 1px solid #eee;
-    display: block;
-  }
-
-  .image-placeholder {
-    width: 180px;
-    height: 120px;
-    border-radius: 12px;
-    border: 1.5px dashed #ddd;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #bbb;
-    font-size: 13px;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .file-input-label {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 9px 16px;
-    border: 1.5px solid #ddd;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 600;
-    color: #444;
-    background: #fff;
-    transition: border-color .15s, background .15s;
-  }
-
-  .file-input-label:hover {
-    border-color: #aaa;
-    background: #fafafa;
-  }
-
-  .file-input-label input[type=file] {
-    display: none;
-  }
-
-  .file-name-display {
-    font-size: 12px;
-    color: #777;
-    margin-top: 6px;
-  }
-
-  /* MP card */
-  .mp-card {
-    background: #fff;
-    border: 1px solid #ececec;
-    border-radius: 16px;
-    padding: 22px 24px;
-    box-shadow: 0 2px 12px rgba(0,0,0,.03);
-    max-width: 780px;
-    margin-top: 20px;
-  }
-
-  .mp-card-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 6px;
-  }
-
-  .mp-logo {
-    font-size: 20px;
-  }
-
-  .mp-card-title {
-    font-size: 15px;
-    font-weight: 700;
-    margin: 0;
-  }
-
-  .mp-card-desc {
-    font-size: 13px;
-    color: #666;
-    margin: 0 0 18px 0;
-    line-height: 1.5;
-  }
-
-  .mp-status-connected {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 14px;
-    background: #e8f7ee;
-    border: 1px solid #c3e6cb;
-    border-radius: 10px;
-    color: #157347;
-    font-size: 13px;
-    font-weight: 600;
-  }
-
-  .mp-status-missing {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 14px;
-    background: #fff8e1;
-    border: 1px solid #ffe082;
-    border-radius: 10px;
-    color: #b45309;
-    font-size: 13px;
-  }
-
-  .btn-mp {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 9px 18px;
-    background: #009ee3;
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 600;
-    text-decoration: none;
-    cursor: pointer;
-    transition: opacity .15s;
-  }
-
-  .btn-mp:hover { opacity: .85; }
-
-  @media (max-width: 600px) {
-    .field-group-2 { grid-template-columns: 1fr; }
-    .image-upload-wrap { flex-direction: column; }
-  }
-</style>
-@endpush
-
 @section('content')
 
 @include('va.partials.help-modal', [
@@ -263,50 +12,77 @@
   'helpText'  => 'Acá editás los datos generales de tu complejo: nombre, descripción, zona, dirección, coordenadas para el mapa, imagen de portada y política de cancelación. Esta información es la que ven los usuarios al buscar un complejo.',
 ])
 
-<form method="POST" action="{{ route('va.venues.update', $venue) }}" enctype="multipart/form-data">
-  @csrf
+<div class="max-w-2xl space-y-5">
 
-  <div class="edit-grid">
+  <form method="POST" action="{{ route('va.venues.update', $venue) }}" enctype="multipart/form-data">
+    @csrf
+    @method('PUT')
 
-    {{-- ── Información básica ── --}}
-    <div class="edit-section">
-      <p class="edit-section-title">Información básica</p>
-      <div class="field-group">
+    {{-- Información básica --}}
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+      <p class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-4 pb-3 border-b border-slate-100">
+        Información básica
+      </p>
+
+      <div class="space-y-4">
 
         <div>
-          <label class="form-label" for="name">Nombre del complejo</label>
-          <input id="name" name="name" class="form-control" style="width:100%;"
-                 value="{{ old('name', $venue->name) }}" required maxlength="120"
-                 placeholder="Ej: Complejo Don Juan">
+          <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5" for="name">
+            Nombre del complejo
+          </label>
+          <input id="name" name="name" value="{{ old('name', $venue->name) }}" required maxlength="120"
+                 placeholder="Ej: Complejo Don Juan"
+                 class="w-full rounded-xl border px-4 py-2.5 text-sm text-slate-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 {{ $errors->has('name') ? 'border-red-400 focus:ring-red-400' : 'border-slate-300' }}">
+          @error('name')
+            <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+          @enderror
         </div>
 
         <div>
-          <label class="form-label" for="description">Descripción corta</label>
-          <input id="description" name="description" class="form-control" style="width:100%;"
-                 value="{{ old('description', $venue->description) }}" maxlength="255"
-                 placeholder="Una línea que aparece en la página del complejo">
+          <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5" for="description">
+            Descripción corta
+          </label>
+          <input id="description" name="description" value="{{ old('description', $venue->description) }}" maxlength="255"
+                 placeholder="Una línea que aparece en la página del complejo"
+                 class="w-full rounded-xl border px-4 py-2.5 text-sm text-slate-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 {{ $errors->has('description') ? 'border-red-400 focus:ring-red-400' : 'border-slate-300' }}">
+          @error('description')
+            <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+          @enderror
         </div>
 
       </div>
     </div>
 
-    {{-- ── Ubicación ── --}}
-    <div class="edit-section">
-      <p class="edit-section-title">Ubicación</p>
-      <div class="field-group">
+    {{-- Ubicación --}}
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+      <p class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-4 pb-3 border-b border-slate-100">
+        Ubicación
+      </p>
+
+      <div class="space-y-4">
 
         <div>
-          <label class="form-label" for="address">Dirección</label>
-          <input id="address" name="address" class="form-control" style="width:100%;"
-                 value="{{ old('address', $venue->address) }}" maxlength="200"
-                 placeholder="Ej: Av. Corrientes 1234, CABA">
+          <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5" for="address">
+            Dirección
+          </label>
+          <input id="address" name="address" value="{{ old('address', $venue->address) }}" maxlength="200"
+                 placeholder="Ej: Av. Corrientes 1234, CABA"
+                 class="w-full rounded-xl border px-4 py-2.5 text-sm text-slate-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 {{ $errors->has('address') ? 'border-red-400 focus:ring-red-400' : 'border-slate-300' }}">
+          @error('address')
+            <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+          @enderror
         </div>
 
         <div>
-          <label class="form-label" for="zone">Zona</label>
-          <input id="zone" name="zone" class="form-control" style="width:100%;"
-                 value="{{ old('zone', $venue->zone) }}" maxlength="120"
-                 placeholder="Ej: Palermo, GBA Norte...">
+          <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5" for="zone">
+            Zona
+          </label>
+          <input id="zone" name="zone" value="{{ old('zone', $venue->zone) }}" maxlength="120"
+                 placeholder="Ej: Palermo, GBA Norte..."
+                 class="w-full rounded-xl border px-4 py-2.5 text-sm text-slate-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 {{ $errors->has('zone') ? 'border-red-400 focus:ring-red-400' : 'border-slate-300' }}">
+          @error('zone')
+            <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+          @enderror
         </div>
 
         <input type="hidden" id="lat" name="lat" value="{{ old('lat', $venue->lat) }}">
@@ -314,147 +90,190 @@
 
         <div>
           <button type="button" id="geocodeBtn" onclick="geocodeAddress()"
-                  style="padding:9px 18px; background:#111; color:#fff; border:none; border-radius:8px; font-size:14px; cursor:pointer;">
-            📍 Buscar ubicación en el mapa
+                  class="inline-flex items-center gap-2 border border-slate-300 text-slate-600 font-semibold rounded-xl px-5 py-2.5 hover:bg-slate-50 transition-all duration-200 text-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+            Buscar ubicación en el mapa
           </button>
-          <p id="geocodeMsg" style="font-size:13px; margin-top:6px; color:#666;"></p>
-          <div id="mapPreview" style="display:none; margin-top:10px; border-radius:10px; overflow:hidden; height:220px;"></div>
+          <p id="geocodeMsg" class="text-xs mt-2 text-slate-500"></p>
+          <div id="mapPreview" class="hidden mt-3 rounded-xl overflow-hidden h-52 border border-slate-200"></div>
         </div>
 
       </div>
     </div>
 
-    {{-- ── Política de cancelación ── --}}
-    <div class="edit-section">
-      <p class="edit-section-title">Política de cancelación</p>
+    {{-- Política de cancelación --}}
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+      <p class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-4 pb-3 border-b border-slate-100">
+        Política de cancelación
+      </p>
 
-      <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+      <div class="flex items-center gap-3 flex-wrap">
         <input type="number" id="cancellation_hours" name="cancellation_hours"
-               class="form-control" style="width:120px;"
                value="{{ old('cancellation_hours', $venue->cancellation_hours) }}"
-               min="1" max="720" placeholder="—">
-        <label for="cancellation_hours" style="font-size:14px; color:#444;">
+               min="1" max="720" placeholder="—"
+               class="w-28 rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+        <label for="cancellation_hours" class="text-sm text-slate-500">
           horas mínimas de anticipación para cancelar
         </label>
       </div>
-      <p class="form-hint">
+      <p class="text-xs text-slate-400 mt-2">
         Dejá vacío para permitir cancelaciones en cualquier momento. Cuando se supere el límite, el botón de cancelar desaparece para el usuario.
       </p>
     </div>
 
-    {{-- ── Servicios e instalaciones ── --}}
-    <div class="edit-section">
-      <p class="edit-section-title">Servicios e instalaciones</p>
-      <p class="form-hint" style="margin: -8px 0 14px 0;">
+    {{-- Servicios e instalaciones --}}
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+      <p class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-1 pb-3 border-b border-slate-100">
+        Servicios e instalaciones
+      </p>
+      <p class="text-xs text-slate-400 mb-4 mt-3">
         Seleccioná todo lo que ofrece el complejo. Aparece como chips en la página pública.
       </p>
 
-      <div class="amenity-grid" id="amenityGrid">
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-2" id="amenityGrid">
         @foreach($amenitiesList as $key => $amenity)
           @php $checked = in_array($key, old('amenities', $venue->amenities ?? [])); @endphp
-          <label class="amenity-item {{ $checked ? 'is-checked' : '' }}" id="amenity-label-{{ $key }}">
-            <input type="checkbox" name="amenities[]" value="{{ $key }}" {{ $checked ? 'checked' : '' }}>
-            <span class="amenity-check">✓</span>
+          <label id="amenity-label-{{ $key }}"
+                 class="flex items-center gap-2 px-3 py-2.5 rounded-xl border cursor-pointer select-none transition-all duration-150 text-sm
+                        {{ $checked ? 'border-indigo-500 bg-indigo-50 text-indigo-700 font-semibold' : 'border-slate-200 text-slate-600 hover:border-slate-400 hover:bg-slate-50' }}">
+            <input type="checkbox" name="amenities[]" value="{{ $key }}" {{ $checked ? 'checked' : '' }} class="hidden">
+            <span class="flex-shrink-0 w-4 h-4 rounded border flex items-center justify-center text-xs transition-all duration-150
+                         {{ $checked ? 'bg-indigo-500 border-indigo-500 text-white' : 'border-slate-300 text-transparent' }}">
+              ✓
+            </span>
             <span>{{ $amenity['emoji'] }} {{ $amenity['label'] }}</span>
           </label>
         @endforeach
       </div>
     </div>
 
-    {{-- ── Imagen ── --}}
-    <div class="edit-section">
-      <p class="edit-section-title">Imagen del complejo</p>
+    {{-- Imagen --}}
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+      <p class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-4 pb-3 border-b border-slate-100">
+        Imagen del complejo
+      </p>
 
-      <div class="image-upload-wrap">
-        <div class="image-preview-wrap">
-          @if($venue->cover_image_path)
-            <img id="imgPreview"
-                 src="{{ \Illuminate\Support\Facades\Storage::url($venue->cover_image_path) }}"
-                 alt="Imagen actual">
-          @else
-            <div class="image-placeholder" id="imgPlaceholder">
-              <span style="font-size:28px;">🖼️</span>
-              <span>Sin imagen</span>
-            </div>
-            <img id="imgPreview" style="display:none; width:180px; height:120px; object-fit:cover; border-radius:12px; border:1px solid #eee;">
-          @endif
-        </div>
+      <label class="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center cursor-pointer hover:border-indigo-400 hover:bg-indigo-50 transition-all duration-200 block" id="uploadZone">
+        <input type="file" name="cover_image" accept="image/*" class="hidden" onchange="previewImage(this)">
 
-        <div>
-          <label class="file-input-label">
-            <span>📁</span>
-            <span>Elegir imagen</span>
-            <input type="file" name="cover_image" accept="image/*" onchange="previewImage(this)">
-          </label>
-          <p class="file-name-display" id="fileName">JPG, PNG o WEBP · máx. 4 MB</p>
-        </div>
-      </div>
+        @if($venue->cover_image_path)
+          <img id="imgPreview"
+               src="{{ \Illuminate\Support\Facades\Storage::url($venue->cover_image_path) }}"
+               alt="Imagen actual"
+               class="mx-auto h-36 rounded-xl object-cover shadow-sm mb-3">
+          <div id="imgPlaceholder" class="hidden flex flex-col items-center gap-2 text-slate-400">
+            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            <span class="text-sm font-medium">Sin imagen</span>
+          </div>
+        @else
+          <img id="imgPreview" class="hidden mx-auto h-36 rounded-xl object-cover shadow-sm mb-3" alt="Preview">
+          <div id="imgPlaceholder" class="flex flex-col items-center gap-2 text-slate-400">
+            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            <span class="text-sm font-medium">Sin imagen</span>
+          </div>
+        @endif
+
+        <p id="fileName" class="text-xs text-slate-400 mt-2">Hacé clic para elegir · JPG, PNG o WEBP · máx. 4 MB</p>
+      </label>
     </div>
 
-    {{-- ── Acciones ── --}}
-    <div style="display:flex; gap:10px; align-items:center;">
-      <button type="submit" class="btn btn-primary" style="padding:10px 24px; font-size:14px;">
+    {{-- Acciones --}}
+    <div class="flex items-center gap-3 flex-wrap">
+      <button type="submit"
+              class="bg-gradient-to-r from-indigo-600 to-indigo-500 text-white font-semibold rounded-xl px-6 py-2.5 hover:shadow-md transition-all duration-200 text-sm">
         Guardar cambios
       </button>
-      <a href="{{ route('va.dashboard') }}" class="btn btn-ghost">
+      <a href="{{ route('va.dashboard') }}"
+         class="border border-slate-300 text-slate-600 font-semibold rounded-xl px-6 py-2.5 hover:bg-slate-50 transition-all duration-200 text-sm">
         Volver
       </a>
     </div>
 
-  </div>
-</form>
+  </form>
 
-{{-- ── Mercado Pago ── --}}
-<div class="mp-card">
-  <div class="mp-card-header">
-    <span class="mp-logo">💳</span>
-    <p class="mp-card-title">Mercado Pago</p>
-  </div>
-  <p class="mp-card-desc">
-    Conectá tu cuenta de Mercado Pago para que los cobros lleguen directamente a tu billetera.
-  </p>
+  {{-- Mercado Pago — card separada del form principal --}}
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+    <div class="flex items-center gap-3 mb-1">
+      <span class="text-xl">💳</span>
+      <p class="text-base font-bold text-slate-800">Mercado Pago</p>
+    </div>
+    <p class="text-sm text-slate-500 mb-4">
+      Conectá tu cuenta de Mercado Pago para que los cobros lleguen directamente a tu billetera.
+    </p>
 
-  @if($venue->mp_access_token)
-    <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
-      <span class="mp-status-connected">✓ Cuenta conectada</span>
-      <form method="POST" action="{{ route('va.mp_oauth.disconnect', $venue) }}"
-            onsubmit="return confirm('¿Desconectar la cuenta de Mercado Pago de este complejo?')">
-        @csrf
-        <button type="submit" class="btn btn-ghost btn-sm">Desconectar</button>
-      </form>
-    </div>
-  @else
-    <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
-      <span class="mp-status-missing">⚠️ Sin cuenta conectada — los pagos irán a la cuenta general de TuCancha</span>
-      <a href="{{ route('va.mp_oauth.redirect', $venue) }}" class="btn-mp">
-        Conectar Mercado Pago
-      </a>
-    </div>
-  @endif
+    @if($venue->mp_access_token)
+      <div class="flex items-center gap-4 flex-wrap">
+        <span class="inline-flex items-center gap-2 px-3 py-2 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm font-semibold">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+          </svg>
+          Cuenta conectada
+        </span>
+        <form method="POST" action="{{ route('va.mp_oauth.disconnect', $venue) }}"
+              onsubmit="return confirm('¿Desconectar la cuenta de Mercado Pago de este complejo?')">
+          @csrf
+          <button type="submit"
+                  class="border border-slate-300 text-slate-600 font-semibold rounded-xl px-5 py-2 hover:bg-slate-50 transition-all duration-200 text-sm">
+            Desconectar
+          </button>
+        </form>
+      </div>
+    @else
+      <div class="flex items-center gap-4 flex-wrap">
+        <span class="inline-flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-xl text-amber-700 text-sm">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+          Sin cuenta conectada — los pagos irán a la cuenta general de TuCancha
+        </span>
+        <a href="{{ route('va.mp_oauth.redirect', $venue) }}"
+           class="inline-flex items-center gap-2 bg-[#009ee3] hover:bg-[#0088cc] text-white font-semibold rounded-xl px-5 py-2.5 transition-all duration-200 text-sm">
+          Conectar Mercado Pago
+        </a>
+      </div>
+    @endif
+  </div>
+
 </div>
 
 <script>
   // Amenities toggle
-  document.getElementById('amenityGrid').addEventListener('change', function (e) {
+  document.getElementById('amenityGrid').addEventListener('change', function(e) {
     if (e.target.type !== 'checkbox') return;
-    const label = e.target.closest('.amenity-item');
-    label.classList.toggle('is-checked', e.target.checked);
+    const label    = e.target.closest('label');
+    const checkBox = label.querySelector('span.flex-shrink-0');
+    if (e.target.checked) {
+      label.classList.remove('border-slate-200', 'text-slate-600', 'hover:border-slate-400', 'hover:bg-slate-50');
+      label.classList.add('border-indigo-500', 'bg-indigo-50', 'text-indigo-700', 'font-semibold');
+      checkBox.classList.remove('border-slate-300', 'text-transparent');
+      checkBox.classList.add('bg-indigo-500', 'border-indigo-500', 'text-white');
+    } else {
+      label.classList.add('border-slate-200', 'text-slate-600', 'hover:border-slate-400', 'hover:bg-slate-50');
+      label.classList.remove('border-indigo-500', 'bg-indigo-50', 'text-indigo-700', 'font-semibold');
+      checkBox.classList.add('border-slate-300', 'text-transparent');
+      checkBox.classList.remove('bg-indigo-500', 'border-indigo-500', 'text-white');
+    }
   });
 
   // Image preview
   function previewImage(input) {
     const file = input.files[0];
     if (!file) return;
-
     document.getElementById('fileName').textContent = file.name;
-
     const reader = new FileReader();
-    reader.onload = function (e) {
-      const preview   = document.getElementById('imgPreview');
+    reader.onload = function(e) {
+      const preview     = document.getElementById('imgPreview');
       const placeholder = document.getElementById('imgPlaceholder');
       preview.src = e.target.result;
-      preview.style.display = 'block';
-      if (placeholder) placeholder.style.display = 'none';
+      preview.classList.remove('hidden');
+      if (placeholder) placeholder.classList.add('hidden');
     };
     reader.readAsDataURL(file);
   }
@@ -468,11 +287,13 @@
 
   function geocodeAddress() {
     const address = document.getElementById('address').value.trim();
+    const msg     = document.getElementById('geocodeMsg');
     if (!address) {
-      document.getElementById('geocodeMsg').textContent = 'Ingresá una dirección primero.';
+      msg.className   = 'text-xs mt-2 text-red-500';
+      msg.textContent = 'Ingresá una dirección primero.';
       return;
     }
-    const msg = document.getElementById('geocodeMsg');
+    msg.className   = 'text-xs mt-2 text-slate-500';
     msg.textContent = 'Buscando...';
     fetch(`{{ route('va.geocode') }}?address=${encodeURIComponent(address)}`)
       .then(r => r.json())
@@ -481,24 +302,24 @@
           const loc = data.results[0].geometry.location;
           document.getElementById('lat').value = loc.lat;
           document.getElementById('lng').value = loc.lng;
-          msg.style.color = '#16a34a';
-          msg.textContent = '✓ Ubicación encontrada: ' + data.results[0].formatted_address;
+          msg.className   = 'text-xs mt-2 text-green-600 font-medium';
+          msg.textContent = 'Ubicación encontrada: ' + data.results[0].formatted_address;
           showMap(loc.lat, loc.lng);
         } else {
-          msg.style.color = '#dc2626';
+          msg.className   = 'text-xs mt-2 text-red-500';
           msg.textContent = 'No se encontró la dirección. Intentá con más detalle (ciudad, país).';
         }
       })
       .catch(() => {
-        msg.style.color = '#dc2626';
+        msg.className   = 'text-xs mt-2 text-red-500';
         msg.textContent = 'Error al buscar la dirección.';
       });
   }
 
   function showMap(lat, lng) {
     const div = document.getElementById('mapPreview');
-    div.style.display = 'block';
-    div.innerHTML = `<iframe width="100%" height="220" frameborder="0" style="border:0;"
+    div.classList.remove('hidden');
+    div.innerHTML = `<iframe width="100%" height="208" frameborder="0" style="border:0;"
       src="https://www.google.com/maps?q=${lat},${lng}&z=16&output=embed" allowfullscreen></iframe>`;
   }
 </script>

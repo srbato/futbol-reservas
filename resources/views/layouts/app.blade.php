@@ -1104,5 +1104,6 @@
 
 
 
+@stack('scripts')
 </body>
 </html>

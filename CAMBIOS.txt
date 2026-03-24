@@ -4,6 +4,95 @@ REGISTRO DE CAMBIOS - Futbol Reservas
 [2026-03-15]
 - Creado este archivo para registrar cambios de la app
 
+[2026-03-23] — REDISEÑO VISUAL COMPLETO
+========================================
+
+1. CONFIGURACIÓN
+   - .env: Nuevo tunnel Cloudflare → worldcat-aqua-testimonials-utils.trycloudflare.com
+     (REVERB_CLIENT_HOST y REVERB_SERVER_HOSTNAME)
+
+2. LANDING PAGE — welcome.blade.php
+   - Rediseño completo: hero 100vh con parallax, blobs decorativos, scroll suave
+   - Nueva sección: franja de deportes disponibles
+   - Sección "¿Por qué TuCancha?": cards con border-left verde y números decorativos
+   - Nueva sección 50/50: imagen + texto de jugadores
+   - Sección dueños: imagen de fondo con overlay y stats
+   - FAQ con acordeón verde
+   - Nueva sección Falta Uno: 2 cards glassmorphism sobre fondo oscuro
+   - AOS en todos los elementos + parallax JS en blobs
+
+3. LAYOUT MARKETING — layouts/marketing.blade.php
+   - CDN AOS integrado globalmente
+   - Navbar hide/show al scroll (desaparece al bajar, reaparece al subir)
+
+4. COMO FUNCIONA — como-funciona.blade.php
+   - Rediseño completo con hero parallax y badge pulsante
+   - 4 secciones rediseñadas: pasos jugadores, historial, pasos dueños, CTA
+   - Imagen admin-viendo-telefono-y-complejo en sección dueños
+
+5. NOSOTROS — nosotros.blade.php
+   - Rediseño completo: hero parallax, manifiesto con quote card, stats band oscuro
+   - Timeline con dots verdes y halo, values con border-left verde
+   - Fix: bug ns-culture-inner corregido (position absolute sobreescrito por grid)
+
+6. LISTA DE COMPLEJOS — venues/index.blade.php
+   - Rediseño completo del hero, carousel y cards
+   - Animaciones nivel máximo: partículas flotantes, tilt 3D, shine/glare en cursor,
+     contadores animados, shimmer, barra de progreso autoplay, FAB, cursor personalizado,
+     section titles con underline animado, scroll progress bar
+
+7. DETALLE COMPLEJO — venues/show.blade.php
+   - Modo claro (blanco + verde/negro)
+   - Sección de presentación, galería 3 imágenes, counters animados en stats
+   - Field cards con tilt 3D y shine
+   - Sección vibe con ambiente-cancha-noche.webp cinematográfico
+   - Mapa "Cómo llegar" con iframe Google Maps embed (sin API key)
+
+8. DETALLE CANCHA — fields/show.blade.php
+   - Modo claro
+   - Sección de info de cancha antes de los slots
+   - Date picker custom estilizado
+   - Slot cards con borde izquierdo coloreado por estado y entrada staggered
+   - Sección "Otras canchas del complejo"
+   - Modales rediseñados en blanco
+   - WebSocket Reverb preservado
+
+9. FALTA UNO INDEX — falta-uno/index.blade.php
+   - Hero 360px, filtros en contenedor gris, cards lista vertical
+   - Franja de color por estado, círculo SVG animado, avatares apilados
+   - Estado vacío con silueta-jugador-vacia.webp
+
+10. FALTA UNO SHOW — falta-uno/show.blade.php
+    - Hero con glassmorphism card del círculo de progreso
+    - Panel de acciones semántico, grid de detalles, jugadores con badges
+    - Card de resultados post-partido
+
+11. PERFIL DEPORTIVO — falta-uno/sport-profile/public-show.blade.php
+    - Hero con jugadores-dandose-la-mano-post-partido.webp
+    - Sport cards con mini tabla coloreada
+    - ApexCharts personalizado: línea negra, marcadores verdes
+
+12. PERFIL DE USUARIO — profile/edit.blade.php + partials
+    - Layout dos columnas: sidebar 280px sticky + contenido
+    - Hero con amigos-post-futbol.webp, avatar con glow verde
+    - Sidebar con nav items + detección sección activa (IntersectionObserver)
+    - Avatar con overlay "Cambiar foto" al hover + preview en tiempo real
+    - Barra de fortaleza de contraseña (4 segmentos)
+    - Toggle ojo en campos de password
+    - Zona peligrosa con card roja y modal rediseñado
+
+13. IMÁGENES NUEVAS DISTRIBUIDAS
+    - amigos-post-futbol.webp          → home + galería venues/show
+    - admin-viendo-tableta.webp        → sección dueños del home
+    - admin-viendo-telefono-y-complejo → sección dueños de como-funciona
+    - jugadores-dandose-la-mano...     → nosotros + perfil deportivo hero
+    - complejo-esperando-jugadores     → ambient de fields/show
+    - reserva-confirmada.webp          → modal reserva en fields/show
+    - silueta-jugador-vacia.webp       → estado vacío falta-uno/index
+    - ambiente-cancha-noche.webp       → sección vibe venues/show
+    - pagoconfirmado-sonrisa.webp      → disponible (sin asignar)
+    - complejo-vacio.webp              → disponible (sin asignar)
+
 [2026-03-15] - Fix filtro de fecha en buscador principal
 - El input de fecha (venues/index.blade.php) no abría el calendario al hacer click.
   Causa: el input type="date" con opacity:0 no dispara el picker al clickear fuera del ícono del calendario.

@@ -4,62 +4,6 @@
 @section('page_title', 'Reportes')
 @section('page_subtitle', 'Ingresos y actividad de tus complejos')
 
-@push('styles')
-<style>
-  .kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
-    margin-bottom: 20px;
-  }
-  .kpi-card {
-    background: #fff;
-    border: 1px solid #ececec;
-    border-radius: 16px;
-    padding: 20px 22px;
-  }
-  .kpi-label {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-    color: #999;
-    margin-bottom: 10px;
-  }
-  .kpi-value {
-    font-size: 32px;
-    font-weight: 800;
-    line-height: 1;
-    letter-spacing: -.02em;
-  }
-  .kpi-sub {
-    font-size: 13px;
-    color: #888;
-    margin-top: 6px;
-  }
-  .occupancy-item {
-    padding: 14px 16px;
-    border: 1px solid #ececec;
-    border-radius: 12px;
-    margin-bottom: 10px;
-  }
-  .occupancy-item:last-child { margin-bottom: 0; }
-  .occupancy-bar-track {
-    width: 100%;
-    height: 8px;
-    background: #f1f1f1;
-    border-radius: 999px;
-    overflow: hidden;
-    margin-top: 12px;
-  }
-  .occupancy-bar-fill {
-    height: 8px;
-    background: #111;
-    border-radius: 999px;
-  }
-</style>
-@endpush
-
 @section('content')
 
 @include('va.partials.help-modal', [
@@ -68,12 +12,15 @@
   'helpText'  => 'Acá podés analizar el rendimiento de tu complejo: ingresos por período, reservas por cancha, deporte más reservado y más. Filtrá por rango de fechas para ver la evolución a lo largo del tiempo.',
 ])
 
-  {{-- Filtros --}}
-  <div class="filter-bar" style="justify-content:space-between; align-items:flex-end;">
-    <form method="GET" action="{{ route('va.reports') }}" class="form-row">
-      <div class="form-group">
-        <label class="form-label">Cancha</label>
-        <select name="field_id" class="form-control" style="width:auto;">
+{{-- ── Filtros ── --}}
+<div class="bg-white rounded-2xl border border-slate-200 shadow-sm px-6 py-4 mb-6">
+  <form method="GET" action="{{ route('va.reports') }}">
+    <div class="flex flex-wrap items-end gap-4">
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Cancha</label>
+        <select name="field_id"
+                class="px-3 py-2 rounded-xl border border-slate-300 bg-white text-sm text-slate-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:shadow-indigo-100">
           <option value="">Todas</option>
           @foreach($fields as $field)
             <option value="{{ $field->id }}" {{ (string)$fieldId === (string)$field->id ? 'selected' : '' }}>
@@ -83,222 +30,247 @@
         </select>
       </div>
 
-      <div class="form-group">
-        <label class="form-label">Desde</label>
+      <div>
+        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Desde</label>
         <input type="date" name="from" value="{{ $from->toDateString() }}"
-               class="form-control" style="width:auto;">
+               class="px-3 py-2 rounded-xl border border-slate-300 bg-white text-sm text-slate-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:shadow-indigo-100">
       </div>
 
-      <div class="form-group">
-        <label class="form-label">Hasta</label>
+      <div>
+        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Hasta</label>
         <input type="date" name="to" value="{{ $to->toDateString() }}"
-               class="form-control" style="width:auto;">
+               class="px-3 py-2 rounded-xl border border-slate-300 bg-white text-sm text-slate-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:shadow-indigo-100">
       </div>
 
-      <button type="submit" class="btn btn-primary">Filtrar</button>
-      <a href="{{ route('va.reports') }}" class="btn btn-ghost">Limpiar</a>
-    </form>
-
-    <a href="{{ route('va.reports.export', request()->query()) }}" class="btn btn-ghost">
-      ↓ Exportar CSV
-    </a>
-  </div>
-
-  {{-- KPIs --}}
-  <div class="kpi-grid">
-    <div class="kpi-card">
-      <div class="kpi-label">Hoy</div>
-      <div class="kpi-value">${{ number_format($todayRevenue, 0, ',', '.') }}</div>
-      <div class="kpi-sub">{{ $todayReservations }} reservas</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Esta semana</div>
-      <div class="kpi-value">${{ number_format($weekRevenue, 0, ',', '.') }}</div>
-      <div class="kpi-sub">{{ $weekReservations }} reservas</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Este mes</div>
-      <div class="kpi-value">${{ number_format($monthRevenue, 0, ',', '.') }}</div>
-      <div class="kpi-sub">{{ $monthReservations }} reservas</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Tasa de cancelación</div>
-      <div class="kpi-value" style="font-size:28px; color: {{ $cancellationRate > 20 ? '#842029' : ($cancellationRate > 10 ? '#9a6700' : '#157347') }}">
-        {{ $cancellationRate }}%
+      <div class="flex items-center gap-2">
+        <button type="submit"
+                class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white text-sm font-semibold rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+          Filtrar
+        </button>
+        <a href="{{ route('va.reports') }}"
+           class="px-4 py-2 bg-white border border-slate-300 text-slate-600 text-sm font-medium rounded-xl hover:bg-slate-50 transition-all duration-200">
+          Limpiar
+        </a>
       </div>
-      <div class="kpi-sub">{{ $totalCancelled }} canceladas de {{ $totalCreated }} creadas</div>
+
+      <div class="ml-auto">
+        <a href="{{ route('va.reports.export', request()->query()) }}"
+           class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 text-slate-600 text-sm font-medium rounded-xl hover:bg-slate-50 transition-all duration-200">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+          </svg>
+          Exportar CSV
+        </a>
+      </div>
+
     </div>
+  </form>
+</div>
+
+{{-- ── KPIs ── --}}
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Hoy</p>
+    <p class="text-3xl font-extrabold text-slate-900 leading-none tracking-tight">${{ number_format($todayRevenue, 0, ',', '.') }}</p>
+    <p class="text-sm text-slate-500 mt-2">{{ $todayReservations }} reservas</p>
   </div>
 
-  {{-- Gráfico reservas --}}
-  <div class="admin-card" style="margin-bottom:20px;">
-    <div class="section-title" style="margin-bottom:18px;">Reservas por día</div>
-    <canvas id="reservationsChart" height="100"></canvas>
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Esta semana</p>
+    <p class="text-3xl font-extrabold text-slate-900 leading-none tracking-tight">${{ number_format($weekRevenue, 0, ',', '.') }}</p>
+    <p class="text-sm text-slate-500 mt-2">{{ $weekReservations }} reservas</p>
   </div>
 
-  {{-- Gráfico ingresos --}}
-  <div class="admin-card" style="margin-bottom:20px;">
-    <div class="section-title" style="margin-bottom:18px;">Ingresos por día</div>
-    <canvas id="revenueChart" height="100"></canvas>
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Este mes</p>
+    <p class="text-3xl font-extrabold text-slate-900 leading-none tracking-tight">${{ number_format($monthRevenue, 0, ',', '.') }}</p>
+    <p class="text-sm text-slate-500 mt-2">{{ $monthReservations }} reservas</p>
   </div>
 
-  {{-- Gráfico mensual (solo si el rango supera 31 días) --}}
-  @if($showMonthlyChart)
-  <div class="admin-card" style="margin-bottom:20px;">
-    <div class="section-title" style="margin-bottom:18px;">Reservas por mes</div>
-    <canvas id="monthlyReservationsChart" height="80"></canvas>
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Tasa de cancelación</p>
+    <p class="text-3xl font-extrabold leading-none tracking-tight
+              {{ $cancellationRate > 20 ? 'text-red-600' : ($cancellationRate > 10 ? 'text-amber-600' : 'text-emerald-600') }}">
+      {{ $cancellationRate }}%
+    </p>
+    <p class="text-sm text-slate-500 mt-2">{{ $totalCancelled }} de {{ $totalCreated }} creadas</p>
   </div>
-  <div class="admin-card" style="margin-bottom:20px;">
-    <div class="section-title" style="margin-bottom:18px;">Ingresos por mes</div>
-    <canvas id="monthlyRevenueChart" height="80"></canvas>
-  </div>
+
+</div>
+
+{{-- ── Gráfico reservas por día ── --}}
+<div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-6">
+  <h2 class="text-base font-bold text-slate-900 mb-5">Reservas por día</h2>
+  <canvas id="reservationsChart" height="100"></canvas>
+</div>
+
+{{-- ── Gráfico ingresos por día ── --}}
+<div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-6">
+  <h2 class="text-base font-bold text-slate-900 mb-5">Ingresos por día</h2>
+  <canvas id="revenueChart" height="100"></canvas>
+</div>
+
+{{-- ── Gráficos mensuales (solo si el rango supera 31 días) ── --}}
+@if($showMonthlyChart)
+<div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-6">
+  <h2 class="text-base font-bold text-slate-900 mb-5">Reservas por mes</h2>
+  <canvas id="monthlyReservationsChart" height="80"></canvas>
+</div>
+<div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-6">
+  <h2 class="text-base font-bold text-slate-900 mb-5">Ingresos por mes</h2>
+  <canvas id="monthlyRevenueChart" height="80"></canvas>
+</div>
+@endif
+
+{{-- ── Hora pico ── --}}
+<div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-6">
+  <h2 class="text-base font-bold text-slate-900 mb-1">Horarios más reservados</h2>
+  <p class="text-sm text-slate-500 mb-5">Reservas PAID por hora de inicio en el rango seleccionado</p>
+  @if(array_sum($peakHourData) === 0)
+    <div class="py-8 text-center text-sm text-slate-400">No hay datos para el rango seleccionado.</div>
+  @else
+    <canvas id="peakHoursChart" height="80"></canvas>
   @endif
+</div>
 
-  {{-- Hora pico --}}
-  <div class="admin-card" style="margin-bottom:20px;">
-    <div class="section-title" style="margin-bottom:4px;">Horarios más reservados</div>
-    <div style="font-size:13px; color:#999; margin-bottom:18px;">Reservas PAID por hora de inicio en el rango seleccionado</div>
-    @if(array_sum($peakHourData) === 0)
-      <div class="empty-state">No hay datos para el rango seleccionado.</div>
-    @else
-      <canvas id="peakHoursChart" height="80"></canvas>
-    @endif
-  </div>
+{{-- ── Ocupación por cancha ── --}}
+<div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+  <h2 class="text-base font-bold text-slate-900 mb-5">Ocupación por cancha en el rango</h2>
 
-  {{-- Ocupación por cancha --}}
-  <div class="admin-card">
-    <div class="section-title" style="margin-bottom:18px;">Ocupación por cancha en el rango</div>
-
-    @if(empty($fieldOccupancy))
-      <div class="empty-state">No hay datos para el rango seleccionado.</div>
-    @else
+  @if(empty($fieldOccupancy))
+    <div class="py-8 text-center text-sm text-slate-400">No hay datos para el rango seleccionado.</div>
+  @else
+    <div class="space-y-3">
       @foreach($fieldOccupancy as $item)
-        <div class="occupancy-item">
-          <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+        <div class="p-4 rounded-xl border border-slate-100 bg-slate-50/50">
+          <div class="flex justify-between items-start gap-4 flex-wrap mb-3">
             <div>
-              <strong>{{ $item['field']->name }}</strong>
-              <div style="font-size:12px; color:#888; margin-top:2px;">{{ $item['field']->venue->name }}</div>
+              <p class="font-semibold text-slate-900 text-sm">{{ $item['field']->name }}</p>
+              <p class="text-xs text-slate-500 mt-0.5">{{ $item['field']->venue->name }}</p>
             </div>
-            <div style="text-align:right;">
-              <strong>{{ $item['reserved_slots'] }}/{{ $item['total_slots'] }} slots — {{ $item['occupancy_percent'] }}%</strong>
-              <div style="font-size:13px; color:#888; margin-top:2px;">${{ number_format($item['revenue'], 0, ',', '.') }}</div>
+            <div class="text-right">
+              <p class="font-bold text-slate-900 text-sm">{{ $item['reserved_slots'] }}/{{ $item['total_slots'] }} slots &mdash; {{ $item['occupancy_percent'] }}%</p>
+              <p class="text-xs text-slate-500 mt-0.5">${{ number_format($item['revenue'], 0, ',', '.') }}</p>
             </div>
           </div>
-          <div class="occupancy-bar-track">
-            <div class="occupancy-bar-fill" style="width:{{ $item['occupancy_percent'] }}%;"></div>
+          <div class="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+            <div class="h-2 bg-indigo-600 rounded-full transition-all duration-500"
+                 style="width:{{ $item['occupancy_percent'] }}%;"></div>
           </div>
         </div>
       @endforeach
-    @endif
-  </div>
+    </div>
+  @endif
+</div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    const labels = @json($labels);
-    const reservationsPerDay = @json($reservationsPerDay);
-    const revenuePerDay = @json($revenuePerDay);
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const labels = @json($labels);
+  const reservationsPerDay = @json($reservationsPerDay);
+  const revenuePerDay = @json($revenuePerDay);
 
-    new Chart(document.getElementById('reservationsChart'), {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [{
-          label: 'Reservas',
-          data: reservationsPerDay,
-          backgroundColor: '#111',
-          borderRadius: 6
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true, grid: { color: '#f0f0f0' } }, x: { grid: { display: false } } }
-      }
-    });
+  new Chart(document.getElementById('reservationsChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Reservas',
+        data: reservationsPerDay,
+        backgroundColor: '#4f46e5',
+        borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } }
+    }
+  });
 
-    new Chart(document.getElementById('revenueChart'), {
-      type: 'line',
-      data: {
-        labels,
-        datasets: [{
-          label: 'Ingresos',
-          data: revenuePerDay,
-          tension: 0.35,
-          borderColor: '#111',
-          backgroundColor: 'rgba(0,0,0,.05)',
-          fill: true,
-          pointBackgroundColor: '#111',
-          pointRadius: 4
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true, grid: { color: '#f0f0f0' } }, x: { grid: { display: false } } }
-      }
-    });
+  new Chart(document.getElementById('revenueChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Ingresos',
+        data: revenuePerDay,
+        tension: 0.35,
+        borderColor: '#4f46e5',
+        backgroundColor: 'rgba(79,70,229,.08)',
+        fill: true,
+        pointBackgroundColor: '#4f46e5',
+        pointRadius: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } }
+    }
+  });
 
-    @if($showMonthlyChart)
-    new Chart(document.getElementById('monthlyReservationsChart'), {
-      type: 'bar',
-      data: {
-        labels: @json($monthlyLabels),
-        datasets: [{
-          label: 'Reservas',
-          data: @json($reservationsPerMonth),
-          backgroundColor: '#111',
-          borderRadius: 6
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true, grid: { color: '#f0f0f0' } }, x: { grid: { display: false } } }
-      }
-    });
+  @if($showMonthlyChart)
+  new Chart(document.getElementById('monthlyReservationsChart'), {
+    type: 'bar',
+    data: {
+      labels: @json($monthlyLabels),
+      datasets: [{
+        label: 'Reservas',
+        data: @json($reservationsPerMonth),
+        backgroundColor: '#4f46e5',
+        borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } }
+    }
+  });
 
-    new Chart(document.getElementById('monthlyRevenueChart'), {
-      type: 'line',
-      data: {
-        labels: @json($monthlyLabels),
-        datasets: [{
-          label: 'Ingresos',
-          data: @json($revenuePerMonth),
-          tension: 0.35,
-          borderColor: '#111',
-          backgroundColor: 'rgba(0,0,0,.05)',
-          fill: true,
-          pointBackgroundColor: '#111',
-          pointRadius: 5
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true, grid: { color: '#f0f0f0' } }, x: { grid: { display: false } } }
-      }
-    });
-    @endif
+  new Chart(document.getElementById('monthlyRevenueChart'), {
+    type: 'line',
+    data: {
+      labels: @json($monthlyLabels),
+      datasets: [{
+        label: 'Ingresos',
+        data: @json($revenuePerMonth),
+        tension: 0.35,
+        borderColor: '#4f46e5',
+        backgroundColor: 'rgba(79,70,229,.08)',
+        fill: true,
+        pointBackgroundColor: '#4f46e5',
+        pointRadius: 5
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } }
+    }
+  });
+  @endif
 
-    @if(array_sum($peakHourData) > 0)
-    new Chart(document.getElementById('peakHoursChart'), {
-      type: 'bar',
-      data: {
-        labels: @json($peakHourLabels),
-        datasets: [{
-          label: 'Reservas',
-          data: @json($peakHourData),
-          backgroundColor: @json(array_map(fn($v) => $v === max($peakHourData) ? '#4ade80' : '#111', $peakHourData)),
-          borderRadius: 6
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f0f0f0' } }, x: { grid: { display: false } } }
-      }
-    });
-    @endif
-  </script>
+  @if(array_sum($peakHourData) > 0)
+  new Chart(document.getElementById('peakHoursChart'), {
+    type: 'bar',
+    data: {
+      labels: @json($peakHourLabels),
+      datasets: [{
+        label: 'Reservas',
+        data: @json($peakHourData),
+        backgroundColor: @json(array_map(fn($v) => $v === max($peakHourData) ? '#4ade80' : '#4f46e5', $peakHourData)),
+        borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } }
+    }
+  });
+  @endif
+</script>
 
 @endsection

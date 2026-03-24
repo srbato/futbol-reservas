@@ -2,207 +2,161 @@
 
 @section('title', 'Planes de membresía')
 @section('page_title', 'Planes de membresía')
-@section('page_subtitle', 'Configurá los precios, descuentos y características de cada plan')
 
 @section('content')
 
-  @if(session('success'))
-    <div class="admin-card" style="background:#e8f7ee; border-color:#cfe9d7; color:#157347; margin-bottom:16px;">
-      <p style="margin:0; font-weight:700;">{{ session('success') }}</p>
-    </div>
-  @endif
-
-  @if($errors->any())
-    <div class="admin-card" style="background:#f8d7da; border-color:#f1b9c0; color:#842029; margin-bottom:16px;">
-      <ul style="margin:0; padding-left:18px;">
-        @foreach($errors->all() as $error)
-          <li>{{ $error }}</li>
-        @endforeach
-      </ul>
-    </div>
-  @endif
-
-  <div style="display:grid; gap:20px;">
+  <div class="space-y-5">
     @foreach($plans as $plan)
-      <div class="admin-card" style="{{ $plan->is_featured ? 'border-left:4px solid #111;' : '' }}">
-        <div style="display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:20px;">
-          <div style="display:flex; align-items:center; gap:12px;">
-            <h2 style="margin:0; font-size:22px;">{{ $plan->name }}</h2>
-            <span style="font-size:12px; color:#888; font-weight:600; text-transform:uppercase; letter-spacing:.05em;">{{ $plan->slug }}</span>
+      <div class="bg-white border rounded-2xl shadow-sm overflow-hidden
+                  {{ $plan->is_featured ? 'border-l-4 border-l-indigo-500 border-slate-200' : 'border-slate-200' }}">
+
+        {{-- Plan header --}}
+        <div class="flex items-center justify-between gap-4 flex-wrap px-6 py-4 border-b border-slate-100 bg-slate-50">
+          <div class="flex items-center gap-3 flex-wrap">
+            <h2 class="text-lg font-extrabold text-slate-900">{{ $plan->name }}</h2>
+            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">{{ $plan->slug }}</span>
             @if($plan->is_featured)
-              <span style="padding:3px 10px; border-radius:999px; background:#111; color:#fff; font-size:11px; font-weight:700;">⭐ Destacado</span>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-600 text-white">
+                Destacado
+              </span>
             @endif
             @if(!$plan->is_active)
-              <span style="padding:3px 10px; border-radius:999px; background:#f8d7da; color:#842029; font-size:11px; font-weight:700;">Inactivo</span>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-700">
+                Inactivo
+              </span>
             @endif
           </div>
 
-          <div style="font-size:13px; color:#666;">
-            Precio actual mensual:
-            <strong style="color:#111; font-size:16px;">
-              ARS {{ number_format($plan->monthly_price, 0, ',', '.') }}
-            </strong>
-            &nbsp;·&nbsp;
-            {{ $plan->longTermLabel() }}:
-            <strong style="color:#111;">
-              ARS {{ number_format($plan->annualTotalPrice(), 0, ',', '.') }}
-            </strong>
-            ({{ $plan->annual_discount_percentage }}% off · {{ $plan->longTermMonths() }} meses)
+          <div class="text-sm text-slate-500 flex flex-wrap items-center gap-x-3 gap-y-1">
+            <span>
+              Mensual:
+              <span class="font-extrabold text-slate-900 text-base">ARS {{ number_format($plan->monthly_price, 0, ',', '.') }}</span>
+            </span>
+            <span class="text-slate-300">·</span>
+            <span>
+              {{ $plan->longTermLabel() }}:
+              <span class="font-bold text-slate-900">ARS {{ number_format($plan->annualTotalPrice(), 0, ',', '.') }}</span>
+              <span class="text-xs text-slate-400">({{ $plan->annual_discount_percentage }}% off · {{ $plan->longTermMonths() }} meses)</span>
+            </span>
           </div>
         </div>
 
-        <form method="POST" action="{{ route('sa.plans.update', $plan) }}">
+        {{-- Form --}}
+        <form method="POST" action="{{ route('sa.plans.update', $plan) }}" class="px-6 py-5">
           @csrf
-          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:14px; margin-bottom:18px;">
 
-            <div>
-              <label style="display:block; font-size:12px; color:#666; margin-bottom:6px;">Nombre del plan</label>
-              <input
-                type="text"
-                name="name"
-                value="{{ old('name', $plan->name) }}"
-                required
-                style="padding:10px 12px; border:1px solid #ddd; border-radius:10px; width:100%; font-size:14px;"
-              >
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-5">
+
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Nombre del plan</label>
+              <input type="text" name="name" value="{{ old('name', $plan->name) }}" required
+                     class="px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 focus:shadow-indigo-100 transition-all duration-200 w-full">
             </div>
 
-            <div>
-              <label style="display:block; font-size:12px; color:#666; margin-bottom:6px;">Máx. canchas (vacío = ilimitadas)</label>
-              <input
-                type="number"
-                name="max_fields"
-                value="{{ old('max_fields', $plan->max_fields) }}"
-                min="1"
-                placeholder="Ilimitadas"
-                style="padding:10px 12px; border:1px solid #ddd; border-radius:10px; width:100%; font-size:14px;"
-              >
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Máx. canchas</label>
+              <input type="number" name="max_fields" value="{{ old('max_fields', $plan->max_fields) }}"
+                     min="1" placeholder="Ilimitadas"
+                     class="px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 focus:shadow-indigo-100 transition-all duration-200 w-full">
             </div>
 
-            <div>
-              <label style="display:block; font-size:12px; color:#666; margin-bottom:6px;">Precio mensual (ARS)</label>
-              <input
-                type="number"
-                name="monthly_price"
-                value="{{ old('monthly_price', $plan->monthly_price) }}"
-                min="1"
-                step="0.01"
-                required
-                style="padding:10px 12px; border:1px solid #ddd; border-radius:10px; width:100%; font-size:14px;"
-              >
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Precio mensual (ARS)</label>
+              <input type="number" name="monthly_price" value="{{ old('monthly_price', $plan->monthly_price) }}"
+                     min="1" step="0.01" required
+                     class="px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 focus:shadow-indigo-100 transition-all duration-200 w-full">
             </div>
 
-            <div>
-              <label style="display:block; font-size:12px; color:#666; margin-bottom:6px;">Días de prueba gratuita (0 = sin prueba)</label>
-              <input
-                type="number"
-                name="trial_days"
-                value="{{ old('trial_days', $plan->trial_days) }}"
-                min="0"
-                max="30"
-                required
-                style="padding:10px 12px; border:1px solid #ddd; border-radius:10px; width:100%; font-size:14px;"
-              >
-              <div style="font-size:11px; color:#888; margin-top:4px;">
-                @if($plan->trial_days > 0)
-                  <span style="color:#157347; font-weight:600;">✓ {{ $plan->trial_days }} días gratis activos</span>
-                @else
-                  Sin período de prueba
-                @endif
-              </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Días prueba gratuita</label>
+              <input type="number" name="trial_days" value="{{ old('trial_days', $plan->trial_days) }}"
+                     min="0" max="30" required
+                     class="px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 focus:shadow-indigo-100 transition-all duration-200 w-full">
+              <p class="text-xs mt-1
+                        {{ $plan->trial_days > 0 ? 'text-emerald-600 font-semibold' : 'text-slate-400' }}">
+                {{ $plan->trial_days > 0 ? $plan->trial_days.' días gratis activos' : 'Sin período de prueba' }}
+              </p>
             </div>
 
-            <div>
-              <label style="display:block; font-size:12px; color:#666; margin-bottom:6px;">Tipo de plan largo plazo</label>
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Tipo plan largo plazo</label>
               <select name="long_term_months" required
-                style="padding:10px 12px; border:1px solid #ddd; border-radius:10px; width:100%; font-size:14px;">
+                      class="px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 focus:shadow-indigo-100 transition-all duration-200 w-full">
                 <option value="12" {{ (old('long_term_months', $plan->long_term_months) == 12) ? 'selected' : '' }}>Anual (12 meses)</option>
                 <option value="6"  {{ (old('long_term_months', $plan->long_term_months) == 6)  ? 'selected' : '' }}>Semestral (6 meses)</option>
               </select>
             </div>
 
-            <div>
-              <label style="display:block; font-size:12px; color:#666; margin-bottom:6px;">Descuento largo plazo (%)</label>
-              <input
-                type="number"
-                name="annual_discount_percentage"
-                value="{{ old('annual_discount_percentage', $plan->annual_discount_percentage) }}"
-                min="0"
-                max="100"
-                step="0.01"
-                required
-                style="padding:10px 12px; border:1px solid #ddd; border-radius:10px; width:100%; font-size:14px;"
-              >
-              <div style="font-size:11px; color:#888; margin-top:4px;">
-                Precio {{ $plan->longTermLabel() }} resultante: ARS {{ number_format($plan->annualTotalPrice(), 0, ',', '.') }}
-              </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Descuento largo plazo (%)</label>
+              <input type="number" name="annual_discount_percentage"
+                     value="{{ old('annual_discount_percentage', $plan->annual_discount_percentage) }}"
+                     min="0" max="100" step="0.01" required
+                     class="px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 focus:shadow-indigo-100 transition-all duration-200 w-full">
+              <p class="text-xs text-slate-400 mt-1">
+                {{ $plan->longTermLabel() }}: ARS {{ number_format($plan->annualTotalPrice(), 0, ',', '.') }}
+              </p>
             </div>
 
-            <div>
-              <label style="display:block; font-size:12px; color:#666; margin-bottom:6px;">Orden de aparición</label>
-              <input
-                type="number"
-                name="sort_order"
-                value="{{ old('sort_order', $plan->sort_order) }}"
-                min="0"
-                required
-                style="padding:10px 12px; border:1px solid #ddd; border-radius:10px; width:100%; font-size:14px;"
-              >
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Orden de aparición</label>
+              <input type="number" name="sort_order" value="{{ old('sort_order', $plan->sort_order) }}"
+                     min="0" required
+                     class="px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 focus:shadow-indigo-100 transition-all duration-200 w-full">
             </div>
 
-            <div style="display:flex; flex-direction:column; gap:10px; justify-content:flex-end;">
-              <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:14px;">
+            <div class="flex flex-col gap-3 justify-end pb-1">
+              <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-700">
                 <input type="hidden" name="is_active" value="0">
-                <input
-                  type="checkbox"
-                  name="is_active"
-                  value="1"
-                  {{ old('is_active', $plan->is_active) ? 'checked' : '' }}
-                  style="width:16px; height:16px;"
-                >
-                Plan activo (visible en /planes)
+                <input type="checkbox" name="is_active" value="1"
+                       {{ old('is_active', $plan->is_active) ? 'checked' : '' }}
+                       class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                Plan activo
               </label>
-
-              <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:14px;">
+              <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-700">
                 <input type="hidden" name="is_featured" value="0">
-                <input
-                  type="checkbox"
-                  name="is_featured"
-                  value="1"
-                  {{ old('is_featured', $plan->is_featured) ? 'checked' : '' }}
-                  style="width:16px; height:16px;"
-                >
-                Destacado ("Más popular")
+                <input type="checkbox" name="is_featured" value="1"
+                       {{ old('is_featured', $plan->is_featured) ? 'checked' : '' }}
+                       class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                Destacado
               </label>
             </div>
 
           </div>
 
-          <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
-            <button type="submit" style="padding:10px 20px; border:0; background:#111; color:#fff; border-radius:10px; cursor:pointer; font-size:14px; font-weight:700;">
+          <div class="flex items-center gap-5 flex-wrap pt-1 border-t border-slate-100">
+            <button type="submit"
+                    class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white text-sm font-bold rounded-xl shadow-sm hover:shadow-indigo-200 hover:shadow-md transition-all duration-200">
               Guardar cambios
             </button>
-
-            <div style="font-size:13px; color:#888;">
-              Slug: <code>{{ $plan->slug }}</code> · ID: {{ $plan->id }}
-            </div>
+            <p class="text-xs text-slate-400">
+              Slug: <code class="font-mono text-slate-600">{{ $plan->slug }}</code>
+              <span class="mx-1">·</span>
+              ID: {{ $plan->id }}
+            </p>
           </div>
+
         </form>
       </div>
     @endforeach
   </div>
 
-  <div class="admin-card" style="margin-top:20px; background:#f7f7f8; border-color:#e8e8e8;">
-    <h3 style="margin-top:0; font-size:16px;">ℹ️ Cómo funciona la facturación</h3>
-    <div style="color:#555; font-size:14px; line-height:1.7;">
-      <p style="margin:0 0 8px 0;">
-        <strong>Mensual:</strong> el usuario paga el precio mensual del plan y obtiene 30 días de acceso.
+  {{-- Info box --}}
+  <div class="mt-6 bg-slate-50 border border-slate-200 rounded-2xl p-6">
+    <h3 class="text-sm font-bold text-slate-900 mb-3">Como funciona la facturacion</h3>
+    <div class="text-sm text-slate-600 leading-relaxed space-y-2">
+      <p>
+        <span class="font-semibold text-slate-800">Mensual:</span>
+        el usuario paga el precio mensual del plan y obtiene 30 dias de acceso.
       </p>
-      <p style="margin:0 0 8px 0;">
-        <strong>Anual / Semestral:</strong> el usuario paga <code>precio_mensual × meses × (1 − descuento%)</code> de una sola vez y obtiene acceso por esa cantidad de meses (12 o 6).
+      <p>
+        <span class="font-semibold text-slate-800">Anual / Semestral:</span>
+        el usuario paga <code class="text-xs bg-slate-200 px-1.5 py-0.5 rounded font-mono">precio_mensual x meses x (1 - descuento%)</code>
+        de una sola vez y obtiene acceso por esa cantidad de meses (12 o 6).
       </p>
-      <p style="margin:0;">
-        El <strong>slug</strong> del plan (starter, pro, full) no se puede cambiar desde acá ya que identifica el plan en el código.
-        Si necesitás agregar un plan nuevo, contactá al equipo técnico.
+      <p>
+        El <span class="font-semibold">slug</span> del plan (starter, pro, full) no se puede cambiar desde aca
+        ya que identifica el plan en el codigo. Si necesitas agregar un plan nuevo, contacta al equipo tecnico.
       </p>
     </div>
   </div>

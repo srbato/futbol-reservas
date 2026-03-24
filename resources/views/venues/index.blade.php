@@ -3,84 +3,208 @@
 @section('title','Encontrá tu cancha — TuCancha')
 
 @push('styles')
+<style>
+  /* ── AOS override ─────────────────────────────── */
+  [data-aos] { pointer-events: auto !important; }
+
   /* ── Reset / base ─────────────────────────────── */
   .vi-wrap { display: flex; flex-direction: column; gap: 0; }
 
+  /* ── Scroll progress bar ──────────────────────── */
+  .vi-scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    width: 0%;
+    background: #22c55e;
+    z-index: 9999;
+    transition: width 0.1s linear;
+    box-shadow: 0 0 8px rgba(34,197,94,.6);
+  }
+
   /* ── Hero ─────────────────────────────────────── */
   .vi-hero {
-    background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 60%, #16213e 100%);
+    position: relative;
     border-radius: 24px;
-    padding: 52px 48px 40px;
+    padding: 60px 52px 48px;
     color: #fff;
     margin-bottom: 28px;
-    position: relative;
     overflow: hidden;
+    min-height: 340px;
   }
 
-  .vi-hero::before {
-    content: '';
+  .vi-hero-bg {
     position: absolute;
     inset: 0;
-    background:
-      radial-gradient(ellipse 55% 70% at 10% 60%, rgba(74,222,128,.07) 0%, transparent 65%),
-      radial-gradient(ellipse 45% 50% at 85% 20%, rgba(99,102,241,.09) 0%, transparent 65%);
+    background-image: url('/Images/hero-cancha.webp');
+    background-size: cover;
+    background-position: center;
+    opacity: 0.4;
+    z-index: 0;
+  }
+
+  .vi-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(0,0,0,.88) 0%, rgba(0,0,0,.6) 60%, rgba(10,30,10,.5) 100%);
+    z-index: 1;
+  }
+
+  /* Líneas decorativas de campo — solo desktop */
+  @media (min-width: 769px) {
+    .vi-hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 1px;
+      height: 100%;
+      border-left: 1px solid rgba(255,255,255,.04);
+      z-index: 1;
+      pointer-events: none;
+    }
+    .vi-hero-field-circle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.04);
+      z-index: 1;
+      pointer-events: none;
+    }
+  }
+  @media (max-width: 768px) {
+    .vi-hero-field-circle { display: none; }
+  }
+
+  /* Partículas */
+  .vi-particle {
+    position: absolute;
+    border-radius: 50%;
+    z-index: 1;
     pointer-events: none;
+    animation: vi-float linear infinite;
   }
 
-  .vi-hero-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 24px;
-    flex-wrap: wrap;
-    margin-bottom: 36px;
+  @keyframes vi-float {
+    0%   { transform: translateY(0px) rotate(0deg); opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 1; }
+    100% { transform: translateY(-120px) rotate(360deg); opacity: 0; }
+  }
+
+  @media (max-width: 768px) {
+    .vi-particle { display: none; }
+  }
+
+  .vi-hero-content {
     position: relative;
+    z-index: 2;
   }
 
+  /* Badge pulsante */
+  .vi-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: rgba(110,234,160,.12);
+    border: 1px solid rgba(110,234,160,.3);
+    font-size: 13px;
+    font-weight: 700;
+    color: #6eeaa0;
+    margin-bottom: 20px;
+  }
+
+  .vi-hero-badge-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #22c55e;
+    flex-shrink: 0;
+    animation: vi-pulse 1.8s ease-in-out infinite;
+  }
+
+  @keyframes vi-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(34,197,94,.5); }
+    50% { opacity: .8; transform: scale(1.1); box-shadow: 0 0 0 6px rgba(34,197,94,.0); }
+  }
+
+  /* H1 con efecto de aparición por palabras */
   .vi-hero-text h1 {
-    margin: 0 0 10px 0;
-    font-size: 52px;
-    font-weight: 800;
+    margin: 0 0 14px 0;
+    font-size: 60px;
+    font-weight: 900;
     letter-spacing: -0.04em;
-    line-height: 1.04;
+    line-height: 1.02;
   }
 
   .vi-hero-text h1 em {
     font-style: normal;
-    color: #4ade80;
+    color: #6eeaa0;
+  }
+
+  .vi-word-reveal {
+    display: inline-block;
+    clip-path: inset(0 100% 0 0);
+    opacity: 0;
+    animation: vi-char-reveal 0.6s cubic-bezier(0.22,1,0.36,1) forwards;
+  }
+
+  @keyframes vi-char-reveal {
+    0%   { clip-path: inset(0 100% 0 0); opacity: 0; }
+    1%   { opacity: 1; }
+    100% { clip-path: inset(0 0% 0 0); opacity: 1; }
   }
 
   .vi-hero-text p {
-    margin: 0;
-    color: rgba(255,255,255,.65);
+    margin: 0 0 20px 0;
+    color: rgba(255,255,255,.72);
     font-size: 17px;
     line-height: 1.6;
-    max-width: 480px;
+    max-width: 520px;
   }
 
-  .vi-hero-stat {
-    background: rgba(255,255,255,.07);
-    border: 1px solid rgba(255,255,255,.12);
-    border-radius: 20px;
-    padding: 20px 28px;
-    text-align: center;
-    flex-shrink: 0;
-    backdrop-filter: blur(6px);
+  /* Microstats */
+  .vi-hero-microstats {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
   }
 
-  .vi-hero-stat-num {
-    font-size: 48px;
+  .vi-hero-microstat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .vi-hero-microstat-val {
+    font-size: 22px;
     font-weight: 800;
-    letter-spacing: -0.04em;
+    color: #6eeaa0;
+    letter-spacing: -0.03em;
     line-height: 1;
-    color: #4ade80;
   }
 
-  .vi-hero-stat-label {
-    font-size: 13px;
-    color: rgba(255,255,255,.6);
-    margin-top: 4px;
+  .vi-hero-microstat-label {
+    font-size: 11px;
+    color: rgba(255,255,255,.5);
     font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+
+  .vi-hero-microstat-sep {
+    width: 1px;
+    height: 32px;
+    background: rgba(255,255,255,.12);
+    align-self: center;
   }
 
   /* ── Search bar ───────────────────────────────── */
@@ -88,18 +212,38 @@
     position: relative;
     display: flex;
     align-items: center;
-    background: rgba(255,255,255,.08);
+    background: rgba(255,255,255,.09);
     border: 1px solid rgba(255,255,255,.18);
     border-radius: 16px;
     padding: 6px 6px 6px 18px;
     gap: 8px;
     backdrop-filter: blur(8px);
     transition: border-color .2s, background .2s;
+    overflow: hidden;
+  }
+
+  /* Shimmer one-shot en load */
+  .vi-search-bar::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,.18) 50%, transparent 70%);
+    background-size: 200% 100%;
+    animation: vi-shimmer 1.2s ease 0.8s 1 forwards;
+    pointer-events: none;
+    z-index: 3;
+    opacity: 0;
+  }
+
+  @keyframes vi-shimmer {
+    0%   { background-position: 200% 0; opacity: 1; }
+    100% { background-position: -200% 0; opacity: 0; }
   }
 
   .vi-search-bar:focus-within {
-    border-color: rgba(74,222,128,.5);
-    background: rgba(255,255,255,.11);
+    border-color: rgba(110,234,160,.55);
+    background: rgba(255,255,255,.12);
+    box-shadow: 0 0 0 3px rgba(110,234,160,.1);
   }
 
   .vi-search-bar input {
@@ -111,12 +255,14 @@
     font-size: 16px;
     font-family: inherit;
     min-width: 0;
+    position: relative;
+    z-index: 2;
   }
 
   .vi-search-bar input::placeholder { color: rgba(255,255,255,.45); }
 
   .vi-search-btn {
-    background: #4ade80;
+    background: #22c55e;
     color: #052e16;
     border: none;
     border-radius: 12px;
@@ -126,10 +272,16 @@
     cursor: pointer;
     font-family: inherit;
     white-space: nowrap;
-    transition: background .15s, transform .15s;
+    transition: background .15s, transform .15s, box-shadow .15s;
+    position: relative;
+    z-index: 2;
   }
 
-  .vi-search-btn:hover { background: #22c55e; transform: translateY(-1px); }
+  .vi-search-btn:hover {
+    background: #16a34a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(34,197,94,.35);
+  }
 
   /* ── Quick filters row ────────────────────────── */
   .vi-filters-row {
@@ -174,9 +326,9 @@
   }
 
   .vi-filter-chip.active {
-    background: rgba(74,222,128,.15);
-    border-color: rgba(74,222,128,.4);
-    color: #4ade80;
+    background: rgba(110,234,160,.15);
+    border: 1px solid rgba(110,234,160,.4);
+    color: #6eeaa0;
   }
 
   .vi-filter-sep {
@@ -195,22 +347,34 @@
     padding: 7px 10px;
     border-radius: 999px;
     transition: color .15s;
+    text-decoration: none;
   }
 
   .vi-clear-btn:hover { color: rgba(255,255,255,.85); }
 
-  /* Advanced filter panel */
+  /* Advanced filter panel — glass effect */
   .vi-adv-panel {
-    display: none;
-    margin-top: 12px;
-    background: rgba(255,255,255,.06);
-    border: 1px solid rgba(255,255,255,.12);
-    border-radius: 16px;
-    padding: 18px 20px;
-    position: relative;
+    max-height: 0;
+    overflow: hidden;
+    margin-top: 0;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), margin-top 0.3s ease, opacity 0.3s ease;
+    opacity: 0;
   }
 
-  .vi-adv-panel.open { display: block; }
+  .vi-adv-panel.open {
+    max-height: 400px;
+    margin-top: 12px;
+    opacity: 1;
+  }
+
+  .vi-adv-panel-inner {
+    background: rgba(0,0,0,.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(110,234,160,.18);
+    border-radius: 16px;
+    padding: 18px 20px;
+  }
 
   .vi-adv-grid {
     display: grid;
@@ -243,7 +407,7 @@
   }
 
   .vi-adv-field input:focus,
-  .vi-adv-field select:focus { border-color: rgba(74,222,128,.5); }
+  .vi-adv-field select:focus { border-color: rgba(110,234,160,.5); }
 
   .vi-adv-field select option { background: #111; color: #fff; }
 
@@ -253,7 +417,7 @@
     margin-top: 14px;
   }
 
-  /* ── Active filters summary ───────────────────── */
+  /* ── Active filter tags ───────────────────────── */
   .vi-active-filters {
     display: flex;
     gap: 8px;
@@ -268,21 +432,75 @@
     gap: 6px;
     padding: 5px 12px;
     border-radius: 999px;
-    background: #111;
-    color: #fff;
+    background: #052e16;
+    color: #4ade80;
     font-size: 12px;
     font-weight: 700;
-    border: 1px solid #333;
+    border: 1px solid #16a34a;
+  }
+
+  /* ── Search results panel ─────────────────────── */
+  .vi-search-results-panel {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 28px 28px 32px;
+    margin-bottom: 28px;
+  }
+
+  .vi-search-results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .vi-search-results-header h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #111;
+  }
+
+  .vi-search-results-count {
+    font-size: 13px;
+    color: #4ade80;
+    font-weight: 700;
+    background: rgba(74,222,128,.1);
+    border: 1px solid rgba(74,222,128,.2);
+    padding: 4px 14px;
+    border-radius: 999px;
   }
 
   /* ── Featured section ─────────────────────────── */
   .vi-featured {
-    background: #fff;
-    border: 1px solid #ececec;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
     border-radius: 24px;
-    padding: 24px 24px 20px;
+    padding: 32px 32px 28px;
     margin-bottom: 28px;
-    box-shadow: 0 2px 16px rgba(0,0,0,.04);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 16px rgba(0,0,0,.06);
+  }
+
+  /* Número decorativo grande en el fondo */
+  .vi-featured-bg-num {
+    position: absolute;
+    right: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 180px;
+    font-weight: 900;
+    color: rgba(0,0,0,.04);
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+    transition: opacity 0.4s ease;
+    z-index: 0;
   }
 
   .vi-featured-header {
@@ -291,7 +509,9 @@
     align-items: center;
     gap: 16px;
     flex-wrap: wrap;
-    margin-bottom: 18px;
+    margin-bottom: 10px;
+    position: relative;
+    z-index: 1;
   }
 
   .vi-featured-header h2 {
@@ -299,6 +519,7 @@
     font-size: 20px;
     font-weight: 800;
     letter-spacing: -0.02em;
+    color: #111;
   }
 
   .vi-featured-header .carousel-subtitle {
@@ -309,7 +530,8 @@
 
   .feature-tabs {
     display: flex;
-    background: #f3f3f3;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
     border-radius: 999px;
     padding: 3px;
     gap: 2px;
@@ -320,7 +542,7 @@
     border-radius: 999px;
     font-size: 13px;
     font-weight: 700;
-    color: #888;
+    color: #666;
     cursor: pointer;
     transition: background .15s, color .15s;
     white-space: nowrap;
@@ -328,8 +550,8 @@
   }
 
   .feature-tab.active {
-    background: #111;
-    color: #fff;
+    background: #22c55e;
+    color: #052e16;
   }
 
   .featured-nav-arrows {
@@ -341,24 +563,49 @@
     width: 34px;
     height: 34px;
     border-radius: 50%;
-    border: 1px solid #e0e0e0;
-    background: #fff;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
     font-size: 18px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background .15s, border-color .15s;
-    color: #333;
+    transition: background .15s, border-color .15s, color .15s;
+    color: #555;
   }
 
   .featured-nav-arrow:hover {
-    background: #111;
-    border-color: #111;
-    color: #fff;
+    background: #22c55e;
+    border-color: #22c55e;
+    color: #052e16;
   }
 
-  .feature-carousel { display: none; }
+  /* Barra de progreso del autoplay */
+  .vi-featured-progress {
+    height: 3px;
+    background: #e5e7eb;
+    border-radius: 999px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+  }
+
+  .vi-featured-progress-bar {
+    height: 100%;
+    background: #22c55e;
+    border-radius: 999px;
+    width: 0%;
+    animation: vi-progress 3.5s linear forwards;
+    box-shadow: 0 0 6px rgba(34,197,94,.5);
+  }
+
+  @keyframes vi-progress {
+    from { width: 0%; }
+    to   { width: 100%; }
+  }
+
+  .feature-carousel { display: none; position: relative; z-index: 1; }
   .feature-carousel.active { display: block; }
 
   .feature-carousel-shell {
@@ -381,20 +628,20 @@
 
   /* Featured card — tall with image overlay */
   .featured-card {
-    flex: 0 0 260px;
+    flex: 0 0 300px;
     scroll-snap-align: start;
     border-radius: 18px;
     overflow: hidden;
     position: relative;
-    height: 220px;
+    height: 260px;
     border: none;
-    box-shadow: 0 4px 20px rgba(0,0,0,.1);
-    transition: transform .2s, box-shadow .2s;
+    box-shadow: 0 4px 20px rgba(0,0,0,.25);
+    transition: transform .3s ease, box-shadow .3s ease, opacity .3s ease;
   }
 
   .featured-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 28px rgba(0,0,0,.15);
+    box-shadow: 0 8px 32px rgba(34,197,94,.2);
   }
 
   .featured-card img {
@@ -408,7 +655,7 @@
   .featured-card-placeholder {
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, #1a1a2e, #2d2d44);
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -418,7 +665,7 @@
   .featured-card-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to top, rgba(0,0,0,.85) 0%, rgba(0,0,0,.2) 55%, transparent 100%);
+    background: linear-gradient(to top, rgba(0,0,0,.88) 0%, rgba(0,0,0,.2) 55%, transparent 100%);
   }
 
   .featured-card-body {
@@ -462,30 +709,36 @@
     display: inline-block;
     padding: 7px 14px;
     border-radius: 10px;
-    background: #4ade80;
+    background: #22c55e;
     color: #052e16;
     font-size: 12px;
     font-weight: 800;
     text-decoration: none;
-    transition: background .15s;
+    transition: background .15s, box-shadow .15s;
   }
 
-  .featured-card-btn:hover { background: #22c55e; }
+  .featured-card-btn:hover {
+    background: #16a34a;
+    box-shadow: 0 4px 14px rgba(34,197,94,.4);
+  }
 
   /* ── Favorites ────────────────────────────────── */
   .vi-favorites {
-    background: #fff;
-    border: 1px solid #ececec;
-    border-radius: 24px;
+    background: #f0fdf4;
+    border-left: 4px solid #22c55e;
+    border-top: 1px solid #bbf7d0;
+    border-right: 1px solid #bbf7d0;
+    border-bottom: 1px solid #bbf7d0;
+    border-radius: 16px;
     padding: 20px 24px;
     margin-bottom: 28px;
-    box-shadow: 0 2px 16px rgba(0,0,0,.04);
   }
 
   .vi-favorites h2 {
     margin: 0 0 14px 0;
     font-size: 17px;
     font-weight: 800;
+    color: #14532d;
   }
 
   .vi-fav-scroll {
@@ -505,28 +758,27 @@
     gap: 7px;
     padding: 8px 16px;
     border-radius: 999px;
-    background: #f3f3f3;
-    border: 1px solid #e8e8e8;
+    background: #fff;
+    border: 1px solid #bbf7d0;
     font-size: 13px;
     font-weight: 700;
-    color: #111;
+    color: #15803d;
     text-decoration: none;
-    transition: background .15s, border-color .15s;
+    transition: background .15s, border-color .15s, color .15s;
   }
 
   .vi-fav-chip:hover {
-    background: #111;
-    color: #fff;
-    border-color: #111;
+    background: #22c55e;
+    color: #052e16;
+    border-color: #22c55e;
   }
 
   /* ── Map ──────────────────────────────────────── */
   .vi-map-wrap {
     border-radius: 24px;
     overflow: hidden;
-    border: 1px solid #e8e8e8;
+    border: 1px solid rgba(74,222,94,.2);
     margin-bottom: 28px;
-    box-shadow: 0 2px 16px rgba(0,0,0,.04);
     position: relative;
   }
 
@@ -538,6 +790,37 @@
     font-size: 13px;
     font-weight: 700;
     color: #111;
+  }
+
+  /* Mapa skeleton antes de carga */
+  .vi-map-skeleton {
+    width: 100%;
+    height: 380px;
+    background: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: vi-skeleton-pulse 1.6s ease-in-out infinite;
+  }
+
+  .vi-map-skeleton-icon {
+    font-size: 40px;
+    opacity: 0.4;
+  }
+
+  @keyframes vi-skeleton-pulse {
+    0%, 100% { background: #f1f5f9; }
+    50%       { background: #e8f0e8; }
+  }
+
+  #map {
+    height: 380px;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+
+  #map.vi-map-loaded {
+    opacity: 1;
   }
 
   /* ── Results header ───────────────────────────── */
@@ -563,7 +846,43 @@
     font-weight: 600;
   }
 
-  /* ── Venue cards ──────────────────────────────── */
+  /* Section title con línea animada */
+  .vi-section-title {
+    position: relative;
+    display: inline-block;
+  }
+
+  .vi-section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 0;
+    height: 3px;
+    width: 0;
+    background: #22c55e;
+    border-radius: 999px;
+    transition: width 0.5s cubic-bezier(0.22,1,0.36,1);
+    box-shadow: 0 0 8px rgba(34,197,94,.4);
+  }
+
+  .vi-section-title.vi-title-visible::after {
+    width: 60px;
+  }
+
+  /* Contador de complejos pill */
+  .vi-count-pill {
+    font-size: 13px;
+    font-weight: 800;
+    background: #22c55e;
+    color: #052e16;
+    padding: 4px 14px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* ── Venue cards grid ─────────────────────────── */
   .vi-venues-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -573,17 +892,26 @@
 
   .vi-venue-card {
     background: #fff;
-    border: 1px solid #e8e8e8;
+    border: 1px solid #e2e8f0;
     border-radius: 22px;
     overflow: hidden;
-    transition: transform .2s, box-shadow .2s;
+    transition: transform .3s ease, box-shadow .3s ease;
     display: flex;
     flex-direction: column;
+    position: relative;
+    transform-style: preserve-3d;
+    will-change: transform;
+    cursor: none;
+  }
+
+  @media (max-width: 768px) {
+    .vi-venue-card {
+      cursor: auto;
+    }
   }
 
   .vi-venue-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 36px rgba(0,0,0,.1);
+    box-shadow: 0 16px 48px rgba(34,197,94,.18);
   }
 
   .vi-venue-img-wrap {
@@ -601,13 +929,41 @@
   }
 
   .vi-venue-card:hover .vi-venue-img-wrap img {
-    transform: scale(1.04);
+    transform: scale(1.06);
+  }
+
+  /* Skeleton de imagen lazy */
+  .vi-venue-img-wrap img.vi-img-loading {
+    background: linear-gradient(90deg, #e0e0e0 25%, #d0d0d0 50%, #e0e0e0 75%);
+    background-size: 200% 100%;
+    animation: vi-img-skeleton 1.4s linear infinite;
+  }
+
+  @keyframes vi-img-skeleton {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* Shine / glare overlay dentro de la imagen */
+  .vi-card-shine {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    border-radius: 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    background: radial-gradient(circle at 50% 50%, rgba(255,255,255,.15) 0%, transparent 60%);
+  }
+
+  .vi-venue-card:hover .vi-card-shine {
+    opacity: 1;
   }
 
   .vi-venue-img-placeholder {
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #1a1a2e 0%, #2d2d44 100%);
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -632,25 +988,71 @@
     box-shadow: 0 2px 8px rgba(0,0,0,.15);
     transition: transform .15s, background .15s;
     line-height: 1;
+    z-index: 3;
   }
 
   .vi-venue-fav-btn:hover { transform: scale(1.15); background: #fff; }
   .vi-venue-fav-btn.saved { background: #fee2e2; }
 
-  .vi-venue-sport-badge {
+  /* Animación de corazón al clickear */
+  @keyframes vi-heart-pop {
+    0%   { transform: scale(1); }
+    30%  { transform: scale(1.4); }
+    60%  { transform: scale(0.9); }
+    80%  { transform: scale(1.15); }
+    100% { transform: scale(1); }
+  }
+
+  .vi-venue-fav-btn.vi-heart-animating {
+    animation: vi-heart-pop 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+  }
+
+  /* Badge zona (bottom-left) */
+  .vi-venue-zone-badge {
     position: absolute;
     bottom: 12px;
     left: 12px;
     padding: 4px 10px;
     border-radius: 999px;
-    background: rgba(0,0,0,.6);
-    backdrop-filter: blur(4px);
-    color: #fff;
+    background: #052e16;
+    color: #4ade80;
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .04em;
-    border: 1px solid rgba(255,255,255,.15);
+    border: 1px solid rgba(74,222,128,.2);
+    z-index: 3;
+  }
+
+  /* Badge Falta Uno con punto pulsante y contador */
+  .vi-venue-faltauno-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: #22c55e;
+    color: #052e16;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 3px 10px 3px 8px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    z-index: 3;
+  }
+
+  .vi-faltauno-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #052e16;
+    flex-shrink: 0;
+    animation: vi-pulse-dot 1.4s ease-in-out infinite;
+  }
+
+  @keyframes vi-pulse-dot {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50%       { transform: scale(1.5); opacity: 0.7; }
   }
 
   .vi-venue-body {
@@ -675,10 +1077,30 @@
     gap: 6px;
   }
 
+  /* Estrellas con animación en hover de la card */
   .vi-venue-stars {
     color: #f59e0b;
     font-size: 13px;
     letter-spacing: 1px;
+    display: inline-flex;
+    gap: 1px;
+  }
+
+  .vi-star {
+    display: inline-block;
+    transition: filter 0.2s ease, transform 0.2s ease;
+  }
+
+  .vi-venue-card:hover .vi-star:nth-child(1) { animation: vi-star-glow 0.3s ease 0ms forwards; }
+  .vi-venue-card:hover .vi-star:nth-child(2) { animation: vi-star-glow 0.3s ease 50ms forwards; }
+  .vi-venue-card:hover .vi-star:nth-child(3) { animation: vi-star-glow 0.3s ease 100ms forwards; }
+  .vi-venue-card:hover .vi-star:nth-child(4) { animation: vi-star-glow 0.3s ease 150ms forwards; }
+  .vi-venue-card:hover .vi-star:nth-child(5) { animation: vi-star-glow 0.3s ease 200ms forwards; }
+
+  @keyframes vi-star-glow {
+    0%   { filter: none; transform: scale(1); }
+    50%  { filter: drop-shadow(0 0 4px #f59e0b); transform: scale(1.2); }
+    100% { filter: drop-shadow(0 0 4px #f59e0b); transform: scale(1); }
   }
 
   .vi-venue-rating-text {
@@ -698,17 +1120,46 @@
     flex-wrap: wrap;
   }
 
+  /* Pills deportes con colores por deporte */
   .vi-tag {
     display: inline-flex;
     align-items: center;
     gap: 4px;
     padding: 3px 10px;
     border-radius: 999px;
-    background: #f3f3f3;
-    border: 1px solid #e8e8e8;
     font-size: 12px;
     font-weight: 600;
-    color: #555;
+  }
+
+  .vi-tag-football {
+    background: rgba(34,197,94,.12);
+    border: 1px solid rgba(34,197,94,.3);
+    color: #16a34a;
+  }
+  .vi-tag-padel {
+    background: rgba(59,130,246,.12);
+    border: 1px solid rgba(59,130,246,.3);
+    color: #2563eb;
+  }
+  .vi-tag-tennis {
+    background: rgba(245,158,11,.12);
+    border: 1px solid rgba(245,158,11,.3);
+    color: #d97706;
+  }
+  .vi-tag-basketball {
+    background: rgba(249,115,22,.12);
+    border: 1px solid rgba(249,115,22,.3);
+    color: #ea580c;
+  }
+  .vi-tag-volleyball {
+    background: rgba(139,92,246,.12);
+    border: 1px solid rgba(139,92,246,.3);
+    color: #7c3aed;
+  }
+  .vi-tag-default {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #15803d;
   }
 
   .vi-venue-desc {
@@ -729,6 +1180,7 @@
     padding-top: 4px;
   }
 
+  /* Botón "Ver complejo" */
   .vi-btn-primary {
     flex: 1;
     padding: 10px 16px;
@@ -742,87 +1194,159 @@
     cursor: pointer;
     font-family: inherit;
     text-decoration: none;
-    transition: background .15s;
+    transition: background .15s, box-shadow .15s, transform .15s;
     display: inline-block;
   }
 
-  .vi-btn-primary:hover { background: #222; }
+  .vi-btn-primary:hover {
+    background: #22c55e;
+    color: #052e16;
+    box-shadow: 0 4px 18px rgba(34,197,94,.35);
+    transform: translateY(-1px);
+  }
 
   /* ── Empty state ──────────────────────────────── */
   .vi-empty {
-    background: #fff;
-    border: 1px solid #e8e8e8;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
     border-radius: 24px;
     padding: 56px 32px;
     text-align: center;
+    color: #111;
   }
 
-  .vi-empty-icon { font-size: 48px; margin-bottom: 16px; }
+  .vi-empty-svg {
+    margin-bottom: 20px;
+  }
 
   .vi-empty h3 {
     margin: 0 0 8px 0;
     font-size: 20px;
     font-weight: 800;
+    color: #111;
   }
 
   .vi-empty p {
-    margin: 0;
+    margin: 0 0 24px 0;
     color: #666;
     font-size: 15px;
   }
 
-  /* ── Search results panel ─────────────────────── */
-  .vi-search-results-panel {
-    background: #fff;
-    border: 1px solid #e8e8e8;
-    border-radius: 24px;
-    padding: 28px 28px 32px;
-    margin-bottom: 28px;
+  .vi-empty-clear-btn {
+    display: inline-block;
+    padding: 11px 24px;
+    border-radius: 12px;
+    background: #22c55e;
+    color: #052e16;
+    font-size: 14px;
+    font-weight: 800;
+    text-decoration: none;
+    transition: background .15s, box-shadow .15s;
   }
 
-  .vi-search-results-header {
+  .vi-empty-clear-btn:hover {
+    background: #16a34a;
+    box-shadow: 0 4px 18px rgba(34,197,94,.35);
+  }
+
+  /* ── Custom cursor dot ────────────────────────── */
+  .vi-cursor-dot {
+    position: fixed;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #22c55e;
+    pointer-events: none;
+    z-index: 99999;
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.15s ease, opacity 0.15s ease;
+    opacity: 0;
+    box-shadow: 0 0 12px rgba(34,197,94,.6);
+    mix-blend-mode: normal;
+  }
+
+  .vi-cursor-dot.vi-cursor-active {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+
+  @media (max-width: 768px) {
+    .vi-cursor-dot { display: none; }
+  }
+
+  /* ── Floating Action Button ───────────────────── */
+  .vi-fab {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #22c55e;
+    color: #052e16;
+    border: none;
+    cursor: pointer;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-    gap: 10px;
+    justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 8px 32px rgba(34,197,94,.4);
+    z-index: 9000;
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease, box-shadow 0.2s ease;
+    opacity: 0;
+    transform: translateY(20px) scale(0.8);
   }
 
-  .vi-search-results-header h2 {
-    margin: 0;
-    font-size: 20px;
-    font-weight: 800;
-    letter-spacing: -0.02em;
+  .vi-fab.vi-fab-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 
-  .vi-search-results-count {
-    font-size: 13px;
-    color: #888;
-    font-weight: 600;
-    background: #f3f3f3;
-    padding: 4px 12px;
-    border-radius: 999px;
+  .vi-fab:hover {
+    background: #16a34a;
+    box-shadow: 0 12px 40px rgba(34,197,94,.55);
+    transform: scale(1.1);
+  }
+
+  .vi-fab-tooltip {
+    position: absolute;
+    right: calc(100% + 10px);
+    top: 50%;
+    transform: translateY(-50%);
+    background: #111;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 8px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    border: 1px solid #e2e8f0;
+  }
+
+  .vi-fab:hover .vi-fab-tooltip {
+    opacity: 1;
   }
 
   /* ── Responsive ───────────────────────────────── */
   @media (max-width: 900px) {
-    .vi-hero { padding: 36px 24px 28px; }
-    .vi-hero-text h1 { font-size: 36px; }
-    .vi-hero-top { flex-direction: column; gap: 16px; }
-    .vi-hero-stat { align-self: flex-start; }
+    .vi-hero { padding: 40px 28px 32px; }
+    .vi-hero-text h1 { font-size: 40px; }
+    .vi-hero-microstats { gap: 16px; }
     .feature-tabs { display: none; }
+    .vi-featured { padding: 24px 20px; }
   }
 
   @media (max-width: 640px) {
-    .vi-hero-text h1 { font-size: 28px; }
+    .vi-hero-text h1 { font-size: 30px; }
+    .vi-hero-badge { font-size: 12px; }
     .vi-venues-grid { grid-template-columns: 1fr; }
     .vi-adv-grid { grid-template-columns: 1fr 1fr; }
-    /* Evita zoom automático en iOS */
     .vi-adv-field input,
     .vi-adv-field select { font-size: 16px; }
     .vi-search-bar input { font-size: 16px; }
-    /* Chips de filtro: un poco más compactos */
     .vi-filter-chip { font-size: 12px; padding: 6px 11px; }
     .vi-filters-row { gap: 6px; }
   }
@@ -830,114 +1354,179 @@
   @media (max-width: 400px) {
     .vi-adv-grid { grid-template-columns: 1fr; }
   }
+</style>
 @endpush
 
 @section('content')
+
+{{-- Scroll progress bar --}}
+<div class="vi-scroll-progress" id="viScrollProgress"></div>
+
+{{-- Custom cursor dot --}}
+<div class="vi-cursor-dot" id="viCursorDot"></div>
+
+{{-- Floating Action Button --}}
+<button class="vi-fab" id="viFab" onclick="document.querySelector('.vi-hero').scrollIntoView({behavior:'smooth'})" title="Buscar cancha">
+  <span class="vi-fab-tooltip">Buscar cancha</span>
+  🔍
+</button>
+
 <div class="vi-wrap">
 
   {{-- ── HERO + SEARCH ─────────────────────────────────────────────────── --}}
   <form method="GET" action="{{ route('venues.index') }}" id="venueSearchForm">
     <div class="vi-hero">
-      <div class="vi-hero-top">
-        <div class="vi-hero-text">
-          <h1>Encontrá tu<br>cancha <em>perfecta</em></h1>
+      {{-- Background image + overlay --}}
+      <div class="vi-hero-bg"></div>
+      <div class="vi-hero-overlay"></div>
+
+      {{-- Línea del campo de fútbol --}}
+      <div class="vi-hero-field-circle"></div>
+
+      {{-- Partículas flotantes (12) --}}
+      <div class="vi-particle" style="width:8px;height:8px;background:rgba(34,197,94,.4);left:8%;bottom:20%;animation-duration:9s;animation-delay:0s;"></div>
+      <div class="vi-particle" style="width:5px;height:5px;background:rgba(110,234,160,.5);left:15%;bottom:35%;animation-duration:12s;animation-delay:1.2s;"></div>
+      <div class="vi-particle" style="width:10px;height:10px;background:rgba(34,197,94,.25);left:25%;bottom:15%;animation-duration:7s;animation-delay:2.5s;"></div>
+      <div class="vi-particle" style="width:6px;height:6px;background:rgba(110,234,160,.6);left:40%;bottom:28%;animation-duration:11s;animation-delay:0.8s;"></div>
+      <div class="vi-particle" style="width:4px;height:4px;background:rgba(34,197,94,.5);left:55%;bottom:10%;animation-duration:8s;animation-delay:3.1s;"></div>
+      <div class="vi-particle" style="width:12px;height:12px;background:rgba(110,234,160,.3);left:62%;bottom:40%;animation-duration:14s;animation-delay:1.7s;"></div>
+      <div class="vi-particle" style="width:7px;height:7px;background:rgba(34,197,94,.35);left:72%;bottom:22%;animation-duration:10s;animation-delay:4.0s;"></div>
+      <div class="vi-particle" style="width:5px;height:5px;background:rgba(110,234,160,.55);left:80%;bottom:48%;animation-duration:6s;animation-delay:0.4s;"></div>
+      <div class="vi-particle" style="width:9px;height:9px;background:rgba(34,197,94,.3);left:88%;bottom:18%;animation-duration:13s;animation-delay:2.2s;"></div>
+      <div class="vi-particle" style="width:4px;height:4px;background:rgba(110,234,160,.6);left:32%;bottom:55%;animation-duration:9s;animation-delay:5.5s;"></div>
+      <div class="vi-particle" style="width:11px;height:11px;background:rgba(34,197,94,.2);left:48%;bottom:62%;animation-duration:11s;animation-delay:3.8s;"></div>
+      <div class="vi-particle" style="width:6px;height:6px;background:rgba(110,234,160,.45);left:92%;bottom:38%;animation-duration:8s;animation-delay:1.0s;"></div>
+
+      <div class="vi-hero-content">
+
+        {{-- Badge pulsante --}}
+        <div class="vi-hero-badge" data-aos="fade-up" data-aos-delay="0">
+          <span class="vi-hero-badge-dot"></span>
+          {{ $allVenues->count() }} complejos disponibles
+        </div>
+
+        {{-- H1 con efecto de aparición por palabras --}}
+        <div class="vi-hero-text" data-aos="fade-up" data-aos-delay="100">
+          <h1>
+            <span class="vi-word-reveal" style="animation-delay:0.2s;">Encontrá</span>&nbsp;<span class="vi-word-reveal" style="animation-delay:0.35s;">tu</span><br>
+            <span class="vi-word-reveal" style="animation-delay:0.5s;">cancha</span>&nbsp;<em><span class="vi-word-reveal" style="animation-delay:0.65s;">perfecta</span></em>
+          </h1>
           <p>Filtrá por zona, deporte, precio y fecha. Reservá online en segundos.</p>
         </div>
-        <div class="vi-hero-stat">
-          <div class="vi-hero-stat-num">{{ $allVenues->count() }}</div>
-          <div class="vi-hero-stat-label">complejos activos</div>
-        </div>
-      </div>
 
-      {{-- Search bar --}}
-      <div class="vi-search-bar">
-        <span style="font-size:18px; flex-shrink:0;">🔍</span>
-        <input
-          type="text"
-          name="q"
-          value="{{ $q ?? '' }}"
-          placeholder="Buscá por nombre, zona o descripción..."
-          autocomplete="off"
-        >
-        <button type="submit" class="vi-search-btn">Buscar</button>
-      </div>
-
-      {{-- Quick filter chips --}}
-      <div class="vi-filters-row">
-
-        {{-- Zona --}}
-        <label class="vi-filter-chip {{ ($zone ?? '') ? 'active' : '' }}">
-          📍 {{ ($zone ?? '') ?: 'Zona' }}
-          <select name="zone" onchange="document.getElementById('venueSearchForm').submit()">
-            <option value="">Todas las zonas</option>
-            @foreach($zones as $z)
-              <option value="{{ $z }}" {{ ($zone ?? '') === $z ? 'selected' : '' }}>{{ $z }}</option>
-            @endforeach
-          </select>
-        </label>
-
-        {{-- Deporte --}}
-        <label class="vi-filter-chip {{ ($sport ?? '') ? 'active' : '' }}">
-          ⚽ {{ match($sport ?? '') { 'football' => 'Fútbol', 'padel' => 'Pádel', 'tennis' => 'Tenis', 'basketball' => 'Básquet', 'volleyball' => 'Vóley', default => 'Deporte' } }}
-          <select name="sport" onchange="document.getElementById('venueSearchForm').submit()">
-            <option value="">Todos los deportes</option>
-            <option value="football" {{ ($sport ?? '') === 'football' ? 'selected' : '' }}>⚽ Fútbol</option>
-            <option value="padel" {{ ($sport ?? '') === 'padel' ? 'selected' : '' }}>🏓 Pádel</option>
-            <option value="tennis" {{ ($sport ?? '') === 'tennis' ? 'selected' : '' }}>🎾 Tenis</option>
-            <option value="basketball" {{ ($sport ?? '') === 'basketball' ? 'selected' : '' }}>🏀 Básquet</option>
-            <option value="volleyball" {{ ($sport ?? '') === 'volleyball' ? 'selected' : '' }}>🏐 Vóley</option>
-          </select>
-        </label>
-
-        {{-- Fecha --}}
-        <label class="vi-filter-chip {{ ($date ?? '') ? 'active' : '' }}" onclick="event.preventDefault(); document.getElementById('dateFilterInput').showPicker()">
-          📅 {{ ($date ?? '') ? \Carbon\Carbon::parse($date)->format('d/m') : 'Fecha' }}
-          <input
-            id="dateFilterInput"
-            type="date"
-            name="date"
-            value="{{ $date ?? '' }}"
-            min="{{ date('Y-m-d') }}"
-            onchange="document.getElementById('venueSearchForm').submit()"
-          >
-        </label>
-
-        <div class="vi-filter-sep"></div>
-
-        {{-- Más filtros --}}
-        <button type="button" class="vi-filter-chip" id="advToggleBtn" onclick="toggleAdv()">
-          ⚙️ Más filtros
-          @if(($minPrice ?? '') || ($maxPrice ?? '') || ($availableAt ?? ''))
-            <span style="background:#4ade80; color:#052e16; border-radius:999px; width:18px; height:18px; display:inline-flex; align-items:center; justify-content:center; font-size:10px;">●</span>
-          @endif
-        </button>
-
-        @if(($q ?? '') || ($zone ?? '') || ($sport ?? '') || ($date ?? '') || ($minPrice ?? '') || ($maxPrice ?? '') || ($availableAt ?? ''))
-          <a href="{{ route('venues.index') }}" class="vi-clear-btn">✕ Limpiar filtros</a>
-        @endif
-      </div>
-
-      {{-- Advanced filter panel --}}
-      <div class="vi-adv-panel {{ (($minPrice ?? '') || ($maxPrice ?? '') || ($availableAt ?? '')) ? 'open' : '' }}" id="advPanel">
-        <div class="vi-adv-grid">
-          <div class="vi-adv-field">
-            <label>Precio mínimo (ARS)</label>
-            <input type="number" name="min_price" min="0" step="1" value="{{ $minPrice ?? '' }}" placeholder="Ej: 5000">
+        {{-- Microstats con contador animado --}}
+        <div class="vi-hero-microstats" data-aos="fade-up" data-aos-delay="200">
+          <div class="vi-hero-microstat">
+            <span class="vi-hero-microstat-val vi-count-anim" data-target="{{ $allVenues->count() }}">{{ $allVenues->count() }}</span>
+            <span class="vi-hero-microstat-label">Complejos</span>
           </div>
-          <div class="vi-adv-field">
-            <label>Precio máximo (ARS)</label>
-            <input type="number" name="max_price" min="0" step="1" value="{{ $maxPrice ?? '' }}" placeholder="Ej: 20000">
+          <div class="vi-hero-microstat-sep"></div>
+          <div class="vi-hero-microstat">
+            <span class="vi-hero-microstat-val vi-count-anim" data-target="5">5</span>
+            <span class="vi-hero-microstat-label">Deportes</span>
           </div>
-          <div class="vi-adv-field">
-            <label>Horario disponible</label>
-            <input type="time" name="available_at" value="{{ $availableAt ?? '' }}">
+          <div class="vi-hero-microstat-sep"></div>
+          <div class="vi-hero-microstat">
+            <span class="vi-hero-microstat-val">24/7</span>
+            <span class="vi-hero-microstat-label">Reservas online</span>
           </div>
         </div>
-        <div class="vi-adv-actions">
-          <button type="submit" style="padding:9px 20px; background:#4ade80; color:#052e16; border:none; border-radius:10px; font-size:13px; font-weight:800; cursor:pointer; font-family:inherit;">
-            Aplicar filtros
-          </button>
+
+        {{-- Search bar con shimmer --}}
+        <div data-aos="fade-up" data-aos-delay="300">
+          <div class="vi-search-bar" id="viSearchBar">
+            <span style="font-size:18px; flex-shrink:0; position:relative; z-index:2;">🔍</span>
+            <input
+              type="text"
+              name="q"
+              value="{{ $q ?? '' }}"
+              placeholder="Buscá por nombre, zona o descripción..."
+              autocomplete="off"
+            >
+            <button type="submit" class="vi-search-btn">Buscar</button>
+          </div>
+
+          {{-- Quick filter chips --}}
+          <div class="vi-filters-row">
+
+            {{-- Zona --}}
+            <label class="vi-filter-chip {{ ($zone ?? '') ? 'active' : '' }}">
+              📍 {{ ($zone ?? '') ?: 'Zona' }}
+              <select name="zone" onchange="document.getElementById('venueSearchForm').submit()">
+                <option value="">Todas las zonas</option>
+                @foreach($zones as $z)
+                  <option value="{{ $z }}" {{ ($zone ?? '') === $z ? 'selected' : '' }}>{{ $z }}</option>
+                @endforeach
+              </select>
+            </label>
+
+            {{-- Deporte --}}
+            <label class="vi-filter-chip {{ ($sport ?? '') ? 'active' : '' }}">
+              ⚽ {{ match($sport ?? '') { 'football' => 'Fútbol', 'padel' => 'Pádel', 'tennis' => 'Tenis', 'basketball' => 'Básquet', 'volleyball' => 'Vóley', default => 'Deporte' } }}
+              <select name="sport" onchange="document.getElementById('venueSearchForm').submit()">
+                <option value="">Todos los deportes</option>
+                <option value="football" {{ ($sport ?? '') === 'football' ? 'selected' : '' }}>⚽ Fútbol</option>
+                <option value="padel" {{ ($sport ?? '') === 'padel' ? 'selected' : '' }}>🏓 Pádel</option>
+                <option value="tennis" {{ ($sport ?? '') === 'tennis' ? 'selected' : '' }}>🎾 Tenis</option>
+                <option value="basketball" {{ ($sport ?? '') === 'basketball' ? 'selected' : '' }}>🏀 Básquet</option>
+                <option value="volleyball" {{ ($sport ?? '') === 'volleyball' ? 'selected' : '' }}>🏐 Vóley</option>
+              </select>
+            </label>
+
+            {{-- Fecha --}}
+            <label class="vi-filter-chip {{ ($date ?? '') ? 'active' : '' }}" onclick="event.preventDefault(); document.getElementById('dateFilterInput').showPicker()">
+              📅 {{ ($date ?? '') ? \Carbon\Carbon::parse($date)->format('d/m') : 'Fecha' }}
+              <input
+                id="dateFilterInput"
+                type="date"
+                name="date"
+                value="{{ $date ?? '' }}"
+                min="{{ date('Y-m-d') }}"
+                onchange="document.getElementById('venueSearchForm').submit()"
+              >
+            </label>
+
+            <div class="vi-filter-sep"></div>
+
+            {{-- Más filtros --}}
+            <button type="button" class="vi-filter-chip" id="advToggleBtn" onclick="toggleAdv()">
+              ⚙️ Más filtros
+              @if(($minPrice ?? '') || ($maxPrice ?? '') || ($availableAt ?? ''))
+                <span style="background:#22c55e; color:#052e16; border-radius:999px; width:18px; height:18px; display:inline-flex; align-items:center; justify-content:center; font-size:10px;">●</span>
+              @endif
+            </button>
+
+            @if(($q ?? '') || ($zone ?? '') || ($sport ?? '') || ($date ?? '') || ($minPrice ?? '') || ($maxPrice ?? '') || ($availableAt ?? ''))
+              <a href="{{ route('venues.index') }}" class="vi-clear-btn">✕ Limpiar filtros</a>
+            @endif
+          </div>
+
+          {{-- Advanced filter panel — glass effect --}}
+          <div class="vi-adv-panel {{ (($minPrice ?? '') || ($maxPrice ?? '') || ($availableAt ?? '')) ? 'open' : '' }}" id="advPanel">
+            <div class="vi-adv-panel-inner">
+              <div class="vi-adv-grid">
+                <div class="vi-adv-field">
+                  <label>Precio mínimo (ARS)</label>
+                  <input type="number" name="min_price" min="0" step="1" value="{{ $minPrice ?? '' }}" placeholder="Ej: 5000">
+                </div>
+                <div class="vi-adv-field">
+                  <label>Precio máximo (ARS)</label>
+                  <input type="number" name="max_price" min="0" step="1" value="{{ $maxPrice ?? '' }}" placeholder="Ej: 20000">
+                </div>
+                <div class="vi-adv-field">
+                  <label>Horario disponible</label>
+                  <input type="time" name="available_at" value="{{ $availableAt ?? '' }}">
+                </div>
+              </div>
+              <div class="vi-adv-actions">
+                <button type="submit" style="padding:9px 20px; background:#22c55e; color:#052e16; border:none; border-radius:10px; font-size:13px; font-weight:800; cursor:pointer; font-family:inherit;">
+                  Aplicar filtros
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
+
       </div>
     </div>
   </form>
@@ -990,20 +1579,31 @@
 
       @if($venues->isEmpty())
         <div class="vi-empty">
-          <div class="vi-empty-icon">🔍</div>
+          <div class="vi-empty-svg">
+            <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="4" y="8" width="56" height="48" rx="6" stroke="#22c55e" stroke-width="2.5" fill="none"/>
+              <line x1="4" y1="24" x2="60" y2="24" stroke="#22c55e" stroke-width="2"/>
+              <line x1="4" y1="40" x2="60" y2="40" stroke="#22c55e" stroke-width="2"/>
+              <line x1="32" y1="8" x2="32" y2="56" stroke="#22c55e" stroke-width="2"/>
+              <circle cx="32" cy="32" r="8" stroke="#22c55e" stroke-width="2" fill="none"/>
+            </svg>
+          </div>
           <h3>Sin resultados</h3>
           <p>No encontramos complejos con esos filtros. Probá ajustando la búsqueda.</p>
+          <a href="{{ route('venues.index') }}" class="vi-empty-clear-btn">Limpiar filtros</a>
         </div>
       @else
         <div class="vi-venues-grid">
-          @foreach($venues as $venue)
-            <article class="vi-venue-card">
+          @foreach($venues as $index => $venue)
+            @php $delay = min($index * 50, 300); @endphp
+            <article class="vi-venue-card" data-aos="fade-up" data-aos-delay="{{ $delay }}">
               <div class="vi-venue-img-wrap">
                 @if($venue->cover_image_path)
-                  <img src="{{ \Illuminate\Support\Facades\Storage::url($venue->cover_image_path) }}" alt="{{ $venue->name }}">
+                  <img src="{{ \Illuminate\Support\Facades\Storage::url($venue->cover_image_path) }}" alt="{{ $venue->name }}" loading="lazy" class="vi-img-loading" onload="this.classList.remove('vi-img-loading')">
                 @else
                   <div class="vi-venue-img-placeholder">⚽</div>
                 @endif
+                <div class="vi-card-shine"></div>
                 @auth
                   @if(in_array($venue->id, $favoriteVenueIds ?? []))
                     <form method="POST" action="{{ route('venues.unfavorite', $venue) }}" style="margin:0;">
@@ -1017,11 +1617,14 @@
                     </form>
                   @endif
                 @endauth
-                @if($venue->zone)
-                  <div class="vi-venue-sport-badge">📍 {{ $venue->zone }}</div>
-                @endif
                 @if(($venue->falta_uno_count ?? 0) > 0)
-                  <div style="position:absolute; top:10px; left:10px; background:#4ade80; color:#052e16; font-size:11px; font-weight:800; padding:3px 10px; border-radius:999px; backdrop-filter:blur(4px);">⚡ Falta Uno</div>
+                  <div class="vi-venue-faltauno-badge">
+                    <span class="vi-faltauno-dot"></span>
+                    ⚡ Falta Uno · {{ $venue->falta_uno_count }} partido{{ $venue->falta_uno_count > 1 ? 's' : '' }}
+                  </div>
+                @endif
+                @if($venue->zone)
+                  <div class="vi-venue-zone-badge">📍 {{ $venue->zone }}</div>
                 @endif
               </div>
               <div class="vi-venue-body">
@@ -1030,7 +1633,7 @@
                   <div class="vi-venue-rating">
                     @php $rounded = round($venue->reviews_avg_rating); @endphp
                     <span class="vi-venue-stars">
-                      @for($i = 1; $i <= 5; $i++){{ $i <= $rounded ? '★' : '☆' }}@endfor
+                      @for($i = 1; $i <= 5; $i++)<span class="vi-star">{{ $i <= $rounded ? '★' : '☆' }}</span>@endfor
                     </span>
                     <span class="vi-venue-rating-text">{{ number_format($venue->reviews_avg_rating, 1) }}</span>
                     <span class="vi-venue-rating-count">({{ $venue->reviews_count }} reseña{{ $venue->reviews_count > 1 ? 's' : '' }})</span>
@@ -1053,23 +1656,31 @@
   @endif
 
   {{-- ── FEATURED CAROUSEL ──────────────────────────────────────────────── --}}
-  <div class="vi-featured">
+  <div class="vi-featured" id="viFeatured">
+    {{-- Número decorativo de fondo --}}
+    <div class="vi-featured-bg-num" id="viFeaturedBgNum">01</div>
+
     <div class="vi-featured-header">
       <div>
-        <h2>Destacados</h2>
+        <h2 class="vi-section-title">Destacados</h2>
         <div class="carousel-subtitle">Los complejos más activos, con descuentos y mejor valorados.</div>
       </div>
       <div style="display:flex; align-items:center; gap:10px;">
         <div class="feature-tabs">
-          <div class="feature-tab active" data-tab="top">🔥 Más reservados</div>
-          <div class="feature-tab" data-tab="discounts">💸 Descuentos</div>
-          <div class="feature-tab" data-tab="rated">⭐ Mejor valorados</div>
+          <div class="feature-tab active" data-tab="top" data-tab-num="01">🔥 Más reservados</div>
+          <div class="feature-tab" data-tab="discounts" data-tab-num="02">💸 Descuentos</div>
+          <div class="feature-tab" data-tab="rated" data-tab-num="03">⭐ Mejor valorados</div>
         </div>
         <div class="featured-nav-arrows">
           <button type="button" class="featured-nav-arrow" data-carousel-move="prev" aria-label="Anterior">&#8249;</button>
           <button type="button" class="featured-nav-arrow" data-carousel-move="next" aria-label="Siguiente">&#8250;</button>
         </div>
       </div>
+    </div>
+
+    {{-- Barra de progreso del autoplay --}}
+    <div class="vi-featured-progress">
+      <div class="vi-featured-progress-bar" id="viFeaturedProgressBar"></div>
     </div>
 
     {{-- Tab: Más reservados --}}
@@ -1167,8 +1778,8 @@
   @auth
     @if(($favorites ?? collect())->isNotEmpty())
       <div class="vi-favorites">
-        <h2>⭐ Tus favoritos</h2>
-        <div class="vi-fav-scroll">
+        <h2 class="vi-section-title">⭐ Tus favoritos</h2>
+        <div class="vi-fav-scroll" style="margin-top:14px;">
           @foreach($favorites as $fav)
             <a href="{{ route('venues.show', $fav) }}" class="vi-fav-chip">
               ⚽ {{ $fav->name }}
@@ -1180,35 +1791,56 @@
   @endauth
 
   {{-- ── MAP ───────────────────────────────────────────────────────────── --}}
-  <div class="vi-map-label">🗺️ Mapa de complejos</div>
-  <div class="vi-map-wrap">
-    <div id="map" style="height: 380px;"></div>
+  <div class="vi-map-label">🗺️ <span class="vi-section-title">Mapa de complejos</span></div>
+  <div class="vi-map-wrap" id="viMapWrap">
+    {{-- Skeleton visible hasta que cargue el mapa --}}
+    <div class="vi-map-skeleton" id="viMapSkeleton">
+      <span class="vi-map-skeleton-icon">🗺️</span>
+    </div>
+    <div id="map" style="height: 380px; display:none;"></div>
   </div>
 
   {{-- ── ALL VENUES ───────────────────────────────────────────────────────── --}}
   <div class="vi-results-header" id="complejos">
-    <h2>Todos los complejos</h2>
-    <span class="vi-results-count">{{ $allVenues->count() }} complejo{{ $allVenues->count() !== 1 ? 's' : '' }}</span>
+    <h2 class="vi-section-title">
+      Todos los complejos
+    </h2>
+    <span class="vi-count-pill">
+      <span class="vi-count-anim-pill" data-target="{{ $allVenues->count() }}">{{ $allVenues->count() }}</span>
+      complejo{{ $allVenues->count() !== 1 ? 's' : '' }}
+    </span>
   </div>
 
   @if($allVenues->isEmpty())
     <div class="vi-empty">
-      <div class="vi-empty-icon">⚽</div>
+      <div class="vi-empty-svg">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="4" y="8" width="56" height="48" rx="6" stroke="#22c55e" stroke-width="2.5" fill="none"/>
+          <line x1="4" y1="24" x2="60" y2="24" stroke="#22c55e" stroke-width="2"/>
+          <line x1="4" y1="40" x2="60" y2="40" stroke="#22c55e" stroke-width="2"/>
+          <line x1="32" y1="8" x2="32" y2="56" stroke="#22c55e" stroke-width="2"/>
+          <circle cx="32" cy="32" r="8" stroke="#22c55e" stroke-width="2" fill="none"/>
+        </svg>
+      </div>
       <h3>No hay complejos todavía</h3>
       <p>Pronto habrá complejos disponibles para reservar.</p>
     </div>
   @else
     <div class="vi-venues-grid">
-      @foreach($allVenues as $venue)
-        <article class="vi-venue-card">
+      @foreach($allVenues as $index => $venue)
+        @php $delay = min($index * 50, 300); @endphp
+        <article class="vi-venue-card" data-aos="fade-up" data-aos-delay="{{ $delay }}">
 
           {{-- Image --}}
           <div class="vi-venue-img-wrap">
             @if($venue->cover_image_path)
-              <img src="{{ \Illuminate\Support\Facades\Storage::url($venue->cover_image_path) }}" alt="{{ $venue->name }}">
+              <img src="{{ \Illuminate\Support\Facades\Storage::url($venue->cover_image_path) }}" alt="{{ $venue->name }}" loading="lazy" class="vi-img-loading" onload="this.classList.remove('vi-img-loading')">
             @else
               <div class="vi-venue-img-placeholder">⚽</div>
             @endif
+
+            {{-- Shine overlay --}}
+            <div class="vi-card-shine"></div>
 
             {{-- Favorite button --}}
             @auth
@@ -1225,8 +1857,14 @@
               @endif
             @endauth
 
+            @if(($venue->falta_uno_count ?? 0) > 0)
+              <div class="vi-venue-faltauno-badge">
+                <span class="vi-faltauno-dot"></span>
+                ⚡ Falta Uno · {{ $venue->falta_uno_count }} partido{{ $venue->falta_uno_count > 1 ? 's' : '' }}
+              </div>
+            @endif
             @if($venue->zone)
-              <div class="vi-venue-sport-badge">📍 {{ $venue->zone }}</div>
+              <div class="vi-venue-zone-badge">📍 {{ $venue->zone }}</div>
             @endif
           </div>
 
@@ -1238,7 +1876,7 @@
               <div class="vi-venue-rating">
                 @php $rounded = round($venue->reviews_avg_rating); @endphp
                 <span class="vi-venue-stars">
-                  @for($i = 1; $i <= 5; $i++){{ $i <= $rounded ? '★' : '☆' }}@endfor
+                  @for($i = 1; $i <= 5; $i++)<span class="vi-star">{{ $i <= $rounded ? '★' : '☆' }}</span>@endfor
                 </span>
                 <span class="vi-venue-rating-text">{{ number_format($venue->reviews_avg_rating, 1) }}</span>
                 <span class="vi-venue-rating-count">({{ $venue->reviews_count }} reseña{{ $venue->reviews_count > 1 ? 's' : '' }})</span>
@@ -1288,13 +1926,28 @@
   }
 
   function getTrackStep(track) {
-    if (!track) return 280;
+    if (!track) return 314;
     const firstCard = track.querySelector('.featured-card');
-    if (!firstCard) return 280;
+    if (!firstCard) return 314;
     const cardWidth = firstCard.getBoundingClientRect().width;
     const styles = window.getComputedStyle(track);
     const gap = parseFloat(styles.columnGap || styles.gap || 14);
     return cardWidth + gap;
+  }
+
+  function resetProgressBar() {
+    const bar = document.getElementById('viFeaturedProgressBar');
+    if (!bar) return;
+    bar.style.animation = 'none';
+    bar.offsetHeight; // reflow
+    bar.style.animation = 'vi-progress 3.5s linear forwards';
+  }
+
+  function updateBgNum(tab) {
+    const bgNum = document.getElementById('viFeaturedBgNum');
+    if (!bgNum) return;
+    const num = tab.dataset.tabNum || '01';
+    bgNum.textContent = num;
   }
 
   function activateFeatureTab(index) {
@@ -1307,6 +1960,8 @@
     featureCarousels.forEach(c => c.classList.remove('active'));
     const activeCarousel = document.getElementById('tab-' + target);
     if (activeCarousel) activeCarousel.classList.add('active');
+    updateBgNum(tab);
+    resetProgressBar();
     restartAutoplay();
   }
 
@@ -1354,7 +2009,7 @@
 
   startAutoplay();
 
-  // ── Google Maps ──────────────────────────────────
+  // ── Google Maps con lazy load ────────────────────
   const VENUES = [
     @foreach($allVenues as $v)
       { id: {{ $v->id }}, name: @json($v->name), lat: {{ $v->lat ?? 'null' }}, lng: {{ $v->lng ?? 'null' }}, url: @json(route('venues.show', $v)) }@if(!$loop->last),@endif
@@ -1364,8 +2019,14 @@
   const DEFAULT_CENTER = { lat: -34.6037, lng: -58.3816 };
 
   function initMap() {
+    const mapEl = document.getElementById('map');
+    const skeleton = document.getElementById('viMapSkeleton');
+    if (!mapEl) return;
+    mapEl.style.display = 'block';
+    if (skeleton) skeleton.style.display = 'none';
+
     const first = VENUES.find(v => v.lat !== null && v.lng !== null);
-    const map = new google.maps.Map(document.getElementById('map'), {
+    const map = new google.maps.Map(mapEl, {
       zoom: first ? 13 : 12,
       center: first ? { lat: Number(first.lat), lng: Number(first.lng) } : DEFAULT_CENTER,
     });
@@ -1375,9 +2036,190 @@
       const info = new google.maps.InfoWindow({ content: `<div style="font-family:system-ui;"><strong>${v.name}</strong><br><a href="${v.url}" style="color:#166534;font-weight:700;">Ver complejo →</a></div>` });
       marker.addListener('click', () => info.open({ map, anchor: marker }));
     });
+
+    setTimeout(() => mapEl.classList.add('vi-map-loaded'), 100);
   }
+
+  // Lazy load del mapa — carga el script solo cuando el wrapper entra en viewport
+  let mapScriptLoaded = false;
+  const mapWrapObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && !mapScriptLoaded) {
+        mapScriptLoaded = true;
+        const script = document.createElement('script');
+        script.src = 'https://maps.googleapis.com/maps/api/js?key={{ config("services.google_maps.key") }}&callback=initMap';
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+        mapWrapObserver.disconnect();
+      }
+    });
+  }, { threshold: 0.1 });
+
+  const mapWrap = document.getElementById('viMapWrap');
+  if (mapWrap) mapWrapObserver.observe(mapWrap);
 </script>
 
-<script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.key') }}&callback=initMap" async defer></script>
+@push('scripts')
+  {{-- AOS --}}
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script>
+    AOS.init({
+      duration: 520,
+      easing: 'ease-out-quad',
+      once: true,
+      offset: 40,
+    });
+
+    // ── 1. Scroll progress bar ──────────────────────
+    const viScrollProgressBar = document.getElementById('viScrollProgress');
+    window.addEventListener('scroll', () => {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      if (viScrollProgressBar) viScrollProgressBar.style.width = pct + '%';
+    }, { passive: true });
+
+    // ── 2. FAB — aparece después de 200px de scroll ─
+    const viFab = document.getElementById('viFab');
+    window.addEventListener('scroll', () => {
+      if (!viFab) return;
+      if (window.scrollY > 200) {
+        viFab.classList.add('vi-fab-visible');
+      } else {
+        viFab.classList.remove('vi-fab-visible');
+      }
+    }, { passive: true });
+
+    // ── 3. Contador animado en microstats ───────────
+    function animateCount(el) {
+      const target = parseInt(el.dataset.target, 10);
+      if (isNaN(target)) return;
+      let start = 0;
+      const duration = 1200;
+      const startTime = performance.now();
+      function update(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        // easeOutExpo
+        const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+        const current = Math.floor(eased * target);
+        el.textContent = current;
+        if (progress < 1) requestAnimationFrame(update);
+        else el.textContent = target;
+      }
+      requestAnimationFrame(update);
+    }
+
+    const countObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          animateCount(entry.target);
+          countObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+
+    document.querySelectorAll('.vi-count-anim, .vi-count-anim-pill').forEach(el => {
+      el.textContent = '0';
+      countObserver.observe(el);
+    });
+
+    // ── 4. Section titles con línea animada ─────────
+    const titleObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('vi-title-visible');
+        }
+      });
+    }, { threshold: 0.3 });
+
+    document.querySelectorAll('.vi-section-title').forEach(el => titleObserver.observe(el));
+
+    // ── 5. Tilt 3D en venue cards (solo desktop) ────
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+    if (!isMobile) {
+      document.querySelectorAll('.vi-venue-card').forEach(card => {
+        const shineEl = card.querySelector('.vi-card-shine');
+
+        card.addEventListener('mousemove', (e) => {
+          const rect = card.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          const cx = rect.width / 2;
+          const cy = rect.height / 2;
+          const rotY = ((x - cx) / cx) * 8;
+          const rotX = -((y - cy) / cy) * 8;
+          card.style.transition = 'transform 0.1s ease, box-shadow 0.3s ease';
+          card.style.transform = `perspective(800px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateY(-6px)`;
+
+          // Shine/glare
+          if (shineEl) {
+            const imgWrap = card.querySelector('.vi-venue-img-wrap');
+            if (imgWrap) {
+              const ir = imgWrap.getBoundingClientRect();
+              const ix = ((e.clientX - ir.left) / ir.width) * 100;
+              const iy = ((e.clientY - ir.top) / ir.height) * 100;
+              shineEl.style.background = `radial-gradient(circle at ${ix}% ${iy}%, rgba(255,255,255,.18) 0%, transparent 60%)`;
+            }
+          }
+        });
+
+        card.addEventListener('mouseleave', () => {
+          card.style.transition = 'transform 0.5s ease, box-shadow 0.3s ease';
+          card.style.transform = 'perspective(800px) rotateX(0deg) rotateY(0deg) translateY(0px)';
+        });
+      });
+    }
+
+    // ── 6. Custom cursor dot ─────────────────────────
+    if (!isMobile) {
+      const cursorDot = document.getElementById('viCursorDot');
+      let cursorX = 0, cursorY = 0;
+      let dotX = 0, dotY = 0;
+      let isOnCard = false;
+
+      document.addEventListener('mousemove', (e) => {
+        cursorX = e.clientX;
+        cursorY = e.clientY;
+      });
+
+      function animateCursor() {
+        dotX += (cursorX - dotX) * 0.18;
+        dotY += (cursorY - dotY) * 0.18;
+        if (cursorDot) {
+          cursorDot.style.left = dotX + 'px';
+          cursorDot.style.top  = dotY + 'px';
+        }
+        requestAnimationFrame(animateCursor);
+      }
+      animateCursor();
+
+      document.querySelectorAll('.vi-venue-card').forEach(card => {
+        card.addEventListener('mouseenter', () => {
+          if (cursorDot) cursorDot.classList.add('vi-cursor-active');
+        });
+        card.addEventListener('mouseleave', () => {
+          if (cursorDot) cursorDot.classList.remove('vi-cursor-active');
+        });
+      });
+    }
+
+    // ── 7. Favorito heart pop animation ─────────────
+    document.querySelectorAll('.vi-venue-fav-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        this.classList.remove('vi-heart-animating');
+        void this.offsetWidth;
+        this.classList.add('vi-heart-animating');
+        this.addEventListener('animationend', () => {
+          this.classList.remove('vi-heart-animating');
+        }, { once: true });
+      });
+    });
+
+  </script>
+@endpush
 
 @endsection

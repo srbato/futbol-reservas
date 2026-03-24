@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <title>@yield('title', 'TuCancha')</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
@@ -25,6 +26,12 @@
       background: rgba(255,255,255,.95);
       backdrop-filter: blur(8px);
       border-bottom: 1px solid #ececec;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .nav-hidden {
+      transform: translateY(-100%);
+      box-shadow: none;
     }
 
     .header-inner,
@@ -254,6 +261,7 @@
 
     @media (max-width: 640px) {
       .header { position: relative; }
+      .header.nav-hidden { transform: none; }
       .nav { display: none; }
       .hamburger { display: flex; }
     }
@@ -328,6 +336,11 @@
 
   @stack('scripts')
 
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script>
+    AOS.init({ duration: 800, once: true, offset: 80 });
+  </script>
+
 <script>
   const hamburgerBtn = document.getElementById('hamburgerBtn');
   const mobileNav    = document.getElementById('mobileNav');
@@ -339,6 +352,22 @@
       }
     });
   }
+</script>
+
+<script>
+  (function() {
+    const nav = document.querySelector('.header');
+    let lastScroll = 0;
+    window.addEventListener('scroll', function() {
+      const current = window.scrollY;
+      if (current > lastScroll && current > 80) {
+        nav.classList.add('nav-hidden');
+      } else {
+        nav.classList.remove('nav-hidden');
+      }
+      lastScroll = current;
+    }, { passive: true });
+  })();
 </script>
 
 </body>

@@ -3,633 +3,1305 @@
 @section('title', 'TuCancha — Reservá tu cancha al instante')
 
 @push('styles')
-  /* ── Hero ────────────────────────────────────────── */
-  .hero { padding: 40px 0 0 0; }
+/* ── Smooth scroll global ────────────────────────── */
+html { scroll-behavior: smooth; }
 
-  .hero-inner {
-    background: linear-gradient(135deg, #111 0%, #1f1f1f 100%);
-    border-radius: 28px;
-    padding: 52px 48px 48px 48px;
-    color: #fff;
-  }
+/* ── Hero full-height ─────────────────────────────── */
+.hero-full {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  background: #0a0a0a;
+}
 
-  .hero-label {
-    display: inline-block;
-    padding: 5px 14px;
-    border-radius: 999px;
-    background: rgba(255,255,255,.1);
-    border: 1px solid rgba(255,255,255,.15);
-    font-size: 13px;
-    font-weight: 600;
-    color: rgba(255,255,255,.85);
-    margin-bottom: 22px;
-    letter-spacing: .02em;
-  }
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background-image: url('/Images/hero-cancha.webp');
+  background-size: cover;
+  background-position: center 30%;
+  background-attachment: fixed;
+  opacity: .55;
+}
 
-  .hero-inner h1 {
-    margin: 0 0 16px 0;
-    font-size: 62px;
-    line-height: 1.02;
-    letter-spacing: -0.03em;
-    max-width: 780px;
-  }
+/* ── Parallax floating blobs ─────────────────────── */
+.parallax-blob {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  will-change: transform;
+  z-index: 1;
+}
 
-  .hero-inner > p {
-    margin: 0 0 30px 0;
-    color: rgba(255,255,255,.8);
-    font-size: 19px;
-    line-height: 1.6;
-    max-width: 640px;
-  }
+.parallax-blob-1 {
+  width: 300px;
+  height: 300px;
+  background: rgba(34,197,94,.08);
+  top: -60px;
+  right: -80px;
+}
 
-  .hero-actions {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
+.parallax-blob-2 {
+  width: 200px;
+  height: 200px;
+  background: rgba(34,197,94,.12);
+  bottom: 80px;
+  left: -50px;
+}
 
-  /* ── Quick search ────────────────────────────────── */
-  .search-bar {
-    background: #fff;
-    border: 1px solid #ececec;
-    border-radius: 20px;
-    box-shadow: 0 4px 24px rgba(0,0,0,.06);
-    padding: 20px 24px;
-    display: flex;
-    gap: 12px;
-    align-items: flex-end;
-    flex-wrap: wrap;
-  }
+.parallax-blob-3 {
+  width: 150px;
+  height: 150px;
+  background: rgba(34,197,94,.08);
+  top: 40%;
+  left: 45%;
+}
 
-  .search-field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    flex: 1;
-    min-width: 150px;
-  }
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(0,0,0,.82) 0%, rgba(0,0,0,.55) 60%, rgba(0,0,0,.45) 100%);
+}
 
-  .search-field label {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .07em;
-    color: #888;
-  }
+.hero-content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  padding: 100px 0 72px 0;
+}
 
-  .search-field select,
-  .search-field input {
-    padding: 11px 14px;
-    border: 1px solid #e0e0e0;
-    border-radius: 12px;
-    font: inherit;
-    font-size: 14px;
-    background: #fafafa;
-    color: #111;
-    outline: none;
-    transition: border-color .15s;
-  }
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 56px;
+  align-items: center;
+}
 
-  .search-field select:focus,
-  .search-field input:focus { border-color: #111; background: #fff; }
+/* Badge pulsante */
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px 6px 8px;
+  border-radius: 999px;
+  background: rgba(110, 234, 160, .12);
+  border: 1px solid rgba(110, 234, 160, .25);
+  font-size: 13px;
+  font-weight: 700;
+  color: #6eeaa0;
+  margin-bottom: 28px;
+  letter-spacing: .02em;
+}
 
-  .search-btn {
-    padding: 12px 28px;
-    border-radius: 12px;
-    background: #111;
-    color: #fff;
-    font-size: 14px;
-    font-weight: 700;
-    border: none;
-    cursor: pointer;
-    transition: background .15s, transform .15s;
-    white-space: nowrap;
-    font-family: inherit;
-  }
+.hero-badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #6eeaa0;
+  animation: pulse-dot 1.8s ease-in-out infinite;
+}
 
-  .search-btn:hover { background: #333; transform: translateY(-1px); }
+@keyframes pulse-dot {
+  0%, 100% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 rgba(110,234,160,.4); }
+  50% { transform: scale(1.2); opacity: .9; box-shadow: 0 0 0 6px rgba(110,234,160,0); }
+}
 
-  /* ── Referral hero ───────────────────────────────── */
-  .referral-hero {
-    background: linear-gradient(135deg, #0f4c2a 0%, #1a7a45 100%);
-    border-radius: 28px;
-    padding: 52px 48px;
-    color: #fff;
-    position: relative;
-    overflow: hidden;
-  }
+.hero-copy h1 {
+  margin: 0 0 20px 0;
+  font-size: 68px;
+  line-height: 1.0;
+  letter-spacing: -0.035em;
+  color: #fff;
+  font-weight: 900;
+}
 
-  .referral-hero::before {
-    content: '';
-    position: absolute;
-    top: -80px; right: -80px;
-    width: 320px; height: 320px;
-    border-radius: 50%;
-    background: rgba(255,255,255,.05);
-    pointer-events: none;
-  }
+.hero-copy h1 em {
+  font-style: normal;
+  color: #6eeaa0;
+}
 
-  .referral-hero::after {
-    content: '';
-    position: absolute;
-    bottom: -60px; left: 40px;
-    width: 200px; height: 200px;
-    border-radius: 50%;
-    background: rgba(255,255,255,.04);
-    pointer-events: none;
-  }
+.hero-copy > p {
+  margin: 0 0 36px 0;
+  color: rgba(255,255,255,.78);
+  font-size: 19px;
+  line-height: 1.65;
+  max-width: 560px;
+}
 
-  .referral-tag {
-    display: inline-block;
-    padding: 5px 14px;
-    border-radius: 999px;
-    background: rgba(255,255,255,.15);
-    border: 1px solid rgba(255,255,255,.2);
-    font-size: 13px;
-    font-weight: 700;
-    color: #a3f0c0;
-    margin-bottom: 18px;
-    letter-spacing: .03em;
-  }
+.hero-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 52px;
+}
 
-  .referral-hero h2 {
-    margin: 0 0 14px 0;
-    font-size: 52px;
-    line-height: 1.02;
-    letter-spacing: -0.03em;
-    max-width: 700px;
-  }
+/* Micro stats */
+.hero-stats {
+  display: flex;
+  gap: 40px;
+  flex-wrap: wrap;
+}
 
-  .referral-hero h2 em {
-    font-style: normal;
-    color: #6eeaa0;
-  }
+.hero-stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
 
-  .referral-hero > p {
-    margin: 0 0 36px 0;
-    color: rgba(255,255,255,.8);
-    font-size: 18px;
-    line-height: 1.6;
-    max-width: 600px;
-  }
+.hero-stat-num {
+  font-size: 28px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
 
-  .referral-steps {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
-    margin-bottom: 36px;
-    position: relative;
-    z-index: 1;
-  }
+.hero-stat-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,.5);
+  text-transform: uppercase;
+  letter-spacing: .07em;
+}
 
-  .referral-step {
-    background: rgba(255,255,255,.1);
-    border: 1px solid rgba(255,255,255,.14);
-    border-radius: 18px;
-    padding: 22px 20px;
-    backdrop-filter: blur(4px);
-  }
+/* Search card */
+.search-card {
+  background: rgba(255,255,255,.97);
+  border-radius: 24px;
+  padding: 28px 28px 24px 28px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.35), 0 4px 16px rgba(0,0,0,.15);
+}
 
-  .referral-step-num {
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    color: #6eeaa0;
-    margin-bottom: 10px;
-    display: block;
-  }
+.search-card-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #111;
+  margin: 0 0 20px 0;
+  letter-spacing: -0.01em;
+}
 
-  .referral-step-icon {
-    font-size: 30px;
-    display: block;
-    margin-bottom: 10px;
-    line-height: 1;
-  }
+.search-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
 
-  .referral-step h3 {
-    margin: 0 0 6px 0;
-    font-size: 16px;
-    font-weight: 800;
-    color: #fff;
-  }
+.search-field label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: #888;
+}
 
-  .referral-step p {
-    margin: 0;
-    font-size: 13px;
-    color: rgba(255,255,255,.72);
-    line-height: 1.55;
-  }
+.search-field select,
+.search-field input {
+  padding: 12px 14px;
+  border: 1.5px solid #e8e8e8;
+  border-radius: 12px;
+  font: inherit;
+  font-size: 14px;
+  background: #fafafa;
+  color: #111;
+  outline: none;
+  transition: border-color .15s, background .15s;
+  width: 100%;
+}
 
-  .referral-hero-actions {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    position: relative;
-    z-index: 1;
-  }
+.search-field select:focus,
+.search-field input:focus {
+  border-color: #22c55e;
+  background: #fff;
+}
 
-  .btn-referral-primary {
-    padding: 14px 32px;
-    background: #6eeaa0;
-    color: #0a3d1f;
-    border-radius: 14px;
-    font-size: 15px;
-    font-weight: 800;
-    text-decoration: none;
-    transition: background .15s, transform .15s;
-    border: none;
-    cursor: pointer;
-  }
+.search-btn-full {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  background: #111;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  border: none;
+  cursor: pointer;
+  transition: background .15s, transform .15s;
+  font-family: inherit;
+  letter-spacing: -0.01em;
+  margin-top: 6px;
+}
 
-  .btn-referral-primary:hover {
-    background: #4dd882;
-    transform: translateY(-2px);
-  }
+.search-btn-full:hover { background: #1a7a45; transform: translateY(-1px); }
 
-  .btn-referral-ghost {
-    padding: 14px 24px;
-    background: rgba(255,255,255,.1);
-    color: rgba(255,255,255,.9);
-    border-radius: 14px;
-    font-size: 14px;
-    font-weight: 700;
-    text-decoration: none;
-    border: 1px solid rgba(255,255,255,.2);
-    transition: background .15s, transform .15s;
-  }
+/* ── Sports strip ────────────────────────────────── */
+.sports-strip {
+  background: #fff;
+  border-top: 1px solid #ececec;
+  border-bottom: 1px solid #ececec;
+  padding: 28px 0;
+}
 
-  .btn-referral-ghost:hover {
-    background: rgba(255,255,255,.18);
-    transform: translateY(-2px);
-  }
+.sports-strip-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
 
-  /* ── Why cards ───────────────────────────────────── */
-  .why-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-  }
+.sport-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: 1.5px solid #e8e8e8;
+  font-size: 14px;
+  font-weight: 700;
+  color: #333;
+  background: #fff;
+  transition: border-color .15s, color .15s, background .15s, transform .15s;
+  text-decoration: none;
+}
 
-  .why-card {
-    background: #fff;
-    border: 1px solid #ececec;
-    border-radius: 20px;
-    padding: 24px 22px;
-    box-shadow: 0 2px 12px rgba(0,0,0,.03);
-    transition: transform .2s, box-shadow .2s;
-  }
+.sport-pill:hover {
+  border-color: #22c55e;
+  color: #15803d;
+  background: #f0fdf4;
+  transform: translateY(-2px);
+}
 
-  .why-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.08); }
+.sport-pill-icon { font-size: 18px; line-height: 1; }
 
-  .why-icon { font-size: 34px; margin-bottom: 14px; display: block; }
+/* ── Why TuCancha ────────────────────────────────── */
+.why-section {
+  padding: 80px 0;
+  background: #f7f7f8;
+}
 
-  .why-card h3 { margin: 0 0 8px 0; font-size: 17px; font-weight: 800; }
+.why-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
 
-  .why-card p { margin: 0; color: #666; font-size: 14px; line-height: 1.6; }
+.why-card {
+  background: #fff;
+  border: 1px solid #ececec;
+  border-left: 4px solid #22c55e;
+  border-radius: 20px;
+  padding: 28px 26px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.03);
+  transition: transform .2s, box-shadow .2s, border-left-color .2s;
+  position: relative;
+  overflow: hidden;
+}
 
-  /* ── Owner CTA (simplified) ──────────────────────── */
-  .owner-cta {
-    background: #111;
-    border-radius: 28px;
-    padding: 48px;
-    color: #fff;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 32px;
-    flex-wrap: wrap;
-  }
+.why-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 36px rgba(34,197,94,.1), 0 4px 16px rgba(0,0,0,.06);
+  border-left-color: #16a34a;
+}
 
-  .owner-cta h2 {
-    margin: 0 0 10px 0;
-    font-size: 34px;
-    letter-spacing: -0.02em;
-    line-height: 1.1;
-  }
+.why-card-num {
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  font-size: 52px;
+  font-weight: 900;
+  color: rgba(0,0,0,.04);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  user-select: none;
+  pointer-events: none;
+}
 
-  .owner-cta p {
-    margin: 0;
-    color: rgba(255,255,255,.72);
-    font-size: 16px;
-    line-height: 1.6;
-    max-width: 560px;
-  }
+.why-icon {
+  font-size: 32px;
+  display: block;
+  margin-bottom: 16px;
+  line-height: 1;
+}
 
-  .owner-cta-actions {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-top: 20px;
-  }
+.why-card h3 {
+  margin: 0 0 8px 0;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
 
-  /* ── FAQ ─────────────────────────────────────────── */
-  .faq-list { display: flex; flex-direction: column; gap: 10px; }
+.why-card p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.65;
+}
 
-  .faq-item {
-    background: #fff;
-    border: 1px solid #ececec;
-    border-radius: 16px;
-    overflow: hidden;
-    transition: box-shadow .2s;
-  }
+/* ── Split section (50/50) ───────────────────────── */
+.split-section {
+  padding: 80px 0;
+  background: #fff;
+}
 
-  .faq-item.open { box-shadow: 0 4px 20px rgba(0,0,0,.07); }
+.split-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
 
-  .faq-trigger {
-    width: 100%;
-    background: none;
-    border: none;
-    padding: 20px 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    cursor: pointer;
-    text-align: left;
-    font: inherit;
-  }
+.split-image-wrap {
+  border-radius: 28px;
+  overflow: hidden;
+  position: relative;
+  aspect-ratio: 4/3;
+  box-shadow: 0 24px 64px rgba(0,0,0,.14);
+}
 
-  .faq-trigger-text { font-size: 16px; font-weight: 700; color: #111; }
+.split-image-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
 
-  .faq-icon {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: #f3f3f3;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    font-weight: 700;
-    color: #555;
-    flex-shrink: 0;
-    transition: transform .2s, background .2s;
-  }
+.split-image-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(15,76,42,.15) 0%, transparent 60%);
+}
 
-  .faq-item.open .faq-icon { transform: rotate(45deg); background: #111; color: #fff; }
+.split-copy-label {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: #dcfce7;
+  font-size: 12px;
+  font-weight: 700;
+  color: #166534;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  margin-bottom: 18px;
+}
 
-  .faq-body {
-    display: none;
-    padding: 16px 24px 20px 24px;
-    color: #555;
-    font-size: 15px;
-    line-height: 1.7;
-    border-top: 1px solid #f0f0f0;
-  }
+.split-copy h2 {
+  font-size: 40px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  margin: 0 0 18px 0;
+  color: #111;
+}
 
-  .faq-item.open .faq-body { display: block; }
+.split-copy h2 em {
+  font-style: normal;
+  color: #16a34a;
+}
 
-  /* ── Responsive ──────────────────────────────────── */
-  @media (max-width: 1024px) {
-    .why-grid { grid-template-columns: repeat(2, 1fr); }
-  }
+.split-copy > p {
+  color: #555;
+  font-size: 16px;
+  line-height: 1.7;
+  margin: 0 0 28px 0;
+}
 
-  @media (max-width: 600px) {
-    .why-grid { grid-template-columns: 1fr; }
-  }
+.split-features {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
 
-  @media (max-width: 768px) {
-    .hero-inner { padding: 36px 24px 32px 24px; }
-    .hero-inner h1 { font-size: 38px; }
-    .hero-inner > p { font-size: 16px; }
-    .why-grid { grid-template-columns: 1fr; }
-    .owner-cta { padding: 36px 24px; flex-direction: column; align-items: flex-start; }
-    .owner-cta h2 { font-size: 26px; }
-    .search-bar { flex-direction: column; gap: 10px; }
-    .search-field { min-width: 100%; }
-    .search-field select,
-    .search-field input { font-size: 16px; } /* evita zoom en iOS */
-    .referral-hero { padding: 36px 24px; }
-    .referral-hero h2 { font-size: 34px; }
-    .referral-hero > p { font-size: 16px; }
-    .referral-steps { grid-template-columns: 1fr; }
-  }
+.split-feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
 
-  @media (max-width: 480px) {
-    .referral-hero h2 { font-size: 28px; }
-  }
+.split-feature-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #dcfce7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
 
-  @media (max-width: 480px) {
-    .hero { padding: 16px 0 0 0; }
-    .hero-inner h1 { font-size: 30px; }
-  }
+.split-feature-text {
+  font-size: 14px;
+  color: #444;
+  line-height: 1.55;
+  font-weight: 500;
+}
+
+/* ── Owner section ───────────────────────────────── */
+.owner-section {
+  position: relative;
+  padding: 100px 0;
+  overflow: hidden;
+  background: #0a0a0a;
+}
+
+.owner-bg {
+  position: absolute;
+  inset: 0;
+  background-image: url('/Images/admin-viendo-tableta.webp');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  opacity: .40;
+}
+
+.owner-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(10,61,31,.92) 0%, rgba(0,0,0,.80) 100%);
+}
+
+.owner-content {
+  position: relative;
+  z-index: 2;
+}
+
+.owner-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 48px;
+  align-items: center;
+}
+
+.owner-tag {
+  display: inline-block;
+  padding: 5px 14px;
+  border-radius: 999px;
+  background: rgba(110, 234, 160, .15);
+  border: 1px solid rgba(110, 234, 160, .25);
+  font-size: 12px;
+  font-weight: 700;
+  color: #6eeaa0;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  margin-bottom: 18px;
+}
+
+.owner-content h2 {
+  font-size: 44px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  color: #fff;
+  margin: 0 0 16px 0;
+  max-width: 620px;
+}
+
+.owner-content h2 em {
+  font-style: normal;
+  color: #6eeaa0;
+}
+
+.owner-copy p {
+  color: rgba(255,255,255,.85);
+  font-size: 17px;
+  line-height: 1.65;
+  margin: 0 0 32px 0;
+  max-width: 560px;
+}
+
+.owner-stats {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 36px;
+  flex-wrap: wrap;
+}
+
+.owner-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.owner-stat-num {
+  font-size: 30px;
+  font-weight: 900;
+  color: #6eeaa0;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.owner-stat-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,.5);
+  text-transform: uppercase;
+  letter-spacing: .07em;
+}
+
+.owner-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-owner-primary {
+  padding: 14px 32px;
+  background: #6eeaa0;
+  color: #0a3d1f;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 800;
+  text-decoration: none;
+  transition: background .15s, transform .15s;
+  border: none;
+  cursor: pointer;
+  display: inline-block;
+}
+
+.btn-owner-primary:hover { background: #4dd882; transform: translateY(-2px); }
+
+.btn-owner-ghost {
+  padding: 14px 24px;
+  background: rgba(255,255,255,.1);
+  color: rgba(255,255,255,.9) !important;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  border: 1px solid rgba(255,255,255,.2);
+  transition: background .15s, transform .15s;
+  display: inline-block;
+}
+
+.btn-owner-ghost:hover { background: rgba(255,255,255,.18); transform: translateY(-2px); }
+
+.owner-visual-card {
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 24px;
+  padding: 28px 26px;
+  backdrop-filter: blur(8px);
+  min-width: 240px;
+  text-align: center;
+}
+
+.owner-visual-icon { font-size: 48px; margin-bottom: 12px; display: block; }
+
+.owner-visual-card p {
+  margin: 0;
+  color: rgba(255,255,255,.8);
+  font-size: 14px;
+  line-height: 1.6;
+  font-weight: 600;
+}
+
+/* ── FAQ ─────────────────────────────────────────── */
+.faq-section {
+  padding: 80px 0;
+  background: #f7f7f8;
+}
+
+.faq-list { display: flex; flex-direction: column; gap: 10px; }
+
+.faq-item {
+  background: #fff;
+  border: 1px solid #ececec;
+  border-radius: 16px;
+  overflow: hidden;
+  transition: box-shadow .2s, border-color .2s;
+}
+
+.faq-item.open {
+  box-shadow: 0 4px 24px rgba(34,197,94,.08);
+  border-color: #bbf7d0;
+}
+
+.faq-trigger {
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+}
+
+.faq-trigger-text { font-size: 16px; font-weight: 700; color: #111; }
+
+.faq-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f3f3f3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: #555;
+  flex-shrink: 0;
+  transition: transform .2s, background .2s, color .2s;
+}
+
+.faq-item.open .faq-icon {
+  transform: rotate(45deg);
+  background: #22c55e;
+  color: #fff;
+}
+
+.faq-body {
+  display: none;
+  padding: 16px 24px 20px 24px;
+  color: #555;
+  font-size: 15px;
+  line-height: 1.7;
+  border-top: 1px solid #f0f0f0;
+}
+
+.faq-item.open .faq-body { display: block; }
+
+/* ── Responsive ──────────────────────────────────── */
+@media (max-width: 1100px) {
+  .hero-grid { grid-template-columns: 1fr 380px; gap: 40px; }
+  .hero-copy h1 { font-size: 52px; }
+  .why-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 900px) {
+  .hero-grid { grid-template-columns: 1fr; }
+  .search-card { max-width: 480px; }
+  .hero-copy h1 { font-size: 46px; }
+  .split-grid { grid-template-columns: 1fr; gap: 40px; }
+  .owner-grid { grid-template-columns: 1fr; }
+  .owner-visual-card { display: none; }
+  .owner-content h2 { font-size: 34px; }
+}
+
+@media (max-width: 640px) {
+  .hero-content { padding: 80px 0 56px 0; }
+  .hero-copy h1 { font-size: 36px; }
+  .hero-copy > p { font-size: 16px; }
+  .hero-stats { gap: 24px; }
+  .why-grid { grid-template-columns: 1fr; }
+  .split-copy h2 { font-size: 30px; }
+  .owner-content h2 { font-size: 28px; }
+  .owner-section { padding: 72px 0; }
+  .faq-section { padding: 56px 0; }
+  .why-section { padding: 56px 0; }
+  .split-section { padding: 56px 0; }
+}
+
+/* ── Desactivar parallax en mobile (iOS bug) ─────── */
+@media (max-width: 768px) {
+  .hero-bg  { background-attachment: scroll; }
+  .owner-bg { background-attachment: scroll; }
+  .parallax-blob { display: none; }
+}
+
+/* ── Falta Uno section ───────────────────────────── */
+.faltauno-section {
+  position: relative;
+  padding: 100px 0;
+  overflow: hidden;
+  background: #0a0a0a;
+}
+
+.faltauno-bg {
+  position: absolute;
+  inset: 0;
+  background-image: url('/Images/jugadores-falta-uno.webp');
+  background-size: cover;
+  background-position: center 40%;
+  background-attachment: fixed;
+  opacity: .38;
+}
+
+.faltauno-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, rgba(5,32,16,.88) 0%, rgba(0,0,0,.82) 55%, rgba(5,32,16,.75) 100%);
+}
+
+.faltauno-content {
+  position: relative;
+  z-index: 2;
+}
+
+.faltauno-head {
+  text-align: center;
+  margin-bottom: 52px;
+}
+
+.faltauno-tag {
+  display: inline-block;
+  padding: 5px 14px;
+  border-radius: 999px;
+  background: rgba(110, 234, 160, .15);
+  border: 1px solid rgba(110, 234, 160, .25);
+  font-size: 12px;
+  font-weight: 700;
+  color: #6eeaa0;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  margin-bottom: 18px;
+}
+
+.faltauno-head h2 {
+  font-size: 46px;
+  font-weight: 900;
+  letter-spacing: -0.035em;
+  line-height: 1.06;
+  color: #fff;
+  margin: 0 0 16px 0;
+}
+
+.faltauno-head h2 em {
+  font-style: normal;
+  color: #6eeaa0;
+}
+
+.faltauno-head p {
+  color: rgba(255,255,255,.72);
+  font-size: 17px;
+  line-height: 1.65;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.faltauno-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  max-width: 840px;
+  margin: 0 auto 48px auto;
+}
+
+.faltauno-card {
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 24px;
+  padding: 36px 32px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transition: background .2s, border-color .2s, transform .2s;
+}
+
+.faltauno-card:hover {
+  background: rgba(110,234,160,.08);
+  border-color: rgba(110,234,160,.28);
+  transform: translateY(-4px);
+}
+
+.faltauno-card-icon {
+  font-size: 44px;
+  display: block;
+  margin-bottom: 20px;
+  line-height: 1;
+}
+
+.faltauno-card h3 {
+  font-size: 22px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: -0.02em;
+  margin: 0 0 12px 0;
+}
+
+.faltauno-card p {
+  font-size: 14px;
+  color: rgba(255,255,255,.68);
+  line-height: 1.65;
+  margin: 0 0 24px 0;
+}
+
+.faltauno-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.faltauno-card-list-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255,255,255,.8);
+}
+
+.faltauno-card-list-item::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #6eeaa0;
+  flex-shrink: 0;
+}
+
+.faltauno-cta {
+  text-align: center;
+}
+
+.btn-faltauno {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 40px;
+  background: #6eeaa0;
+  color: #0a3d1f;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 800;
+  text-decoration: none;
+  letter-spacing: -0.01em;
+  transition: background .15s, transform .15s, box-shadow .15s;
+  box-shadow: 0 8px 32px rgba(110,234,160,.25);
+}
+
+.btn-faltauno:hover {
+  background: #4dd882;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(110,234,160,.35);
+}
+
+.faltauno-cta-sub {
+  margin-top: 12px;
+  font-size: 13px;
+  color: rgba(255,255,255,.45);
+  font-weight: 500;
+}
+
+@media (max-width: 900px) {
+  .faltauno-cards { grid-template-columns: 1fr; max-width: 480px; }
+  .faltauno-head h2 { font-size: 34px; }
+  .faltauno-bg { background-attachment: scroll; }
+}
+
+@media (max-width: 640px) {
+  .faltauno-section { padding: 72px 0; }
+  .faltauno-head h2 { font-size: 28px; }
+  .faltauno-head p { font-size: 15px; }
+  .faltauno-card { padding: 28px 24px; }
+}
 @endpush
 
 @section('content')
 
-  {{-- ── Hero ─────────────────────────────────────────────────────── --}}
-  <section class="hero">
+{{-- ── Hero full-height ──────────────────────────────────────────── --}}
+<section class="hero-full">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  {{-- Blobs decorativos con parallax JS --}}
+  <div class="parallax-blob parallax-blob-1 parallax-slow"></div>
+  <div class="parallax-blob parallax-blob-2 parallax-fast"></div>
+  <div class="parallax-blob parallax-blob-3 parallax-slow"></div>
+  <div class="hero-content">
     <div class="container">
-      <div class="hero-inner">
-        <span class="hero-label">🏟️ Plataforma de reservas deportivas</span>
-        <h1>Reservá tu cancha al instante.</h1>
-        <p>
-          Explorá los complejos disponibles en tu ciudad y reservá en segundos.
-          Sin llamadas, sin filas, sin complicaciones.
-        </p>
+      <div class="hero-grid">
 
-        <div class="hero-actions">
-          <a href="{{ route('venues.index') }}" class="btn btn-primary">Ver complejos</a>
-          <a href="{{ route('planes') }}" class="btn btn-ghost">Sumá tu complejo</a>
-        </div>
-      </div>
+        {{-- Copy izquierda --}}
+        <div class="hero-copy" data-aos="fade-right" data-aos-duration="900">
+          <div class="hero-badge">
+            <span class="hero-badge-dot"></span>
+            Plataforma de reservas deportivas
+          </div>
 
-      {{-- Quick search --}}
-      <form method="GET" action="{{ route('venues.index') }}" class="search-bar">
-        <div class="search-field">
-          <label for="qs-deporte">Deporte</label>
-          <select id="qs-deporte" name="deporte">
-            <option value="">Cualquier deporte</option>
-            <option value="futbol">Fútbol</option>
-            <option value="padel">Pádel</option>
-            <option value="tenis">Tenis</option>
-            <option value="basquet">Básquet</option>
-          </select>
-        </div>
+          <h1>Reservá tu cancha<br><em>al instante.</em></h1>
 
-        <div class="search-field">
-          <label for="qs-fecha">Fecha</label>
-          <input
-            type="date"
-            id="qs-fecha"
-            name="fecha"
-            value="{{ now()->toDateString() }}"
-            min="{{ now()->toDateString() }}"
-          >
-        </div>
-
-        <button type="submit" class="search-btn">Buscar →</button>
-      </form>
-    </div>
-  </section>
-
-  {{-- ── ¿Por qué TuCancha? ────────────────────────────────────────── --}}
-  <section id="por-que" class="section">
-    <div class="container">
-      <div class="section-head">
-        <span class="section-label">Beneficios</span>
-        <h2 class="section-title">¿Por qué TuCancha?</h2>
-        <p class="section-subtitle">
-          Diseñamos cada detalle para que reservar una cancha sea tan simple como mandar un mensaje.
-        </p>
-      </div>
-
-      <div class="why-grid">
-        <div class="why-card">
-          <span class="why-icon">⚡</span>
-          <h3>Reservas al instante</h3>
-          <p>Elegí complejo, horario y confirmá tu turno en segundos. Sin esperas ni llamadas.</p>
-        </div>
-
-        <div class="why-card">
-          <span class="why-icon">💳</span>
-          <h3>Pago 100% seguro</h3>
-          <p>Pagá online con tarjeta de crédito, débito, transferencia o efectivo a través de Mercado Pago. Tu reserva se confirma automáticamente.</p>
-        </div>
-
-        <div class="why-card">
-          <span class="why-icon">📱</span>
-          <h3>Desde cualquier dispositivo</h3>
-          <p>Reservá desde el celular, la tablet o la computadora. La plataforma se adapta a tu pantalla.</p>
-        </div>
-
-        <div class="why-card">
-          <span class="why-icon">🔔</span>
-          <h3>Recordatorios por mail</h3>
-          <p>Confirmación inmediata y recordatorios para que no se te escape ningún turno.</p>
-        </div>
-
-        <div class="why-card">
-          <span class="why-icon">📊</span>
-          <h3>Historial de partidos</h3>
-          <p>Llevá el registro de todos tus partidos jugados: estadísticas, resultados, deporte favorito y plata gastada en un solo lugar.</p>
-        </div>
-
-        <div class="why-card">
-          <span class="why-icon">👥</span>
-          <h3>Etiquetá a tus compañeros</h3>
-          <p>Agregá a los jugadores que fueron con vos al partido. Ellos pueden ver el encuentro en su historial y cargar su propio resultado.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  {{-- ── Dueños (simplificado — los detalles están en /como-funciona) ── --}}
-  <section id="para-duenos" style="padding: 0 0 52px 0;">
-    <div class="container">
-      <div class="owner-cta">
-        <div>
-          <h2>Sumá tu complejo a TuCancha</h2>
           <p>
-            Recibí reservas online 24/7, cobrá automáticamente y gestioná todo desde un panel simple.
-            Sin complicaciones técnicas.
+            Explorá los complejos disponibles en tu ciudad y confirmá tu turno en segundos.
+            Sin llamadas, sin filas, sin complicaciones.
           </p>
 
-          <div class="owner-cta-actions">
-            <a href="{{ route('planes') }}" class="btn" style="background:#fff; color:#111; border-radius:14px; padding:12px 28px; font-size:15px;">
-              Quiero sumarme →
-            </a>
-            <a href="{{ url('/como-funciona') }}" class="btn btn-ghost" style="border-radius:14px; padding:12px 24px; font-size:14px;">
-              Ver cómo funciona
-            </a>
+          <div class="hero-actions">
+            <a href="{{ route('venues.index') }}" class="btn btn-primary">Ver complejos</a>
+            <a href="{{ route('planes') }}" class="btn btn-ghost">Sumá tu complejo</a>
+          </div>
+
+          <div class="hero-stats">
+            <div class="hero-stat-item">
+              <span class="hero-stat-num">24/7</span>
+              <span class="hero-stat-label">Disponible</span>
+            </div>
+            <div class="hero-stat-item">
+              <span class="hero-stat-num">+10</span>
+              <span class="hero-stat-label">Deportes</span>
+            </div>
+            <div class="hero-stat-item">
+              <span class="hero-stat-num">100%</span>
+              <span class="hero-stat-label">Online</span>
+            </div>
+          </div>
+        </div>
+
+        {{-- Search card derecha --}}
+        <div data-aos="fade-left" data-aos-duration="900" data-aos-delay="150">
+          <div class="search-card">
+            <p class="search-card-title">Busca una cancha ahora</p>
+
+            <form method="GET" action="{{ route('venues.index') }}">
+              <div class="search-field">
+                <label for="qs-deporte">Deporte</label>
+                <select id="qs-deporte" name="deporte">
+                  <option value="">Cualquier deporte</option>
+                  <option value="futbol">Futbol</option>
+                  <option value="padel">Padel</option>
+                  <option value="tenis">Tenis</option>
+                  <option value="basquet">Basquet</option>
+                </select>
+              </div>
+
+              <div class="search-field">
+                <label for="qs-fecha">Fecha</label>
+                <input
+                  type="date"
+                  id="qs-fecha"
+                  name="fecha"
+                  value="{{ now()->toDateString() }}"
+                  min="{{ now()->toDateString() }}"
+                >
+              </div>
+
+              <button type="submit" class="search-btn-full">Buscar canchas &rarr;</button>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+{{-- ── Franja de deportes ───────────────────────────────────────── --}}
+<section class="sports-strip" data-aos="fade-up">
+  <div class="container">
+    <div class="sports-strip-inner">
+      <a href="{{ route('venues.index', ['deporte' => 'futbol']) }}" class="sport-pill">
+        <span class="sport-pill-icon">⚽</span> Futbol
+      </a>
+      <a href="{{ route('venues.index', ['deporte' => 'futbol5']) }}" class="sport-pill">
+        <span class="sport-pill-icon">🥅</span> Futbol 5
+      </a>
+      <a href="{{ route('venues.index', ['deporte' => 'padel']) }}" class="sport-pill">
+        <span class="sport-pill-icon">🎾</span> Padel
+      </a>
+      <a href="{{ route('venues.index', ['deporte' => 'tenis']) }}" class="sport-pill">
+        <span class="sport-pill-icon">🏸</span> Tenis
+      </a>
+      <a href="{{ route('venues.index', ['deporte' => 'basquet']) }}" class="sport-pill">
+        <span class="sport-pill-icon">🏀</span> Basquet
+      </a>
+      <a href="{{ route('venues.index') }}" class="sport-pill">
+        <span class="sport-pill-icon">+</span> Ver todos
+      </a>
+    </div>
+  </div>
+</section>
+
+{{-- ── Por que TuCancha ─────────────────────────────────────────── --}}
+<section id="por-que" class="why-section">
+  <div class="container">
+    <div class="section-head" data-aos="fade-up">
+      <span class="section-label">Beneficios</span>
+      <h2 class="section-title">Por que TuCancha?</h2>
+      <p class="section-subtitle">
+        Cada detalle esta disenado para que reservar una cancha sea tan simple como mandar un mensaje.
+      </p>
+    </div>
+
+    <div class="why-grid">
+      <div class="why-card" data-aos="fade-up" data-aos-delay="0">
+        <span class="why-card-num">01</span>
+        <span class="why-icon">⚡</span>
+        <h3>Reservas al instante</h3>
+        <p>Elegí complejo, horario y confirmá tu turno en segundos. Sin esperas ni llamadas.</p>
+      </div>
+
+      <div class="why-card" data-aos="fade-up" data-aos-delay="100">
+        <span class="why-card-num">02</span>
+        <span class="why-icon">💳</span>
+        <h3>Pago 100% seguro</h3>
+        <p>Paga online con tarjeta, transferencia o efectivo via Mercado Pago. Tu reserva se confirma automaticamente.</p>
+      </div>
+
+      <div class="why-card" data-aos="fade-up" data-aos-delay="200">
+        <span class="why-card-num">03</span>
+        <span class="why-icon">📱</span>
+        <h3>Desde cualquier dispositivo</h3>
+        <p>Reserva desde el celular, la tablet o la computadora. La plataforma se adapta a tu pantalla.</p>
+      </div>
+
+      <div class="why-card" data-aos="fade-up" data-aos-delay="0">
+        <span class="why-card-num">04</span>
+        <span class="why-icon">🔔</span>
+        <h3>Recordatorios por mail</h3>
+        <p>Confirmacion inmediata y recordatorios para que no se te escape ningun turno.</p>
+      </div>
+
+      <div class="why-card" data-aos="fade-up" data-aos-delay="100">
+        <span class="why-card-num">05</span>
+        <span class="why-icon">📊</span>
+        <h3>Historial de partidos</h3>
+        <p>Lleva el registro de todos tus partidos: estadisticas, resultados, deporte favorito y plata gastada en un solo lugar.</p>
+      </div>
+
+      <div class="why-card" data-aos="fade-up" data-aos-delay="200">
+        <span class="why-card-num">06</span>
+        <span class="why-icon">👥</span>
+        <h3>Etiqueta a tus companeros</h3>
+        <p>Agregá a los jugadores del partido. Ellos pueden ver el encuentro en su historial y cargar su resultado.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+{{-- ── Split 50/50 imagen + texto ──────────────────────────────── --}}
+<section class="split-section">
+  <div class="container">
+    <div class="split-grid">
+      <div class="split-image-wrap" data-aos="fade-right">
+        <img src="/Images/amigos-post-futbol.webp" alt="Amigos después del partido" loading="lazy">
+        <div class="split-image-overlay"></div>
+      </div>
+
+      <div class="split-copy" data-aos="fade-left" data-aos-delay="150">
+        <span class="split-copy-label">Para jugadores</span>
+        <h2>Jugar es facil.<br><em>Encontrar la cancha</em> tambien.</h2>
+        <p>
+          TuCancha reune los mejores complejos de tu ciudad en un solo lugar.
+          Filtra por deporte, fecha y horario, y confirma tu reserva en segundos.
+        </p>
+
+        <div class="split-features">
+          <div class="split-feature">
+            <div class="split-feature-icon">🗓️</div>
+            <span class="split-feature-text">Calendario en tiempo real — ves exactamente que horarios estan libres.</span>
+          </div>
+          <div class="split-feature">
+            <div class="split-feature-icon">✅</div>
+            <span class="split-feature-text">Confirmacion instantanea por mail en cuanto el pago se procesa.</span>
+          </div>
+          <div class="split-feature">
+            <div class="split-feature-icon">👟</div>
+            <span class="split-feature-text">Multiples deportes: futbol, padel, tenis, basquet y mas.</span>
           </div>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  {{-- ── FAQ ──────────────────────────────────────────────────────── --}}
-  <section id="faq" class="section" style="padding-top: 0;">
+{{-- ── Falta Uno ─────────────────────────────────────────────────── --}}
+<section class="faltauno-section">
+  <div class="faltauno-bg"></div>
+  <div class="faltauno-overlay"></div>
+  <div class="faltauno-content">
     <div class="container">
-      <div class="section-head">
-        <span class="section-label">Dudas frecuentes</span>
-        <h2 class="section-title">Preguntas frecuentes</h2>
-        <p class="section-subtitle">Todo lo que necesitás saber antes de hacer tu primera reserva.</p>
+
+      {{-- Encabezado centrado --}}
+      <div class="faltauno-head" data-aos="fade-up">
+        <span class="faltauno-tag">Falta Uno</span>
+        <h2>Completa el equipo.<br><em>Hoy jugás.</em></h2>
+        <p>
+          ¿Te falta un jugador o querés sumarte a una partida? Falta Uno conecta
+          jugadores y equipos en tiempo real para que ningun partido se cancele.
+        </p>
       </div>
 
-      <div class="faq-list">
-        <div class="faq-item">
-          <button class="faq-trigger" onclick="toggleFaq(this)">
-            <span class="faq-trigger-text">¿Cómo reservo una cancha?</span>
-            <span class="faq-icon">+</span>
-          </button>
-          <div class="faq-body">
-            Creá una cuenta, explorá los complejos, elegí la cancha y el horario.
-            Confirmás la reserva, pagás online y recibís la confirmación por mail en segundos.
+      {{-- 2 cards glass --}}
+      <div class="faltauno-cards">
+
+        {{-- Card izquierda: tengo cancha, me falta jugador --}}
+        <div class="faltauno-card" data-aos="fade-right" data-aos-delay="100">
+          <span class="faltauno-card-icon">🥅</span>
+          <h3>Me falta un jugador</h3>
+          <p>
+            Tenes la cancha reservada pero el equipo esta incompleto. Publicá tu partida
+            y encontrá el jugador que falta en minutos.
+          </p>
+          <div class="faltauno-card-list">
+            <span class="faltauno-card-list-item">Publicá deporte, horario y posicion</span>
+            <span class="faltauno-card-list-item">Recibis solicitudes de jugadores cercanos</span>
+            <span class="faltauno-card-list-item">Confirmás al candidato desde la app</span>
           </div>
         </div>
 
-        <div class="faq-item">
-          <button class="faq-trigger" onclick="toggleFaq(this)">
-            <span class="faq-trigger-text">¿Cómo sé si mi reserva está confirmada?</span>
-            <span class="faq-icon">+</span>
-          </button>
-          <div class="faq-body">
-            Una vez aprobado el pago tu reserva pasa a estado <strong>Confirmada</strong> automáticamente.
-            Recibís un mail con todos los detalles: complejo, cancha, día y horario reservado.
+        {{-- Card derecha: quiero sumarme a un partido --}}
+        <div class="faltauno-card" data-aos="fade-left" data-aos-delay="200">
+          <span class="faltauno-card-icon">⚡</span>
+          <h3>Quiero jugar</h3>
+          <p>
+            Tenes ganas de jugar pero no tenes equipo o cancha. Explorá las partidas
+            abiertas cerca tuyo y sumate al instante.
+          </p>
+          <div class="faltauno-card-list">
+            <span class="faltauno-card-list-item">Filtrá por deporte, zona y horario</span>
+            <span class="faltauno-card-list-item">Solicitá unirte con un toque</span>
+            <span class="faltauno-card-list-item">El organizador te confirma y listo</span>
           </div>
         </div>
 
-        <div class="faq-item">
-          <button class="faq-trigger" onclick="toggleFaq(this)">
-            <span class="faq-trigger-text">¿Puedo cancelar una reserva?</span>
-            <span class="faq-icon">+</span>
-          </button>
-          <div class="faq-body">
-            Sí. Podés cancelar desde "Mis reservas" dentro del período de cancelación que establece cada complejo.
-            Si el pago fue procesado, se inicia el reintegro automáticamente a través de Mercado Pago.
+      </div>
+
+      {{-- CTA centrado --}}
+      <div class="faltauno-cta" data-aos="fade-up" data-aos-delay="300">
+        <a href="{{ route('falta-uno.index') }}" class="btn-faltauno">
+          <span>Ver partidas disponibles</span>
+          <span style="font-size:18px;">→</span>
+        </a>
+        <p class="faltauno-cta-sub">Sin costo. Solo necesitas una cuenta en TuCancha.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{{-- ── Duenos / Owner CTA ───────────────────────────────────────── --}}
+<section id="para-duenos" class="owner-section">
+  <div class="owner-bg"></div>
+  <div class="owner-overlay"></div>
+  <div class="owner-content">
+    <div class="container">
+      <div class="owner-grid">
+        <div class="owner-copy" data-aos="fade-right">
+          <span class="owner-tag">Para dueños de complejos</span>
+          <h2>Suma tu complejo<br>a <em>TuCancha</em></h2>
+          <p>
+            Recibí reservas online 24/7, cobra automaticamente y gestioná todo desde un panel simple.
+            Sin complicaciones tecnicas.
+          </p>
+
+          <div class="owner-stats">
+            <div class="owner-stat">
+              <span class="owner-stat-num">24/7</span>
+              <span class="owner-stat-label">Reservas online</span>
+            </div>
+            <div class="owner-stat">
+              <span class="owner-stat-num">0%</span>
+              <span class="owner-stat-label">Comision en plan base</span>
+            </div>
+            <div class="owner-stat">
+              <span class="owner-stat-num">5min</span>
+              <span class="owner-stat-label">Para empezar</span>
+            </div>
+          </div>
+
+          <div class="owner-actions">
+            <a href="{{ route('planes') }}" class="btn-owner-primary">Quiero sumarme &rarr;</a>
+            <a href="{{ url('/como-funciona') }}" class="btn-owner-ghost">Ver como funciona</a>
           </div>
         </div>
 
-        <div class="faq-item">
-          <button class="faq-trigger" onclick="toggleFaq(this)">
-            <span class="faq-trigger-text">¿Qué métodos de pago aceptan?</span>
-            <span class="faq-icon">+</span>
-          </button>
-          <div class="faq-body">
-            Aceptamos todos los métodos de Mercado Pago: tarjetas de crédito y débito, transferencia bancaria
-            y efectivo en puntos de pago. El proceso es 100% seguro.
-          </div>
-        </div>
-
-        <div class="faq-item">
-          <button class="faq-trigger" onclick="toggleFaq(this)">
-            <span class="faq-trigger-text">¿Cómo me registro?</span>
-            <span class="faq-icon">+</span>
-          </button>
-          <div class="faq-body">
-            Hacé clic en "Crear cuenta", completá tu nombre, mail y contraseña.
-            En menos de un minuto tenés tu cuenta lista. No se requiere tarjeta para registrarse.
-          </div>
-        </div>
-
-        <div class="faq-item">
-          <button class="faq-trigger" onclick="toggleFaq(this)">
-            <span class="faq-trigger-text">¿Qué es el historial de partidos?</span>
-            <span class="faq-icon">+</span>
-          </button>
-          <div class="faq-body">
-            Es una sección de tu perfil donde podés ver todos los partidos que jugaste: cuántos fueron,
-            qué deporte jugaste más, tu complejo favorito y el total gastado. También podés cargar el resultado
-            de cada partido (ganamos, empatamos, perdimos) y ver estadísticas con gráficos.
-          </div>
-        </div>
-
-        <div class="faq-item">
-          <button class="faq-trigger" onclick="toggleFaq(this)">
-            <span class="faq-trigger-text">¿Puedo agregar a mis compañeros de partido?</span>
-            <span class="faq-icon">+</span>
-          </button>
-          <div class="faq-body">
-            Sí. Cuando reservás y pagás una cancha, desde el detalle de la reserva podés buscar a otros usuarios
-            de TuCancha por nombre o mail y agregarlos como jugadores del partido. Ellos podrán ver ese encuentro
-            en su propio historial y cargar su resultado de forma independiente al tuyo.
+        <div data-aos="zoom-in" data-aos-delay="200">
+          <div class="owner-visual-card">
+            <span class="owner-visual-icon">🏟️</span>
+            <p>Panel de gestion<br>simple e intuitivo</p>
           </div>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
+
+{{-- ── FAQ ──────────────────────────────────────────────────────── --}}
+<section id="faq" class="faq-section">
+  <div class="container">
+    <div class="section-head" data-aos="fade-up">
+      <span class="section-label">Dudas frecuentes</span>
+      <h2 class="section-title">Preguntas frecuentes</h2>
+      <p class="section-subtitle">Todo lo que necesitas saber antes de hacer tu primera reserva.</p>
+    </div>
+
+    <div class="faq-list" data-aos="fade-up" data-aos-delay="100">
+      <div class="faq-item">
+        <button class="faq-trigger" onclick="toggleFaq(this)">
+          <span class="faq-trigger-text">Como reservo una cancha?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-body">
+          Crea una cuenta, explora los complejos, elegí la cancha y el horario.
+          Confirmas la reserva, pagas online y recibes la confirmacion por mail en segundos.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-trigger" onclick="toggleFaq(this)">
+          <span class="faq-trigger-text">Como se que mi reserva esta confirmada?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-body">
+          Una vez aprobado el pago tu reserva pasa a estado <strong>Confirmada</strong> automaticamente.
+          Recibes un mail con todos los detalles: complejo, cancha, dia y horario reservado.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-trigger" onclick="toggleFaq(this)">
+          <span class="faq-trigger-text">Puedo cancelar una reserva?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-body">
+          Si. Podes cancelar desde "Mis reservas" dentro del periodo de cancelacion que establece cada complejo.
+          Si el pago fue procesado, se inicia el reintegro automaticamente a traves de Mercado Pago.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-trigger" onclick="toggleFaq(this)">
+          <span class="faq-trigger-text">Que metodos de pago aceptan?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-body">
+          Aceptamos todos los metodos de Mercado Pago: tarjetas de credito y debito, transferencia bancaria
+          y efectivo en puntos de pago. El proceso es 100% seguro.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-trigger" onclick="toggleFaq(this)">
+          <span class="faq-trigger-text">Como me registro?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-body">
+          Haz clic en "Crear cuenta", completa tu nombre, mail y contrasena.
+          En menos de un minuto tenes tu cuenta lista. No se requiere tarjeta para registrarse.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-trigger" onclick="toggleFaq(this)">
+          <span class="faq-trigger-text">Que es el historial de partidos?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-body">
+          Es una seccion de tu perfil donde podes ver todos los partidos que jugaste: cuantos fueron,
+          que deporte jugaste mas, tu complejo favorito y el total gastado. Tambien podes cargar el resultado
+          de cada partido y ver estadisticas con graficos.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-trigger" onclick="toggleFaq(this)">
+          <span class="faq-trigger-text">Puedo agregar a mis companeros de partido?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-body">
+          Si. Cuando reservas y pagas una cancha, desde el detalle de la reserva podes buscar a otros usuarios
+          de TuCancha por nombre o mail y agregarlos como jugadores del partido. Ellos podran ver ese encuentro
+          en su propio historial y cargar su resultado de forma independiente al tuyo.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 @endsection
 
@@ -641,5 +1313,25 @@
     document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
     if (!isOpen) item.classList.add('open');
   }
+
+  /* ── Parallax JS — solo desktop ─────────────────── */
+  (function () {
+    if (window.innerWidth <= 768) return;
+
+    var slowEls = document.querySelectorAll('.parallax-slow');
+    var fastEls = document.querySelectorAll('.parallax-fast');
+
+    function onScroll() {
+      var scrollY = window.scrollY;
+      slowEls.forEach(function (el) {
+        el.style.transform = 'translateY(' + (scrollY * 0.3) + 'px)';
+      });
+      fastEls.forEach(function (el) {
+        el.style.transform = 'translateY(' + (scrollY * 0.6) + 'px)';
+      });
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+  })();
 </script>
 @endpush
