@@ -98,6 +98,14 @@
   }
   .chat-send:hover { background:#222; }
   .chat-send:disabled { background:#ccc; cursor:not-allowed; }
+
+  @media (max-width: 400px) {
+    .chat-input-row { gap: 6px; }
+    .chat-input { padding: 10px 10px; font-size: 13px; }
+    .chat-send { padding: 10px 12px; font-size: 13px; }
+    .chat-messages { min-height: 280px; max-height: 340px; padding: 12px; }
+    .chat-header { padding: 14px 16px; }
+  }
 </style>
 @endpush
 

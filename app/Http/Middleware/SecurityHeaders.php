@@ -42,7 +42,7 @@ class SecurityHeaders
             "frame-src https://*.mercadopago.com https://*.mercadolibre.com",
             "object-src 'none'",
             "base-uri 'self'",
-            "form-action 'self'",
+            "form-action 'self' https://*.mercadopago.com https://*.mercadopago.com.ar https://*.mercadolibre.com",
         ]);
 
         $response->headers->set('Content-Security-Policy', $csp);

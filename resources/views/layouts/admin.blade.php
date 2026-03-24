@@ -16,10 +16,17 @@
   }
 @endphp
 
+{{-- Overlay para cerrar sidebar en mobile --}}
+<div id="sidebarOverlay"
+     onclick="closeSidebar()"
+     class="fixed inset-0 bg-black/50 z-30 hidden lg:hidden"></div>
+
 <div class="flex min-h-screen">
 
   {{-- ── SIDEBAR ── --}}
-  <aside class="w-64 flex-shrink-0 bg-slate-900 flex flex-col">
+  <aside id="adminSidebar"
+         class="fixed lg:static inset-y-0 left-0 z-40 w-64 flex-shrink-0 bg-slate-900 flex flex-col
+                -translate-x-full lg:translate-x-0 transition-transform duration-300">
 
     {{-- Brand --}}
     <div class="px-6 pt-6 pb-4 border-b border-slate-800">
@@ -215,18 +222,32 @@
 
   </aside>
 
+  {{-- Spacer para reservar ancho del sidebar en desktop --}}
+  <div class="hidden lg:block w-64 flex-shrink-0"></div>
+
   {{-- ── MAIN ── --}}
   <div class="flex-1 flex flex-col min-w-0">
 
     {{-- Topbar --}}
-    <header class="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between gap-4">
-      <div>
-        <div class="flex items-center gap-2 text-xs text-slate-400 mb-0.5">
-          <span>Panel</span>
-          <span>/</span>
-          <span class="text-slate-600 font-medium">@yield('page_title', 'Dashboard')</span>
+    <header class="bg-white border-b border-slate-200 px-4 lg:px-8 py-3 lg:py-4 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        {{-- Botón hamburguesa visible solo en mobile --}}
+        <button type="button"
+                onclick="toggleSidebar()"
+                class="lg:hidden inline-flex items-center justify-center w-9 h-9 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors flex-shrink-0"
+                aria-label="Abrir menú">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+        <div>
+          <div class="hidden sm:flex items-center gap-2 text-xs text-slate-400 mb-0.5">
+            <span>Panel</span>
+            <span>/</span>
+            <span class="text-slate-600 font-medium">@yield('page_title', 'Dashboard')</span>
+          </div>
+          <h1 class="text-base lg:text-xl font-bold text-slate-900 leading-tight">@yield('page_title', 'Panel admin')</h1>
         </div>
-        <h1 class="text-xl font-bold text-slate-900 leading-tight">@yield('page_title', 'Panel admin')</h1>
       </div>
       <div class="flex items-center gap-3">
         @if(auth()->user()->role === 'super_admin')
@@ -239,7 +260,7 @@
     </header>
 
     {{-- Content area --}}
-    <main class="flex-1 p-8">
+    <main class="flex-1 p-4 lg:p-8">
 
       {{-- Flash: membresía activa --}}
       @if(auth()->check() && auth()->user()->role === 'venue_admin' && $adminSubscription)
@@ -293,5 +314,31 @@
 
 </div>
 
+<script>
+  function toggleSidebar() {
+    const sidebar  = document.getElementById('adminSidebar');
+    const overlay  = document.getElementById('sidebarOverlay');
+    const isOpen   = !sidebar.classList.contains('-translate-x-full');
+    if (isOpen) {
+      sidebar.classList.add('-translate-x-full');
+      overlay.classList.add('hidden');
+    } else {
+      sidebar.classList.remove('-translate-x-full');
+      overlay.classList.remove('hidden');
+    }
+  }
+
+  function closeSidebar() {
+    document.getElementById('adminSidebar').classList.add('-translate-x-full');
+    document.getElementById('sidebarOverlay').classList.add('hidden');
+  }
+
+  // Cerrar sidebar al hacer resize a desktop
+  window.addEventListener('resize', function () {
+    if (window.innerWidth >= 1024) {
+      document.getElementById('sidebarOverlay').classList.add('hidden');
+    }
+  });
+</script>
 </body>
 </html>

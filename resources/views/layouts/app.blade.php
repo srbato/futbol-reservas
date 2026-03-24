@@ -175,6 +175,7 @@
     top: calc(100% + 10px);
     right: 0;
     width: 340px;
+    max-width: calc(100vw - 16px);
     background: #fff;
     border: 1px solid #ececec;
     border-radius: 16px;
@@ -780,11 +781,89 @@
     }
   }
 
+  /* ── Hamburger (authed mobile nav) ─────────────── */
+  .app-hamburger {
+    display: none;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    cursor: pointer;
+    padding: 8px 10px;
+    flex-direction: column;
+    gap: 5px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .app-hamburger span {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: #111;
+    border-radius: 2px;
+    transition: transform .2s, opacity .2s;
+  }
+
+  .app-mobile-nav {
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border-bottom: 1px solid #ececec;
+    padding: 12px 16px 16px;
+    z-index: 200;
+    box-shadow: 0 8px 24px rgba(0,0,0,.08);
+  }
+
+  .app-mobile-nav.open { display: flex; }
+
+  .app-mobile-nav a,
+  .app-mobile-nav button {
+    padding: 12px 14px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+    display: block;
+    text-decoration: none;
+    background: transparent;
+    border: 0;
+    text-align: left;
+    width: 100%;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .app-mobile-nav a:hover,
+  .app-mobile-nav button:hover { background: #f5f5f5; }
+
+  .app-mobile-nav .app-mobile-cta {
+    background: #111;
+    color: #fff !important;
+    text-align: center;
+    margin-top: 4px;
+  }
+
+  .app-mobile-divider { border-top: 1px solid #ececec; margin: 8px 0; }
+
   /* ── Mobile ────────────────────────────────────── */
   @media (max-width: 600px) {
     .site-header-inner {
       padding: 10px 16px;
       gap: 10px;
+    }
+
+    /* Ocultar nav completa en mobile cuando el usuario está autenticado */
+    .site-nav.auth-nav {
+      display: none;
+    }
+
+    .app-hamburger {
+      display: flex;
     }
 
     .site-nav {
@@ -852,11 +931,13 @@
 </style>
 </head>
 <body>
-<header class="site-header">
+<header class="site-header" style="position:relative;">
     <div class="site-header-inner">
       <a href="{{ route('home') }}" class="brand">TuCancha</a>
 
-      <nav class="site-nav">
+      @auth
+      {{-- Nav autenticada: oculta en mobile (manejada por hamburguesa) --}}
+      <nav class="site-nav auth-nav">
         <a href="{{ route('home') }}"
            @if(request()->routeIs('home')) style="background:#f4f4f4; font-weight:700;" @endif>Inicio</a>
         <a href="{{ route('venues.index') }}"
@@ -864,7 +945,6 @@
         <a href="{{ route('falta-uno.index') }}"
            @if(request()->routeIs('falta-uno.*')) style="background:#111; color:#fff; border-color:#111; font-weight:700;" @endif>⚡ Falta Uno</a>
 
-        @auth
           @if(auth()->user()->role === 'user')
             <a href="{{ route('planes') }}">Hacete socio</a>
           @endif
@@ -951,12 +1031,53 @@
               </form>
             </div>
           </div>
-        @else
+      </nav>
+
+      {{-- Botón hamburguesa para mobile (solo autenticados) --}}
+      <button class="app-hamburger" id="appHamburgerBtn" onclick="toggleAppMobileNav()" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
+
+      @else
+      {{-- Nav no autenticada --}}
+      <nav class="site-nav">
+        <a href="{{ route('home') }}"
+           @if(request()->routeIs('home')) style="background:#f4f4f4; font-weight:700;" @endif>Inicio</a>
+        <a href="{{ route('venues.index') }}"
+           @if(request()->routeIs('venues.*')) style="background:#f4f4f4; font-weight:700;" @endif>Complejos</a>
+        <a href="{{ route('falta-uno.index') }}"
+           @if(request()->routeIs('falta-uno.*')) style="background:#111; color:#fff; border-color:#111; font-weight:700;" @endif>⚡ Falta Uno</a>
           <a href="{{ route('login') }}">Ingresar</a>
           <a href="{{ route('register') }}" class="primary">Crear cuenta</a>
-        @endauth
       </nav>
+      @endauth
     </div>
+
+    @auth
+    {{-- Menú mobile desplegable --}}
+    <nav class="app-mobile-nav" id="appMobileNav">
+      <a href="{{ route('home') }}">Inicio</a>
+      <a href="{{ route('venues.index') }}">Complejos</a>
+      <a href="{{ route('falta-uno.index') }}">⚡ Falta Uno</a>
+      @if(auth()->user()->role === 'user')
+        <a href="{{ route('planes') }}">Hacete socio</a>
+      @endif
+      <div class="app-mobile-divider"></div>
+      <a href="{{ route('profile.edit') }}">Perfil</a>
+      <a href="{{ route('my_reservations') }}">Mi actividad</a>
+      <a href="{{ route('venues.favorites') }}">Favoritos</a>
+      <a href="{{ route('notifications.index') }}">Notificaciones</a>
+      @if(in_array(auth()->user()->role, ['venue_admin', 'super_admin']) || auth()->user()->isVenueStaff())
+        <a href="{{ route('va.dashboard') }}" class="app-mobile-cta">⚡ Panel admin</a>
+      @endif
+      <div class="app-mobile-divider"></div>
+      <form method="POST" action="{{ route('logout') }}" style="margin:0;">
+        @csrf
+        <button type="submit">Salir</button>
+      </form>
+    </nav>
+    @endauth
+
   </header>
 
   <main class="site-main">
@@ -972,6 +1093,12 @@
   </main>
 
   <script>
+    function toggleAppMobileNav() {
+      const nav = document.getElementById('appMobileNav');
+      if (!nav) return;
+      nav.classList.toggle('open');
+    }
+
     function toggleUserMenu() {
       const menu = document.getElementById('userDropdown');
       if (!menu) return;

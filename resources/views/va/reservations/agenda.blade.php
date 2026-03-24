@@ -152,26 +152,32 @@
   .res-time   { font-size: 12px; margin-top: 5px; font-weight: 600; }
   .res-price  { font-size: 13px; font-weight: 700; margin-top: 4px; }
   .res-code   { font-size: 11px; margin-top: 3px; opacity: .7; font-family: monospace; }
-  .res-actions { margin-top: 8px; display: flex; gap: 6px; }
+  .res-actions { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
   .res-btn-cancel {
     font-size: 12px;
-    padding: 3px 10px;
+    padding: 8px 12px;
     border: 1px solid currentColor;
     border-radius: 6px;
     background: transparent;
     cursor: pointer;
     font-weight: 600;
     opacity: .75;
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
   }
   .res-btn-cancel:hover { opacity: 1; }
   .res-btn-view {
     font-size: 12px;
-    padding: 3px 10px;
+    padding: 8px 12px;
     border: 1px solid currentColor;
     border-radius: 6px;
     text-decoration: none;
     font-weight: 600;
     opacity: .75;
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
   }
   .res-btn-view:hover { opacity: 1; }
 

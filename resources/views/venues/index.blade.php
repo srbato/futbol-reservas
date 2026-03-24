@@ -79,6 +79,8 @@
   }
   @media (max-width: 768px) {
     .vi-hero-field-circle { display: none; }
+    .vi-hero { padding: 40px 20px 32px; }
+    .vi-hero-text h1 { font-size: 36px; }
   }
 
   /* Partículas */

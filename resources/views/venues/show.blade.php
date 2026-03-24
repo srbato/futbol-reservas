@@ -230,6 +230,8 @@
 
   @media (max-width: 768px) {
     .vs-particle { display: none; }
+    .vs-hero { height: auto; min-height: 320px; }
+    .vs-hero-title { font-size: 32px; }
   }
 
   /* ── STATS + DESCRIPTION ───────────────────────── */

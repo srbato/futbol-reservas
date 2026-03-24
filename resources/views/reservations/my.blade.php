@@ -12,7 +12,13 @@
     display: flex;
     gap: 8px;
     margin-bottom: 24px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
   }
+
+  .my-tabs::-webkit-scrollbar { display: none; }
 
   .my-tab {
     padding: 10px 22px;
@@ -25,6 +31,8 @@
     cursor: pointer;
     transition: background .15s, color .15s, border-color .15s;
     font-family: inherit;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
   .my-tab.active {

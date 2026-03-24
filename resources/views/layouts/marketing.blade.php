@@ -257,6 +257,7 @@
       .section { padding: 36px 0; }
       .section-title { font-size: 28px; }
       .footer-inner { flex-direction: column; align-items: flex-start; gap: 16px; }
+      .footer-links { gap: 12px; }
     }
 
     @media (max-width: 640px) {
@@ -268,6 +269,7 @@
 
     @media (max-width: 480px) {
       .container { padding: 0 16px; }
+      .footer-links { gap: 8px; font-size: 13px; }
     }
 
     @stack('styles')

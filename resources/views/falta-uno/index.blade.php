@@ -147,9 +147,14 @@
   .fui-filter-row {
     display: flex;
     gap: 8px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     align-items: center;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
   }
+  .fui-filter-row::-webkit-scrollbar { display: none; }
   .fui-pill {
     padding: 7px 16px;
     border: 1.5px solid #e0e0e0;
@@ -162,6 +167,8 @@
     color: #555;
     text-decoration: none;
     display: inline-block;
+    flex-shrink: 0;
+    white-space: nowrap;
   }
   .fui-pill:hover { border-color: #111; color: #111; }
   .fui-pill.active { background: #111; color: #fff; border-color: #111; }
