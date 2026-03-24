@@ -44,6 +44,9 @@ return [
             'client_options' => [
                 // Guzzle client options: https://docs.guzzlephp.org/en/stable/request-options.html
             ],
+            // Claves para el cliente JS (front-end)
+            'client_host' => env('REVERB_CLIENT_HOST', env('REVERB_HOST', 'localhost')),
+            'client_port' => env('REVERB_CLIENT_PORT', env('REVERB_PORT', 443)),
         ],
 
         'pusher' => [

@@ -25,6 +25,11 @@ class ReportsController extends Controller
             ? Carbon::parse($request->query('to'))->endOfDay()
             : Carbon::today()->endOfDay();
 
+        // Limitar el rango máximo a 90 días para evitar consultas excesivas
+        if ($from->diffInDays($to) > 90) {
+            $from = $to->copy()->subDays(90)->startOfDay();
+        }
+
         $today = Carbon::today();
         $weekStart = Carbon::now()->startOfWeek();
         $monthStart = Carbon::now()->startOfMonth();
@@ -264,6 +269,11 @@ class ReportsController extends Controller
         $to = $request->query('to')
             ? Carbon::parse($request->query('to'))->endOfDay()
             : Carbon::today()->endOfDay();
+
+        // Limitar el rango máximo a 90 días para evitar consultas excesivas
+        if ($from->diffInDays($to) > 90) {
+            $from = $to->copy()->subDays(90)->startOfDay();
+        }
 
         $reservations = Reservation::query()
             ->whereHas('field.venue', function ($q) use ($user) {

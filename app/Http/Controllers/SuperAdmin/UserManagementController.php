@@ -137,8 +137,37 @@ class UserManagementController extends Controller
             return back()->with('error', 'No podés impersonarte a vos mismo.');
         }
 
+        $originalAdminId = $request->user()->id;
+
         auth()->login($user);
 
+        session([
+            'impersonating_as'  => $user->id,
+            'original_admin_id' => $originalAdminId,
+        ]);
+
         return redirect('/');
+    }
+
+    public function stopImpersonate(Request $request)
+    {
+        $originalAdminId = session('original_admin_id');
+
+        if (!$originalAdminId) {
+            return redirect('/');
+        }
+
+        $admin = User::find($originalAdminId);
+
+        if (!$admin || $admin->role !== 'super_admin') {
+            abort(403);
+        }
+
+        auth()->login($admin);
+
+        session()->forget(['impersonating_as', 'original_admin_id']);
+
+        return redirect()->route('sa.users.index')
+            ->with('success', 'Impersonación finalizada.');
     }
 }

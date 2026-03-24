@@ -798,3 +798,140 @@ Archivos modificados principales:
 - resources/views/reservations/my.blade.php
 - resources/views/notifications/index.blade.php (nuevo)
 - resources/views/venues/index.blade.php
+
+[2026-03-24] — Auditoría pre-producción: correcciones de seguridad y estabilidad
+
+--- CRITICO ---
+
+1. SSL Google OAuth corregido
+- GoogleAuthController.php: `verify: false` reemplazado por `verify: !app()->isLocal()`.
+  SSL deshabilitado solo en entorno local, activado en producción.
+
+2. env() eliminado de vistas Blade y rutas
+- config/services.php: agregada clave `google_geocoding.key` apuntando a GOOGLE_GEOCODING_API_KEY.
+- config/broadcasting.php: agregados `client_host` y `client_port` para Reverb (frontend).
+- Reemplazados todos los env() por config() en:
+  · resources/views/layouts/app.blade.php
+  · resources/views/fields/show.blade.php
+  · resources/views/falta-uno/index.blade.php
+  · resources/views/falta-uno/chat.blade.php
+  · routes/web.php (ruta /va/geocode)
+
+3. Rutas de retorno Mercado Pago con verificación de pertenencia
+- routes/web.php: /reservation-pending/{reservation} y /reservation-failure/{reservation}
+  ahora verifican que la reserva pertenezca al usuario autenticado.
+  Sin sesión → redirect a home. Reserva ajena → 403.
+
+4. Impersonación con mecanismo de salida
+- UserManagementController.php: al impersonar se guarda `original_admin_id` en sesión.
+- Nuevo método stopImpersonate() que restaura la sesión del super_admin original.
+- routes/web.php: nueva ruta GET /super-admin/stop-impersonate (sa.users.stop_impersonate).
+
+5. .env.example completo con variables de Reverb
+- BROADCAST_CONNECTION cambiado de `log` a `reverb`.
+- Agregadas: REVERB_APP_ID, REVERB_APP_KEY, REVERB_APP_SECRET, REVERB_HOST, REVERB_PORT,
+  REVERB_SCHEME, REVERB_CLIENT_HOST, REVERB_CLIENT_PORT, REVERB_ALLOWED_ORIGINS.
+- Agregadas también: GOOGLE_CLIENT_ID/SECRET, GOOGLE_MAPS_API_KEY, GOOGLE_GEOCODING_API_KEY,
+  MERCADOPAGO_ACCESS_TOKEN/CLIENT_ID/CLIENT_SECRET/FEE_PERCENT.
+- Comentario de advertencia sobre APP_URL antes del deploy.
+
+--- IMPORTANTE ---
+
+6. Ruta CheckinController registrada
+- routes/web.php: registradas va.checkin.index (GET) y va.checkin.store (POST)
+  dentro del grupo VA. Evita error 500 en la vista de checkin.
+
+7. Seeder de usuario de prueba comentado
+- database/seeders/DatabaseSeeder.php: bloque que crea test@example.com comentado.
+
+8. allowed_origins de Reverb lee del entorno
+- config/reverb.php: `['*']` reemplazado por `explode(',', env('REVERB_ALLOWED_ORIGINS', '*'))`.
+
+9. .env.example: variables de entorno corregidas para producción
+- LOG_LEVEL: debug → error
+- SESSION_ENCRYPT: false → true
+- APP_LOCALE: en → es
+- APP_FALLBACK_LOCALE: en → es
+- APP_FAKER_LOCALE: en_US → es_AR
+
+10. Supervisord documentado
+- Creados supervisor/queue-worker.conf y supervisor/scheduler.conf
+  con configuración lista para el VPS (DonWeb).
+
+--- MENOR ---
+
+11. Content-Security-Policy y HSTS agregados
+- app/Http/Middleware/SecurityHeaders.php: CSP con dominios de jsDelivr, Pusher,
+  Google Fonts/Maps y Mercado Pago. HSTS solo en entorno no-local.
+
+12. Código muerto eliminado
+- Eliminados: app/Http/Controllers/AdminReservationsController.php
+              resources/views/admin/reservations.blade.php
+
+13. Reports con límite de rango máximo
+- app/Http/Controllers/VenueAdmin/ReportsController.php: métodos index() y export()
+  recortan el rango a 90 días máximo para evitar 700+ queries SQL por request.
+
+Archivos modificados:
+- .env.example
+- app/Http/Controllers/Auth/GoogleAuthController.php
+- app/Http/Controllers/SuperAdmin/UserManagementController.php
+- app/Http/Controllers/VenueAdmin/ReportsController.php
+- app/Http/Middleware/SecurityHeaders.php
+- config/broadcasting.php
+- config/reverb.php
+- config/services.php
+- database/seeders/DatabaseSeeder.php
+- routes/web.php
+- resources/views/layouts/app.blade.php
+- resources/views/fields/show.blade.php
+- resources/views/falta-uno/index.blade.php
+- resources/views/falta-uno/chat.blade.php
+- supervisor/queue-worker.conf (nuevo)
+- supervisor/scheduler.conf (nuevo)
+
+Archivos eliminados:
+- app/Http/Controllers/AdminReservationsController.php
+- resources/views/admin/reservations.blade.php
+
+[2026-03-24] — Correcciones faltantes de auditoría (ítem 3, 13 y 14)
+
+1. Ruta geocoding sin SSL verificado y con logging innecesario
+- routes/web.php: quitado Http::withoutVerifying() en la llamada a Google Maps API.
+- routes/web.php: eliminado Log::info() que loggeaba respuestas de geocoding en producción.
+
+2. MAIL_FROM_ADDRESS sin advertencia
+- .env.example: agregado comentario "# IMPORTANTE: Cambiar al email real del remitente antes del deploy"
+  sobre la línea MAIL_FROM_ADDRESS.
+
+3. Proceso de deploy no documentado
+- Creado supervisor/deploy.sh con todos los pasos del deploy en orden:
+  git pull, composer install, npm build, migrate, config:cache, route:cache,
+  view:cache, event:cache, queue:restart.
+
+Archivos modificados:
+- routes/web.php
+- .env.example
+
+Archivos nuevos:
+- supervisor/deploy.sh
+
+[2026-03-24] — Nota: refactor de lógica de negocio en closures de rutas (PENDIENTE)
+
+El auditor detectó que routes/web.php contiene bloques extensos de lógica de negocio
+(verificación de pagos con Mercado Pago, actualización de estados, envío de emails y
+notificaciones) dentro de closures en lugar de controladores dedicados.
+
+Este cambio fue dejado pendiente deliberadamente porque:
+- Es el refactor más grande y riesgoso de la auditoría.
+- Implica tocar el flujo crítico de pagos (batch success y reservation success).
+- Mover ese código a controladores sin tests puede introducir bugs silenciosos en
+  producción justo en el momento más sensible (cobros reales).
+
+Se recomienda encararlo después del primer deploy estable, con tiempo para testearlo
+manualmente en staging antes de subir a producción.
+
+Archivos afectados cuando se haga:
+- routes/web.php (líneas ~243-295 batch success, ~300-354 reservation success)
+- Crear: app/Http/Controllers/MercadoPago/BatchSuccessController.php
+- Crear: app/Http/Controllers/MercadoPago/ReservationSuccessController.php

@@ -1416,9 +1416,9 @@
   const echoClient = new Echo({
     broadcaster:  'reverb',
     key:          '{{ config('broadcasting.connections.reverb.key') }}',
-    wsHost:       '{{ env('REVERB_CLIENT_HOST', config('broadcasting.connections.reverb.options.host')) }}',
-    wsPort:       {{ env('REVERB_CLIENT_PORT', 443) }},
-    wssPort:      {{ env('REVERB_CLIENT_PORT', 443) }},
+    wsHost:       '{{ config('broadcasting.connections.reverb.client_host') }}',
+    wsPort:       {{ config('broadcasting.connections.reverb.client_port') }},
+    wssPort:      {{ config('broadcasting.connections.reverb.client_port') }},
     forceTLS:     true,
     enabledTransports: ['ws'],
   });

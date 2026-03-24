@@ -44,6 +44,7 @@ use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\VenueStaffInvitationController;
 use App\Http\Controllers\VenueAdmin\VenueStaffController as VaVenueStaffController;
 use App\Http\Controllers\VenueAdmin\FaltaUnoSettingController as VaFaltaUnoSettingController;
+use App\Http\Controllers\VenueAdmin\CheckinController as VaCheckinController;
 use App\Http\Controllers\FaltaUnoController;
 use App\Http\Controllers\FaltaUnoSportProfileController;
 use App\Http\Controllers\FaltaUnoProfilePublicController;
@@ -353,11 +354,21 @@ Route::get('/reservation-success/{reservation}', function (\App\Models\Reservati
     return view('reservations.success', compact('reservation'));
 })->name('reservations.success');
 
-Route::get('/reservation-pending/{reservation}', function (\App\Models\Reservation $reservation) {
+Route::get('/reservation-pending/{reservation}', function (\App\Models\Reservation $reservation, \Illuminate\Http\Request $request) {
+    $userId = auth()->id();
+    $isOwner = $userId && ($reservation->user_id === $userId || optional(auth()->user())->role === 'super_admin');
+    if (!$isOwner) {
+        return auth()->check() ? abort(403) : redirect()->route('home');
+    }
     return view('reservations.pending', compact('reservation'));
 })->name('reservations.pending');
 
-Route::get('/reservation-failure/{reservation}', function (\App\Models\Reservation $reservation) {
+Route::get('/reservation-failure/{reservation}', function (\App\Models\Reservation $reservation, \Illuminate\Http\Request $request) {
+    $userId = auth()->id();
+    $isOwner = $userId && ($reservation->user_id === $userId || optional(auth()->user())->role === 'super_admin');
+    if (!$isOwner) {
+        return auth()->check() ? abort(403) : redirect()->route('home');
+    }
     return view('reservations.failure', compact('reservation'));
 })->name('reservations.failure');
 
@@ -434,10 +445,9 @@ Route::middleware(['auth', 'active.user', 'role:venue_admin,super_admin', 'venue
         // Geocode
         Route::get('/geocode', function(\Illuminate\Http\Request $request) {
             $address = $request->query('address');
-            $key = env('GOOGLE_GEOCODING_API_KEY');
+            $key = config('services.google_geocoding.key');
             $url = 'https://maps.googleapis.com/maps/api/geocode/json?address=' . urlencode($address) . '&key=' . $key;
-            $response = \Illuminate\Support\Facades\Http::withoutVerifying()->get($url);
-            \Illuminate\Support\Facades\Log::info('Geocode response', ['body' => $response->json()]);
+            $response = \Illuminate\Support\Facades\Http::get($url);
             return response()->json($response->json());
         })->name('va.geocode');
 
@@ -490,6 +500,10 @@ Route::middleware(['auth', 'active.user', 'role:venue_admin,super_admin', 'venue
         // Mercado Pago OAuth
         Route::get('/venues/{venue}/mp-connect', [MercadoPagoOAuthController::class, 'redirect'])->name('va.mp_oauth.redirect');
         Route::post('/venues/{venue}/mp-disconnect', [MercadoPagoOAuthController::class, 'disconnect'])->name('va.mp_oauth.disconnect');
+
+        // Checkin
+        Route::get('/checkin', [VaCheckinController::class, 'index'])->name('va.checkin.index');
+        Route::post('/checkin', [VaCheckinController::class, 'store'])->name('va.checkin.store');
 
         // Staff
         Route::get('/staff', [VaVenueStaffController::class, 'index'])->name('va.staff.index');
@@ -553,6 +567,7 @@ Route::middleware(['auth', 'active.user', 'role:super_admin'])->group(function (
         [UserManagementController::class, 'impersonate']
     )->name('sa.users.impersonate');
 
+
     Route::get('/sa/plans', [MembershipPlanController::class, 'index'])
         ->name('sa.plans.index');
 
@@ -589,6 +604,12 @@ Route::middleware(['auth', 'active.user', 'role:super_admin'])->group(function (
     })->name('sa.payouts.venue_pending');
     */
 });
+
+// Ruta para salir de impersonación — protegida solo con auth (el super_admin
+// ya no tiene ese rol mientras impersona a otro usuario)
+Route::get('/super-admin/stop-impersonate', [UserManagementController::class, 'stopImpersonate'])
+    ->middleware(['auth', 'active.user'])
+    ->name('sa.users.stop_impersonate');
 
 // Solo devuelve el status; el usuario debe ser dueño de la reserva o super_admin.
 // Si no está autenticado (ej: regresó de MP sin sesión activa) devuelve 401

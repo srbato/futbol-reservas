@@ -1008,8 +1008,8 @@
   <script src="https://cdn.jsdelivr.net/npm/laravel-echo@1.16.1/dist/echo.iife.js"></script>
   <script>
     (function () {
-      const wsHost    = '{{ env("REVERB_CLIENT_HOST", env("REVERB_HOST", "localhost")) }}';
-      const wsPort    = {{ env("REVERB_CLIENT_PORT", env("REVERB_PORT", 443)) }};
+      const wsHost    = '{{ config("broadcasting.connections.reverb.client_host") }}';
+      const wsPort    = {{ config("broadcasting.connections.reverb.client_port") }};
       const reverbKey = '{{ config("broadcasting.connections.reverb.key") }}';
 
       if (!reverbKey) return;
