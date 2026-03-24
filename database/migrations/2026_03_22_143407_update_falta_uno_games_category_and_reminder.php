@@ -12,10 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('falta_uno_games', function (Blueprint $table) {
-            $table->dropColumn('category_filter');
-            $table->string('category_min')->nullable()->after('gender_filter');
-            $table->string('category_max')->nullable()->after('category_min');
-            $table->timestamp('reminder_sent_at')->nullable()->after('category_max');
+            if (Schema::hasColumn('falta_uno_games', 'category_filter')) {
+                $table->dropColumn('category_filter');
+            }
+            if (!Schema::hasColumn('falta_uno_games', 'category_min')) {
+                $table->string('category_min')->nullable()->after('gender_filter');
+            }
+            if (!Schema::hasColumn('falta_uno_games', 'category_max')) {
+                $table->string('category_max')->nullable()->after('category_min');
+            }
+            if (!Schema::hasColumn('falta_uno_games', 'reminder_sent_at')) {
+                $table->timestamp('reminder_sent_at')->nullable()->after('category_max');
+            }
         });
     }
 
