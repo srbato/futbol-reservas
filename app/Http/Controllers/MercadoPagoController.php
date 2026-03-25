@@ -56,7 +56,7 @@ class MercadoPagoController extends Controller
 
         // Sin marketplace por ahora
 
-        $response = Http::withOptions(['verify' => !app()->isLocal()])
+        $response = Http::withOptions(['verify' => app()->isProduction()])
             ->withToken($accessToken)
             ->post('https://api.mercadopago.com/checkout/preferences', $payload);
 

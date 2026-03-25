@@ -86,6 +86,16 @@ Route::get('/planes', function () {
 })->name('planes');
 
 Route::get('/dashboard', function () {
+    $user = auth()->user();
+
+    if ($user->role === 'super_admin') {
+        return redirect()->route('sa.users.index');
+    }
+
+    if ($user->role === 'venue_admin') {
+        return redirect()->route('va.dashboard');
+    }
+
     return redirect()->route('my_reservations');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -250,7 +260,7 @@ Route::middleware(['auth'])->group(function () {
             $accessToken = $batch->field->venue->mp_access_token
                 ?? config('services.mercadopago.access_token');
             try {
-                $mpResponse = \Illuminate\Support\Facades\Http::withOptions(['verify' => !app()->isLocal()])
+                $mpResponse = \Illuminate\Support\Facades\Http::withOptions(['verify' => app()->isProduction()])
                     ->withToken($accessToken)
                     ->get('https://api.mercadopago.com/v1/payments/search', [
                         'external_reference' => 'batch:' . $batch->id,
@@ -261,7 +271,6 @@ Route::middleware(['auth'])->group(function () {
                 if ($mpResponse->successful()) {
                     $payment  = ($mpResponse->json('results') ?? [])[0] ?? null;
                     if (($payment['status'] ?? null) === 'approved') {
-                        app(\App\Http\Controllers\MercadoPagoWebhookController::class);
                         // Re-usar la lógica del webhook disparando un request interno no es trivial,
                         // así que actualizamos el batch directamente
                         $batch->reservations->each(fn($r) => $r->update(['status' => 'PAID', 'expires_at' => null]));
@@ -315,7 +324,7 @@ Route::get('/reservation-success/{reservation}', function (\App\Models\Reservati
                     ?? config('services.mercadopago.access_token');
 
                 // Verificamos el pago directamente contra la API de MP con el ID recibido
-                $mpResponse = \Illuminate\Support\Facades\Http::withOptions(['verify' => !app()->isLocal()])
+                $mpResponse = \Illuminate\Support\Facades\Http::withOptions(['verify' => app()->isProduction()])
                     ->withToken($accessToken)
                     ->get("https://api.mercadopago.com/v1/payments/{$paymentId}");
 
@@ -449,7 +458,7 @@ Route::middleware(['auth', 'active.user', 'role:venue_admin,super_admin', 'venue
             $url = 'https://maps.googleapis.com/maps/api/geocode/json?address=' . urlencode($address) . '&key=' . $key;
             $response = \Illuminate\Support\Facades\Http::get($url);
             return response()->json($response->json());
-        })->name('va.geocode');
+        })->middleware('throttle:30,1')->name('va.geocode');
 
         // Venues
         Route::get('/venues/create', [VaVenueController::class, 'create'])->name('va.venues.create');

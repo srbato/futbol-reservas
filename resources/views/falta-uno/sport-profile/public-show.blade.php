@@ -269,7 +269,7 @@
   {{-- Perfiles por deporte --}}
   @if($profiles->isEmpty())
     <div class="page-card" style="text-align:center; padding:48px 24px; margin-bottom:28px;" data-aos="zoom-in">
-      <div style="font-size:40px; margin-bottom:12px;">🎯</div>
+      <div style="margin-bottom:12px;"><i data-lucide="target" style="width:40px;height:40px;stroke:#ccc;stroke-width:1.5;"></i></div>
       <p style="font-size:16px; font-weight:700; margin:0 0 6px;">Sin perfiles deportivos</p>
       <p style="color:#888; font-size:13px; margin:0;">Este jugador aún no completó su perfil deportivo.</p>
     </div>
@@ -282,12 +282,12 @@
       @foreach($profiles as $pi => $profile)
       @php
         $sportParts = match($profile->sport) {
-          'football'   => ['⚽', 'Fútbol'],
-          'padel'      => ['🏓', 'Pádel'],
-          'tennis'     => ['🎾', 'Tenis'],
-          'basketball' => ['🏀', 'Básquet'],
-          'volleyball' => ['🏐', 'Vóley'],
-          default      => ['🏅', ucfirst($profile->sport)],
+          'football'   => ['activity', 'Fútbol'],
+          'padel'      => ['activity', 'Pádel'],
+          'tennis'     => ['activity', 'Tenis'],
+          'basketball' => ['activity', 'Básquet'],
+          'volleyball' => ['activity', 'Vóley'],
+          default      => ['activity', ucfirst($profile->sport)],
         };
         $catColors = match($profile->category) {
           'recreativo', 'octava',  'septima' => ['bg' => '#f3f4f6', 'color' => '#6b7280'],
@@ -300,7 +300,7 @@
       @endphp
       <div class="fpp-sport-card"
            data-aos="fade-up" data-aos-delay="{{ min($pi * 80, 400) }}">
-        <span class="fpp-sport-emoji">{{ $sportParts[0] }}</span>
+        <span class="fpp-sport-emoji"><i data-lucide="{{ $sportParts[0] }}" style="width:24px;height:24px;stroke:#22c55e;stroke-width:2;"></i></span>
         <div class="fpp-sport-name">{{ $sportParts[1] }}</div>
         <span class="fpp-cat-badge"
               style="background:{{ $catColors['bg'] }}; color:{{ $catColors['color'] }};">

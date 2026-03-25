@@ -274,7 +274,13 @@ html { scroll-behavior: smooth; }
   transform: translateY(-2px);
 }
 
-.sport-pill-icon { font-size: 18px; line-height: 1; }
+.sport-pill-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 1;
+}
 
 /* ── Why TuCancha ────────────────────────────────── */
 .why-section {
@@ -320,10 +326,19 @@ html { scroll-behavior: smooth; }
 }
 
 .why-icon {
-  font-size: 32px;
   display: block;
   margin-bottom: 16px;
   line-height: 1;
+  width: 28px;
+  height: 28px;
+}
+
+.why-icon [data-lucide] {
+  width: 28px;
+  height: 28px;
+  stroke: #22c55e;
+  stroke-width: 2;
+  fill: none;
 }
 
 .why-card h3 {
@@ -428,9 +443,16 @@ html { scroll-behavior: smooth; }
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
   flex-shrink: 0;
   margin-top: 1px;
+}
+
+.split-feature-icon [data-lucide] {
+  width: 16px;
+  height: 16px;
+  stroke: #16a34a;
+  stroke-width: 2.2;
+  fill: none;
 }
 
 .split-feature-text {
@@ -589,7 +611,21 @@ html { scroll-behavior: smooth; }
   text-align: center;
 }
 
-.owner-visual-icon { font-size: 48px; margin-bottom: 12px; display: block; }
+.owner-visual-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  width: 100%;
+}
+
+.owner-visual-icon [data-lucide] {
+  width: 40px;
+  height: 40px;
+  stroke: #22c55e;
+  stroke-width: 1.8;
+  fill: none;
+}
 
 .owner-visual-card p {
   margin: 0;
@@ -601,30 +637,145 @@ html { scroll-behavior: smooth; }
 
 /* ── FAQ ─────────────────────────────────────────── */
 .faq-section {
-  padding: 80px 0;
-  background: #f7f7f8;
+  padding: 100px 0;
+  background: #fff;
 }
 
-.faq-list { display: flex; flex-direction: column; gap: 10px; }
+.faq-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 72px;
+  align-items: start;
+}
+
+/* imagen lado izquierdo */
+.faq-visual {
+  position: sticky;
+  top: 100px;
+}
+
+.faq-visual-inner {
+  position: relative;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0,0,0,.14);
+}
+
+.faq-visual-inner img {
+  width: 100%;
+  height: 520px;
+  object-fit: cover;
+  display: block;
+  transition: transform .6s ease;
+}
+
+.faq-visual-inner:hover img {
+  transform: scale(1.04);
+}
+
+.faq-visual-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, rgba(0,0,0,.08) 0%, rgba(0,0,0,.45) 100%);
+}
+
+.faq-visual-badge {
+  position: absolute;
+  bottom: 28px;
+  left: 28px;
+  background: #22c55e;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 18px;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 20px rgba(34,197,94,.45);
+  letter-spacing: .3px;
+}
+
+.faq-visual-badge svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.faq-visual-accent {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(34,197,94,.18);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(34,197,94,.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.faq-visual-accent [data-lucide] {
+  width: 28px;
+  height: 28px;
+  stroke: #22c55e;
+  stroke-width: 2;
+  fill: none;
+}
+
+/* acordeon lado derecho */
+.faq-col-header {
+  margin-bottom: 36px;
+}
+
+.faq-col-header .section-label {
+  display: inline-flex;
+  margin-bottom: 12px;
+}
+
+.faq-col-header h2 {
+  font-size: 36px;
+  font-weight: 800;
+  color: #0a0a0a;
+  line-height: 1.2;
+  margin: 0 0 14px 0;
+}
+
+.faq-col-header p {
+  color: #6b7280;
+  font-size: 16px;
+  line-height: 1.65;
+  margin: 0;
+}
+
+.faq-list { display: flex; flex-direction: column; gap: 8px; }
 
 .faq-item {
   background: #fff;
-  border: 1px solid #ececec;
+  border: 1.5px solid #e5e7eb;
   border-radius: 16px;
   overflow: hidden;
-  transition: box-shadow .2s, border-color .2s;
+  transition: box-shadow .25s, border-color .25s, transform .25s;
+}
+
+.faq-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(0,0,0,.07);
 }
 
 .faq-item.open {
-  box-shadow: 0 4px 24px rgba(34,197,94,.08);
-  border-color: #bbf7d0;
+  box-shadow: 0 8px 32px rgba(34,197,94,.12);
+  border-color: #86efac;
+  transform: translateY(-2px);
 }
 
 .faq-trigger {
   width: 100%;
   background: none;
   border: none;
-  padding: 20px 24px;
+  padding: 20px 22px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -634,39 +785,77 @@ html { scroll-behavior: smooth; }
   font: inherit;
 }
 
-.faq-trigger-text { font-size: 16px; font-weight: 700; color: #111; }
+.faq-trigger-text {
+  font-size: 15px;
+  font-weight: 700;
+  color: #111;
+  line-height: 1.4;
+}
+
+.faq-item.open .faq-trigger-text {
+  color: #16a34a;
+}
 
 .faq-icon {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  background: #f3f3f3;
+  background: #f3f4f6;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
-  font-weight: 700;
-  color: #555;
   flex-shrink: 0;
-  transition: transform .2s, background .2s, color .2s;
+  transition: transform .3s cubic-bezier(.34,1.56,.64,1), background .25s, color .25s;
+}
+
+.faq-icon svg {
+  width: 14px;
+  height: 14px;
+  stroke: #6b7280;
+  transition: stroke .25s;
 }
 
 .faq-item.open .faq-icon {
   transform: rotate(45deg);
   background: #22c55e;
-  color: #fff;
+}
+
+.faq-item.open .faq-icon svg {
+  stroke: #fff;
 }
 
 .faq-body {
-  display: none;
-  padding: 16px 24px 20px 24px;
-  color: #555;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .4s cubic-bezier(.4,0,.2,1), padding .3s ease;
+  padding: 0 22px;
+  color: #4b5563;
   font-size: 15px;
-  line-height: 1.7;
-  border-top: 1px solid #f0f0f0;
+  line-height: 1.75;
+  border-top: 0px solid #f0fdf4;
 }
 
-.faq-item.open .faq-body { display: block; }
+.faq-item.open .faq-body {
+  max-height: 300px;
+  padding: 14px 22px 22px 22px;
+  border-top-width: 1px;
+}
+
+.faq-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: #f0fdf4;
+  color: #16a34a;
+  font-size: 11px;
+  font-weight: 800;
+  flex-shrink: 0;
+  border: 1px solid #bbf7d0;
+  margin-right: 4px;
+}
 
 /* ── Responsive ──────────────────────────────────── */
 @media (max-width: 1100px) {
@@ -695,6 +884,9 @@ html { scroll-behavior: smooth; }
   .owner-content h2 { font-size: 28px; }
   .owner-section { padding: 72px 0; }
   .faq-section { padding: 56px 0; }
+  .faq-layout { grid-template-columns: 1fr; gap: 40px; }
+  .faq-visual { display: none; }
+  .faq-col-header h2 { font-size: 28px; }
   .why-section { padding: 56px 0; }
   .split-section { padding: 56px 0; }
 }
@@ -801,10 +993,19 @@ html { scroll-behavior: smooth; }
 }
 
 .faltauno-card-icon {
-  font-size: 44px;
   display: block;
   margin-bottom: 20px;
   line-height: 1;
+  width: 32px;
+  height: 32px;
+}
+
+.faltauno-card-icon [data-lucide] {
+  width: 32px;
+  height: 32px;
+  stroke: #6eeaa0;
+  stroke-width: 1.8;
+  fill: none;
 }
 
 .faltauno-card h3 {
@@ -985,19 +1186,19 @@ html { scroll-behavior: smooth; }
   <div class="container">
     <div class="sports-strip-inner">
       <a href="{{ route('venues.index', ['deporte' => 'futbol']) }}" class="sport-pill">
-        <span class="sport-pill-icon">⚽</span> Futbol
+        <span class="sport-pill-icon"><svg width="8" height="8"><circle cx="4" cy="4" r="4" fill="#22c55e"/></svg></span> Futbol
       </a>
       <a href="{{ route('venues.index', ['deporte' => 'futbol5']) }}" class="sport-pill">
-        <span class="sport-pill-icon">🥅</span> Futbol 5
+        <span class="sport-pill-icon"><svg width="8" height="8"><circle cx="4" cy="4" r="4" fill="#22c55e"/></svg></span> Futbol 5
       </a>
       <a href="{{ route('venues.index', ['deporte' => 'padel']) }}" class="sport-pill">
-        <span class="sport-pill-icon">🎾</span> Padel
+        <span class="sport-pill-icon"><svg width="8" height="8"><circle cx="4" cy="4" r="4" fill="#22c55e"/></svg></span> Padel
       </a>
       <a href="{{ route('venues.index', ['deporte' => 'tenis']) }}" class="sport-pill">
-        <span class="sport-pill-icon">🏸</span> Tenis
+        <span class="sport-pill-icon"><svg width="8" height="8"><circle cx="4" cy="4" r="4" fill="#22c55e"/></svg></span> Tenis
       </a>
       <a href="{{ route('venues.index', ['deporte' => 'basquet']) }}" class="sport-pill">
-        <span class="sport-pill-icon">🏀</span> Basquet
+        <span class="sport-pill-icon"><svg width="8" height="8"><circle cx="4" cy="4" r="4" fill="#22c55e"/></svg></span> Basquet
       </a>
       <a href="{{ route('venues.index') }}" class="sport-pill">
         <span class="sport-pill-icon">+</span> Ver todos
@@ -1020,42 +1221,42 @@ html { scroll-behavior: smooth; }
     <div class="why-grid">
       <div class="why-card" data-aos="fade-up" data-aos-delay="0">
         <span class="why-card-num">01</span>
-        <span class="why-icon">⚡</span>
+        <span class="why-icon"><i data-lucide="zap"></i></span>
         <h3>Reservas al instante</h3>
         <p>Elegí complejo, horario y confirmá tu turno en segundos. Sin esperas ni llamadas.</p>
       </div>
 
       <div class="why-card" data-aos="fade-up" data-aos-delay="100">
         <span class="why-card-num">02</span>
-        <span class="why-icon">💳</span>
+        <span class="why-icon"><i data-lucide="credit-card"></i></span>
         <h3>Pago 100% seguro</h3>
         <p>Paga online con tarjeta, transferencia o efectivo via Mercado Pago. Tu reserva se confirma automaticamente.</p>
       </div>
 
       <div class="why-card" data-aos="fade-up" data-aos-delay="200">
         <span class="why-card-num">03</span>
-        <span class="why-icon">📱</span>
+        <span class="why-icon"><i data-lucide="smartphone"></i></span>
         <h3>Desde cualquier dispositivo</h3>
         <p>Reserva desde el celular, la tablet o la computadora. La plataforma se adapta a tu pantalla.</p>
       </div>
 
       <div class="why-card" data-aos="fade-up" data-aos-delay="0">
         <span class="why-card-num">04</span>
-        <span class="why-icon">🔔</span>
+        <span class="why-icon"><i data-lucide="bell"></i></span>
         <h3>Recordatorios por mail</h3>
         <p>Confirmacion inmediata y recordatorios para que no se te escape ningun turno.</p>
       </div>
 
       <div class="why-card" data-aos="fade-up" data-aos-delay="100">
         <span class="why-card-num">05</span>
-        <span class="why-icon">📊</span>
+        <span class="why-icon"><i data-lucide="bar-chart-2"></i></span>
         <h3>Historial de partidos</h3>
         <p>Lleva el registro de todos tus partidos: estadisticas, resultados, deporte favorito y plata gastada en un solo lugar.</p>
       </div>
 
       <div class="why-card" data-aos="fade-up" data-aos-delay="200">
         <span class="why-card-num">06</span>
-        <span class="why-icon">👥</span>
+        <span class="why-icon"><i data-lucide="users"></i></span>
         <h3>Etiqueta a tus companeros</h3>
         <p>Agregá a los jugadores del partido. Ellos pueden ver el encuentro en su historial y cargar su resultado.</p>
       </div>
@@ -1082,15 +1283,15 @@ html { scroll-behavior: smooth; }
 
         <div class="split-features">
           <div class="split-feature">
-            <div class="split-feature-icon">🗓️</div>
+            <div class="split-feature-icon"><i data-lucide="calendar"></i></div>
             <span class="split-feature-text">Calendario en tiempo real — ves exactamente que horarios estan libres.</span>
           </div>
           <div class="split-feature">
-            <div class="split-feature-icon">✅</div>
+            <div class="split-feature-icon"><i data-lucide="check-circle"></i></div>
             <span class="split-feature-text">Confirmacion instantanea por mail en cuanto el pago se procesa.</span>
           </div>
           <div class="split-feature">
-            <div class="split-feature-icon">👟</div>
+            <div class="split-feature-icon"><i data-lucide="activity"></i></div>
             <span class="split-feature-text">Multiples deportes: futbol, padel, tenis, basquet y mas.</span>
           </div>
         </div>
@@ -1121,7 +1322,7 @@ html { scroll-behavior: smooth; }
 
         {{-- Card izquierda: tengo cancha, me falta jugador --}}
         <div class="faltauno-card" data-aos="fade-right" data-aos-delay="100">
-          <span class="faltauno-card-icon">🥅</span>
+          <span class="faltauno-card-icon"><i data-lucide="target"></i></span>
           <h3>Me falta un jugador</h3>
           <p>
             Tenes la cancha reservada pero el equipo esta incompleto. Publicá tu partida
@@ -1136,7 +1337,7 @@ html { scroll-behavior: smooth; }
 
         {{-- Card derecha: quiero sumarme a un partido --}}
         <div class="faltauno-card" data-aos="fade-left" data-aos-delay="200">
-          <span class="faltauno-card-icon">⚡</span>
+          <span class="faltauno-card-icon"><i data-lucide="zap"></i></span>
           <h3>Quiero jugar</h3>
           <p>
             Tenes ganas de jugar pero no tenes equipo o cancha. Explorá las partidas
@@ -1155,7 +1356,7 @@ html { scroll-behavior: smooth; }
       <div class="faltauno-cta" data-aos="fade-up" data-aos-delay="300">
         <a href="{{ route('falta-uno.index') }}" class="btn-faltauno">
           <span>Ver partidas disponibles</span>
-          <span style="font-size:18px;">→</span>
+          <i data-lucide="arrow-right" style="width:18px;height:18px;stroke:currentColor;"></i>
         </a>
         <p class="faltauno-cta-sub">Sin costo. Solo necesitas una cuenta en TuCancha.</p>
       </div>
@@ -1202,7 +1403,7 @@ html { scroll-behavior: smooth; }
 
         <div data-aos="zoom-in" data-aos-delay="200">
           <div class="owner-visual-card">
-            <span class="owner-visual-icon">🏟️</span>
+            <span class="owner-visual-icon"><i data-lucide="layout-dashboard"></i></span>
             <p>Panel de gestion<br>simple e intuitivo</p>
           </div>
         </div>
@@ -1214,91 +1415,152 @@ html { scroll-behavior: smooth; }
 {{-- ── FAQ ──────────────────────────────────────────────────────── --}}
 <section id="faq" class="faq-section">
   <div class="container">
-    <div class="section-head" data-aos="fade-up">
-      <span class="section-label">Dudas frecuentes</span>
-      <h2 class="section-title">Preguntas frecuentes</h2>
-      <p class="section-subtitle">Todo lo que necesitas saber antes de hacer tu primera reserva.</p>
-    </div>
+    <div class="faq-layout">
 
-    <div class="faq-list" data-aos="fade-up" data-aos-delay="100">
-      <div class="faq-item">
-        <button class="faq-trigger" onclick="toggleFaq(this)">
-          <span class="faq-trigger-text">Como reservo una cancha?</span>
-          <span class="faq-icon">+</span>
-        </button>
-        <div class="faq-body">
-          Crea una cuenta, explora los complejos, elegí la cancha y el horario.
-          Confirmas la reserva, pagas online y recibes la confirmacion por mail en segundos.
+      {{-- columna izquierda: imagen --}}
+      <div class="faq-visual" data-aos="fade-right" data-aos-duration="800">
+        <div class="faq-visual-inner">
+          <img src="/Images/pagoconfirmado-sonrisa.webp" alt="Reserva confirmada" loading="lazy">
+          <div class="faq-visual-overlay"></div>
+          <div class="faq-visual-accent">
+            <i data-lucide="help-circle"></i>
+          </div>
+          <div class="faq-visual-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            Reserva en menos de 2 minutos
+          </div>
         </div>
       </div>
 
-      <div class="faq-item">
-        <button class="faq-trigger" onclick="toggleFaq(this)">
-          <span class="faq-trigger-text">Como se que mi reserva esta confirmada?</span>
-          <span class="faq-icon">+</span>
-        </button>
-        <div class="faq-body">
-          Una vez aprobado el pago tu reserva pasa a estado <strong>Confirmada</strong> automaticamente.
-          Recibes un mail con todos los detalles: complejo, cancha, dia y horario reservado.
+      {{-- columna derecha: header + acordeón --}}
+      <div>
+        <div class="faq-col-header" data-aos="fade-left" data-aos-duration="700">
+          <span class="section-label">Dudas frecuentes</span>
+          <h2>Preguntas<br>frecuentes</h2>
+          <p>Todo lo que necesitas saber antes de hacer tu primera reserva.</p>
+        </div>
+
+        <div class="faq-list" data-aos="fade-left" data-aos-delay="80" data-aos-duration="700">
+
+          <div class="faq-item">
+            <button class="faq-trigger" onclick="toggleFaq(this)">
+              <span style="display:flex;align-items:center;gap:10px;">
+                <span class="faq-number">1</span>
+                <span class="faq-trigger-text">Como reservo una cancha?</span>
+              </span>
+              <span class="faq-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </span>
+            </button>
+            <div class="faq-body">
+              Crea una cuenta, explora los complejos, elegí la cancha y el horario.
+              Confirmas la reserva, pagas online y recibes la confirmacion por mail en segundos.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-trigger" onclick="toggleFaq(this)">
+              <span style="display:flex;align-items:center;gap:10px;">
+                <span class="faq-number">2</span>
+                <span class="faq-trigger-text">Como se que mi reserva esta confirmada?</span>
+              </span>
+              <span class="faq-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </span>
+            </button>
+            <div class="faq-body">
+              Una vez aprobado el pago tu reserva pasa a estado <strong>Confirmada</strong> automaticamente.
+              Recibes un mail con todos los detalles: complejo, cancha, dia y horario reservado.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-trigger" onclick="toggleFaq(this)">
+              <span style="display:flex;align-items:center;gap:10px;">
+                <span class="faq-number">3</span>
+                <span class="faq-trigger-text">Puedo cancelar una reserva?</span>
+              </span>
+              <span class="faq-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </span>
+            </button>
+            <div class="faq-body">
+              Si. Podes cancelar desde "Mis reservas" dentro del periodo de cancelacion que establece cada complejo.
+              Si el pago fue procesado, se inicia el reintegro automaticamente a traves de Mercado Pago.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-trigger" onclick="toggleFaq(this)">
+              <span style="display:flex;align-items:center;gap:10px;">
+                <span class="faq-number">4</span>
+                <span class="faq-trigger-text">Que metodos de pago aceptan?</span>
+              </span>
+              <span class="faq-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </span>
+            </button>
+            <div class="faq-body">
+              Aceptamos todos los metodos de Mercado Pago: tarjetas de credito y debito, transferencia bancaria
+              y efectivo en puntos de pago. El proceso es 100% seguro.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-trigger" onclick="toggleFaq(this)">
+              <span style="display:flex;align-items:center;gap:10px;">
+                <span class="faq-number">5</span>
+                <span class="faq-trigger-text">Como me registro?</span>
+              </span>
+              <span class="faq-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </span>
+            </button>
+            <div class="faq-body">
+              Haz clic en "Crear cuenta", completa tu nombre, mail y contrasena.
+              En menos de un minuto tenes tu cuenta lista. No se requiere tarjeta para registrarse.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-trigger" onclick="toggleFaq(this)">
+              <span style="display:flex;align-items:center;gap:10px;">
+                <span class="faq-number">6</span>
+                <span class="faq-trigger-text">Que es el historial de partidos?</span>
+              </span>
+              <span class="faq-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </span>
+            </button>
+            <div class="faq-body">
+              Es una seccion de tu perfil donde podes ver todos los partidos que jugaste: cuantos fueron,
+              que deporte jugaste mas, tu complejo favorito y el total gastado. Tambien podes cargar el resultado
+              de cada partido y ver estadisticas con graficos.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-trigger" onclick="toggleFaq(this)">
+              <span style="display:flex;align-items:center;gap:10px;">
+                <span class="faq-number">7</span>
+                <span class="faq-trigger-text">Puedo agregar a mis companeros de partido?</span>
+              </span>
+              <span class="faq-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </span>
+            </button>
+            <div class="faq-body">
+              Si. Cuando reservas y pagas una cancha, desde el detalle de la reserva podes buscar a otros usuarios
+              de TuCancha por nombre o mail y agregarlos como jugadores del partido. Ellos podran ver ese encuentro
+              en su propio historial y cargar su resultado de forma independiente al tuyo.
+            </div>
+          </div>
+
         </div>
       </div>
 
-      <div class="faq-item">
-        <button class="faq-trigger" onclick="toggleFaq(this)">
-          <span class="faq-trigger-text">Puedo cancelar una reserva?</span>
-          <span class="faq-icon">+</span>
-        </button>
-        <div class="faq-body">
-          Si. Podes cancelar desde "Mis reservas" dentro del periodo de cancelacion que establece cada complejo.
-          Si el pago fue procesado, se inicia el reintegro automaticamente a traves de Mercado Pago.
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-trigger" onclick="toggleFaq(this)">
-          <span class="faq-trigger-text">Que metodos de pago aceptan?</span>
-          <span class="faq-icon">+</span>
-        </button>
-        <div class="faq-body">
-          Aceptamos todos los metodos de Mercado Pago: tarjetas de credito y debito, transferencia bancaria
-          y efectivo en puntos de pago. El proceso es 100% seguro.
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-trigger" onclick="toggleFaq(this)">
-          <span class="faq-trigger-text">Como me registro?</span>
-          <span class="faq-icon">+</span>
-        </button>
-        <div class="faq-body">
-          Haz clic en "Crear cuenta", completa tu nombre, mail y contrasena.
-          En menos de un minuto tenes tu cuenta lista. No se requiere tarjeta para registrarse.
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-trigger" onclick="toggleFaq(this)">
-          <span class="faq-trigger-text">Que es el historial de partidos?</span>
-          <span class="faq-icon">+</span>
-        </button>
-        <div class="faq-body">
-          Es una seccion de tu perfil donde podes ver todos los partidos que jugaste: cuantos fueron,
-          que deporte jugaste mas, tu complejo favorito y el total gastado. Tambien podes cargar el resultado
-          de cada partido y ver estadisticas con graficos.
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-trigger" onclick="toggleFaq(this)">
-          <span class="faq-trigger-text">Puedo agregar a mis companeros de partido?</span>
-          <span class="faq-icon">+</span>
-        </button>
-        <div class="faq-body">
-          Si. Cuando reservas y pagas una cancha, desde el detalle de la reserva podes buscar a otros usuarios
-          de TuCancha por nombre o mail y agregarlos como jugadores del partido. Ellos podran ver ese encuentro
-          en su propio historial y cargar su resultado de forma independiente al tuyo.
-        </div>
-      </div>
     </div>
   </div>
 </section>
@@ -1310,7 +1572,11 @@ html { scroll-behavior: smooth; }
   function toggleFaq(trigger) {
     const item = trigger.closest('.faq-item');
     const isOpen = item.classList.contains('open');
-    document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+    // cerrar todos
+    document.querySelectorAll('.faq-item.open').forEach(function(el) {
+      el.classList.remove('open');
+    });
+    // abrir el clickeado si estaba cerrado
     if (!isOpen) item.classList.add('open');
   }
 

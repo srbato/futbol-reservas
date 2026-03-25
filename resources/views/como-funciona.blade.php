@@ -549,9 +549,9 @@
             Reservar nunca fue tan fácil. Desde que entrás hasta que pisás la cancha, todo en unos pocos clics.
           </p>
           <div class="cf-hero-pills" data-aos="fade-up" data-aos-delay="240">
-            <div class="cf-hero-pill">⚡ Sin llamadas</div>
-            <div class="cf-hero-pill">💳 Pago seguro</div>
-            <div class="cf-hero-pill">📲 Confirmación al instante</div>
+            <div class="cf-hero-pill"><i data-lucide="zap" style="width:14px;height:14px;stroke:#6eeaa0;"></i> Sin llamadas</div>
+            <div class="cf-hero-pill"><i data-lucide="credit-card" style="width:14px;height:14px;stroke:#6eeaa0;"></i> Pago seguro</div>
+            <div class="cf-hero-pill"><i data-lucide="smartphone" style="width:14px;height:14px;stroke:#6eeaa0;"></i> Confirmación al instante</div>
           </div>
         </div>
       </div>
@@ -573,7 +573,7 @@
         <div class="step-card" data-aos="fade-up" data-aos-delay="0">
           <span class="step-card-ghost-num">01</span>
           <span class="step-number">Paso 01</span>
-          <span class="step-icon">🔍</span>
+          <span class="step-icon"><i data-lucide="search" style="width:36px;height:36px;stroke:#22c55e;stroke-width:1.5;"></i></span>
           <h3>Buscá un complejo</h3>
           <p>Explorá los complejos disponibles en tu ciudad. Filtrá por deporte, fecha y horario para encontrar el que mejor te quede.</p>
         </div>
@@ -581,7 +581,7 @@
         <div class="step-card" data-aos="fade-up" data-aos-delay="100">
           <span class="step-card-ghost-num">02</span>
           <span class="step-number">Paso 02</span>
-          <span class="step-icon">📅</span>
+          <span class="step-icon"><i data-lucide="calendar" style="width:36px;height:36px;stroke:#22c55e;stroke-width:1.5;"></i></span>
           <h3>Elegí cancha, día y horario</h3>
           <p>Revisá la disponibilidad en tiempo real. Ves qué turnos están libres, cuáles tienen descuento y el precio de cada uno.</p>
         </div>
@@ -589,7 +589,7 @@
         <div class="step-card" data-aos="fade-up" data-aos-delay="200">
           <span class="step-card-ghost-num">03</span>
           <span class="step-number">Paso 03</span>
-          <span class="step-icon">💳</span>
+          <span class="step-icon"><i data-lucide="credit-card" style="width:36px;height:36px;stroke:#22c55e;stroke-width:1.5;"></i></span>
           <h3>Pagá de forma segura</h3>
           <p>Elegí el método que prefieras: tarjeta de crédito, débito, transferencia o efectivo. El pago se procesa a través de Mercado Pago y tu turno se confirma al instante.</p>
         </div>
@@ -597,7 +597,7 @@
         <div class="step-card" data-aos="fade-up" data-aos-delay="300">
           <span class="step-card-ghost-num">04</span>
           <span class="step-number">Paso 04</span>
-          <span class="step-icon">✅</span>
+          <span class="step-icon"><i data-lucide="check-circle" style="width:36px;height:36px;stroke:#22c55e;stroke-width:1.5;"></i></span>
           <h3>¡Listo! Recibís confirmación por mail</h3>
           <p>Te llega un mail con todos los datos de tu reserva: complejo, cancha, día y horario. Presentate el día del turno y a jugar.</p>
         </div>
@@ -618,7 +618,7 @@
 
       <div class="feature-cards">
         <div class="feature-card" data-aos="fade-left">
-          <div class="feature-card-icon-wrap">📊</div>
+          <div class="feature-card-icon-wrap"><i data-lucide="bar-chart-2" style="width:26px;height:26px;stroke:#22c55e;stroke-width:2;"></i></div>
           <h3>Historial de partidos</h3>
           <p>Después de cada partido pagado o validado en el complejo, el encuentro queda registrado en tu historial. Ahí podés ver:</p>
           <ul>
@@ -631,7 +631,7 @@
         </div>
 
         <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
-          <div class="feature-card-icon-wrap">👥</div>
+          <div class="feature-card-icon-wrap"><i data-lucide="users" style="width:26px;height:26px;stroke:#22c55e;stroke-width:2;"></i></div>
           <h3>Etiquetá a tus compañeros</h3>
           <p>
             ¿Fuiste con amigos? Desde el detalle de tu reserva podés agregarlos buscándolos por nombre
@@ -643,7 +643,7 @@
         </div>
 
         <div class="feature-card" data-aos="fade-right">
-          <div class="feature-card-icon-wrap">🏆</div>
+          <div class="feature-card-icon-wrap"><i data-lucide="trophy" style="width:26px;height:26px;stroke:#22c55e;stroke-width:2;"></i></div>
           <h3>Resultados independientes</h3>
           <p>
             Cada jugador carga su propio resultado: si ganaron, empataron o perdieron, y el marcador si quieren.
@@ -673,7 +673,7 @@
         <div class="owner-step-card" data-aos="fade-up" data-aos-delay="0">
           <span class="owner-step-card-ghost-num">01</span>
           <span class="step-number">Paso 01</span>
-          <span class="step-icon">👤</span>
+          <span class="step-icon"><i data-lucide="user" style="width:36px;height:36px;stroke:#6eeaa0;stroke-width:1.5;"></i></span>
           <h3>Creá tu cuenta</h3>
           <p>Registrate en TuCancha con tu mail. En menos de un minuto tenés acceso a tu panel de administración.</p>
         </div>
@@ -681,7 +681,7 @@
         <div class="owner-step-card" data-aos="fade-up" data-aos-delay="100">
           <span class="owner-step-card-ghost-num">02</span>
           <span class="step-number">Paso 02</span>
-          <span class="step-icon">⭐</span>
+          <span class="step-icon"><i data-lucide="star" style="width:36px;height:36px;stroke:#6eeaa0;stroke-width:1.5;"></i></span>
           <h3>Suscribite al plan</h3>
           <p>Activá tu cuenta como administrador de complejo. Elegí entre pago mensual o {{ $longTermLabel }} para acceder a todas las funciones del sistema.</p>
         </div>
@@ -689,7 +689,7 @@
         <div class="owner-step-card" data-aos="fade-up" data-aos-delay="200">
           <span class="owner-step-card-ghost-num">03</span>
           <span class="step-number">Paso 03</span>
-          <span class="step-icon">🏟️</span>
+          <span class="step-icon"><i data-lucide="building-2" style="width:36px;height:36px;stroke:#6eeaa0;stroke-width:1.5;"></i></span>
           <h3>Cargá tus canchas y horarios</h3>
           <p>Configurá cada cancha: deporte, formato, precio por turno, días y horarios de atención. También podés cargar fotos y aplicar descuentos.</p>
         </div>
@@ -697,7 +697,7 @@
         <div class="owner-step-card" data-aos="fade-up" data-aos-delay="300">
           <span class="owner-step-card-ghost-num">04</span>
           <span class="step-number">Paso 04</span>
-          <span class="step-icon">🚀</span>
+          <span class="step-icon"><i data-lucide="trending-up" style="width:36px;height:36px;stroke:#6eeaa0;stroke-width:1.5;"></i></span>
           <h3>Empezá a recibir reservas</h3>
           <p>Tu complejo queda publicado y cualquier usuario puede reservar online. Vos recibís el cobro directo en tu cuenta de Mercado Pago y una notificación por mail.</p>
         </div>

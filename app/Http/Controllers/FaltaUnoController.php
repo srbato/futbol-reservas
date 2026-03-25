@@ -14,6 +14,7 @@ use App\Models\Venue;
 use App\Notifications\FaltaUnoCancelledNotification;
 use App\Notifications\FaltaUnoGameFullNotification;
 use App\Notifications\FaltaUnoPlayerJoinedNotification;
+use App\Services\MercadoPagoRefundService;
 use App\Services\ReservationService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -263,9 +264,30 @@ class FaltaUnoController extends Controller
         }
 
         $canRefund = $game->canRefund();
+        $game->loadMissing('reservation');
+        $reservation = $game->reservation;
 
-        DB::transaction(function () use ($game, $canRefund) {
-            // Si había participantes y el partido estaba lleno, avisarles
+        // Intentar reembolso antes de la transacción para poder anotar el resultado en la reserva
+        $refundProcessed = false;
+        if (
+            $canRefund
+            && $reservation
+            && $reservation->payment_provider === 'mercadopago'
+            && $reservation->payment_external_id
+        ) {
+            $refundResult = app(MercadoPagoRefundService::class)->refund($reservation);
+
+            if ($refundResult === true) {
+                $refundProcessed = true;
+            } elseif ($refundResult === false) {
+                // El reembolso falló: anotar para gestión manual
+                $reservation->notes = trim(($reservation->notes ?? '') . "\n[REEMBOLSO PENDIENTE] Falta Uno cancelado el " . now()->format('d/m/Y H:i') . '. Procesar manualmente.');
+                $reservation->save();
+            }
+        }
+
+        DB::transaction(function () use ($game, $reservation) {
+            // Si había participantes, avisarles
             $wasFullOrHadParticipants = $game->activeParticipants()->exists();
             if ($wasFullOrHadParticipants) {
                 $game->load('activeParticipants.user', 'field.venue');
@@ -282,14 +304,18 @@ class FaltaUnoController extends Controller
             ]);
 
             // Cancelar la reserva
-            if ($game->reservation) {
-                $game->reservation->update(['status' => 'CANCELLED']);
+            if ($reservation) {
+                $reservation->update(['status' => 'CANCELLED']);
             }
         });
 
-        $msg = $canRefund
-            ? 'Partido cancelado. Procesaremos el reembolso.'
-            : 'Partido cancelado. No corresponde reembolso según la política del complejo.';
+        if (!$canRefund) {
+            $msg = 'Partido cancelado. No corresponde reembolso según la política del complejo.';
+        } elseif ($refundProcessed) {
+            $msg = 'Partido cancelado. El reembolso fue procesado correctamente.';
+        } else {
+            $msg = 'Partido cancelado. El reembolso será procesado manualmente a la brevedad.';
+        }
 
         return redirect()->route('venues.show', $game->field->venue_id)
             ->with('success', $msg);

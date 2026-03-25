@@ -343,6 +343,9 @@
     AOS.init({ duration: 800, once: true, offset: 80 });
   </script>
 
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script>lucide.createIcons();</script>
+
 <script>
   const hamburgerBtn = document.getElementById('hamburgerBtn');
   const mobileNav    = document.getElementById('mobileNav');

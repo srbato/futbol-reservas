@@ -84,7 +84,7 @@
     <a href="{{ route('falta-uno.index') }}"
        style="display:inline-flex; align-items:center; gap:5px; font-size:13px; color:#888; text-decoration:none; font-weight:600;"
        onmouseover="this.style.color='#111'" onmouseout="this.style.color='#888'">
-      ← Volver a partidos
+      <i data-lucide="arrow-left" style="width:14px;height:14px;stroke:currentColor;"></i> Volver a partidos
     </a>
   </div>
 
@@ -172,7 +172,7 @@
 
       </div>
       <div class="stats-footer">
-        <button type="submit" class="stats-submit">Guardar estadísticas →</button>
+        <button type="submit" class="stats-submit" style="display:inline-flex;align-items:center;gap:6px;">Guardar estadísticas <i data-lucide="arrow-right" style="width:16px;height:16px;stroke:currentColor;"></i></button>
       </div>
     </div>
   </form>

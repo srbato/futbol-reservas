@@ -422,11 +422,11 @@
   $filled  = round($dash * $pct / 100);
   $empty   = $dash - $filled;
   $sportLabel = match($game->field->sport ?? '') {
-    'football'   => '⚽ Fútbol',
-    'padel'      => '🏓 Pádel',
-    'tennis'     => '🎾 Tenis',
-    'basketball' => '🏀 Básquet',
-    'volleyball' => '🏐 Vóley',
+    'football'   => 'Fútbol',
+    'padel'      => 'Pádel',
+    'tennis'     => 'Tenis',
+    'basketball' => 'Básquet',
+    'volleyball' => 'Vóley',
     default      => ucfirst($game->field->sport ?? 'Cancha'),
   };
   $statusLabel = match($game->status) {
@@ -445,7 +445,7 @@
 
   {{-- Back --}}
   <div>
-    <a href="{{ route('falta-uno.index') }}" class="fus-back">← Volver a Falta Uno</a>
+    <a href="{{ route('falta-uno.index') }}" class="fus-back" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="arrow-left" style="width:14px;height:14px;stroke:currentColor;"></i> Volver a Falta Uno</a>
   </div>
 
   {{-- Hero --}}
@@ -462,12 +462,12 @@
           Falta Uno
         </span>
         <h1 class="fus-hero-h1">{{ $game->field->name }}</h1>
-        <a href="{{ route('venues.show', $game->field->venue) }}" class="fus-hero-venue">
-          📍 {{ $game->field->venue->name }}
+        <a href="{{ route('venues.show', $game->field->venue) }}" class="fus-hero-venue" style="display:inline-flex;align-items:center;gap:5px;">
+          <i data-lucide="map-pin" style="width:14px;height:14px;stroke:currentColor;"></i> {{ $game->field->venue->name }}
         </a>
         <div class="fus-glass-chips">
-          <span class="fus-glass-chip">📅 {{ $game->start_at->format('d/m/Y') }}</span>
-          <span class="fus-glass-chip">🕐 {{ $game->start_at->format('H:i') }} hs</span>
+          <span class="fus-glass-chip" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="calendar" style="width:13px;height:13px;stroke:currentColor;"></i> {{ $game->start_at->format('d/m/Y') }}</span>
+          <span class="fus-glass-chip" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="clock" style="width:13px;height:13px;stroke:currentColor;"></i> {{ $game->start_at->format('H:i') }} hs</span>
           <span class="fus-glass-chip">{{ $sportLabel }}</span>
           <span class="fus-glass-chip">{{ $statusLabel }}</span>
         </div>
@@ -502,14 +502,14 @@
     <p class="fus-actions-title">Acciones</p>
     <div class="fus-actions-row">
 
-      <a href="{{ route('falta-uno.chat', $game) }}" class="fus-btn fus-btn-chat">💬 Chat del partido</a>
+      <a href="{{ route('falta-uno.chat', $game) }}" class="fus-btn fus-btn-chat" style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="message-circle" style="width:14px;height:14px;stroke:currentColor;"></i> Chat del partido</a>
 
       @if($game->isFinished())
-        <a href="{{ route('falta-uno.stats', $game) }}" class="fus-btn fus-btn-stats">📊 Mis estadísticas</a>
+        <a href="{{ route('falta-uno.stats', $game) }}" class="fus-btn fus-btn-stats" style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="bar-chart-2" style="width:14px;height:14px;stroke:currentColor;"></i> Mis estadísticas</a>
         @if(!$yaCalifico)
-          <a href="{{ route('falta-uno.rate', $game) }}" class="fus-btn fus-btn-rate">★ Calificar compañeros</a>
+          <a href="{{ route('falta-uno.rate', $game) }}" class="fus-btn fus-btn-rate" style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="star" style="width:13px;height:13px;stroke:currentColor;"></i> Calificar compañeros</a>
         @else
-          <span class="fus-badge-rated">✓ Ya calificaste</span>
+          <span class="fus-badge-rated" style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="check-circle" style="width:13px;height:13px;stroke:currentColor;"></i> Ya calificaste</span>
         @endif
       @endif
 
@@ -531,7 +531,7 @@
   @if(!$isParticipant && $game->status === 'open' && !$game->isFinished())
     @if(auth()->user()->faltaUnoSportProfiles()->doesntExist())
       <div class="fus-join-card needs-profile" data-aos="fade-up">
-        <div style="font-size:32px; margin-bottom:12px;">⚠️</div>
+        <div style="margin-bottom:12px;"><i data-lucide="alert-triangle" style="width:32px;height:32px;stroke:#92400e;stroke-width:1.5;"></i></div>
         <div style="font-size:15px; font-weight:700; color:#92400e; margin-bottom:6px;">Necesitás completar tu perfil deportivo</div>
         <div style="font-size:13px; color:#b45309; margin-bottom:18px;">Tu categoría y género determinan a qué partidos podés unirte.</div>
         <a href="/profile#sport-profile" class="fus-btn fus-btn-chat" style="display:inline-flex; border-radius:12px; padding:10px 22px;">Completar perfil</a>

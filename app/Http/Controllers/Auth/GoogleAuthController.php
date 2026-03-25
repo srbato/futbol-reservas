@@ -17,7 +17,7 @@ class GoogleAuthController extends Controller
     public function callback()
     {
         $googleUser = Socialite::driver('google')->setHttpClient(
-            new \GuzzleHttp\Client(['verify' => !app()->isLocal()])
+            new \GuzzleHttp\Client(['verify' => app()->isProduction()])
         )->user();
 
         $user = User::where('google_id', $googleUser->getId())->first();

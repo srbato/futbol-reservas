@@ -1180,7 +1180,7 @@
                 </div>
                 <div class="pf-game-actions">
                   @if(!$yaCalifico && $hayOtros && in_array($pg->status, ['open','full','expired']))
-                    <a href="{{ route('falta-uno.rate', $pg) }}" class="pf-game-btn pf-game-btn-rate">★ Calificar</a>
+                    <a href="{{ route('falta-uno.rate', $pg) }}" class="pf-game-btn pf-game-btn-rate" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="star" style="width:12px;height:12px;stroke:currentColor;"></i> Calificar</a>
                   @elseif($yaCalifico)
                     <span style="font-size:12px; color:#9ca3af; font-weight:600;">Calificado</span>
                   @endif

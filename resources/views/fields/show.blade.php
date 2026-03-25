@@ -935,14 +935,14 @@
   <div class="fs-particle" style="left:68%; bottom:60%; animation-duration:8.1s; animation-delay:1.5s; width:3px; height:3px;"></div>
 
   {{-- Back link --}}
-  <a href="{{ route('venues.show', $field->venue) }}" class="fs-back-link">
-    ← {{ $field->venue->name }}
+  <a href="{{ route('venues.show', $field->venue) }}" class="fs-back-link" style="display:inline-flex;align-items:center;gap:4px;">
+    <i data-lucide="arrow-left" style="width:14px;height:14px;stroke:currentColor;"></i> {{ $field->venue->name }}
   </a>
 
   {{-- Hero content --}}
   <div class="fs-hero-content">
     <span class="fs-sport-badge">
-      {{ match($field->sport ?? '') { 'football'=>'⚽ Fútbol','padel'=>'🏓 Pádel','tennis'=>'🎾 Tenis','basketball'=>'🏀 Básquet','volleyball'=>'🏐 Vóley', default=>ucfirst($field->sport ?? 'Cancha') } }}
+      {{ match($field->sport ?? '') { 'football'=>'Fútbol','padel'=>'Pádel','tennis'=>'Tenis','basketball'=>'Básquet','volleyball'=>'Vóley', default=>ucfirst($field->sport ?? 'Cancha') } }}
     </span>
     <h1 class="fs-hero-title">{{ $field->name }}</h1>
     <div class="fs-hero-chips">
@@ -971,7 +971,7 @@
 
     <div class="fs-field-info-badges" data-aos="fade-left" data-aos-delay="160">
       <span class="fs-field-info-badge sport">
-        {{ match($field->sport ?? '') { 'football'=>'⚽ Fútbol','padel'=>'🏓 Pádel','tennis'=>'🎾 Tenis','basketball'=>'🏀 Básquet','volleyball'=>'🏐 Vóley', default=>ucfirst($field->sport ?? 'Cancha') } }}
+        {{ match($field->sport ?? '') { 'football'=>'Fútbol','padel'=>'Pádel','tennis'=>'Tenis','basketball'=>'Básquet','volleyball'=>'Vóley', default=>ucfirst($field->sport ?? 'Cancha') } }}
       </span>
       <span class="fs-field-info-badge format">{{ $field->format ?? '?' }}v{{ $field->format ?? '?' }}</span>
       <span class="fs-field-info-badge time">{{ $field->slot_minutes }} min</span>
@@ -1003,7 +1003,7 @@
       </div>
     </div>
 
-    <a href="{{ route('venues.show', $field->venue) }}" class="fs-field-info-back">← Ver el complejo</a>
+    <a href="{{ route('venues.show', $field->venue) }}" class="fs-field-info-back" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="arrow-left" style="width:14px;height:14px;stroke:currentColor;"></i> Ver el complejo</a>
   </div>
 </div>
 
@@ -1079,20 +1079,20 @@
              loading="lazy">
       @else
         <div class="fs-other-field-img-placeholder">
-          {{ match($otherField->sport ?? '') { 'padel'=>'🏓','tennis'=>'🎾','basketball'=>'🏀','volleyball'=>'🏐', default=>'⚽' } }}
+          <i data-lucide="layers" style="width:20px;height:20px;stroke:#aaa;stroke-width:1.5;"></i>
         </div>
       @endif
       <div class="fs-other-field-info">
         <div class="fs-other-field-name">{{ $otherField->name }}</div>
         <div class="fs-other-field-badges">
-          <span class="fs-other-field-badge sport">{{ match($otherField->sport ?? '') { 'football'=>'⚽ Fútbol','padel'=>'🏓 Pádel','tennis'=>'🎾 Tenis','basketball'=>'🏀 Básquet','volleyball'=>'🏐 Vóley', default=>ucfirst($otherField->sport ?? 'Cancha') } }}</span>
+          <span class="fs-other-field-badge sport">{{ match($otherField->sport ?? '') { 'football'=>'Fútbol','padel'=>'Pádel','tennis'=>'Tenis','basketball'=>'Básquet','volleyball'=>'Vóley', default=>ucfirst($otherField->sport ?? 'Cancha') } }}</span>
           <span class="fs-other-field-badge format">{{ $otherField->format ?? '?' }}v{{ $otherField->format ?? '?' }}</span>
         </div>
         <div class="fs-other-field-price">
           {{ $otherField->price->currency ?? 'ARS' }} {{ number_format($otherField->price->price_per_slot ?? 0, 0, ',', '.') }}
         </div>
       </div>
-      <span class="fs-other-field-arrow">→</span>
+      <span class="fs-other-field-arrow"><i data-lucide="arrow-right" style="width:16px;height:16px;stroke:currentColor;"></i></span>
     </a>
   @endforeach
 </div>
@@ -1105,14 +1105,14 @@
       <img src="/Images/reserva-confirmada.webp" alt="Reserva confirmada" loading="lazy"
            style="width:100px; height:100px; object-fit:cover; border-radius:12px; flex-shrink:0;">
       <div>
-        <div class="fs-checkmark" style="margin:0 0 8px 0;">✓</div>
+        <div class="fs-checkmark" style="margin:0 0 8px 0;"><i data-lucide="check-circle" style="width:24px;height:24px;stroke:#22c55e;stroke-width:2;"></i></div>
         <h3 class="fs-modal-title" style="margin:0 0 4px 0;">¡Turno reservado!</h3>
         <p id="payModalText" class="fs-modal-sub" style="margin:0;"></p>
       </div>
     </div>
     <div class="fs-modal-btn-row" style="justify-content:center;">
       <button onclick="closePayModal()" class="fs-btn-modal-ghost">Seguir mirando</button>
-      <a id="payLink" href="#" class="fs-btn-modal-primary" style="text-decoration:none; display:inline-block;">Ir a pagar →</a>
+      <a id="payLink" href="#" class="fs-btn-modal-primary" style="text-decoration:none; display:inline-flex; align-items:center; gap:5px;">Ir a pagar <i data-lucide="arrow-right" style="width:15px;height:15px;stroke:currentColor;"></i></a>
     </div>
   </div>
 </div>
@@ -1151,7 +1151,7 @@
   function renderEmptySlots(message) {
     document.getElementById('slots').innerHTML = `
       <div style="background:#f9fafb; border:1px solid #e5e7eb; border-radius:20px; padding:40px; text-align:center;">
-        <div style="font-size:36px; margin-bottom:10px;">📅</div>
+        <div style="margin-bottom:10px;"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
         <p style="margin:0; color:#9ca3af; font-size:15px;">${message}</p>
       </div>`;
   }
@@ -1176,7 +1176,7 @@
         : `<span class="fs-slot-price green">${formatMoney(slot.price, slot.currency)}</span>`;
 
       const discountHtml = slot.has_discount
-        ? `<div style="font-size:12px; color:#d97706; font-weight:700;">🔥 ${slot.discount_label ?? 'Descuento aplicado'}</div>` : '';
+        ? `<div style="font-size:12px; color:#d97706; font-weight:700; display:flex; align-items:center; gap:4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c0 6-8 8-8 14a8 8 0 0016 0c0-6-8-8-8-14z"/></svg> ${slot.discount_label ?? 'Descuento aplicado'}</div>` : '';
       const reasonHtml   = slot.reason
         ? `<div style="font-size:12px; color:#991b1b; line-height:1.4;">Motivo: ${slot.reason}</div>` : '';
 
@@ -1186,7 +1186,7 @@
            </button>`
         : `<div style="display:flex; flex-direction:column; gap:7px;">
              <button type="button" class="fs-btn-reserve" onclick="reserve('${slot.start_at}')">Reservar</button>
-             <button type="button" class="fs-btn-recurring" onclick="openRecurringModal('${slot.start_at}')">🔁 Reservar recurrente</button>
+             <button type="button" class="fs-btn-recurring" onclick="openRecurringModal('${slot.start_at}')">Reservar recurrente</button>
            </div>`;
 
       return `
@@ -1342,7 +1342,7 @@
     const applicable = recurringTiers.filter(t => t.min_occurrences <= occurrences).sort((a, b) => b.min_occurrences - a.min_occurrences)[0];
     if (applicable) {
       preview.style.display = 'block';
-      preview.textContent = `🔥 Se aplicará un descuento del ${applicable.discount_percentage}% al total`;
+      preview.textContent = `Se aplicará un descuento del ${applicable.discount_percentage}% al total`;
     } else {
       preview.style.display = 'none';
     }
@@ -1379,14 +1379,14 @@
     const { results, summary } = data;
     const rows = results.map(r => r.status === 'created'
       ? `<div class="fs-result-row">
-           <span style="font-size:20px; color:#22c55e;">✓</span>
+           <span style="color:#22c55e; display:inline-flex; align-items:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg></span>
            <div>
              <div style="font-weight:700; font-size:14px; color:#111827;">${r.date} — ${r.time}</div>
              <div style="font-size:13px; color:#15803d;">Reservada correctamente</div>
            </div>
          </div>`
       : `<div class="fs-result-row">
-           <span style="font-size:20px; color:#dc2626;">✗</span>
+           <span style="color:#dc2626; display:inline-flex; align-items:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></span>
            <div>
              <div style="font-weight:700; font-size:14px; color:#111827;">${r.date} — ${r.time}</div>
              <div style="font-size:13px; color:#991b1b;">${r.reason ?? 'No disponible'}</div>
@@ -1396,8 +1396,8 @@
 
     const summaryHtml = `
       <div style="display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap;">
-        <span class="fs-result-pill" style="background:#f0fdf4; border:1px solid #bbf7d0; color:#15803d;">✓ ${summary.created} reservadas</span>
-        ${summary.failed > 0 ? `<span class="fs-result-pill" style="background:#fef2f2; border:1px solid #fecaca; color:#991b1b;">✗ ${summary.failed} fallidas</span>` : ''}
+        <span class="fs-result-pill" style="background:#f0fdf4; border:1px solid #bbf7d0; color:#15803d; display:inline-flex; align-items:center; gap:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg> ${summary.created} reservadas</span>
+        ${summary.failed > 0 ? `<span class="fs-result-pill" style="background:#fef2f2; border:1px solid #fecaca; color:#991b1b; display:inline-flex; align-items:center; gap:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#991b1b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> ${summary.failed} fallidas</span>` : ''}
       </div>`;
 
     const noteHtml = summary.created > 0
@@ -1435,7 +1435,7 @@
 {{-- Recurring modal --}}
 <div id="recurringModal" style="display:none;" class="fs-modal-overlay">
   <div class="fs-modal fs-modal-wide">
-    <h3 class="fs-modal-title">🔁 Reserva recurrente</h3>
+    <h3 class="fs-modal-title" style="display:flex;align-items:center;gap:8px;"><i data-lucide="refresh-cw" style="width:18px;height:18px;stroke:currentColor;"></i> Reserva recurrente</h3>
     <p class="fs-modal-sub">Turno: <strong id="recurringDateLabel" style="color:#111827;"></strong></p>
 
     <div style="margin-bottom:18px;">
@@ -1479,7 +1479,7 @@
         @foreach($recurringDiscounts as $t)
           <div style="font-size:13px; color:#4b5563; margin-bottom:4px;">
             {{ $t->min_occurrences }}+ turnos
-            <strong style="color:#16a34a;">→ {{ $t->discount_percentage }}% off</strong>
+            <strong style="color:#16a34a; display:inline-flex; align-items:center; gap:3px;"><i data-lucide="arrow-right" style="width:12px;height:12px;stroke:#16a34a;"></i> {{ $t->discount_percentage }}% off</strong>
           </div>
         @endforeach
       </div>

@@ -55,6 +55,7 @@ return [
         'client_secret'  => env('MERCADOPAGO_CLIENT_SECRET'),
         'marketplace_id' => env('MERCADOPAGO_MARKETPLACE_ID'),
         'fee_percent'    => env('MERCADOPAGO_FEE_PERCENT', 5),
+        'webhook_secret' => env('MERCADOPAGO_WEBHOOK_SECRET'),
     ],
 
 ];

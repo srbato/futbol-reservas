@@ -44,7 +44,7 @@ class MercadoPagoRefundService
                 ?? config('services.mercadopago.access_token');
         }
 
-        $response = Http::withOptions(['verify' => !app()->isLocal()])
+        $response = Http::withOptions(['verify' => app()->isProduction()])
             ->withToken($accessToken)
             ->withHeaders(['X-Idempotency-Key' => (string) Str::uuid()])
             ->post("https://api.mercadopago.com/v1/payments/{$reservation->payment_external_id}/refunds");

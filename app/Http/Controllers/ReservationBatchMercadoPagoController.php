@@ -63,7 +63,7 @@ class ReservationBatchMercadoPagoController extends Controller
             'notification_url' => $baseUrl . '/webhooks/mercadopago',
         ];
 
-        $response = Http::withOptions(['verify' => !app()->isLocal()])
+        $response = Http::withOptions(['verify' => app()->isProduction()])
             ->withToken($accessToken)
             ->post('https://api.mercadopago.com/checkout/preferences', $payload);
 

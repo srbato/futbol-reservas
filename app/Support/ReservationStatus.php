@@ -9,6 +9,7 @@ class ReservationStatus
         return match ($status) {
             'PENDING_PAYMENT' => 'Pendiente de pago',
             'PAID' => 'Pagada',
+            'CHECKED_IN' => 'Check-in realizado',
             'CANCELLED' => 'Cancelada',
             'EXPIRED' => 'Expirada',
             default => $status,
@@ -20,6 +21,7 @@ class ReservationStatus
         return match ($status) {
             'PENDING_PAYMENT' => 'background:#fff3cd; color:#856404;',
             'PAID' => 'background:#d1e7dd; color:#0f5132;',
+            'CHECKED_IN' => 'background:#cff4fc; color:#055160;',
             'CANCELLED' => 'background:#e2e3e5; color:#41464b;',
             'EXPIRED' => 'background:#f8d7da; color:#842029;',
             default => 'background:#f3f3f3; color:#666;',

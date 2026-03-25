@@ -1370,7 +1370,7 @@
 {{-- Floating Action Button --}}
 <button class="vi-fab" id="viFab" onclick="document.querySelector('.vi-hero').scrollIntoView({behavior:'smooth'})" title="Buscar cancha">
   <span class="vi-fab-tooltip">Buscar cancha</span>
-  🔍
+  <i data-lucide="search" style="width:20px;height:20px;stroke:currentColor;"></i>
 </button>
 
 <div class="vi-wrap">
@@ -1437,7 +1437,7 @@
         {{-- Search bar con shimmer --}}
         <div data-aos="fade-up" data-aos-delay="300">
           <div class="vi-search-bar" id="viSearchBar">
-            <span style="font-size:18px; flex-shrink:0; position:relative; z-index:2;">🔍</span>
+            <span style="flex-shrink:0; position:relative; z-index:2;display:flex;align-items:center;"><i data-lucide="search" style="width:18px;height:18px;stroke:#888;"></i></span>
             <input
               type="text"
               name="q"
@@ -1453,7 +1453,7 @@
 
             {{-- Zona --}}
             <label class="vi-filter-chip {{ ($zone ?? '') ? 'active' : '' }}">
-              📍 {{ ($zone ?? '') ?: 'Zona' }}
+              <i data-lucide="map-pin" style="width:13px;height:13px;stroke:currentColor;vertical-align:middle;margin-right:3px;"></i> {{ ($zone ?? '') ?: 'Zona' }}
               <select name="zone" onchange="document.getElementById('venueSearchForm').submit()">
                 <option value="">Todas las zonas</option>
                 @foreach($zones as $z)
@@ -1463,21 +1463,21 @@
             </label>
 
             {{-- Deporte --}}
-            <label class="vi-filter-chip {{ ($sport ?? '') ? 'active' : '' }}">
-              ⚽ {{ match($sport ?? '') { 'football' => 'Fútbol', 'padel' => 'Pádel', 'tennis' => 'Tenis', 'basketball' => 'Básquet', 'volleyball' => 'Vóley', default => 'Deporte' } }}
+            <label class="vi-filter-chip {{ ($sport ?? '') ? 'active' : '' }}" style="display:inline-flex;align-items:center;gap:4px;">
+              <i data-lucide="activity" style="width:13px;height:13px;stroke:currentColor;"></i> {{ match($sport ?? '') { 'football' => 'Fútbol', 'padel' => 'Pádel', 'tennis' => 'Tenis', 'basketball' => 'Básquet', 'volleyball' => 'Vóley', default => 'Deporte' } }}
               <select name="sport" onchange="document.getElementById('venueSearchForm').submit()">
                 <option value="">Todos los deportes</option>
-                <option value="football" {{ ($sport ?? '') === 'football' ? 'selected' : '' }}>⚽ Fútbol</option>
-                <option value="padel" {{ ($sport ?? '') === 'padel' ? 'selected' : '' }}>🏓 Pádel</option>
-                <option value="tennis" {{ ($sport ?? '') === 'tennis' ? 'selected' : '' }}>🎾 Tenis</option>
-                <option value="basketball" {{ ($sport ?? '') === 'basketball' ? 'selected' : '' }}>🏀 Básquet</option>
-                <option value="volleyball" {{ ($sport ?? '') === 'volleyball' ? 'selected' : '' }}>🏐 Vóley</option>
+                <option value="football" {{ ($sport ?? '') === 'football' ? 'selected' : '' }}>Fútbol</option>
+                <option value="padel" {{ ($sport ?? '') === 'padel' ? 'selected' : '' }}>Pádel</option>
+                <option value="tennis" {{ ($sport ?? '') === 'tennis' ? 'selected' : '' }}>Tenis</option>
+                <option value="basketball" {{ ($sport ?? '') === 'basketball' ? 'selected' : '' }}>Básquet</option>
+                <option value="volleyball" {{ ($sport ?? '') === 'volleyball' ? 'selected' : '' }}>Vóley</option>
               </select>
             </label>
 
             {{-- Fecha --}}
             <label class="vi-filter-chip {{ ($date ?? '') ? 'active' : '' }}" onclick="event.preventDefault(); document.getElementById('dateFilterInput').showPicker()">
-              📅 {{ ($date ?? '') ? \Carbon\Carbon::parse($date)->format('d/m') : 'Fecha' }}
+              <i data-lucide="calendar" style="width:13px;height:13px;stroke:currentColor;vertical-align:middle;margin-right:3px;"></i> {{ ($date ?? '') ? \Carbon\Carbon::parse($date)->format('d/m') : 'Fecha' }}
               <input
                 id="dateFilterInput"
                 type="date"
@@ -1492,14 +1492,14 @@
 
             {{-- Más filtros --}}
             <button type="button" class="vi-filter-chip" id="advToggleBtn" onclick="toggleAdv()">
-              ⚙️ Más filtros
+              <i data-lucide="sliders-horizontal" style="width:13px;height:13px;stroke:currentColor;vertical-align:middle;margin-right:3px;"></i> Más filtros
               @if(($minPrice ?? '') || ($maxPrice ?? '') || ($availableAt ?? ''))
                 <span style="background:#22c55e; color:#052e16; border-radius:999px; width:18px; height:18px; display:inline-flex; align-items:center; justify-content:center; font-size:10px;">●</span>
               @endif
             </button>
 
             @if(($q ?? '') || ($zone ?? '') || ($sport ?? '') || ($date ?? '') || ($minPrice ?? '') || ($maxPrice ?? '') || ($availableAt ?? ''))
-              <a href="{{ route('venues.index') }}" class="vi-clear-btn">✕ Limpiar filtros</a>
+              <a href="{{ route('venues.index') }}" class="vi-clear-btn" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="x" style="width:12px;height:12px;stroke:currentColor;"></i> Limpiar filtros</a>
             @endif
           </div>
 
@@ -1538,25 +1538,25 @@
     <div class="vi-active-filters">
       <span style="font-size:13px; color:#666; font-weight:600;">Filtros activos:</span>
       @if($q ?? '')
-        <span class="vi-active-filter-tag">🔍 "{{ $q }}"</span>
+        <span class="vi-active-filter-tag" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="search" style="width:12px;height:12px;stroke:currentColor;"></i> "{{ $q }}"</span>
       @endif
       @if($zone ?? '')
-        <span class="vi-active-filter-tag">📍 {{ $zone }}</span>
+        <span class="vi-active-filter-tag" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="map-pin" style="width:12px;height:12px;stroke:currentColor;"></i> {{ $zone }}</span>
       @endif
       @if($sport ?? '')
-        <span class="vi-active-filter-tag">⚽ {{ match($sport) { 'football' => 'Fútbol', 'padel' => 'Pádel', 'tennis' => 'Tenis', 'basketball' => 'Básquet', 'volleyball' => 'Vóley', default => $sport } }}</span>
+        <span class="vi-active-filter-tag" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="activity" style="width:12px;height:12px;stroke:currentColor;"></i> {{ match($sport) { 'football' => 'Fútbol', 'padel' => 'Pádel', 'tennis' => 'Tenis', 'basketball' => 'Básquet', 'volleyball' => 'Vóley', default => $sport } }}</span>
       @endif
       @if($date ?? '')
-        <span class="vi-active-filter-tag">📅 {{ \Carbon\Carbon::parse($date)->format('d/m/Y') }}</span>
+        <span class="vi-active-filter-tag" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="calendar" style="width:12px;height:12px;stroke:currentColor;"></i> {{ \Carbon\Carbon::parse($date)->format('d/m/Y') }}</span>
       @endif
       @if($minPrice ?? '')
-        <span class="vi-active-filter-tag">💰 Desde ${{ number_format($minPrice, 0, ',', '.') }}</span>
+        <span class="vi-active-filter-tag" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="dollar-sign" style="width:12px;height:12px;stroke:currentColor;"></i> Desde ${{ number_format($minPrice, 0, ',', '.') }}</span>
       @endif
       @if($maxPrice ?? '')
-        <span class="vi-active-filter-tag">💰 Hasta ${{ number_format($maxPrice, 0, ',', '.') }}</span>
+        <span class="vi-active-filter-tag" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="dollar-sign" style="width:12px;height:12px;stroke:currentColor;"></i> Hasta ${{ number_format($maxPrice, 0, ',', '.') }}</span>
       @endif
       @if($availableAt ?? '')
-        <span class="vi-active-filter-tag">🕐 {{ $availableAt }}</span>
+        <span class="vi-active-filter-tag" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="clock" style="width:12px;height:12px;stroke:currentColor;"></i> {{ $availableAt }}</span>
       @endif
     </div>
   @endif
@@ -1565,17 +1565,17 @@
   @if($hasFilters)
     @if(($faltaUno ?? false))
       <div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7); border:1px solid #bbf7d0; border-radius:16px; padding:14px 18px; margin-bottom:18px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-        <span style="font-size:22px;">⚡</span>
+        <span><i data-lucide="zap" style="width:22px;height:22px;stroke:#15803d;"></i></span>
         <div style="flex:1;">
           <div style="font-size:14px; font-weight:800; color:#15803d;">Complejos con Falta Uno habilitado</div>
           <div style="font-size:12px; color:#16a34a; margin-top:2px;">Estos complejos tienen al menos una cancha donde podés crear partidos Falta Uno.</div>
         </div>
-        <a href="{{ route('falta-uno.index') }}" style="font-size:13px; color:#15803d; font-weight:700; text-decoration:underline;">Ver partidos disponibles →</a>
+        <a href="{{ route('falta-uno.index') }}" style="font-size:13px; color:#15803d; font-weight:700; text-decoration:underline; display:inline-flex; align-items:center; gap:4px;">Ver partidos disponibles <i data-lucide="arrow-right" style="width:13px;height:13px;stroke:currentColor;"></i></a>
       </div>
     @endif
     <div class="vi-search-results-panel">
       <div class="vi-search-results-header">
-        <h2>🔍 Resultados de búsqueda</h2>
+        <h2 style="display:inline-flex;align-items:center;gap:8px;"><i data-lucide="search" style="width:18px;height:18px;stroke:currentColor;"></i> Resultados de búsqueda</h2>
         <span class="vi-search-results-count">{{ $venues->count() }} resultado{{ $venues->count() !== 1 ? 's' : '' }}</span>
       </div>
 
@@ -1603,30 +1603,30 @@
                 @if($venue->cover_image_path)
                   <img src="{{ \Illuminate\Support\Facades\Storage::url($venue->cover_image_path) }}" alt="{{ $venue->name }}" loading="lazy" class="vi-img-loading" onload="this.classList.remove('vi-img-loading')">
                 @else
-                  <div class="vi-venue-img-placeholder">⚽</div>
+                  <div class="vi-venue-img-placeholder"><i data-lucide="building-2" style="width:32px;height:32px;stroke:#ccc;stroke-width:1.5;"></i></div>
                 @endif
                 <div class="vi-card-shine"></div>
                 @auth
                   @if(in_array($venue->id, $favoriteVenueIds ?? []))
                     <form method="POST" action="{{ route('venues.unfavorite', $venue) }}" style="margin:0;">
                       @csrf
-                      <button type="submit" class="vi-venue-fav-btn saved" title="Quitar de favoritos">❤️</button>
+                      <button type="submit" class="vi-venue-fav-btn saved" title="Quitar de favoritos"><i data-lucide="heart" style="width:16px;height:16px;stroke:#ef4444;fill:#ef4444;"></i></button>
                     </form>
                   @else
                     <form method="POST" action="{{ route('venues.favorite', $venue) }}" style="margin:0;">
                       @csrf
-                      <button type="submit" class="vi-venue-fav-btn" title="Guardar en favoritos">🤍</button>
+                      <button type="submit" class="vi-venue-fav-btn" title="Guardar en favoritos"><i data-lucide="heart" style="width:16px;height:16px;stroke:#999;"></i></button>
                     </form>
                   @endif
                 @endauth
                 @if(($venue->falta_uno_count ?? 0) > 0)
-                  <div class="vi-venue-faltauno-badge">
+                  <div class="vi-venue-faltauno-badge" style="display:inline-flex;align-items:center;gap:4px;">
                     <span class="vi-faltauno-dot"></span>
-                    ⚡ Falta Uno · {{ $venue->falta_uno_count }} partido{{ $venue->falta_uno_count > 1 ? 's' : '' }}
+                    <i data-lucide="zap" style="width:12px;height:12px;stroke:currentColor;"></i> Falta Uno · {{ $venue->falta_uno_count }} partido{{ $venue->falta_uno_count > 1 ? 's' : '' }}
                   </div>
                 @endif
                 @if($venue->zone)
-                  <div class="vi-venue-zone-badge">📍 {{ $venue->zone }}</div>
+                  <div class="vi-venue-zone-badge" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="map-pin" style="width:11px;height:11px;stroke:currentColor;"></i> {{ $venue->zone }}</div>
                 @endif
               </div>
               <div class="vi-venue-body">
@@ -1647,7 +1647,7 @@
                   {{ $venue->description ?? 'Reservá online y encontrá disponibilidad en pocos pasos.' }}
                 </p>
                 <div class="vi-venue-actions">
-                  <a href="{{ route('venues.show', $venue) }}" class="vi-btn-primary">Ver complejo →</a>
+                  <a href="{{ route('venues.show', $venue) }}" class="vi-btn-primary" style="display:inline-flex;align-items:center;gap:5px;">Ver complejo <i data-lucide="arrow-right" style="width:14px;height:14px;stroke:currentColor;"></i></a>
                 </div>
               </div>
             </article>
@@ -1669,9 +1669,9 @@
       </div>
       <div style="display:flex; align-items:center; gap:10px;">
         <div class="feature-tabs">
-          <div class="feature-tab active" data-tab="top" data-tab-num="01">🔥 Más reservados</div>
-          <div class="feature-tab" data-tab="discounts" data-tab-num="02">💸 Descuentos</div>
-          <div class="feature-tab" data-tab="rated" data-tab-num="03">⭐ Mejor valorados</div>
+          <div class="feature-tab active" data-tab="top" data-tab-num="01" style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="flame" style="width:13px;height:13px;stroke:currentColor;"></i> Más reservados</div>
+          <div class="feature-tab" data-tab="discounts" data-tab-num="02" style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="tag" style="width:13px;height:13px;stroke:currentColor;"></i> Descuentos</div>
+          <div class="feature-tab" data-tab="rated" data-tab-num="03" style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="star" style="width:13px;height:13px;stroke:currentColor;"></i> Mejor valorados</div>
         </div>
         <div class="featured-nav-arrows">
           <button type="button" class="featured-nav-arrow" data-carousel-move="prev" aria-label="Anterior">&#8249;</button>
@@ -1694,18 +1694,18 @@
               @if($venue->cover_image_path)
                 <img src="{{ \Illuminate\Support\Facades\Storage::url($venue->cover_image_path) }}" alt="{{ $venue->name }}">
               @else
-                <div class="featured-card-placeholder">⚽</div>
+                <div class="featured-card-placeholder"><i data-lucide="building-2" style="width:28px;height:28px;stroke:#aaa;stroke-width:1.5;"></i></div>
               @endif
               <div class="featured-card-overlay"></div>
               <div class="featured-card-body">
                 <h3>{{ $venue->name }}</h3>
                 <div class="featured-card-meta">
                   @if($venue->zone)
-                    <span class="featured-card-badge">📍 {{ $venue->zone }}</span>
+                    <span class="featured-card-badge" style="display:inline-flex;align-items:center;gap:3px;"><i data-lucide="map-pin" style="width:11px;height:11px;stroke:currentColor;"></i> {{ $venue->zone }}</span>
                   @endif
-                  <span>🔥 {{ $venue->weekly_reservations_count }} esta semana</span>
+                  <span style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="flame" style="width:13px;height:13px;stroke:currentColor;"></i> {{ $venue->weekly_reservations_count }} esta semana</span>
                 </div>
-                <a href="{{ route('venues.show', $venue) }}" class="featured-card-btn">Ver complejo →</a>
+                <a href="{{ route('venues.show', $venue) }}" class="featured-card-btn" style="display:inline-flex;align-items:center;gap:5px;">Ver complejo <i data-lucide="arrow-right" style="width:14px;height:14px;stroke:currentColor;"></i></a>
               </div>
             </article>
           @empty
@@ -1724,18 +1724,18 @@
               @if($venue->cover_image_path)
                 <img src="{{ \Illuminate\Support\Facades\Storage::url($venue->cover_image_path) }}" alt="{{ $venue->name }}">
               @else
-                <div class="featured-card-placeholder">💸</div>
+                <div class="featured-card-placeholder"><i data-lucide="tag" style="width:28px;height:28px;stroke:#aaa;stroke-width:1.5;"></i></div>
               @endif
               <div class="featured-card-overlay"></div>
               <div class="featured-card-body">
                 <h3>{{ $venue->name }}</h3>
                 <div class="featured-card-meta">
                   @if($venue->zone)
-                    <span class="featured-card-badge">📍 {{ $venue->zone }}</span>
+                    <span class="featured-card-badge" style="display:inline-flex;align-items:center;gap:3px;"><i data-lucide="map-pin" style="width:11px;height:11px;stroke:currentColor;"></i> {{ $venue->zone }}</span>
                   @endif
-                  <span>💸 Descuentos activos</span>
+                  <span style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="tag" style="width:13px;height:13px;stroke:currentColor;"></i> Descuentos activos</span>
                 </div>
-                <a href="{{ route('venues.show', $venue) }}" class="featured-card-btn">Ver complejo →</a>
+                <a href="{{ route('venues.show', $venue) }}" class="featured-card-btn" style="display:inline-flex;align-items:center;gap:5px;">Ver complejo <i data-lucide="arrow-right" style="width:14px;height:14px;stroke:currentColor;"></i></a>
               </div>
             </article>
           @empty
@@ -1754,18 +1754,18 @@
               @if($venue->cover_image_path)
                 <img src="{{ \Illuminate\Support\Facades\Storage::url($venue->cover_image_path) }}" alt="{{ $venue->name }}">
               @else
-                <div class="featured-card-placeholder">⭐</div>
+                <div class="featured-card-placeholder"><i data-lucide="star" style="width:28px;height:28px;stroke:#aaa;stroke-width:1.5;"></i></div>
               @endif
               <div class="featured-card-overlay"></div>
               <div class="featured-card-body">
                 <h3>{{ $venue->name }}</h3>
                 <div class="featured-card-meta">
                   @if($venue->zone)
-                    <span class="featured-card-badge">📍 {{ $venue->zone }}</span>
+                    <span class="featured-card-badge" style="display:inline-flex;align-items:center;gap:3px;"><i data-lucide="map-pin" style="width:11px;height:11px;stroke:currentColor;"></i> {{ $venue->zone }}</span>
                   @endif
-                  <span>⭐ {{ number_format($venue->reviews_avg_rating, 1) }} / 5 ({{ $venue->reviews_count }} reseña{{ $venue->reviews_count > 1 ? 's' : '' }})</span>
+                  <span style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="star" style="width:13px;height:13px;stroke:currentColor;"></i> {{ number_format($venue->reviews_avg_rating, 1) }} / 5 ({{ $venue->reviews_count }} reseña{{ $venue->reviews_count > 1 ? 's' : '' }})</span>
                 </div>
-                <a href="{{ route('venues.show', $venue) }}" class="featured-card-btn">Ver complejo →</a>
+                <a href="{{ route('venues.show', $venue) }}" class="featured-card-btn" style="display:inline-flex;align-items:center;gap:5px;">Ver complejo <i data-lucide="arrow-right" style="width:14px;height:14px;stroke:currentColor;"></i></a>
               </div>
             </article>
           @empty
@@ -1780,11 +1780,11 @@
   @auth
     @if(($favorites ?? collect())->isNotEmpty())
       <div class="vi-favorites">
-        <h2 class="vi-section-title">⭐ Tus favoritos</h2>
+        <h2 class="vi-section-title" style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="star" style="width:16px;height:16px;stroke:currentColor;"></i> Tus favoritos</h2>
         <div class="vi-fav-scroll" style="margin-top:14px;">
           @foreach($favorites as $fav)
-            <a href="{{ route('venues.show', $fav) }}" class="vi-fav-chip">
-              ⚽ {{ $fav->name }}
+            <a href="{{ route('venues.show', $fav) }}" class="vi-fav-chip" style="display:inline-flex;align-items:center;gap:5px;">
+              <i data-lucide="building-2" style="width:13px;height:13px;stroke:currentColor;"></i> {{ $fav->name }}
             </a>
           @endforeach
         </div>
@@ -1793,11 +1793,11 @@
   @endauth
 
   {{-- ── MAP ───────────────────────────────────────────────────────────── --}}
-  <div class="vi-map-label">🗺️ <span class="vi-section-title">Mapa de complejos</span></div>
+  <div class="vi-map-label" style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="map" style="width:16px;height:16px;stroke:currentColor;"></i> <span class="vi-section-title">Mapa de complejos</span></div>
   <div class="vi-map-wrap" id="viMapWrap">
     {{-- Skeleton visible hasta que cargue el mapa --}}
     <div class="vi-map-skeleton" id="viMapSkeleton">
-      <span class="vi-map-skeleton-icon">🗺️</span>
+      <span class="vi-map-skeleton-icon"><i data-lucide="map" style="width:32px;height:32px;stroke:#ccc;stroke-width:1.5;"></i></span>
     </div>
     <div id="map" style="height: 380px; display:none;"></div>
   </div>
@@ -1838,7 +1838,7 @@
             @if($venue->cover_image_path)
               <img src="{{ \Illuminate\Support\Facades\Storage::url($venue->cover_image_path) }}" alt="{{ $venue->name }}" loading="lazy" class="vi-img-loading" onload="this.classList.remove('vi-img-loading')">
             @else
-              <div class="vi-venue-img-placeholder">⚽</div>
+              <div class="vi-venue-img-placeholder"><i data-lucide="building-2" style="width:32px;height:32px;stroke:#ccc;stroke-width:1.5;"></i></div>
             @endif
 
             {{-- Shine overlay --}}
@@ -1849,24 +1849,24 @@
               @if(in_array($venue->id, $favoriteVenueIds ?? []))
                 <form method="POST" action="{{ route('venues.unfavorite', $venue) }}" style="margin:0;">
                   @csrf
-                  <button type="submit" class="vi-venue-fav-btn saved" title="Quitar de favoritos">❤️</button>
+                  <button type="submit" class="vi-venue-fav-btn saved" title="Quitar de favoritos"><i data-lucide="heart" style="width:16px;height:16px;stroke:#ef4444;fill:#ef4444;"></i></button>
                 </form>
               @else
                 <form method="POST" action="{{ route('venues.favorite', $venue) }}" style="margin:0;">
                   @csrf
-                  <button type="submit" class="vi-venue-fav-btn" title="Guardar en favoritos">🤍</button>
+                  <button type="submit" class="vi-venue-fav-btn" title="Guardar en favoritos"><i data-lucide="heart" style="width:16px;height:16px;stroke:#999;"></i></button>
                 </form>
               @endif
             @endauth
 
             @if(($venue->falta_uno_count ?? 0) > 0)
-              <div class="vi-venue-faltauno-badge">
+              <div class="vi-venue-faltauno-badge" style="display:inline-flex;align-items:center;gap:4px;">
                 <span class="vi-faltauno-dot"></span>
-                ⚡ Falta Uno · {{ $venue->falta_uno_count }} partido{{ $venue->falta_uno_count > 1 ? 's' : '' }}
+                <i data-lucide="zap" style="width:12px;height:12px;stroke:currentColor;"></i> Falta Uno · {{ $venue->falta_uno_count }} partido{{ $venue->falta_uno_count > 1 ? 's' : '' }}
               </div>
             @endif
             @if($venue->zone)
-              <div class="vi-venue-zone-badge">📍 {{ $venue->zone }}</div>
+              <div class="vi-venue-zone-badge" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="map-pin" style="width:11px;height:11px;stroke:currentColor;"></i> {{ $venue->zone }}</div>
             @endif
           </div>
 

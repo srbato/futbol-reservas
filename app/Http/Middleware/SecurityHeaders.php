@@ -39,7 +39,7 @@ class SecurityHeaders
             "font-src 'self' https://fonts.gstatic.com data:",
             "img-src 'self' data: blob: https://maps.googleapis.com https://maps.gstatic.com https://lh3.googleusercontent.com",
             "connect-src 'self' wss: https://maps.googleapis.com https://api.mercadopago.com",
-            "frame-src https://*.mercadopago.com https://*.mercadolibre.com",
+            "frame-src https://*.mercadopago.com https://*.mercadolibre.com https://www.google.com https://maps.google.com",
             "object-src 'none'",
             "base-uri 'self'",
             "form-action 'self' https://*.mercadopago.com https://*.mercadopago.com.ar https://*.mercadolibre.com",

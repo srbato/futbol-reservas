@@ -137,7 +137,7 @@
 
 @if($profiles->isEmpty())
   <div class="page-card" style="text-align:center; padding:48px 24px; margin-bottom:20px;">
-    <div style="font-size:48px; margin-bottom:12px;">🎯</div>
+    <div style="margin-bottom:12px;"><i data-lucide="target" style="width:48px;height:48px;stroke:#ccc;stroke-width:1.5;"></i></div>
     <p style="font-size:16px; font-weight:700; margin:0 0 6px;">Aún no tenés ningún perfil deportivo</p>
     <p style="color:#888; font-size:14px; margin:0 0 20px;">Creá tu perfil para poder unirte a partidos Falta Uno.</p>
     <a href="{{ route('sport-profile.create') }}" class="btn-add-sport">
@@ -149,11 +149,11 @@
     @foreach($profiles as $profile)
     @php
       $sportLabel = match($profile->sport) {
-        'football'   => '⚽ Fútbol',
-        'padel'      => '🏓 Pádel',
-        'tennis'     => '🎾 Tenis',
-        'basketball' => '🏀 Básquet',
-        'volleyball' => '🏐 Vóley',
+        'football'   => 'Fútbol',
+        'padel'      => 'Pádel',
+        'tennis'     => 'Tenis',
+        'basketball' => 'Básquet',
+        'volleyball' => 'Vóley',
         default      => ucfirst($profile->sport),
       };
       $catColors = match($profile->category) {
@@ -166,8 +166,8 @@
       $stars = round($profile->average_rating);
     @endphp
     <div class="sp-card">
-      <div class="sp-sport-icon">{{ explode(' ', $sportLabel)[0] }}</div>
-      <h3 class="sp-sport-name">{{ ltrim(strstr($sportLabel, ' ')) }}</h3>
+      <div class="sp-sport-icon"><i data-lucide="activity" style="width:24px;height:24px;stroke:#22c55e;stroke-width:2;"></i></div>
+      <h3 class="sp-sport-name">{{ $sportLabel }}</h3>
 
       <span class="sp-category-badge" style="background:{{ $catColors['bg'] }}; color:{{ $catColors['color'] }};">
         {{ $profile->category }}

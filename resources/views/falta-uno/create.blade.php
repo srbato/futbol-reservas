@@ -335,7 +335,7 @@
     <a href="{{ route('fields.show', $field) }}"
        style="display:inline-flex; align-items:center; gap:5px; font-size:13px; color:#888; text-decoration:none; font-weight:600; transition:color .15s;"
        onmouseover="this.style.color='#111'" onmouseout="this.style.color='#888'">
-      ← Volver a {{ $field->name }}
+      <i data-lucide="arrow-left" style="width:14px;height:14px;stroke:currentColor;"></i> Volver a {{ $field->name }}
     </a>
   </div>
 
@@ -345,13 +345,13 @@
       <img src="{{ \Illuminate\Support\Facades\Storage::url($field->cover_image_path) }}" alt="{{ $field->name }}">
     @endif
     <div class="fu-hero-overlay">
-      <div class="fu-hero-badge">
-        ⚡ Falta Uno
+      <div class="fu-hero-badge" style="display:inline-flex;align-items:center;gap:6px;">
+        <i data-lucide="zap" style="width:14px;height:14px;stroke:currentColor;"></i> Falta Uno
       </div>
       <h1 class="fu-hero-title">{{ $field->name }}</h1>
       <p class="fu-hero-sub">
         {{ $field->venue->name }} ·
-        {{ match($field->sport ?? '') { 'football'=>'⚽ Fútbol','padel'=>'🏓 Pádel','tennis'=>'🎾 Tenis','basketball'=>'🏀 Básquet','volleyball'=>'🏐 Vóley', default=>ucfirst($field->sport ?? '') } }}
+        {{ match($field->sport ?? '') { 'football'=>'Fútbol','padel'=>'Pádel','tennis'=>'Tenis','basketball'=>'Básquet','volleyball'=>'Vóley', default=>ucfirst($field->sport ?? '') } }}
       </p>
     </div>
   </div>
@@ -376,7 +376,7 @@
 
       {{-- Header --}}
       <div class="fu-card-header">
-        <div class="fu-step-icon">📅</div>
+        <div class="fu-step-icon"><i data-lucide="calendar" style="width:28px;height:28px;stroke:#22c55e;stroke-width:2;"></i></div>
         <div class="fu-card-header-text">
           <h2>Configurá tu partido</h2>
           <p>Indicá cuándo jugás y cuántos traés</p>
@@ -388,7 +388,7 @@
         {{-- Fecha y hora --}}
         <div class="fu-input-group">
           <label class="fu-label" for="start_at">
-            <span class="fu-label-icon">🗓</span> Fecha y hora del partido
+            <span class="fu-label-icon"><i data-lucide="calendar" style="width:14px;height:14px;stroke:currentColor;vertical-align:middle;"></i></span> Fecha y hora del partido
           </label>
           <input type="datetime-local" id="start_at" name="start_at" class="form-control"
                  style="width:100%; font-size:14px;"
@@ -403,7 +403,7 @@
         {{-- Total jugadores --}}
         <div class="fu-input-group">
           <label class="fu-label" for="total_players">
-            <span class="fu-label-icon">👥</span> Total de jugadores del partido
+            <span class="fu-label-icon"><i data-lucide="users" style="width:14px;height:14px;stroke:currentColor;vertical-align:middle;"></i></span> Total de jugadores del partido
           </label>
           <div class="fu-counter">
             <button type="button" onclick="step('total_players', -1)">−</button>
@@ -419,7 +419,7 @@
         {{-- Jugadores del iniciador --}}
         <div class="fu-input-group">
           <label class="fu-label" for="initiator_players">
-            <span class="fu-label-icon">🙋</span> Jugadores que traés vos
+            <span class="fu-label-icon"><i data-lucide="user-plus" style="width:14px;height:14px;stroke:currentColor;vertical-align:middle;"></i></span> Jugadores que traés vos
           </label>
           <div class="fu-counter">
             <button type="button" onclick="step('initiator_players', -1)">−</button>
@@ -437,7 +437,7 @@
         {{-- Filtro de género --}}
         <div class="fu-input-group">
           <label class="fu-label">
-            <span class="fu-label-icon">👤</span> Género de los jugadores
+            <span class="fu-label-icon"><i data-lucide="user" style="width:14px;height:14px;stroke:currentColor;vertical-align:middle;"></i></span> Género de los jugadores
           </label>
           <div style="display:flex; gap:10px; flex-wrap:wrap;">
             @foreach(['mixed'=>'Mixto', 'male'=>'Solo masculino', 'female'=>'Solo femenino'] as $val => $gLabel)
@@ -457,7 +457,7 @@
         @php $sportCategories = \App\Models\FaltaUnoSportProfile::getCategoriesForSport($field->sport); @endphp
         <div class="fu-input-group">
           <label class="fu-label">
-            <span class="fu-label-icon">🏅</span> Rango de categorías aceptadas
+            <span class="fu-label-icon"><i data-lucide="award" style="width:14px;height:14px;stroke:currentColor;vertical-align:middle;"></i></span> Rango de categorías aceptadas
           </label>
           <div style="display:flex; gap:10px; align-items:center;">
             <div style="flex:1;">
@@ -471,7 +471,7 @@
                 @endforeach
               </select>
             </div>
-            <div style="font-size:20px; color:#ccc; padding-top:18px;">→</div>
+            <div style="color:#ccc; padding-top:18px; display:flex; align-items:center;"><i data-lucide="arrow-right" style="width:18px;height:18px;stroke:#ccc;"></i></div>
             <div style="flex:1;">
               <div style="font-size:11px; color:#aaa; font-weight:600; margin-bottom:4px; text-transform:uppercase; letter-spacing:.05em;">Hasta</div>
               <select id="category_max" name="category_max" class="form-control" style="width:100%; font-size:14px;" onchange="syncCategoryMin()">
@@ -526,8 +526,8 @@
 
       {{-- Footer con botón --}}
       <div class="fu-card-footer">
-        <button type="submit" class="fu-submit">
-          Publicar partido y pagar →
+        <button type="submit" class="fu-submit" style="display:inline-flex;align-items:center;justify-content:center;gap:6px;">
+          Publicar partido y pagar <i data-lucide="arrow-right" style="width:16px;height:16px;stroke:currentColor;"></i>
         </button>
         <p style="text-align:center; font-size:12px; color:#bbb; margin:10px 0 0 0;">
           Serás redirigido a Mercado Pago para completar el pago.

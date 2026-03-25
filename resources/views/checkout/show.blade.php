@@ -9,7 +9,7 @@
 @section('content')
   @if(session('info'))
     <div style="background:linear-gradient(135deg,#f0f9ff,#e0f2fe); border:1px solid #bae6fd; border-radius:14px; padding:14px 18px; margin-bottom:18px; display:flex; align-items:center; gap:12px;">
-      <span style="font-size:20px;">⚡</span>
+      <i data-lucide="zap" style="width:20px;height:20px;stroke:#0369a1;flex-shrink:0;"></i>
       <div style="font-size:14px; font-weight:700; color:#0369a1;">{{ session('info') }}</div>
     </div>
   @endif

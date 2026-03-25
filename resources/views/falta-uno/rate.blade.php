@@ -115,7 +115,7 @@
     <a href="{{ route('falta-uno.index') }}"
        style="display:inline-flex; align-items:center; gap:5px; font-size:13px; color:#888; text-decoration:none; font-weight:600;"
        onmouseover="this.style.color='#111'" onmouseout="this.style.color='#888'">
-      ← Volver a partidos
+      <i data-lucide="arrow-left" style="width:14px;height:14px;stroke:currentColor;"></i> Volver a partidos
     </a>
   </div>
 
@@ -162,17 +162,17 @@
 
       <div class="assess-row" data-index="{{ $i }}">
         <button type="button" class="assess-btn" data-value="below">
-          <span class="assess-icon">📉</span>
+          <span class="assess-icon"><i data-lucide="trending-down" style="width:20px;height:20px;stroke:currentColor;stroke-width:2;"></i></span>
           <span class="assess-label">Por debajo</span>
           <span class="assess-desc">Debería estar en una categoría menor</span>
         </button>
         <button type="button" class="assess-btn" data-value="match">
-          <span class="assess-icon">✓</span>
+          <span class="assess-icon"><i data-lucide="check" style="width:20px;height:20px;stroke:currentColor;stroke-width:2;"></i></span>
           <span class="assess-label">A la altura</span>
           <span class="assess-desc">Está bien en su categoría actual</span>
         </button>
         <button type="button" class="assess-btn" data-value="above">
-          <span class="assess-icon">📈</span>
+          <span class="assess-icon"><i data-lucide="trending-up" style="width:20px;height:20px;stroke:currentColor;stroke-width:2;"></i></span>
           <span class="assess-label">Por encima</span>
           <span class="assess-desc">Debería estar en una categoría mayor</span>
         </button>
@@ -187,8 +187,8 @@
     </div>
     @endforeach
 
-    <button type="submit" class="rate-submit">
-      Enviar calificaciones →
+    <button type="submit" class="rate-submit" style="display:inline-flex;align-items:center;justify-content:center;gap:6px;">
+      Enviar calificaciones <i data-lucide="arrow-right" style="width:16px;height:16px;stroke:currentColor;"></i>
     </button>
   </form>
 

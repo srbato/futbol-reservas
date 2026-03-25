@@ -44,4 +44,28 @@ class VenueAdminSubscription extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function statusLabel(): string
+    {
+        return match ($this->status) {
+            'ACTIVE'          => 'Activa',
+            'TRIAL'           => 'Período de prueba',
+            'PENDING_PAYMENT' => 'Pendiente de pago',
+            'CANCELLED'       => 'Cancelada',
+            'EXPIRED'         => 'Expirada',
+            default           => $this->status ?? '-',
+        };
+    }
+
+    public function statusStyles(): string
+    {
+        return match ($this->status) {
+            'ACTIVE'          => 'background:#e8f7ee; color:#157347; border:1px solid #cfe9d7;',
+            'TRIAL'           => 'background:#e8f0ff; color:#5b21b6; border:1px solid #c4b5fd;',
+            'PENDING_PAYMENT' => 'background:#fff4db; color:#9a6700; border:1px solid #f5d48a;',
+            'CANCELLED'       => 'background:#f8d7da; color:#842029; border:1px solid #f1b9c0;',
+            'EXPIRED'         => 'background:#f8d7da; color:#842029; border:1px solid #f1b9c0;',
+            default           => 'background:#f3f3f3; color:#444; border:1px solid #e2e2e2;',
+        };
+    }
 }

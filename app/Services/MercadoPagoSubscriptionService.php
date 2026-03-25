@@ -15,7 +15,7 @@ class MercadoPagoSubscriptionService
 
     private function http()
     {
-        return Http::withOptions(['verify' => !app()->isLocal()])
+        return Http::withOptions(['verify' => app()->isProduction()])
             ->withToken($this->token());
     }
 

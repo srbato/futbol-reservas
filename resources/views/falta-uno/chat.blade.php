@@ -118,12 +118,12 @@
     <a href="{{ route('falta-uno.index') }}"
        style="display:inline-flex; align-items:center; gap:5px; font-size:13px; color:#888; text-decoration:none; font-weight:600;"
        onmouseover="this.style.color='#111'" onmouseout="this.style.color='#888'">
-      ← Volver a partidos
+      <i data-lucide="arrow-left" style="width:14px;height:14px;stroke:currentColor;vertical-align:middle;margin-right:4px;"></i> Volver a partidos
     </a>
   </div>
 
   <div class="chat-header">
-    <div style="font-size:24px;">💬</div>
+    <div><i data-lucide="message-circle" style="width:24px;height:24px;stroke:#111;stroke-width:2;"></i></div>
     <div class="chat-header-info">
       <h2>Chat · {{ $game->field->name }}</h2>
       <p>{{ $game->field->venue->name }} · {{ \Carbon\Carbon::parse($game->start_at)->format('d/m/Y H:i') }} hs</p>

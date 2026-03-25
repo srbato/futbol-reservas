@@ -18,6 +18,42 @@ class MercadoPagoWebhookController extends Controller
 {
     public function handle(Request $request)
     {
+        // Verificación de firma HMAC según documentación oficial de MercadoPago Webhooks v2
+        $secret = config('services.mercadopago.webhook_secret');
+
+        if (!empty($secret)) {
+            $xSignature = $request->header('x-signature', '');
+            $xRequestId = $request->header('x-request-id', '');
+            $dataId     = $request->input('data.id') ?? $request->input('id');
+
+            // Parsear ts y v1 del header x-signature (formato: ts=TIMESTAMP,v1=HASH)
+            $ts = null;
+            $v1 = null;
+            foreach (explode(',', $xSignature) as $part) {
+                [$key, $value] = array_pad(explode('=', $part, 2), 2, '');
+                if ($key === 'ts') {
+                    $ts = $value;
+                } elseif ($key === 'v1') {
+                    $v1 = $value;
+                }
+            }
+
+            if (!$ts || !$v1) {
+                Log::warning('MP webhook: header x-signature inválido o ausente');
+                return response()->json(['error' => 'Invalid signature'], 401);
+            }
+
+            $manifest = "id:{$dataId};request-id:{$xRequestId};ts:{$ts};";
+            $computed = hash_hmac('sha256', $manifest, $secret);
+
+            if (!hash_equals($computed, $v1)) {
+                Log::warning('MP webhook: firma HMAC no coincide', [
+                    'manifest' => $manifest,
+                ]);
+                return response()->json(['error' => 'Invalid signature'], 401);
+            }
+        }
+
         Log::info('MP webhook recibido', [
             'type'    => $request->input('type'),
             'topic'   => $request->input('topic'),
@@ -46,7 +82,7 @@ class MercadoPagoWebhookController extends Controller
             return response()->json(['ok' => true]);
         }
 
-        $paymentResponse = Http::withOptions(['verify' => !app()->isLocal()])
+        $paymentResponse = Http::withOptions(['verify' => app()->isProduction()])
             ->withToken(config('services.mercadopago.access_token'))
             ->get("https://api.mercadopago.com/v1/payments/{$dataId}");
 
@@ -249,7 +285,7 @@ class MercadoPagoWebhookController extends Controller
         $accessToken = $reservation->field->venue->mp_access_token
             ?? config('services.mercadopago.access_token');
 
-        $paymentResponse = Http::withOptions(['verify' => !app()->isLocal()])
+        $paymentResponse = Http::withOptions(['verify' => app()->isProduction()])
             ->withToken($accessToken)
             ->get("https://api.mercadopago.com/v1/payments/{$paymentId}");
 
@@ -320,7 +356,7 @@ class MercadoPagoWebhookController extends Controller
         $accessToken = $batch->field->venue->mp_access_token
             ?? config('services.mercadopago.access_token');
 
-        $paymentResponse = Http::withOptions(['verify' => !app()->isLocal()])
+        $paymentResponse = Http::withOptions(['verify' => app()->isProduction()])
             ->withToken($accessToken)
             ->get("https://api.mercadopago.com/v1/payments/{$paymentId}");
 
@@ -386,7 +422,7 @@ class MercadoPagoWebhookController extends Controller
         }
 
         if ($venue->mp_access_token) {
-            $paymentResponse = Http::withOptions(['verify' => !app()->isLocal()])
+            $paymentResponse = Http::withOptions(['verify' => app()->isProduction()])
                 ->withToken($venue->mp_access_token)
                 ->get("https://api.mercadopago.com/v1/payments/{$paymentId}");
 

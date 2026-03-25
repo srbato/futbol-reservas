@@ -79,7 +79,7 @@ class MercadoPagoOAuthController extends Controller
         }
 
         // Intercambiamos el code por el access_token
-        $response = Http::withOptions(['verify' => !app()->isLocal()])
+        $response = Http::withOptions(['verify' => app()->isProduction()])
             ->post('https://api.mercadopago.com/oauth/token', [
             'client_id'     => config('services.mercadopago.client_id'),
             'client_secret' => config('services.mercadopago.client_secret'),

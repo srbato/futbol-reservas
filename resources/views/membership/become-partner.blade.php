@@ -19,27 +19,6 @@
       && $latestSubscription->expires_at
       && $latestSubscription->expires_at->isPast();
 
-    function membershipStatusLabel($status) {
-        return match ($status) {
-            'ACTIVE'          => 'Activa',
-            'TRIAL'           => 'Período de prueba',
-            'PENDING_PAYMENT' => 'Pendiente de pago',
-            'CANCELLED'       => 'Cancelada',
-            'EXPIRED'         => 'Expirada',
-            default           => $status ?? '-',
-        };
-    }
-
-    function membershipStatusStyles($status) {
-        return match ($status) {
-            'ACTIVE'          => 'background:#e8f7ee; color:#157347; border:1px solid #cfe9d7;',
-            'TRIAL'           => 'background:#e8f0ff; color:#5b21b6; border:1px solid #c4b5fd;',
-            'PENDING_PAYMENT' => 'background:#fff4db; color:#9a6700; border:1px solid #f5d48a;',
-            'CANCELLED'       => 'background:#f8d7da; color:#842029; border:1px solid #f1b9c0;',
-            'EXPIRED'         => 'background:#f8d7da; color:#842029; border:1px solid #f1b9c0;',
-            default           => 'background:#f3f3f3; color:#444; border:1px solid #e2e2e2;',
-        };
-    }
   @endphp
 
   @if(auth()->user()->isVenueStaff())
@@ -118,7 +97,7 @@
       @if($activeSubscription)
         @if($isTrialActive)
           <div style="padding:16px; border-radius:16px; background:#e8f0ff; color:#5b21b6; border:1px solid #c4b5fd; margin-bottom:14px;">
-            <strong>🎁 Período de prueba activo</strong>
+            <strong><i data-lucide="gift" style="width:14px;height:14px;stroke:currentColor;vertical-align:middle;margin-right:4px;"></i> Período de prueba activo</strong>
             <div style="margin-top:6px;">
               Estás usando tu período de prueba gratuito. Tenés acceso hasta el
               <strong>{{ $activeSubscription->expires_at?->format('d/m/Y H:i') }}</strong>.
@@ -163,7 +142,7 @@
 
           @if($activeSubscription->mp_subscription_status === 'cancelled')
             <div style="padding:12px 16px; border-radius:12px; background:#fff4db; color:#9a6700; border:1px solid #f5d48a; margin-bottom:14px; font-size:14px;">
-              ⚠️ Tu suscripción está cancelada. Seguirás teniendo acceso hasta el <strong>{{ $activeSubscription->expires_at?->format('d/m/Y') }}</strong>, sin cobros adicionales.
+              <i data-lucide="alert-triangle" style="width:14px;height:14px;stroke:currentColor;vertical-align:middle;margin-right:4px;"></i> Tu suscripción está cancelada. Seguirás teniendo acceso hasta el <strong>{{ $activeSubscription->expires_at?->format('d/m/Y') }}</strong>, sin cobros adicionales.
             </div>
           @endif
 
@@ -239,7 +218,7 @@
           @if($trialAvailable ?? false)
             {{-- Trial available: show a simple "start free trial" button, no payment required --}}
             <div style="background:#e8f0ff; border:1px solid #c4b5fd; border-radius:12px; padding:14px 16px; margin-bottom:16px; font-size:14px; color:#5b21b6; line-height:1.6;">
-              <strong>🎁 {{ $plan->trial_days }} días gratis disponibles</strong><br>
+              <strong><i data-lucide="gift" style="width:14px;height:14px;stroke:currentColor;vertical-align:middle;margin-right:4px;"></i> {{ $plan->trial_days }} días gratis disponibles</strong><br>
               Activá el período de prueba <strong>sin tarjeta de crédito</strong>. Tenés {{ $plan->trial_days }} días de acceso completo al panel admin de forma gratuita.
               Al vencer, te avisamos por email para que contrates un plan si querés continuar.
             </div>
@@ -334,8 +313,8 @@
                 </td>
 
                 <td style="padding:12px; border-bottom:1px solid #f1f1f1;">
-                  <span style="display:inline-flex; align-items:center; padding:7px 10px; border-radius:999px; font-size:12px; font-weight:700; {{ membershipStatusStyles($subscription->status) }}">
-                    {{ membershipStatusLabel($subscription->status) }}
+                  <span style="display:inline-flex; align-items:center; padding:7px 10px; border-radius:999px; font-size:12px; font-weight:700; {{ $subscription->statusStyles() }}">
+                    {{ $subscription->statusLabel() }}
                   </span>
                 </td>
 

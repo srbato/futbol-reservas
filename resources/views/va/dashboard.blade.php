@@ -444,7 +444,7 @@
     <div class="membership-alert {{ $membershipAlert['tone'] === 'danger' ? 'danger' : 'warning' }}">
       <div>
         <div style="font-weight:800; margin-bottom:4px;">
-          {{ $membershipAlert['tone'] === 'danger' ? '⚠️ Tu membresía vence muy pronto' : '🔔 Tu membresía está por vencer' }}
+          {{ $membershipAlert['tone'] === 'danger' ? 'Tu membresía vence muy pronto' : 'Tu membresía está por vencer' }}
         </div>
         <div style="font-size:14px; line-height:1.5;">
           Vence el <strong>{{ $membershipAlert['expires_at']->format('d/m/Y H:i') }}</strong>
@@ -465,11 +465,11 @@
 
   {{-- ── Tabs ──────────────────────────────────────────────────────────── --}}
   <div class="dash-tabs">
-    <button class="dash-tab" data-tab="resumen" onclick="showTab('resumen')">📊 Resumen</button>
-    <button class="dash-tab" data-tab="complejos" onclick="showTab('complejos')">🏟️ Complejos</button>
-    <button class="dash-tab" data-tab="reservas" onclick="showTab('reservas')">📅 Reservas de hoy</button>
+    <button class="dash-tab" data-tab="resumen" onclick="showTab('resumen')" style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="bar-chart-2" style="width:14px;height:14px;stroke:currentColor;"></i> Resumen</button>
+    <button class="dash-tab" data-tab="complejos" onclick="showTab('complejos')" style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="building-2" style="width:14px;height:14px;stroke:currentColor;"></i> Complejos</button>
+    <button class="dash-tab" data-tab="reservas" onclick="showTab('reservas')" style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="calendar" style="width:14px;height:14px;stroke:currentColor;"></i> Reservas de hoy</button>
     @if(auth()->user()->role === 'super_admin')
-      <button class="dash-tab" data-tab="global" onclick="showTab('global')">🌐 Vista global</button>
+      <button class="dash-tab" data-tab="global" onclick="showTab('global')" style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="globe" style="width:14px;height:14px;stroke:currentColor;"></i> Vista global</button>
     @endif
   </div>
 
@@ -479,27 +479,27 @@
     {{-- KPI row --}}
     <div class="kpi-grid">
       <div class="kpi-card">
-        <span class="kpi-icon">🏟️</span>
+        <span class="kpi-icon"><i data-lucide="building-2" style="width:22px;height:22px;stroke:currentColor;stroke-width:2;"></i></span>
         <div class="kpi-label">Complejos</div>
         <div class="kpi-value">{{ $venues->count() }}</div>
       </div>
 
       <div class="kpi-card green">
-        <span class="kpi-icon">📅</span>
+        <span class="kpi-icon"><i data-lucide="calendar" style="width:22px;height:22px;stroke:currentColor;stroke-width:2;"></i></span>
         <div class="kpi-label">Reservas hoy</div>
         <div class="kpi-value">{{ $stats['reservations_today_count'] }}</div>
       </div>
 
       @unless(auth()->user()->isVenueStaff())
       <div class="kpi-card blue">
-        <span class="kpi-icon">💰</span>
+        <span class="kpi-icon"><i data-lucide="dollar-sign" style="width:22px;height:22px;stroke:currentColor;stroke-width:2;"></i></span>
         <div class="kpi-label">Ingresos hoy</div>
         <div class="kpi-value" style="font-size:24px;">$ {{ number_format($revenueToday, 0, ',', '.') }}</div>
       </div>
       @endunless
 
       <div class="kpi-card purple">
-        <span class="kpi-icon">📈</span>
+        <span class="kpi-icon"><i data-lucide="trending-up" style="width:22px;height:22px;stroke:currentColor;stroke-width:2;"></i></span>
         <div class="kpi-label">Reservas esta semana</div>
         <div class="kpi-value">{{ $reservationsWeek }}</div>
         @php $diffWeekRes = $reservationsWeek - $reservationsWeekPrev; @endphp
@@ -510,7 +510,7 @@
 
       @unless(auth()->user()->isVenueStaff())
       <div class="kpi-card orange">
-        <span class="kpi-icon">💵</span>
+        <span class="kpi-icon"><i data-lucide="dollar-sign" style="width:22px;height:22px;stroke:currentColor;stroke-width:2;"></i></span>
         <div class="kpi-label">Ingresos esta semana</div>
         <div class="kpi-value" style="font-size:22px;">$ {{ number_format($revenueWeek, 0, ',', '.') }}</div>
         @php $diffWeekRev = $revenueWeek - $revenueWeekPrev; @endphp
@@ -521,7 +521,7 @@
       @endunless
 
       <div class="kpi-card blue">
-        <span class="kpi-icon">🗓️</span>
+        <span class="kpi-icon"><i data-lucide="calendar" style="width:22px;height:22px;stroke:currentColor;stroke-width:2;"></i></span>
         <div class="kpi-label">Reservas este mes</div>
         <div class="kpi-value">{{ $reservationsMonthCurrent }}</div>
         @php $diffMonthRes = $reservationsMonthCurrent - $reservationsMonthPrev; @endphp
@@ -532,7 +532,7 @@
 
       @unless(auth()->user()->isVenueStaff())
       <div class="kpi-card green">
-        <span class="kpi-icon">💰</span>
+        <span class="kpi-icon"><i data-lucide="dollar-sign" style="width:22px;height:22px;stroke:currentColor;stroke-width:2;"></i></span>
         <div class="kpi-label">Ingresos este mes</div>
         <div class="kpi-value" style="font-size:22px;">$ {{ number_format($revenueMonth, 0, ',', '.') }}</div>
         @php $diffMonthRev = $revenueMonth - $revenueMonthPrev; @endphp
@@ -548,7 +548,7 @@
 
       {{-- Próximas reservas --}}
       <div class="dash-card">
-        <h3 class="dash-card-title"><span>📋</span> Próximas reservas de hoy</h3>
+        <h3 class="dash-card-title"><span><i data-lucide="clipboard-list" style="width:16px;height:16px;stroke:currentColor;vertical-align:middle;"></i></span> Próximas reservas de hoy</h3>
 
         @if($upcomingToday->isEmpty())
           <div style="padding:24px 0; text-align:center; color:#aaa; font-size:14px;">
@@ -584,7 +584,7 @@
         {{-- Top cancha --}}
         @if($topField)
           <div class="top-field-card">
-            <div class="label">🔥 Cancha más reservada esta semana</div>
+            <div class="label"><i data-lucide="flame" style="width:14px;height:14px;stroke:currentColor;vertical-align:middle;margin-right:4px;"></i> Cancha más reservada esta semana</div>
             <div class="name">{{ $topField->field->name }}</div>
             <div class="sub">
               {{ $topField->field->venue->name }} ·
@@ -595,7 +595,7 @@
 
         {{-- Mis complejos --}}
         <div class="dash-card">
-          <h3 class="dash-card-title"><span>🏟️</span> Mis complejos</h3>
+          <h3 class="dash-card-title"><span><i data-lucide="building-2" style="width:16px;height:16px;stroke:currentColor;vertical-align:middle;"></i></span> Mis complejos</h3>
 
           @if($venues->isEmpty())
             <div style="color:#aaa; font-size:14px;">No hay complejos cargados.</div>
@@ -641,7 +641,7 @@
             <a href="{{ route('va.venues.edit', $v) }}" class="vba-link">Editar complejo</a>
 
             @if($v->mp_access_token)
-              <span class="vba-mp-connected">✓ MP conectado</span>
+              <span class="vba-mp-connected" style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="check-circle" style="width:13px;height:13px;stroke:currentColor;"></i> MP conectado</span>
               <form method="POST" action="{{ route('va.mp_oauth.disconnect', $v) }}" style="margin:0;"
                     onsubmit="return confirm('¿Desconectar Mercado Pago de este complejo?')">
                 @csrf
@@ -700,7 +700,7 @@
       </div>
     @empty
       <div class="dash-card" style="text-align:center; padding:40px 24px;">
-        <div style="font-size:40px; margin-bottom:12px;">🏟️</div>
+        <div style="margin-bottom:12px;"><i data-lucide="building-2" style="width:40px;height:40px;stroke:#ccc;stroke-width:1.5;"></i></div>
         <div style="font-weight:800; font-size:16px; margin-bottom:8px;">Todavía no tenés complejos</div>
         <div style="color:#888; font-size:14px; margin-bottom:20px;">Creá tu primer complejo para empezar a recibir reservas.</div>
         @if(!auth()->user()->isVenueStaff())
@@ -713,7 +713,7 @@
   {{-- ── TAB: RESERVAS ─────────────────────────────────────────────────── --}}
   <div id="tab-reservas" class="tab-pane">
     <div class="dash-card">
-      <h3 class="dash-card-title"><span>📅</span> Reservas de hoy</h3>
+      <h3 class="dash-card-title"><span><i data-lucide="calendar" style="width:16px;height:16px;stroke:currentColor;vertical-align:middle;"></i></span> Reservas de hoy</h3>
 
       @if($upcomingToday->isEmpty())
         <div style="padding:32px 0; text-align:center; color:#aaa; font-size:14px;">
@@ -766,7 +766,7 @@
       <div style="font-size:13px; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:.05em; margin-bottom:10px;">Usuarios</div>
       <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); margin-bottom:24px;">
         <div class="kpi-card">
-          <span class="kpi-icon">👥</span>
+          <span class="kpi-icon"><i data-lucide="users" style="width:22px;height:22px;stroke:currentColor;stroke-width:2;"></i></span>
           <div class="kpi-label">Usuarios totales</div>
           <div class="kpi-value">{{ $superStats['users_count'] }}</div>
         </div>
@@ -781,12 +781,12 @@
       <div style="font-size:13px; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:.05em; margin-bottom:10px;">Suscripciones</div>
       <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); margin-bottom:24px;">
         <div class="kpi-card green">
-          <span class="kpi-icon">✅</span>
+          <span class="kpi-icon"><i data-lucide="check-circle" style="width:22px;height:22px;stroke:currentColor;stroke-width:2;"></i></span>
           <div class="kpi-label">Activas</div>
           <div class="kpi-value">{{ $superStats['subscriptions_active'] }}</div>
         </div>
         <div class="kpi-card orange">
-          <span class="kpi-icon">❌</span>
+          <span class="kpi-icon"><i data-lucide="x-circle" style="width:22px;height:22px;stroke:currentColor;stroke-width:2;"></i></span>
           <div class="kpi-label">No renovadas / vencidas</div>
           <div class="kpi-value">{{ $superStats['subscriptions_expired'] }}</div>
         </div>
@@ -796,17 +796,17 @@
       <div style="font-size:13px; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:.05em; margin-bottom:10px;">Ingresos por suscripciones</div>
       <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); margin-bottom:24px;">
         <div class="kpi-card blue">
-          <span class="kpi-icon">💰</span>
+          <span class="kpi-icon"><i data-lucide="dollar-sign" style="width:22px;height:22px;stroke:currentColor;stroke-width:2;"></i></span>
           <div class="kpi-label">Total acumulado</div>
           <div class="kpi-value" style="font-size:18px;">$ {{ number_format($superStats['revenue_subscriptions'], 0, ',', '.') }}</div>
         </div>
         <div class="kpi-card">
-          <span class="kpi-icon">📅</span>
+          <span class="kpi-icon"><i data-lucide="calendar" style="width:22px;height:22px;stroke:currentColor;stroke-width:2;"></i></span>
           <div class="kpi-label">De planes mensuales</div>
           <div class="kpi-value" style="font-size:18px;">$ {{ number_format($superStats['revenue_monthly_total'], 0, ',', '.') }}</div>
         </div>
         <div class="kpi-card purple">
-          <span class="kpi-icon">📆</span>
+          <span class="kpi-icon"><i data-lucide="calendar" style="width:22px;height:22px;stroke:currentColor;stroke-width:2;"></i></span>
           <div class="kpi-label">De planes anuales</div>
           <div class="kpi-value" style="font-size:18px;">$ {{ number_format($superStats['revenue_annual_total'], 0, ',', '.') }}</div>
         </div>

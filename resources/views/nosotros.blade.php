@@ -789,22 +789,22 @@
       <div class="ns-stats-band">
         <div class="ns-stats-grid">
           <div class="ns-stat-item" data-aos="zoom-in" data-aos-delay="0">
-            <span class="ns-stat-icon">⚡</span>
+            <span class="ns-stat-icon"><i data-lucide="zap" style="width:28px;height:28px;stroke:#22c55e;stroke-width:2;"></i></span>
             <div class="ns-stat-value">Reservas al instante</div>
             <div class="ns-stat-label">Sin llamadas ni esperas</div>
           </div>
           <div class="ns-stat-item" data-aos="zoom-in" data-aos-delay="80">
-            <span class="ns-stat-icon">💳</span>
+            <span class="ns-stat-icon"><i data-lucide="credit-card" style="width:28px;height:28px;stroke:#22c55e;stroke-width:2;"></i></span>
             <div class="ns-stat-value">Cobro automático</div>
             <div class="ns-stat-label">Directo a tu cuenta de MP</div>
           </div>
           <div class="ns-stat-item" data-aos="zoom-in" data-aos-delay="160">
-            <span class="ns-stat-icon">📊</span>
+            <span class="ns-stat-icon"><i data-lucide="bar-chart-2" style="width:28px;height:28px;stroke:#22c55e;stroke-width:2;"></i></span>
             <div class="ns-stat-value">Panel completo</div>
             <div class="ns-stat-label">Reservas, agenda y reportes</div>
           </div>
           <div class="ns-stat-item" data-aos="zoom-in" data-aos-delay="240">
-            <span class="ns-stat-icon">🚀</span>
+            <span class="ns-stat-icon"><i data-lucide="trending-up" style="width:28px;height:28px;stroke:#22c55e;stroke-width:2;"></i></span>
             <div class="ns-stat-value">Sin comisiones</div>
             <div class="ns-stat-label">Precio fijo, sin sorpresas</div>
           </div>
@@ -825,7 +825,7 @@
       <div class="ns-timeline">
 
         <div class="ns-tl-item" data-aos="fade-up" data-aos-delay="0">
-          <div class="ns-tl-dot">💡</div>
+          <div class="ns-tl-dot"><i data-lucide="lightbulb" style="width:20px;height:20px;stroke:#22c55e;stroke-width:2;"></i></div>
           <div class="ns-tl-content">
             <span class="ns-tl-year">El origen</span>
             <h3>La idea que no nos dejaba dormir</h3>
@@ -837,7 +837,7 @@
         </div>
 
         <div class="ns-tl-item" data-aos="fade-up" data-aos-delay="150">
-          <div class="ns-tl-dot">🔨</div>
+          <div class="ns-tl-dot"><i data-lucide="wrench" style="width:20px;height:20px;stroke:#22c55e;stroke-width:2;"></i></div>
           <div class="ns-tl-content">
             <span class="ns-tl-year">Construcción</span>
             <h3>Primeras líneas de código</h3>
@@ -850,7 +850,7 @@
         </div>
 
         <div class="ns-tl-item" data-aos="fade-up" data-aos-delay="300">
-          <div class="ns-tl-dot">🚀</div>
+          <div class="ns-tl-dot"><i data-lucide="rocket" style="width:20px;height:20px;stroke:#22c55e;stroke-width:2;"></i></div>
           <div class="ns-tl-content">
             <span class="ns-tl-year">Lanzamiento</span>
             <h3>Los primeros complejos se suman</h3>
@@ -863,7 +863,7 @@
         </div>
 
         <div class="ns-tl-item" data-aos="fade-up" data-aos-delay="450">
-          <div class="ns-tl-dot">📈</div>
+          <div class="ns-tl-dot"><i data-lucide="trending-up" style="width:20px;height:20px;stroke:#22c55e;stroke-width:2;"></i></div>
           <div class="ns-tl-content">
             <span class="ns-tl-year">Hoy</span>
             <h3>Creciendo junto a la comunidad</h3>
@@ -891,7 +891,7 @@
       <div class="ns-values-grid">
 
         <div class="ns-value-card ns-accent" data-aos="fade-up" data-aos-delay="50">
-          <div class="ns-value-icon-wrap">⚡</div>
+          <div class="ns-value-icon-wrap"><i data-lucide="zap" style="width:22px;height:22px;stroke:#22c55e;stroke-width:2;"></i></div>
           <h3>Simplicidad ante todo</h3>
           <p>
             Si algo se puede hacer en dos clics, no lo hacemos en cuatro.
@@ -901,7 +901,7 @@
         </div>
 
         <div class="ns-value-card" data-aos="fade-up" data-aos-delay="100">
-          <div class="ns-value-icon-wrap">🤝</div>
+          <div class="ns-value-icon-wrap"><i data-lucide="users" style="width:22px;height:22px;stroke:#22c55e;stroke-width:2;"></i></div>
           <h3>El dueño del complejo es nuestro socio</h3>
           <p>
             No somos un competidor ni un intermediario. Somos la herramienta
@@ -910,7 +910,7 @@
         </div>
 
         <div class="ns-value-card" data-aos="fade-up" data-aos-delay="150">
-          <div class="ns-value-icon-wrap">🎯</div>
+          <div class="ns-value-icon-wrap"><i data-lucide="target" style="width:22px;height:22px;stroke:#22c55e;stroke-width:2;"></i></div>
           <h3>Foco en lo que importa</h3>
           <p>
             No construimos funcionalidades por construirlas. Cada mejora
@@ -920,7 +920,7 @@
         </div>
 
         <div class="ns-value-card" data-aos="fade-up" data-aos-delay="200">
-          <div class="ns-value-icon-wrap">🔒</div>
+          <div class="ns-value-icon-wrap"><i data-lucide="lock" style="width:22px;height:22px;stroke:#22c55e;stroke-width:2;"></i></div>
           <h3>Confianza y transparencia</h3>
           <p>
             Los pagos se procesan de forma segura, los datos son de los
@@ -929,7 +929,7 @@
         </div>
 
         <div class="ns-value-card" data-aos="fade-up" data-aos-delay="250">
-          <div class="ns-value-icon-wrap">🏃</div>
+          <div class="ns-value-icon-wrap"><i data-lucide="activity" style="width:22px;height:22px;stroke:#22c55e;stroke-width:2;"></i></div>
           <h3>Velocidad sin excusas</h3>
           <p>
             Iteramos rápido. Si algo no funciona lo arreglamos, si algo
@@ -939,7 +939,7 @@
         </div>
 
         <div class="ns-value-card" data-aos="fade-up" data-aos-delay="300">
-          <div class="ns-value-icon-wrap">⚽</div>
+          <div class="ns-value-icon-wrap"><i data-lucide="shield" style="width:22px;height:22px;stroke:#22c55e;stroke-width:2;"></i></div>
           <h3>Somos jugadores también</h3>
           <p>
             Construimos para nosotros mismos. Usamos TuCancha para reservar
@@ -970,12 +970,12 @@
         <div class="ns-culture-pills" data-aos="fade-left" data-aos-delay="120">
           <div class="ns-culture-pill"><span>🇦🇷</span> 100% argentinos</div>
           <div class="ns-culture-pill"><span>☕</span> Mucho café, poco reunionismo</div>
-          <div class="ns-culture-pill"><span>📦</span> Enviamos a producción seguido</div>
-          <div class="ns-culture-pill"><span>💬</span> Escuchamos a cada usuario</div>
+          <div class="ns-culture-pill"><span><i data-lucide="package" style="width:14px;height:14px;stroke:#111;stroke-width:2;vertical-align:middle;"></i></span> Enviamos a producción seguido</div>
+          <div class="ns-culture-pill"><span><i data-lucide="message-circle" style="width:14px;height:14px;stroke:#111;stroke-width:2;vertical-align:middle;"></i></span> Escuchamos a cada usuario</div>
           <div class="ns-culture-pill"><span>🐛</span> Los bugs nos quitan el sueño</div>
           <div class="ns-culture-pill"><span>⚽</span> Jugamos los miércoles</div>
-          <div class="ns-culture-pill"><span>🔁</span> Iteramos, no planificamos ad infinitum</div>
-          <div class="ns-culture-pill"><span>📈</span> Crecimiento sin perder el alma</div>
+          <div class="ns-culture-pill"><span><i data-lucide="refresh-cw" style="width:14px;height:14px;stroke:#111;stroke-width:2;vertical-align:middle;"></i></span> Iteramos, no planificamos ad infinitum</div>
+          <div class="ns-culture-pill"><span><i data-lucide="trending-up" style="width:14px;height:14px;stroke:#111;stroke-width:2;vertical-align:middle;"></i></span> Crecimiento sin perder el alma</div>
         </div>
 
       </div>
@@ -992,8 +992,8 @@
           Setup en minutos, soporte real y sin comisiones sobre tus ingresos.
         </p>
         <div class="ns-cta-actions">
-          <a href="{{ route('planes') }}" class="btn-ns-primary">
-            Ver planes →
+          <a href="{{ route('planes') }}" class="btn-ns-primary" style="display:inline-flex;align-items:center;gap:8px;">
+            Ver planes <i data-lucide="arrow-right" style="width:16px;height:16px;stroke:currentColor;"></i>
           </a>
           <a href="{{ route('como-funciona') }}" class="btn-ns-ghost">
             Cómo funciona

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\VenueAdmin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Reservation;
+use App\Models\Venue;
 use Illuminate\Http\Request;
 
 class CheckinController extends Controller
@@ -23,8 +24,9 @@ class CheckinController extends Controller
 
         $reservation = Reservation::where('verification_code', $data['code'])
             ->when($user->role !== 'super_admin', function ($q) use ($user) {
-                $q->whereHas('field.venue', function ($q2) use ($user) {
-                    $q2->where('owner_user_id', $user->id);
+                $accessibleVenueIds = Venue::accessibleBy($user)->pluck('id');
+                $q->whereHas('field', function ($q2) use ($accessibleVenueIds) {
+                    $q2->whereIn('venue_id', $accessibleVenueIds);
                 });
             })
             ->first();

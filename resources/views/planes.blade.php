@@ -9,11 +9,45 @@
   }
 
   .pl-hero-inner {
-    background: linear-gradient(135deg, #111 0%, #1f1f1f 100%);
     border-radius: 28px;
-    padding: 52px 48px;
+    padding: 72px 48px;
     color: #fff;
     text-align: center;
+    position: relative;
+    overflow: hidden;
+    background-image: url('/images/ambiente-cancha-noche.webp');
+    background-size: cover;
+    background-position: center;
+  }
+
+  .pl-hero-inner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(0,0,0,.82) 0%, rgba(10,10,10,.68) 100%);
+    border-radius: 28px;
+    z-index: 0;
+  }
+
+  .pl-hero-inner > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .pl-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px;
+    border-radius: 999px;
+    background: rgba(34,197,94,.15);
+    border: 1px solid rgba(34,197,94,.35);
+    color: #4ade80;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
   }
 
   .pl-hero-inner h1 {
@@ -21,6 +55,10 @@
     font-size: 54px;
     line-height: 1.04;
     letter-spacing: -0.03em;
+  }
+
+  .pl-hero-inner h1 .hero-highlight {
+    color: #22c55e;
   }
 
   .pl-hero-inner p {
@@ -67,7 +105,9 @@
   }
 
   .annual-badge {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     padding: 4px 12px;
     border-radius: 999px;
     background: #dcfce7;
@@ -107,6 +147,7 @@
   .plan-card.featured {
     background: #111;
     border-color: #111;
+    border-top: 4px solid #22c55e;
     color: #fff;
     transform: scale(1.03);
     box-shadow: 0 16px 48px rgba(0,0,0,.22);
@@ -118,7 +159,9 @@
   }
 
   .plan-popular-badge {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     padding: 4px 12px;
     border-radius: 999px;
     background: #4ade80;
@@ -200,13 +243,11 @@
 
   .plan-feature-icon {
     flex-shrink: 0;
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
-    background: #e8f7ee;
+    background: #dcfce7;
     color: #157347;
-    font-size: 11px;
-    font-weight: 800;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -214,10 +255,11 @@
   }
 
   .plan-card.featured .plan-feature-icon {
-    background: rgba(74,222,128,.2);
+    background: rgba(74,222,128,.18);
     color: #4ade80;
   }
 
+  /* CTA buttons */
   .plan-btn {
     display: block;
     width: 100%;
@@ -226,23 +268,32 @@
     font-size: 15px;
     font-weight: 700;
     text-align: center;
-    border: 1px solid #111;
+    border: 2px solid #111;
     background: #fff;
     color: #111;
     cursor: pointer;
-    transition: background .15s, transform .15s;
+    transition: background .15s, color .15s, transform .15s;
     font-family: inherit;
+    text-decoration: none;
   }
 
-  .plan-btn:hover { background: #f3f3f3; transform: translateY(-1px); }
+  .plan-btn:hover {
+    background: #111;
+    color: #fff;
+    transform: translateY(-1px);
+  }
 
   .plan-card.featured .plan-btn {
-    background: #fff;
-    color: #111;
-    border-color: #fff;
+    background: #4ade80;
+    color: #052e16;
+    border-color: #4ade80;
   }
 
-  .plan-card.featured .plan-btn:hover { background: #f0f0f0; }
+  .plan-card.featured .plan-btn:hover {
+    background: #86efac;
+    border-color: #86efac;
+    color: #052e16;
+  }
 
   /* ── FAQ ─────────────────────────────────────────── */
   .faq-section { padding: 0 0 56px 0; }
@@ -251,13 +302,17 @@
 
   .faq-item {
     background: #fff;
-    border: 1px solid #ececec;
-    border-radius: 16px;
+    border: 1px solid #e4e4e4;
+    border-radius: 20px;
     overflow: hidden;
-    transition: box-shadow .2s;
+    transition: box-shadow .2s, border-left-color .2s;
+    border-left: 4px solid transparent;
   }
 
-  .faq-item.open { box-shadow: 0 4px 20px rgba(0,0,0,.07); }
+  .faq-item.open {
+    box-shadow: 0 4px 20px rgba(0,0,0,.07);
+    border-left-color: #22c55e;
+  }
 
   .faq-trigger {
     width: 100%;
@@ -283,22 +338,25 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
-    font-weight: 700;
     color: #555;
     flex-shrink: 0;
-    transition: transform .2s, background .2s;
+    transition: transform .22s, background .22s, color .22s;
   }
 
-  .faq-item.open .faq-icon { transform: rotate(45deg); background: #111; color: #fff; }
+  .faq-item.open .faq-icon {
+    transform: rotate(45deg);
+    background: #22c55e;
+    color: #fff;
+  }
 
   .faq-body {
     display: none;
-    padding: 16px 24px 20px 24px;
+    padding: 0 24px 20px 28px;
     color: #555;
     font-size: 15px;
     line-height: 1.7;
     border-top: 1px solid #f0f0f0;
+    padding-top: 16px;
   }
 
   .faq-item.open .faq-body { display: block; }
@@ -316,7 +374,7 @@
   }
 
   @media (max-width: 768px) {
-    .pl-hero-inner { padding: 36px 24px; }
+    .pl-hero-inner { padding: 48px 24px; }
     .pl-hero-inner h1 { font-size: 34px; }
   }
 
@@ -332,8 +390,12 @@
   {{-- ── Hero ─────────────────────────────────────────────────────── --}}
   <section class="pl-hero">
     <div class="container">
-      <div class="pl-hero-inner">
-        <h1>Planes para tu complejo</h1>
+      <div class="pl-hero-inner" data-aos="fade-up">
+        <div class="pl-hero-badge">
+          <i data-lucide="shield-check" style="width:13px;height:13px;stroke:currentColor;stroke-width:2.5;"></i>
+          Sin comisiones
+        </div>
+        <h1>Planes para tu <span class="hero-highlight">complejo</span></h1>
         <p>Todo lo que necesitás para gestionar tus canchas online.</p>
       </div>
     </div>
@@ -346,8 +408,9 @@
       <button class="billing-opt" onclick="setBilling('annual', this)">{{ $plans->first()->longTermLabel() }}</button>
     </div>
     <span class="annual-badge" id="annualBadge" style="opacity:0; transition:opacity .2s;">
-    Ahorrás {{ $plans->max('annual_discount_percentage') }}%
-  </span>
+      <i data-lucide="trending-down" style="width:12px;height:12px;stroke:currentColor;stroke-width:2.5;"></i>
+      Ahorrás {{ $plans->max('annual_discount_percentage') }}%
+    </span>
   </div>
 
   {{-- ── Pricing cards ─────────────────────────────────────────────── --}}
@@ -355,12 +418,23 @@
     <div class="container">
       <div class="pricing-grid">
 
-        @foreach($plans as $plan)
-        <div class="plan-card {{ $plan->is_featured ? 'featured' : '' }}">
+        @foreach($plans as $i => $plan)
+        @php
+          $aosDir = $i === 0 ? 'fade-right' : ($i === 1 ? 'fade-up' : 'fade-left');
+          $aosDelay = $i * 100;
+        @endphp
+        <div class="plan-card {{ $plan->is_featured ? 'featured' : '' }}"
+             data-aos="{{ $aosDir }}" data-aos-delay="{{ $aosDelay }}">
           @if($plan->hasTrial())
-            <div class="plan-popular-badge" style="background:#157347;">🎁 {{ $plan->trial_days }} días gratis</div>
+            <div class="plan-popular-badge" style="background:#157347;">
+              <i data-lucide="gift" style="width:12px;height:12px;stroke:#fff;stroke-width:2;"></i>
+              {{ $plan->trial_days }} días gratis
+            </div>
           @elseif($plan->is_featured)
-            <div class="plan-popular-badge">⭐ Más popular</div>
+            <div class="plan-popular-badge">
+              <i data-lucide="star" style="width:12px;height:12px;stroke:#052e16;stroke-width:2;fill:#052e16;"></i>
+              Más popular
+            </div>
           @endif
           <p class="plan-name">{{ $plan->name }}</p>
           <p class="plan-limit">{{ $plan->maxFieldsLabel() }}</p>
@@ -376,13 +450,34 @@
           </div>
 
           <ul class="plan-features">
-            <li class="plan-feature"><span class="plan-feature-icon">✓</span> {{ $plan->maxFieldsLabel() }}</li>
-            <li class="plan-feature"><span class="plan-feature-icon">✓</span> Reservas online 24/7</li>
-            <li class="plan-feature"><span class="plan-feature-icon">✓</span> Cobro por Mercado Pago</li>
-            <li class="plan-feature"><span class="plan-feature-icon">✓</span> Panel de administración</li>
-            <li class="plan-feature"><span class="plan-feature-icon">✓</span> Mails automáticos</li>
-            <li class="plan-feature"><span class="plan-feature-icon">✓</span> Reportes de actividad</li>
-            <li class="plan-feature"><span class="plan-feature-icon">✓</span> Soporte por mail</li>
+            <li class="plan-feature">
+              <span class="plan-feature-icon"><i data-lucide="check" style="width:11px;height:11px;stroke:currentColor;stroke-width:3;"></i></span>
+              {{ $plan->maxFieldsLabel() }}
+            </li>
+            <li class="plan-feature">
+              <span class="plan-feature-icon"><i data-lucide="check" style="width:11px;height:11px;stroke:currentColor;stroke-width:3;"></i></span>
+              Reservas online 24/7
+            </li>
+            <li class="plan-feature">
+              <span class="plan-feature-icon"><i data-lucide="check" style="width:11px;height:11px;stroke:currentColor;stroke-width:3;"></i></span>
+              Cobro por Mercado Pago
+            </li>
+            <li class="plan-feature">
+              <span class="plan-feature-icon"><i data-lucide="check" style="width:11px;height:11px;stroke:currentColor;stroke-width:3;"></i></span>
+              Panel de administración
+            </li>
+            <li class="plan-feature">
+              <span class="plan-feature-icon"><i data-lucide="check" style="width:11px;height:11px;stroke:currentColor;stroke-width:3;"></i></span>
+              Mails automáticos
+            </li>
+            <li class="plan-feature">
+              <span class="plan-feature-icon"><i data-lucide="check" style="width:11px;height:11px;stroke:currentColor;stroke-width:3;"></i></span>
+              Reportes de actividad
+            </li>
+            <li class="plan-feature">
+              <span class="plan-feature-icon"><i data-lucide="check" style="width:11px;height:11px;stroke:currentColor;stroke-width:3;"></i></span>
+              Soporte por mail
+            </li>
           </ul>
 
           @if($plan->hasTrial())
@@ -410,10 +505,10 @@
 
       <div class="faq-list">
 
-        <div class="faq-item">
+        <div class="faq-item" data-aos="fade-up" data-aos-delay="0">
           <button class="faq-trigger" onclick="toggleFaq(this)">
             <span class="faq-trigger-text">¿Hay período de prueba?</span>
-            <span class="faq-icon">+</span>
+            <span class="faq-icon"><i data-lucide="plus" style="width:14px;height:14px;stroke:currentColor;stroke-width:2.5;"></i></span>
           </button>
           <div class="faq-body">
             Sí. Tenés 7 días de prueba gratuita para explorar el panel, cargar tus canchas y ver cómo funciona
@@ -421,10 +516,10 @@
           </div>
         </div>
 
-        <div class="faq-item">
+        <div class="faq-item" data-aos="fade-up" data-aos-delay="60">
           <button class="faq-trigger" onclick="toggleFaq(this)">
             <span class="faq-trigger-text">¿Puedo cancelar cuando quiera?</span>
-            <span class="faq-icon">+</span>
+            <span class="faq-icon"><i data-lucide="plus" style="width:14px;height:14px;stroke:currentColor;stroke-width:2.5;"></i></span>
           </button>
           <div class="faq-body">
             Sí, podés cancelar tu suscripción en cualquier momento desde el panel.
@@ -433,10 +528,10 @@
           </div>
         </div>
 
-        <div class="faq-item">
+        <div class="faq-item" data-aos="fade-up" data-aos-delay="120">
           <button class="faq-trigger" onclick="toggleFaq(this)">
             <span class="faq-trigger-text">¿Hay costos extra o comisiones?</span>
-            <span class="faq-icon">+</span>
+            <span class="faq-icon"><i data-lucide="plus" style="width:14px;height:14px;stroke:currentColor;stroke-width:2.5;"></i></span>
           </button>
           <div class="faq-body">
             No cobramos comisión sobre tus reservas. El precio del plan es todo lo que pagás a TuCancha.
@@ -445,10 +540,10 @@
           </div>
         </div>
 
-        <div class="faq-item">
+        <div class="faq-item" data-aos="fade-up" data-aos-delay="180">
           <button class="faq-trigger" onclick="toggleFaq(this)">
             <span class="faq-trigger-text">¿Cómo se cobra el plan?</span>
-            <span class="faq-icon">+</span>
+            <span class="faq-icon"><i data-lucide="plus" style="width:14px;height:14px;stroke:currentColor;stroke-width:2.5;"></i></span>
           </button>
           <div class="faq-body">
             El pago se realiza una vez al mes (o cada {{ $plans->first()->longTermMonths() }} meses si elegís el plan {{ strtolower($plans->first()->longTermLabel()) }}) a través de Mercado Pago.

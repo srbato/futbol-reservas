@@ -1015,8 +1015,9 @@
     .vs-fields-grid { grid-template-columns: 1fr; }
     .vs-presentation-block { padding: 28px 24px; min-height: auto; }
     .vs-presentation-title { font-size: 28px; }
-    .vs-gallery-grid { grid-template-columns: 1fr; grid-template-rows: 200px 160px 160px; }
+    .vs-gallery-grid { grid-template-columns: 1fr; grid-template-rows: 280px; }
     .vs-gallery-cell.tall { grid-row: auto; }
+    .vs-gallery-cell:not(.tall) { display: none; }
     .vs-vibe-section { height: auto; padding: 40px 0; }
     .vs-vibe-content { padding: 0 24px; }
     .vs-vibe-title { font-size: 28px; }
@@ -1066,11 +1067,11 @@
   <div class="vs-particle" style="left:70%; bottom:58%; animation-duration:8.0s; animation-delay:1.4s;  width:3px; height:3px;"></div>
 
   {{-- Back link --}}
-  <a href="{{ route('venues.index') }}" class="vs-back-link">← Volver a complejos</a>
+  <a href="{{ route('venues.index') }}" class="vs-back-link" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="arrow-left" style="width:14px;height:14px;stroke:currentColor;"></i> Volver a complejos</a>
 
   {{-- Fav button --}}
   @auth
-    <a href="#" class="vs-fav-btn" title="Agregar a favoritos">♡</a>
+    <a href="#" class="vs-fav-btn" title="Agregar a favoritos"><i data-lucide="heart" style="width:16px;height:16px;stroke:currentColor;"></i></a>
   @endauth
 
   {{-- Hero content --}}
@@ -1082,13 +1083,13 @@
     <h1 class="vs-hero-title" data-aos="fade-up" data-aos-delay="100">{{ $venue->name }}</h1>
     <div class="vs-hero-chips" data-aos="fade-up" data-aos-delay="200">
       @if($venue->zone)
-        <span class="vs-hero-chip">📍 {{ $venue->zone }}</span>
+        <span class="vs-hero-chip" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="map-pin" style="width:13px;height:13px;stroke:currentColor;"></i> {{ $venue->zone }}</span>
       @endif
       @if($venue->address)
-        <span class="vs-hero-chip">🏠 {{ $venue->address }}</span>
+        <span class="vs-hero-chip" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="home" style="width:13px;height:13px;stroke:currentColor;"></i> {{ $venue->address }}</span>
       @endif
       @if($venue->cancellation_hours)
-        <span class="vs-hero-chip amber">⏱ Cancelaciones hasta {{ $venue->cancellation_hours }}h antes</span>
+        <span class="vs-hero-chip amber" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="clock" style="width:13px;height:13px;stroke:currentColor;"></i> Cancelaciones hasta {{ $venue->cancellation_hours }}h antes</span>
       @endif
     </div>
   </div>
@@ -1114,11 +1115,11 @@
   <div class="vs-presentation-chips" data-aos="fade-left" data-aos-delay="200">
     @foreach($sports as $i => $sport)
       <span class="vs-presentation-chip" data-aos="fade-left" data-aos-delay="{{ 200 + $i * 60 }}">
-        {{ match($sport) { 'football'=>'⚽ Fútbol','padel'=>'🏓 Pádel','tennis'=>'🎾 Tenis','basketball'=>'🏀 Básquet','volleyball'=>'🏐 Vóley', default=>ucfirst($sport) } }}
+        {{ match($sport) { 'football'=>'Fútbol','padel'=>'Pádel','tennis'=>'Tenis','basketball'=>'Básquet','volleyball'=>'Vóley', default=>ucfirst($sport) } }}
       </span>
     @endforeach
     <span class="vs-presentation-chip" data-aos="fade-left" data-aos-delay="{{ 200 + $sports->count() * 60 }}">
-      🏟️ {{ $activeFields->count() }} {{ $activeFields->count() === 1 ? 'cancha' : 'canchas' }}
+      <i data-lucide="building-2" style="width:14px;height:14px;stroke:currentColor;vertical-align:middle;margin-right:4px;"></i> {{ $activeFields->count() }} {{ $activeFields->count() === 1 ? 'cancha' : 'canchas' }}
     </span>
   </div>
 </div>
@@ -1138,11 +1139,11 @@
         {{-- Botones pegados abajo --}}
         <div style="position:absolute; bottom:0; left:0; right:0; padding:12px 14px; background:linear-gradient(to top, rgba(0,0,0,.75) 0%, transparent 100%); display:flex; gap:8px; flex-wrap:wrap; z-index:2;">
           <button onclick="openDirections()" style="display:inline-flex;align-items:center;gap:6px;background:#16a34a;color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">
-            🧭 Cómo llegar
+            <i data-lucide="navigation" style="width:14px;height:14px;stroke:currentColor;"></i> Cómo llegar
           </button>
           <a href="https://maps.google.com/?q={{ urlencode($venue->address) }}" target="_blank" rel="noopener"
              style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:10px;padding:8px 14px;font-size:13px;font-weight:700;text-decoration:none;backdrop-filter:blur(4px);">
-            🗺 Ver en Maps
+            <i data-lucide="map" style="width:14px;height:14px;stroke:currentColor;"></i> Ver en Maps
           </a>
         </div>
       @else
@@ -1214,7 +1215,7 @@
 
   @if($activeFields->isEmpty())
     <div style="text-align:center; padding:40px 0;">
-      <div style="font-size:36px; margin-bottom:10px;">🏟️</div>
+      <div style="margin-bottom:10px;"><i data-lucide="building-2" style="width:36px;height:36px;stroke:#ccc;stroke-width:1.5;"></i></div>
       <p style="margin:0; color:#9ca3af; font-size:15px;">Este complejo todavía no tiene canchas cargadas.</p>
     </div>
   @else
@@ -1223,7 +1224,7 @@
         <button onclick="vsFilterSport(null)" class="vs-filter-btn active" data-sport="">Todos</button>
         @foreach($sports as $sport)
           <button onclick="vsFilterSport('{{ $sport }}')" class="vs-filter-btn" data-sport="{{ $sport }}">
-            {{ match($sport) { 'football'=>'⚽ Fútbol','padel'=>'🏓 Pádel','tennis'=>'🎾 Tenis','basketball'=>'🏀 Básquet','volleyball'=>'🏐 Vóley', default=>ucfirst($sport) } }}
+            {{ match($sport) { 'football'=>'Fútbol','padel'=>'Pádel','tennis'=>'Tenis','basketball'=>'Básquet','volleyball'=>'Vóley', default=>ucfirst($sport) } }}
           </button>
         @endforeach
       </div>
@@ -1242,7 +1243,7 @@
                    alt="{{ $field->name }}">
             @else
               <div class="vs-field-card-img-placeholder">
-                {{ match($field->sport ?? '') { 'padel'=>'🏓','tennis'=>'🎾','basketball'=>'🏀','volleyball'=>'🏐', default=>'⚽' } }}
+                <i data-lucide="layers" style="width:20px;height:20px;stroke:#aaa;stroke-width:1.5;"></i>
               </div>
             @endif
           </div>
@@ -1251,7 +1252,7 @@
             <h3 class="vs-field-card-name">{{ $field->name }}</h3>
 
             <div class="vs-field-badges">
-              <span class="vs-field-badge sport">{{ match($field->sport ?? '') { 'football'=>'⚽ Fútbol','padel'=>'🏓 Pádel','tennis'=>'🎾 Tenis','basketball'=>'🏀 Básquet','volleyball'=>'🏐 Vóley', default=>ucfirst($field->sport ?? 'Cancha') } }}</span>
+              <span class="vs-field-badge sport">{{ match($field->sport ?? '') { 'football'=>'Fútbol','padel'=>'Pádel','tennis'=>'Tenis','basketball'=>'Básquet','volleyball'=>'Vóley', default=>ucfirst($field->sport ?? 'Cancha') } }}</span>
               <span class="vs-field-badge format">{{ $field->format ?? '?' }}v{{ $field->format ?? '?' }}</span>
               <span class="vs-field-badge time">{{ $field->slot_minutes }} min</span>
             </div>
@@ -1274,7 +1275,7 @@
 
             @if($field->faltaUnoSetting?->enabled)
               <a href="{{ route('falta-uno.create', $field) }}" class="vs-btn-ghost-green">
-                ⚡ Iniciar partido
+                <i data-lucide="zap" style="width:13px;height:13px;stroke:currentColor;vertical-align:middle;margin-right:4px;"></i> Iniciar partido
               </a>
             @endif
           </div>
@@ -1292,7 +1293,7 @@
     <div class="vs-vibe-label" data-aos="fade-right" data-aos-delay="0">La experiencia</div>
     <h2 class="vs-vibe-title" data-aos="fade-right" data-aos-delay="80">Más que una cancha</h2>
     <p class="vs-vibe-text" data-aos="fade-up" data-aos-delay="200">Un lugar donde cada turno se convierte en un partido memorable.</p>
-    <a href="#canchas" class="vs-vibe-btn" data-aos="fade-up" data-aos-delay="300">Reservar ahora →</a>
+    <a href="#canchas" class="vs-vibe-btn" data-aos="fade-up" data-aos-delay="300" style="display:inline-flex;align-items:center;gap:6px;">Reservar ahora <i data-lucide="arrow-right" style="width:16px;height:16px;stroke:currentColor;"></i></a>
   </div>
 </section>
 
@@ -1356,7 +1357,7 @@
                    alt="{{ $review->user->name }}"
                    class="vs-review-avatar">
             @else
-              <div class="vs-review-avatar-placeholder">👤</div>
+              <div class="vs-review-avatar-placeholder"><i data-lucide="user" style="width:18px;height:18px;stroke:#ccc;stroke-width:2;"></i></div>
             @endif
             <div>
               <div style="font-weight:700; font-size:14px; color:#111827;">{{ $review->user->name }}</div>
@@ -1376,7 +1377,7 @@
       </div>
     @empty
       <div style="text-align:center; padding:32px 0; color:#9ca3af;" data-aos="fade-up">
-        <div style="font-size:36px; margin-bottom:8px;">💬</div>
+        <div style="margin-bottom:8px;"><i data-lucide="message-circle" style="width:36px;height:36px;stroke:#d1d5db;stroke-width:1.5;"></i></div>
         <p style="margin:0; font-size:14px;">Todavia no hay reseñas.</p>
       </div>
     @endforelse

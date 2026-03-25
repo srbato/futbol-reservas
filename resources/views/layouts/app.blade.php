@@ -943,7 +943,7 @@
         <a href="{{ route('venues.index') }}"
            @if(request()->routeIs('venues.*')) style="background:#f4f4f4; font-weight:700;" @endif>Complejos</a>
         <a href="{{ route('falta-uno.index') }}"
-           @if(request()->routeIs('falta-uno.*')) style="background:#111; color:#fff; border-color:#111; font-weight:700;" @endif>⚡ Falta Uno</a>
+           @if(request()->routeIs('falta-uno.*')) style="background:#111; color:#fff; border-color:#111; font-weight:700;" @endif><i data-lucide="zap" style="width:14px;height:14px;stroke:currentColor;vertical-align:middle;margin-right:4px;"></i> Falta Uno</a>
 
           @if(auth()->user()->role === 'user')
             <a href="{{ route('planes') }}">Hacete socio</a>
@@ -952,7 +952,7 @@
         @php $unreadCount = auth()->user()->unreadNotifications()->count(); @endphp
         <div class="notif-wrap">
             <button type="button" class="notif-bell" id="notifBellBtn" onclick="toggleNotifDropdown()" aria-label="Notificaciones">
-                🔔
+                <i data-lucide="bell" style="width:18px;height:18px;stroke:currentColor;vertical-align:middle;"></i>
                 @if($unreadCount > 0)
                     <span class="notif-badge" id="notifBadge">{{ $unreadCount > 9 ? '9+' : $unreadCount }}</span>
                 @else
@@ -978,7 +978,7 @@
                         <form method="POST" action="{{ route('notifications.read', $notif->id) }}" style="margin:0;">
                             @csrf
                             <button type="submit" class="notif-item {{ $notif->read_at ? '' : 'unread' }}" style="width:100%; text-align:left; border:0; background:transparent; font-family:inherit;">
-                                <span class="notif-icon">{{ $notif->data['icon'] ?? '🔔' }}</span>
+                                <span class="notif-icon">{{ $notif->data['icon'] ?? '' }}</span>
                                 <span class="notif-content">
                                     <span class="notif-title">{{ $notif->data['title'] ?? '' }}</span>
                                     <span class="notif-body">{{ $notif->data['body'] ?? '' }}</span>
@@ -992,8 +992,8 @@
                 </div>
                 <div style="border-top:1px solid #f0f0f0; padding:10px 14px; text-align:center;">
                     <a href="{{ route('notifications.index') }}"
-                       style="font-size:13px; color:#555; text-decoration:none; font-weight:700;">
-                        Ver todas las notificaciones →
+                       style="font-size:13px; color:#555; text-decoration:none; font-weight:700; display:inline-flex; align-items:center; gap:4px;">
+                        Ver todas las notificaciones <i data-lucide="arrow-right" style="width:13px;height:13px;stroke:currentColor;"></i>
                     </a>
                 </div>
             </div>
@@ -1009,8 +1009,8 @@
                         style="width:32px; height:32px; border-radius:999px; object-fit:cover; border:1px solid #eee;"
                     >
                 @else
-                    <div style="width:32px; height:32px; border-radius:999px; background:#f1f1f1; display:flex; align-items:center; justify-content:center; font-size:14px; color:#999; border:1px solid #eee;">
-                        👤
+                    <div style="width:32px; height:32px; border-radius:999px; background:#f1f1f1; display:flex; align-items:center; justify-content:center; border:1px solid #eee;">
+                        <i data-lucide="user" style="width:16px;height:16px;stroke:#999;stroke-width:2;"></i>
                     </div>
                 @endif
                 <span>{{ auth()->user()->name }}</span> ▾
@@ -1022,7 +1022,7 @@
               <a href="{{ route('venues.favorites') }}">Favoritos</a>
 
 @if(in_array(auth()->user()->role, ['venue_admin', 'super_admin']) || auth()->user()->isVenueStaff())
-                <a href="{{ route('va.dashboard') }}" class="user-dropdown-admin">⚡ Panel admin</a>
+                <a href="{{ route('va.dashboard') }}" class="user-dropdown-admin" style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="zap" style="width:14px;height:14px;stroke:currentColor;"></i> Panel admin</a>
               @endif
 
               <form method="POST" action="{{ route('logout') }}" style="margin:0;">
@@ -1046,7 +1046,7 @@
         <a href="{{ route('venues.index') }}"
            @if(request()->routeIs('venues.*')) style="background:#f4f4f4; font-weight:700;" @endif>Complejos</a>
         <a href="{{ route('falta-uno.index') }}"
-           @if(request()->routeIs('falta-uno.*')) style="background:#111; color:#fff; border-color:#111; font-weight:700;" @endif>⚡ Falta Uno</a>
+           @if(request()->routeIs('falta-uno.*')) style="background:#111; color:#fff; border-color:#111; font-weight:700;" @endif><i data-lucide="zap" style="width:14px;height:14px;stroke:currentColor;vertical-align:middle;margin-right:4px;"></i> Falta Uno</a>
           <a href="{{ route('login') }}">Ingresar</a>
           <a href="{{ route('register') }}" class="primary">Crear cuenta</a>
       </nav>
@@ -1058,7 +1058,7 @@
     <nav class="app-mobile-nav" id="appMobileNav">
       <a href="{{ route('home') }}">Inicio</a>
       <a href="{{ route('venues.index') }}">Complejos</a>
-      <a href="{{ route('falta-uno.index') }}">⚡ Falta Uno</a>
+      <a href="{{ route('falta-uno.index') }}" style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="zap" style="width:14px;height:14px;stroke:currentColor;"></i> Falta Uno</a>
       @if(auth()->user()->role === 'user')
         <a href="{{ route('planes') }}">Hacete socio</a>
       @endif
@@ -1068,7 +1068,7 @@
       <a href="{{ route('venues.favorites') }}">Favoritos</a>
       <a href="{{ route('notifications.index') }}">Notificaciones</a>
       @if(in_array(auth()->user()->role, ['venue_admin', 'super_admin']) || auth()->user()->isVenueStaff())
-        <a href="{{ route('va.dashboard') }}" class="app-mobile-cta">⚡ Panel admin</a>
+        <a href="{{ route('va.dashboard') }}" class="app-mobile-cta" style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="zap" style="width:14px;height:14px;stroke:currentColor;"></i> Panel admin</a>
       @endif
       <div class="app-mobile-divider"></div>
       <form method="POST" action="{{ route('logout') }}" style="margin:0;">
@@ -1232,5 +1232,8 @@
 
 
 @stack('scripts')
+
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>lucide.createIcons();</script>
 </body>
 </html>

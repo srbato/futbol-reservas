@@ -430,7 +430,7 @@
 @auth
   @if(auth()->user()->faltaUnoSportProfiles()->doesntExist())
     <div class="fui-profile-banner" data-aos="fade-right">
-      <div style="font-size:20px; flex-shrink:0;">⚠️</div>
+      <div style="flex-shrink:0;"><i data-lucide="alert-triangle" style="width:20px;height:20px;stroke:#92400e;stroke-width:2;"></i></div>
       <div style="flex:1;">
         <div style="font-size:14px; font-weight:700; color:#92400e;">Para unirte a partidos necesitás completar tu perfil deportivo</div>
         <div style="font-size:12px; color:#b45309; margin-top:2px;">Tu categoría y género determinan a qué partidos podés unirte.</div>
@@ -450,7 +450,7 @@
     <a href="{{ route('falta-uno.index', array_filter(['gender' => $gender ?? null])) }}"
        class="fui-pill {{ !$sport ? 'active' : '' }}"
        data-aos="fade-up" data-aos-delay="0">Todos</a>
-    @php $sportPills = ['football'=>'⚽ Fútbol','padel'=>'🏓 Pádel','tennis'=>'🎾 Tenis','basketball'=>'🏀 Básquet','volleyball'=>'🏐 Vóley']; $pi = 0; @endphp
+    @php $sportPills = ['football'=>'Fútbol','padel'=>'Pádel','tennis'=>'Tenis','basketball'=>'Básquet','volleyball'=>'Vóley']; $pi = 0; @endphp
     @foreach($sportPills as $val => $label)
       @php $pi++ @endphp
       <a href="{{ route('falta-uno.index', array_filter(['sport' => $val, 'gender' => $gender ?? null])) }}"
@@ -519,11 +519,11 @@
       $isAuthJoined = auth()->check() && $game->activeParticipants->contains('user_id', auth()->id());
       $isInitiator  = auth()->check() && $game->initiator_user_id === auth()->id();
       $sportLabel   = match($game->field->sport ?? '') {
-        'football'   => '⚽ Fútbol',
-        'padel'      => '🏓 Pádel',
-        'tennis'     => '🎾 Tenis',
-        'basketball' => '🏀 Básquet',
-        'volleyball' => '🏐 Vóley',
+        'football'   => 'Fútbol',
+        'padel'      => 'Pádel',
+        'tennis'     => 'Tenis',
+        'basketball' => 'Básquet',
+        'volleyball' => 'Vóley',
         default      => ucfirst($game->field->sport ?? 'Cancha'),
       };
       $stripeClass = match($game->status) {
@@ -571,7 +571,7 @@
               {{-- Info --}}
               <div class="fui-card-info">
                 <a href="{{ route('venues.show', $game->field->venue) }}" class="fui-venue-link">
-                  <span>📍</span> {{ $game->field->venue->name }}
+                  <i data-lucide="map-pin" style="width:13px;height:13px;stroke:currentColor;vertical-align:middle;"></i> {{ $game->field->venue->name }}
                 </a>
                 <a href="{{ route('falta-uno.show', $game) }}" class="fui-field-name">
                   {{ $game->field->name }}
@@ -579,8 +579,8 @@
 
                 <div class="fui-chips">
                   <span class="fui-chip fui-chip-sport">{{ $sportLabel }}</span>
-                  <span class="fui-chip fui-chip-date">📅 {{ \Carbon\Carbon::parse($game->start_at)->format('d/m/Y') }}</span>
-                  <span class="fui-chip fui-chip-date">🕐 {{ \Carbon\Carbon::parse($game->start_at)->format('H:i') }} hs</span>
+                  <span class="fui-chip fui-chip-date"><i data-lucide="calendar" style="width:12px;height:12px;stroke:currentColor;vertical-align:middle;margin-right:3px;"></i>{{ \Carbon\Carbon::parse($game->start_at)->format('d/m/Y') }}</span>
+                  <span class="fui-chip fui-chip-date"><i data-lucide="clock" style="width:12px;height:12px;stroke:currentColor;vertical-align:middle;margin-right:3px;"></i>{{ \Carbon\Carbon::parse($game->start_at)->format('H:i') }} hs</span>
                   @if($game->gender_filter !== 'mixed')
                     <span class="fui-chip fui-chip-gender">
                       {{ $game->gender_filter === 'male' ? 'Masculino' : 'Femenino' }}
@@ -631,18 +631,18 @@
           <div class="fui-card-actions">
             @auth
               @if($isInitiator)
-                <a href="{{ route('falta-uno.chat', $game) }}" class="fui-btn fui-btn-black">💬 Chat</a>
+                <a href="{{ route('falta-uno.chat', $game) }}" class="fui-btn fui-btn-black" style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="message-circle" style="width:14px;height:14px;stroke:currentColor;"></i> Chat</a>
                 <form method="POST" action="{{ route('falta-uno.cancel', $game) }}"
                       onsubmit="return confirm('¿Cancelar el partido? {{ $game->canRefund() ? 'Recibirás un reembolso.' : 'No se devuelve el dinero.' }}')">
                   @csrf
                   <button type="submit" class="fui-btn fui-btn-cancel">Cancelar partido</button>
                 </form>
               @elseif($isAuthJoined)
-                <span class="fui-badge-joined">✓ Ya estás anotado</span>
-                <a href="{{ route('falta-uno.chat', $game) }}" class="fui-btn fui-btn-black">💬 Chat</a>
+                <span class="fui-badge-joined" style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="check-circle" style="width:13px;height:13px;stroke:currentColor;"></i> Ya estás anotado</span>
+                <a href="{{ route('falta-uno.chat', $game) }}" class="fui-btn fui-btn-black" style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="message-circle" style="width:14px;height:14px;stroke:currentColor;"></i> Chat</a>
                 @if($game->isFinished())
-                  <a href="{{ route('falta-uno.stats', $game) }}" class="fui-btn fui-btn-stats">📊 Mis stats</a>
-                  <a href="{{ route('falta-uno.rate', $game) }}" class="fui-btn fui-btn-rate">★ Calificar</a>
+                  <a href="{{ route('falta-uno.stats', $game) }}" class="fui-btn fui-btn-stats" style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="bar-chart-2" style="width:14px;height:14px;stroke:currentColor;"></i> Mis stats</a>
+                  <a href="{{ route('falta-uno.rate', $game) }}" class="fui-btn fui-btn-rate" style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="star" style="width:13px;height:13px;stroke:currentColor;"></i> Calificar</a>
                 @endif
               @elseif($game->status !== 'full')
                 <form method="POST" action="{{ route('falta-uno.join', $game) }}">

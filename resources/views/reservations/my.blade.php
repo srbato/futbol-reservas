@@ -193,8 +193,8 @@
     <button class="my-tab" onclick="switchTab('historial', this)">
       Historial
     </button>
-    <button class="my-tab" onclick="switchTab('faltauno', this)">
-      ⚡ Falta Uno
+    <button class="my-tab" onclick="switchTab('faltauno', this)" style="display:inline-flex;align-items:center;gap:6px;">
+      <i data-lucide="zap" style="width:14px;height:14px;stroke:currentColor;"></i> Falta Uno
       <span class="my-tab-count">{{ $misPartidos->count() }}</span>
     </button>
   </div>
@@ -428,7 +428,7 @@
   <div id="panel-historial" class="tab-panel">
     <div class="page-card" style="padding:20px;">
       <p class="muted" style="margin:0 0 12px;">Tu historial completo de partidos y reservas pasadas.</p>
-      <a href="{{ route('match_history') }}" class="btn btn-primary">Ver historial de partidos →</a>
+      <a href="{{ route('match_history') }}" class="btn btn-primary" style="display:inline-flex;align-items:center;gap:5px;">Ver historial de partidos <i data-lucide="arrow-right" style="width:14px;height:14px;stroke:currentColor;"></i></a>
     </div>
   </div>
 
@@ -436,7 +436,7 @@
   <div id="panel-faltauno" class="tab-panel">
     @if($misPartidos->isEmpty())
       <div class="page-card" style="text-align:center; padding:36px 24px;">
-        <div style="font-size:36px; margin-bottom:10px;">⚡</div>
+        <div style="margin-bottom:10px;"><i data-lucide="zap" style="width:36px;height:36px;stroke:#22c55e;stroke-width:1.5;"></i></div>
         <h3 style="margin:0 0 8px;">No participaste en ningún partido Falta Uno</h3>
         <p class="muted" style="margin-bottom:14px;">Unite a un partido o creá el tuyo.</p>
         <a href="{{ route('falta-uno.index') }}" class="btn btn-primary">Ver partidos Falta Uno</a>

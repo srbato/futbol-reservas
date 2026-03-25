@@ -141,6 +141,9 @@ class UserManagementController extends Controller
 
         auth()->login($user);
 
+        // Regenerar sesión para evitar session fixation
+        $request->session()->regenerate();
+
         session([
             'impersonating_as'  => $user->id,
             'original_admin_id' => $originalAdminId,
@@ -160,6 +163,8 @@ class UserManagementController extends Controller
         $admin = User::find($originalAdminId);
 
         if (!$admin || $admin->role !== 'super_admin') {
+            // El usuario guardado en sesión no es super_admin: destruir sesión y abortar
+            session()->flush();
             abort(403);
         }
 
