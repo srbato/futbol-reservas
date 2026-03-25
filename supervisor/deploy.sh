@@ -4,6 +4,8 @@
 
 set -e
 
+PHP=php84
+
 echo "==> Pulling latest code..."
 git pull origin main
 
@@ -15,20 +17,20 @@ npm ci
 npm run build
 
 echo "==> Running migrations..."
-php artisan migrate --force
+$PHP artisan migrate --force
 
 echo "==> Clearing and caching config, routes, views y events..."
-php artisan config:clear
-php artisan route:clear
-php artisan view:clear
-php artisan event:clear
+$PHP artisan config:clear
+$PHP artisan route:clear
+$PHP artisan view:clear
+$PHP artisan event:clear
 
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-php artisan event:cache
+$PHP artisan config:cache
+$PHP artisan route:cache
+$PHP artisan view:cache
+$PHP artisan event:cache
 
 echo "==> Restarting queue workers..."
-php artisan queue:restart
+$PHP artisan queue:restart
 
 echo "==> Deploy completado."
