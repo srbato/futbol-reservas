@@ -43,7 +43,7 @@
   }
   .fus-hero-bg {
     position: absolute; inset: 0;
-    background-image: url('/Images/jugadores-falta-uno.webp');
+    background-image: url('/images/jugadores-falta-uno.webp');
     background-size: cover;
     background-position: center;
   }

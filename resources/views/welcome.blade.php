@@ -19,7 +19,7 @@ html { scroll-behavior: smooth; }
 .hero-bg {
   position: absolute;
   inset: 0;
-  background-image: url('/Images/hero-cancha.webp');
+  background-image: url('/images/hero-cancha.webp');
   background-size: cover;
   background-position: center 30%;
   background-attachment: fixed;
@@ -473,7 +473,7 @@ html { scroll-behavior: smooth; }
 .owner-bg {
   position: absolute;
   inset: 0;
-  background-image: url('/Images/admin-viendo-tableta.webp');
+  background-image: url('/images/admin-viendo-tableta.webp');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -909,7 +909,7 @@ html { scroll-behavior: smooth; }
 .faltauno-bg {
   position: absolute;
   inset: 0;
-  background-image: url('/Images/jugadores-falta-uno.webp');
+  background-image: url('/images/jugadores-falta-uno.webp');
   background-size: cover;
   background-position: center 40%;
   background-attachment: fixed;
@@ -1269,7 +1269,7 @@ html { scroll-behavior: smooth; }
   <div class="container">
     <div class="split-grid">
       <div class="split-image-wrap" data-aos="fade-right">
-        <img src="/Images/amigos-post-futbol.webp" alt="Amigos después del partido" loading="lazy">
+        <img src="/images/amigos-post-futbol.webp" alt="Amigos después del partido" loading="lazy">
         <div class="split-image-overlay"></div>
       </div>
 
@@ -1420,7 +1420,7 @@ html { scroll-behavior: smooth; }
       {{-- columna izquierda: imagen --}}
       <div class="faq-visual" data-aos="fade-right" data-aos-duration="800">
         <div class="faq-visual-inner">
-          <img src="/Images/pagoconfirmado-sonrisa.webp" alt="Reserva confirmada" loading="lazy">
+          <img src="/images/pagoconfirmado-sonrisa.webp" alt="Reserva confirmada" loading="lazy">
           <div class="faq-visual-overlay"></div>
           <div class="faq-visual-accent">
             <i data-lucide="help-circle"></i>

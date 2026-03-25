@@ -23,7 +23,7 @@
   .fav-hero-bg {
     position: absolute;
     inset: 0;
-    background-image: url('/Images/ambiente-cancha-noche.webp');
+    background-image: url('/images/ambiente-cancha-noche.webp');
     background-size: cover;
     background-position: center 40%;
     z-index: 0;
@@ -440,7 +440,7 @@
 {{-- ── Estado vacío ── --}}
 @if($venues->isEmpty())
   <div class="fav-empty" data-aos="fade-up" data-aos-duration="600" data-aos-delay="100">
-    <img src="/Images/complejo-vacio.webp" alt="Sin favoritos" class="fav-empty-img">
+    <img src="/images/complejo-vacio.webp" alt="Sin favoritos" class="fav-empty-img">
     <h2 class="fav-empty-title">Todavía no tenés favoritos</h2>
     <p class="fav-empty-sub">
       Explorá los complejos disponibles y guardá los que más te gusten tocando el corazón. Los vas a encontrar acá, siempre listos para reservar.

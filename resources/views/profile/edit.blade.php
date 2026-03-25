@@ -30,7 +30,7 @@
   .pf-hero-bg {
     position: absolute;
     inset: 0;
-    background-image: url('/Images/amigos-post-futbol.webp');
+    background-image: url('/images/amigos-post-futbol.webp');
     background-size: cover;
     background-position: center;
   }

@@ -38,7 +38,7 @@
   .vs-hero-bg-placeholder {
     position: absolute;
     inset: 0;
-    background-image: url('/Images/hero-cancha.webp');
+    background-image: url('/images/hero-cancha.webp');
     background-size: cover;
     background-position: center;
     opacity: .3;
@@ -726,7 +726,7 @@
   .vs-presentation-bg-placeholder {
     position: absolute;
     inset: 0;
-    background-image: url('/Images/hero-cancha.webp');
+    background-image: url('/images/hero-cancha.webp');
     background-size: cover;
     background-position: center;
     opacity: .25;
@@ -1147,7 +1147,7 @@
           </a>
         </div>
       @else
-        <img src="/Images/amigos-post-futbol.webp" alt="Amigos después del partido" loading="lazy">
+        <img src="/images/amigos-post-futbol.webp" alt="Amigos después del partido" loading="lazy">
         <div class="vs-gallery-cell-overlay">
           <span class="vs-gallery-cell-label">La pasión del juego</span>
         </div>
@@ -1155,13 +1155,13 @@
     </div>
 
     <div class="vs-gallery-cell">
-      <img src="/Images/hero-cancha.webp" alt="Cancha de fútbol" loading="lazy">
+      <img src="/images/hero-cancha.webp" alt="Cancha de fútbol" loading="lazy">
       <div class="vs-gallery-cell-overlay">
         <span class="vs-gallery-cell-label">Canchas de primer nivel</span>
       </div>
     </div>
     <div class="vs-gallery-cell">
-      <img src="/Images/dueno-complejo.webp" alt="El complejo" loading="lazy">
+      <img src="/images/dueno-complejo.webp" alt="El complejo" loading="lazy">
       <div class="vs-gallery-cell-overlay">
         <span class="vs-gallery-cell-label">Atención personalizada</span>
       </div>
@@ -1287,7 +1287,7 @@
 
 {{-- VIBE SECTION --}}
 <section class="vs-vibe-section" data-aos="fade-up">
-  <img class="vs-vibe-bg" src="/Images/ambiente-cancha-noche.webp" alt="Ambiente nocturno" loading="lazy">
+  <img class="vs-vibe-bg" src="/images/ambiente-cancha-noche.webp" alt="Ambiente nocturno" loading="lazy">
   <div class="vs-vibe-overlay"></div>
   <div class="vs-vibe-content">
     <div class="vs-vibe-label" data-aos="fade-right" data-aos-delay="0">La experiencia</div>

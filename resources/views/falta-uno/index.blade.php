@@ -34,7 +34,7 @@
   .fui-hero-bg {
     position: absolute;
     inset: 0;
-    background-image: url('/Images/jugadores-falta-uno.webp');
+    background-image: url('/images/jugadores-falta-uno.webp');
     background-size: cover;
     background-position: center;
   }
@@ -497,7 +497,7 @@
 {{-- Listado de partidos --}}
 @if($games->isEmpty())
   <div class="fui-empty" data-aos="zoom-in">
-    <img class="fui-empty-icon" src="/Images/silueta-jugador-vacia.webp" alt="" width="80" height="80"
+    <img class="fui-empty-icon" src="/images/silueta-jugador-vacia.webp" alt="" width="80" height="80"
          style="width:80px; height:80px; object-fit:contain; border-radius:0;">
     <h3>No hay partidos disponibles</h3>
     <p>¿Por qué no iniciás uno vos? Elegí una cancha con Falta Uno habilitado.</p>

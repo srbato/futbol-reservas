@@ -23,7 +23,7 @@
   .cf-hero-bg {
     position: absolute;
     inset: 0;
-    background-image: url('/Images/hero-cancha.webp');
+    background-image: url('/images/hero-cancha.webp');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -354,7 +354,7 @@
   .cf-owners-bg {
     position: absolute;
     inset: 0;
-    background-image: url('/Images/admin-viendo-telefono-y-complejo.webp');
+    background-image: url('/images/admin-viendo-telefono-y-complejo.webp');
     background-size: cover;
     background-position: center;
     opacity: 0.08;

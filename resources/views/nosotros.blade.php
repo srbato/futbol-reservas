@@ -23,7 +23,7 @@
   .ns-hero-bg {
     position: absolute;
     inset: 0;
-    background-image: url('/Images/jugadores-falta-uno.webp');
+    background-image: url('/images/jugadores-falta-uno.webp');
     background-size: cover;
     background-position: center top;
     background-attachment: fixed;
@@ -217,7 +217,7 @@
   .manifesto-quote-bg {
     position: absolute;
     inset: 0;
-    background-image: url('/Images/hero-cancha.webp');
+    background-image: url('/images/hero-cancha.webp');
     background-size: cover;
     background-position: center;
     opacity: 0.08;
@@ -526,7 +526,7 @@
   .ns-culture-bg {
     position: absolute;
     inset: 0;
-    background-image: url('/Images/jugadores-dandose-la-mano-post-partido.webp');
+    background-image: url('/images/jugadores-dandose-la-mano-post-partido.webp');
     background-size: cover;
     background-position: center;
     opacity: 0.14;

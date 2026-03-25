@@ -32,7 +32,7 @@
   }
   .fpp-hero-bg {
     position: absolute; inset: 0;
-    background-image: url('/Images/jugadores-dandose-la-mano-post-partido.webp');
+    background-image: url('/images/jugadores-dandose-la-mano-post-partido.webp');
     background-size: cover;
     background-position: center;
   }

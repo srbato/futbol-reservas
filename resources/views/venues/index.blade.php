@@ -37,7 +37,7 @@
   .vi-hero-bg {
     position: absolute;
     inset: 0;
-    background-image: url('/Images/hero-cancha.webp');
+    background-image: url('/images/hero-cancha.webp');
     background-size: cover;
     background-position: center;
     opacity: 0.4;

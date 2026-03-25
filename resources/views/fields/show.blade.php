@@ -38,7 +38,7 @@
   .fs-hero-bg-placeholder {
     position: absolute;
     inset: 0;
-    background-image: url('/Images/hero-cancha.webp');
+    background-image: url('/images/hero-cancha.webp');
     background-size: cover;
     background-position: center;
     opacity: .3;
@@ -958,7 +958,7 @@
 {{-- FIELD INFO BLOCK --}}
 <div class="fs-field-info" data-aos="fade-up">
   <img class="fs-field-info-img"
-       src="{{ $field->cover_image_path ? \Illuminate\Support\Facades\Storage::url($field->cover_image_path) : '/Images/hero-cancha.webp' }}"
+       src="{{ $field->cover_image_path ? \Illuminate\Support\Facades\Storage::url($field->cover_image_path) : '/images/hero-cancha.webp' }}"
        alt="{{ $field->name }}"
        data-aos="fade-right"
        loading="lazy">
@@ -1009,7 +1009,7 @@
 
 {{-- AVAILABILITY BLOCK --}}
 <div class="fs-avail-block" data-aos="fade-up" data-aos-duration="500">
-  <img class="fs-avail-ambient" src="/Images/complejo-esperando-jugadores.webp" alt="" aria-hidden="true" loading="lazy">
+  <img class="fs-avail-ambient" src="/images/complejo-esperando-jugadores.webp" alt="" aria-hidden="true" loading="lazy">
   <div style="display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; align-items:flex-end; margin-bottom:4px;">
     <div>
       <h2 class="fs-avail-title">
@@ -1102,7 +1102,7 @@
 <div id="payModal" style="display:none;" class="fs-modal-overlay">
   <div class="fs-modal">
     <div style="display:flex; align-items:center; gap:16px; margin-bottom:16px;">
-      <img src="/Images/reserva-confirmada.webp" alt="Reserva confirmada" loading="lazy"
+      <img src="/images/reserva-confirmada.webp" alt="Reserva confirmada" loading="lazy"
            style="width:100px; height:100px; object-fit:cover; border-radius:12px; flex-shrink:0;">
       <div>
         <div class="fs-checkmark" style="margin:0 0 8px 0;"><i data-lucide="check-circle" style="width:24px;height:24px;stroke:#22c55e;stroke-width:2;"></i></div>

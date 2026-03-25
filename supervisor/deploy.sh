@@ -19,6 +19,9 @@ npm run build
 echo "==> Running migrations..."
 $PHP artisan migrate --force
 
+echo "==> Linking storage..."
+$PHP artisan storage:link --force
+
 echo "==> Clearing and caching config, routes, views y events..."
 $PHP artisan config:clear
 $PHP artisan route:clear
