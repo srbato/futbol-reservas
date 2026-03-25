@@ -1,6 +1,14 @@
 @extends('layouts.app')
 
-@section('title', $field->name)
+@section('title', $field->name . ' — ' . $field->venue->name . ' | TuCancha')
+@section('meta_description', 'Reservá ' . $field->name . ' en ' . $field->venue->name . '. Cancha de ' . $field->sport . ' disponible online en TuCancha. Consultá horarios y confirmá tu turno.')
+@section('og_title', $field->name . ' — ' . $field->venue->name)
+@section('og_description', 'Reservá ' . $field->name . ' en ' . $field->venue->name . '. Cancha de ' . $field->sport . ' disponible online en TuCancha.')
+@if($field->cover_image_path)
+  @section('og_image', Storage::url($field->cover_image_path))
+@elseif($field->venue->cover_image_path)
+  @section('og_image', Storage::url($field->venue->cover_image_path))
+@endif
 
 @push('styles')
 <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">

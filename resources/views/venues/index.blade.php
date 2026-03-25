@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title','Encontrá tu cancha — TuCancha')
+@section('meta_description', 'Explorá todos los complejos deportivos disponibles en TuCancha. Filtrá por deporte, zona y horario. Reservá tu cancha online en segundos.')
 
 @push('styles')
 <style>

@@ -1,2 +1,8 @@
 User-agent: *
-Disallow:
+Disallow: /va/
+Disallow: /sa/
+Disallow: /profile/
+Disallow: /reservations/
+Disallow: /checkout/
+
+Sitemap: https://tucancha.com.ar/sitemap.xml

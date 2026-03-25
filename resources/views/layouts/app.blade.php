@@ -5,6 +5,25 @@
   <title>@yield('title', 'Reservas de canchas')</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
+  <meta name="description" content="@yield('meta_description', 'TuCancha — Reservá canchas de fútbol, tenis y más deportes online. Encontrá el complejo más cercano y confirmá tu turno al instante.')">
+  <link rel="canonical" href="{{ url()->current() }}">
+  {{-- Open Graph --}}
+  @php
+    $ogTitle = trim($__env->yieldContent('og_title')) ?: trim($__env->yieldContent('title')) ?: 'TuCancha';
+    $ogDesc  = trim($__env->yieldContent('og_description')) ?: trim($__env->yieldContent('meta_description')) ?: 'TuCancha — Reservá canchas de fútbol, tenis y más deportes online.';
+    $ogImage = trim($__env->yieldContent('og_image')) ?: asset('images/og-default.png');
+  @endphp
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="TuCancha">
+  <meta property="og:title" content="{{ $ogTitle }}">
+  <meta property="og:description" content="{{ $ogDesc }}">
+  <meta property="og:url" content="{{ url()->current() }}">
+  <meta property="og:image" content="{{ $ogImage }}">
+  {{-- Twitter Card --}}
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{ $ogTitle }}">
+  <meta name="twitter:description" content="{{ $ogDesc }}">
+  <meta name="twitter:image" content="{{ $ogImage }}">
 <style>
   * { box-sizing: border-box; }
 

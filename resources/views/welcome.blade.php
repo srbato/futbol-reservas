@@ -1,6 +1,7 @@
 @extends('layouts.marketing')
 
 @section('title', 'TuCancha — Reservá tu cancha al instante')
+@section('meta_description', 'Reservá canchas de fútbol, tenis, pádel y más en Argentina. Encontrá el complejo más cercano, elegí el horario y confirmá tu turno online al instante.')
 
 @push('styles')
 /* ── Smooth scroll global ────────────────────────── */

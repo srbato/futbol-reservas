@@ -1,6 +1,7 @@
 @extends('layouts.marketing')
 
 @section('title', 'Quiénes somos — TuCancha')
+@section('meta_description', 'Conocé el equipo detrás de TuCancha, la plataforma argentina de reservas deportivas online. Nuestra misión es conectar jugadores con los mejores complejos.')
 
 @push('styles')
   /* ── Hero ────────────────────────────────────────── */

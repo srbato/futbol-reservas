@@ -1,6 +1,7 @@
 @extends('layouts.marketing')
 
 @section('title', 'Cómo funciona — TuCancha')
+@section('meta_description', 'Aprendé cómo reservar canchas en TuCancha. Elegí el deporte, seleccioná el horario disponible y pagá online. Simple, rápido y sin llamadas.')
 
 @push('styles')
   /* ── Hero ────────────────────────────────────────── */

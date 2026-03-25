@@ -118,7 +118,9 @@
     <div class="px-6 pt-6 pb-4 border-b border-slate-800">
       <a href="{{ route('venues.index') }}" class="flex items-center gap-2">
         <img src="/images/logo-blanco.svg" alt="TuCancha" style="height:56px; width:auto; display:block;">
-        <span class="text-xs font-semibold text-indigo-400 uppercase tracking-widest">Admin</span>
+        <span class="text-xs font-semibold text-indigo-400 uppercase tracking-widest">
+          {{ auth()->user()->venuesAsStaff()->exists() && auth()->user()->role !== 'venue_admin' && auth()->user()->role !== 'super_admin' ? 'Empleado' : 'Admin' }}
+        </span>
       </a>
     </div>
 

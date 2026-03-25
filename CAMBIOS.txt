@@ -935,3 +935,199 @@ Archivos afectados cuando se haga:
 - routes/web.php (líneas ~243-295 batch success, ~300-354 reservation success)
 - Crear: app/Http/Controllers/MercadoPago/BatchSuccessController.php
 - Crear: app/Http/Controllers/MercadoPago/ReservationSuccessController.php
+
+[2026-03-25] — Fix logos no visibles en producción
+====================================================
+
+PROBLEMA:
+- Los logos y demás imágenes no se veían en producción (VPS DonWeb Linux).
+- Causa: la carpeta estaba guardada como public/Images/ (I mayúscula), pero
+  todas las referencias en el código usan /images/ (minúscula).
+- En Windows el filesystem es case-insensitive → funcionaba local.
+- En Linux el filesystem es case-sensitive → 404 en producción.
+
+SOLUCIÓN:
+- Se renombró public/Images/ → public/images/ usando git mv.
+- Commit: f6100c7
+- Push a origin/main y deploy al VPS.
+
+Archivos afectados:
+- public/images/* (17 archivos, incluye logos SVG y imágenes WebP del marketing)
+
+[2026-03-25] - Fix: imágenes no se veían en computadoras y teléfonos de otros usuarios
+- Causa: las vistas referenciaban /Images/ (con I mayúscula) pero la carpeta en el servidor Linux
+  es /images/ (minúscula). Linux es case-sensitive, Windows no → el dueño veía las imágenes
+  (desde caché o Windows), los demás recibían 404.
+- Fix: reemplazadas todas las ocurrencias de /Images/ por /images/ en 11 vistas blade.
+- Fix adicional: agregado `php artisan storage:link --force` al deploy.sh para asegurar el symlink.
+- Archivos: como-funciona.blade.php, falta-uno/index.blade.php, falta-uno/show.blade.php,
+  falta-uno/sport-profile/public-show.blade.php, fields/show.blade.php, nosotros.blade.php,
+  profile/edit.blade.php, venues/favorites.blade.php, venues/index.blade.php, venues/show.blade.php,
+  welcome.blade.php, supervisor/deploy.sh.
+
+[2026-03-25] - Fix: panel admin muestra "Empleado" para usuarios staff
+- El badge debajo del logo en el sidebar del panel admin ahora muestra "Empleado" si el usuario
+  es staff de algún complejo (sin ser venue_admin ni super_admin), y "Admin" para los demás.
+- Archivo: layouts/admin.blade.php.
+
+[2026-03-25] - SEO: meta tags, Open Graph y sitemap
+- Agregadas meta descriptions específicas en todas las páginas públicas (welcome, venues/index,
+  venues/show, fields/show, como-funciona, nosotros).
+- Open Graph y Twitter Card en ambos layouts (marketing y app) para que los links compartidos
+  en WhatsApp/redes muestren foto, título y descripción.
+- venues/show y fields/show tienen OG dinámico: usan la foto de portada del complejo/cancha.
+- Nuevo sitemap XML en /sitemap.xml que incluye todas las páginas estáticas, complejos y canchas activas.
+- robots.txt actualizado: bloquea rutas privadas (/va/, /sa/, /profile/, etc.) y referencia el sitemap.
+- Nuevos archivos: app/Http/Controllers/SitemapController.php, resources/views/sitemap.blade.php.
+- Archivos modificados: layouts/marketing.blade.php, layouts/app.blade.php, welcome.blade.php,
+  venues/index.blade.php, venues/show.blade.php, fields/show.blade.php, como-funciona.blade.php,
+  nosotros.blade.php, routes/web.php, public/robots.txt.
+
+[2026-03-25] - Correcciones de bugs críticos (auditoría interna)
+- #1 Race condition doble email en reservas: reservation-success usa DB::transaction + lockForUpdate().
+  Solo envía emails si fue esta request la que marcó la reserva como PAID (no el webhook simultáneo).
+- #2 Batch success no enviaba emails: ahora envía BatchReservationPaidMail al usuario y
+  VenueAdminBatchReservationMail al admin del venue, con protección contra doble envío.
+- #3 Campos de pago vacíos en reservas batch: las reservas individuales de un batch ahora guardan
+  payment_provider, payment_external_id y payment_mp_token_owner.
+- #4 Notificación interna no enviada desde webhook: ReservationConfirmedNotification ahora también
+  se envía desde handleReservationPayment() en el webhook, no solo desde la success URL.
+- #5 Webhook sin secret: si MERCADOPAGO_WEBHOOK_SECRET está vacío se omite la verificación de firma
+  (comportamiento anterior preservado) pero se loguea un warning. Si está configurado, verifica HMAC.
+- #6 Campo referral_code faltante en membresía: agregado campo opcional "Código de referido" en
+  el formulario de become-partner.
+- #7 Preapproval sin status: agregado 'status' => 'pending' al payload de MercadoPagoSubscriptionService.
+- #8 Crash en /planes sin planes en DB: protegidos los accesos a $plans->first() con @if($plans->isNotEmpty()).
+- #9 $availableReward ignorada en checkout: se muestra banner verde cuando hay crédito de referido disponible.
+- #10 Datos de reserva expuestos: rutas /reservation-success, /reservation-pending y /reservation-failure
+  ahora requieren auth y verifican que el usuario sea el dueño de la reserva.
+- #11 OAuth MP dominio deprecado: cambiado de auth.mercadopago.com.ar a auth.mercadopago.com.
+- Archivos: routes/web.php, MercadoPagoWebhookController.php, MercadoPagoSubscriptionService.php,
+  MercadoPagoOAuthController.php, membership/become-partner.blade.php, checkout/show.blade.php,
+  planes.blade.php.
+
+
+================================================================================
+MEJORAS PENDIENTES — BACKLOG DE PRODUCTO (generado 2026-03-25)
+================================================================================
+Estas son oportunidades de mejora y features detectados en auditoría de producto.
+No están implementadas. Se listan para implementar en el futuro.
+
+--- IMPACTO ALTO ---
+
++----+-----------------------------------------------+--------------------------------------------------------------+------------+
+| #  | Feature                                       | Por qué importa                                              | Complejidad|
++----+-----------------------------------------------+--------------------------------------------------------------+------------+
+| 1  | Habilitar referidos para usuarios comunes     | Backend 100% completo. Solo bloqueado por role:super_admin   | Baja       |
+|    |                                               | en routes/web.php (líneas ~198-242). Crecimiento orgánico    |            |
+|    |                                               | sin costo.                                                   |            |
++----+-----------------------------------------------+--------------------------------------------------------------+------------+
+| 2  | BUG: índice único faltante en reseñas         | Migración eliminó UNIQUE(venue_id, user_id). Dos requests    | Baja       |
+|    |                                               | simultáneos pueden inflar puntuación del complejo. Requiere  |            |
+|    |                                               | una migración que lo re-agregue.                             |            |
++----+-----------------------------------------------+--------------------------------------------------------------+------------+
+| 3  | Búsqueda por geolocalización (radio)          | lat/lng ya están en la tabla venues. Solo falta capturar     | Media      |
+|    |                                               | navigator.geolocation en el frontend y ordenar por distancia |            |
+|    |                                               | haversine. Caso de uso más natural para usuario móvil.       |            |
++----+-----------------------------------------------+--------------------------------------------------------------+------------+
+| 4  | Pago con seña (parcial)                       | Muchos complejos en Argentina aceptan 50% para confirmar y   | Alta       |
+|    |                                               | el resto se paga en el lugar. Requiere campo de política en  |            |
+|    |                                               | venues/fields y lógica de precio parcial en ReservationService.|            |
++----+-----------------------------------------------+--------------------------------------------------------------+------------+
+| 5  | Notificaciones push / web push                | Email tiene baja tasa de apertura. FCM/OneSignal son         | Media-Alta |
+|    |                                               | gratuitos en volumen inicial. Las notificaciones existentes  |            |
+|    |                                               | ya usan via() — solo agregar canal broadcast.                |            |
++----+-----------------------------------------------+--------------------------------------------------------------+------------+
+| 6  | Reseñas por cancha individual (no solo venue) | Gap vs competencia. Si un complejo tiene una cancha buena    | Media      |
+|    |                                               | y una mala, el usuario no puede distinguirlo. Requiere       |            |
+|    |                                               | modelo FieldReview y ajuste en FieldController@show.         |            |
++----+-----------------------------------------------+--------------------------------------------------------------+------------+
+| 7  | Reserva manual: asociar a cliente real        | Hoy user_id de la reserva manual es el venue_admin, no el   | Media      |
+|    |                                               | jugador. Los reportes de clientes quedan incorrectos.        |            |
+|    |                                               | Agregar campos opcionales de nombre cliente y monto cobrado. |            |
++----+-----------------------------------------------+--------------------------------------------------------------+------------+
+
+--- IMPACTO MEDIO ---
+
++----+-----------------------------------------------+--------------------------------------------------------------+------------+
+| #  | Feature                                       | Por qué importa                                              | Complejidad|
++----+-----------------------------------------------+--------------------------------------------------------------+------------+
+| 8  | Agregar teléfono al perfil de usuario         | Prerequisito para WhatsApp, útil para Falta Uno y para el   | Baja       |
+|    |                                               | complejo. Solo migración + campo en formulario de perfil.    |            |
++----+-----------------------------------------------+--------------------------------------------------------------+------------+
+| 9  | Vista semanal en agenda del venue_admin       | Hoy solo ve un día a la vez. El estándar es vista semanal   | Media      |
+|    |                                               | (Calendly, Fresha). La lógica de slots ya existe, iterar     |            |
+|    |                                               | 7 días y adaptar la grilla.                                  |            |
++----+-----------------------------------------------+--------------------------------------------------------------+------------+
+| 10 | Lista de espera en Falta Uno                  | Cuando un partido está lleno, no hay forma de anotarse y     | Media      |
+|    |                                               | ser notificado si alguien se cae. Nuevo estado waitlist en  |            |
+|    |                                               | FaltaUnoParticipant + promoción automática + notificación.   |            |
++----+-----------------------------------------------+--------------------------------------------------------------+------------+
+| 11 | Galería de fotos en complejos                 | En Argentina la decisión de reservar se toma por las fotos. | Media      |
+|    |                                               | Hoy solo hay 1 imagen de portada. Requiere tabla venue_images|            |
+|    |                                               | y carousel en la vista pública.                              |            |
++----+-----------------------------------------------+--------------------------------------------------------------+------------+
+| 12 | Modificar reserva (cambiar horario)           | Hoy solo se puede cancelar. Empuja al usuario a coordinarse  | Alta       |
+|    |                                               | por WhatsApp fuera de la plataforma. Requiere política de    |            |
+|    |                                               | modificación, lógica de diferencia de precio y reembolso.   |            |
++----+-----------------------------------------------+--------------------------------------------------------------+------------+
+| 13 | Integración WhatsApp para notificaciones      | Tasa de apertura >90% vs 20-30% del email. El recordatorio  | Media      |
+|    |                                               | de reserva (ya existe por email) sería mucho más efectivo.  |            |
+|    |                                               | Requiere Twilio/WABA + campo teléfono en User (#8).          |            |
++----+-----------------------------------------------+--------------------------------------------------------------+------------+
+| 14 | Cupones de descuento para usuarios            | Marketing de adquisición: primera reserva, código de         | Media      |
+|    |                                               | influencer. Distinto al sistema de referidos existente       |            |
+|    |                                               | (los cupones son de distribución masiva). Tabla coupons.     |            |
++----+-----------------------------------------------+--------------------------------------------------------------+------------+
+| 15 | Mejorar reportes del venue_admin              | Faltan: comparativa entre canchas del mismo complejo, cruce  | Media      |
+|    |                                               | ingresos/franja horaria, export a PDF (hoy solo CSV).        |            |
++----+-----------------------------------------------+--------------------------------------------------------------+------------+
+| 16 | Permitir múltiples complejos por venue_admin  | Hay cadenas con 2-3 locaciones. Hoy está hardcodeado el      | Media      |
+|    |                                               | límite de 1 en VenueController@create. Agregar max_venues   |            |
+|    |                                               | al plan o simplemente remover la restricción.                |            |
++----+-----------------------------------------------+--------------------------------------------------------------+------------+
+
+--- IMPACTO BAJO ---
+
++----+-----------------------------------------------+--------------------------------------------------------------+------------+
+| #  | Feature                                       | Por qué importa                                              | Complejidad|
++----+-----------------------------------------------+--------------------------------------------------------------+------------+
+| 17 | QR en checkin (en lugar de código manual)     | Hoy el código se tipea a mano. Leer QR con cámara sería     | Baja       |
+|    |                                               | mucho más ágil. El backend no cambia. html5-qrcode o ZXing. |            |
++----+-----------------------------------------------+--------------------------------------------------------------+------------+
+| 18 | Filtro de zona en Falta Uno                   | Hoy mezcla partidos de todo Buenos Aires sin filtro          | Baja       |
+|    |                                               | geográfico. Agregar select de zona al filtro existente       |            |
+|    |                                               | con JOIN a venues.                                           |            |
++----+-----------------------------------------------+--------------------------------------------------------------+------------+
+| 19 | Onboarding guiado para venue_admin nuevo      | Sin guía, los admins abandonan el setup a mitad y el         | Baja-Media |
+|    |                                               | complejo queda inactivo. Barra de progreso con checklist de  |            |
+|    |                                               | completitud en el dashboard, sin cambios de backend.         |            |
++----+-----------------------------------------------+--------------------------------------------------------------+------------+
+| 20 | Gasto total por complejo en match history     | "Este mes gasté X pesos" — genera engagement y valor         | Baja       |
+|    |                                               | percibido. Query adicional agrupada por venue y por mes      |            |
+|    |                                               | en MatchHistoryController.                                   |            |
++----+-----------------------------------------------+--------------------------------------------------------------+------------+
+| 21 | Sugerir un complejo (para usuarios)           | Convierte al usuario frustrado (sin canchas en su zona) en  | Baja       |
+|    |                                               | lead de venue_admin. Formulario simple que envía email al   |            |
+|    |                                               | superadmin.                                                  |            |
++----+-----------------------------------------------+--------------------------------------------------------------+------------+
+| 22 | Login con Facebook                            | Socialite ya está en el stack. Alta penetración en el        | Baja-Media |
+|    |                                               | segmento 35-50 años. Agregar provider de Facebook similar    |            |
+|    |                                               | al de Google ya implementado.                                |            |
++----+-----------------------------------------------+--------------------------------------------------------------+------------+
+| 23 | Precios variables por demanda (yield mgmt)    | Slots vacíos con <24hs se venden a precio reducido           | Muy Alta   |
+|    |                                               | automáticamente. Feature avanzado que diferencia plataformas |            |
+|    |                                               | maduras. Sistema de reglas de precios dinámicos.             |            |
++----+-----------------------------------------------+--------------------------------------------------------------+------------+
+| 24 | Sistema de torneos / fixtures                 | Fútbol de empresa, ligas de amigos y torneos de pádel son   | Muy Alta   |
+|    |                                               | enormemente populares en Argentina. Requeriría un módulo     |            |
+|    |                                               | independiente con fixtures, grupos y standings. Es casi      |            |
+|    |                                               | un producto nuevo.                                           |            |
++----+-----------------------------------------------+--------------------------------------------------------------+------------+
+
+TOP 5 PARA CUANDO SE RETOME:
+  1. Habilitar referidos (#1)  — 0 backend, solo cambiar middleware en routes/web.php
+  2. Fix índice único reseñas (#2) — 1 migración, evita bug de integridad real
+  3. Teléfono en perfil de usuario (#8) — prerequisito para varios features futuros
+  4. QR en checkin (#17) — bajo esfuerzo, alto impacto operacional
+  5. Filtro de zona en Falta Uno (#18) — rápido de implementar, muy relevante en Argentina

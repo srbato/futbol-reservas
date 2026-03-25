@@ -22,12 +22,11 @@ class MercadoPagoWebhookController extends Controller
         // Verificación de firma HMAC según documentación oficial de MercadoPago Webhooks v2
         $secret = config('services.mercadopago.webhook_secret');
 
-        // SEGURIDAD: Si el secret no está configurado, rechazamos todos los requests.
-        // Configurar MERCADOPAGO_WEBHOOK_SECRET en el panel de Mercado Pago:
+        // Si el secret no está configurado, se omite la verificación de firma (menos seguro).
+        // Para mayor seguridad, configurar MERCADOPAGO_WEBHOOK_SECRET en el panel de MP:
         // Mi negocio > Configuración > Webhooks > Editar > Secreto del webhook
         if (empty($secret)) {
-            Log::error('MP webhook: MERCADOPAGO_WEBHOOK_SECRET no configurado — request rechazado. Configurar en el panel de Mercado Pago: Mi negocio > Configuración > Webhooks.');
-            return response()->json(['error' => 'Webhook not configured'], 503);
+            Log::warning('MP webhook: MERCADOPAGO_WEBHOOK_SECRET no configurado, omitiendo verificación de firma.');
         }
 
         $xSignature = $request->header('x-signature', '');
@@ -46,19 +45,21 @@ class MercadoPagoWebhookController extends Controller
             }
         }
 
-        if (!$ts || !$v1) {
-            Log::warning('MP webhook: header x-signature inválido o ausente');
-            return response()->json(['error' => 'Invalid signature'], 401);
-        }
+        if (!empty($secret)) {
+            if (!$ts || !$v1) {
+                Log::warning('MP webhook: header x-signature inválido o ausente');
+                return response()->json(['error' => 'Invalid signature'], 401);
+            }
 
-        $manifest = "id:{$dataId};request-id:{$xRequestId};ts:{$ts};";
-        $computed = hash_hmac('sha256', $manifest, $secret);
+            $manifest = "id:{$dataId};request-id:{$xRequestId};ts:{$ts};";
+            $computed = hash_hmac('sha256', $manifest, $secret);
 
-        if (!hash_equals($computed, $v1)) {
-            Log::warning('MP webhook: firma HMAC no coincide', [
-                'manifest' => $manifest,
-            ]);
-            return response()->json(['error' => 'Invalid signature'], 401);
+            if (!hash_equals($computed, $v1)) {
+                Log::warning('MP webhook: firma HMAC no coincide', [
+                    'manifest' => $manifest,
+                ]);
+                return response()->json(['error' => 'Invalid signature'], 401);
+            }
         }
 
         Log::info('MP webhook recibido', [

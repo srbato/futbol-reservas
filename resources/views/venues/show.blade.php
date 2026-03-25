@@ -1,6 +1,12 @@
 @extends('layouts.app')
 
-@section('title', $venue->name)
+@section('title', $venue->name . ' — TuCancha')
+@section('meta_description', ($venue->description ? Str::limit($venue->description, 155) : 'Reservá canchas en ' . $venue->name . '. ' . ($venue->address ?? '') . ' Consultá disponibilidad y confirmá tu turno online en TuCancha.'))
+@section('og_title', $venue->name . ' — Reservas en TuCancha')
+@section('og_description', ($venue->description ? Str::limit($venue->description, 155) : 'Reservá canchas en ' . $venue->name . '. Consultá disponibilidad y confirmá tu turno online.'))
+@if($venue->cover_image_path)
+  @section('og_image', Storage::url($venue->cover_image_path))
+@endif
 
 @push('styles')
 <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
