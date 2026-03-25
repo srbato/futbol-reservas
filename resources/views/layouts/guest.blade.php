@@ -6,6 +6,7 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
 <title>{{ config('app.name', 'TuCancha') }}</title>
+<link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
 
 <style>
 * { box-sizing:border-box; }
@@ -32,10 +33,24 @@ align-items:center;
 }
 
 .brand{
-font-size:20px;
-font-weight:800;
+display:flex;
+align-items:center;
 text-decoration:none;
-color:#111;
+}
+.brand-full{
+height:56px;
+width:auto;
+display:block;
+}
+.brand-icon{
+height:56px;
+width:56px;
+display:none;
+}
+
+@media (max-width:639px){
+  .brand-full{display:none;}
+  .brand-icon{display:block;}
 }
 
 /* MAIN */
@@ -120,7 +135,10 @@ color:#666;
 <body>
 
 <header class="auth-header">
-<a href="{{ route('venues.index') }}" class="brand">TuCancha</a>
+<a href="{{ route('home') }}" class="brand">
+  <img src="/images/logo-multicolor.svg" alt="TuCancha" class="brand-full">
+  <img src="/images/logo-multicolor-responsive.svg" alt="TuCancha" class="brand-icon">
+</a>
 
 <div>
 <a href="{{ route('venues.index') }}">Ver complejos</a>

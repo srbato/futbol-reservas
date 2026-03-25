@@ -132,9 +132,39 @@
         grid-template-columns: 1fr !important;
       }
     }
+    @keyframes mp-spin { to { transform: rotate(360deg); } }
+    .mp-spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2.5px solid rgba(255,255,255,.35);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: mp-spin .7s linear infinite;
+      vertical-align: middle;
+      margin-right: 7px;
+      flex-shrink: 0;
+    }
   </style>
 
   <script>
+    // Loading state al pagar con MP
+    document.addEventListener('DOMContentLoaded', function () {
+      const form = document.getElementById('mercadoPagoCheckoutForm');
+      if (!form) return;
+      form.addEventListener('submit', function () {
+        const btn = document.getElementById('checkoutPayButton');
+        if (!btn) return;
+        btn.disabled = true;
+        btn.style.opacity = '.75';
+        btn.style.cursor = 'default';
+        btn.style.transform = 'none';
+        btn.style.display = 'inline-flex';
+        btn.style.alignItems = 'center';
+        btn.innerHTML = '<span class="mp-spinner"></span>Redirigiendo a Mercado Pago&hellip;';
+      });
+    });
+
     function markCheckoutAsExpired() {
       const statusBox = document.getElementById('checkoutStatusBox');
       const payForm = document.getElementById('mercadoPagoCheckoutForm');

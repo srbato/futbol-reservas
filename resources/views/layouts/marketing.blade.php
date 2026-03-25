@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <title>@yield('title', 'TuCancha')</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
   <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; }
@@ -50,9 +51,19 @@
     }
 
     .brand {
-      font-size: 22px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+    }
+    .brand-full {
+      height: 64px;
+      width: auto;
+      display: block;
+    }
+    .brand-icon {
+      height: 64px;
+      width: 64px;
+      display: none;
     }
 
     .nav {
@@ -162,10 +173,10 @@
       flex-wrap: wrap;
     }
 
-    .footer-brand {
-      font-size: 20px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
+    .footer-brand img {
+      height: 30px;
+      width: auto;
+      display: block;
     }
 
     .footer-links {
@@ -260,6 +271,11 @@
       .footer-links { gap: 12px; }
     }
 
+    @media (max-width: 639px) {
+      .brand-full { display: none; }
+      .brand-icon { display: block; }
+    }
+
     @media (max-width: 640px) {
       .header { position: relative; }
       .header.nav-hidden { transform: none; }
@@ -279,7 +295,10 @@
 
   <header class="header">
     <div class="header-inner">
-      <a href="{{ route('home') }}" class="brand">TuCancha</a>
+      <a href="{{ route('home') }}" class="brand">
+        <img src="/images/logo-multicolor.svg" alt="TuCancha" class="brand-full">
+        <img src="/images/logo-multicolor-responsive.svg" alt="TuCancha" class="brand-icon">
+      </a>
 
       <nav class="nav">
         <a href="{{ url('/como-funciona') }}" class="{{ request()->routeIs('como-funciona') ? 'active' : '' }}">Cómo funciona</a>
@@ -322,7 +341,7 @@
   <footer class="footer">
     <div class="container">
       <div class="footer-inner">
-        <span class="footer-brand">TuCancha</span>
+        <span class="footer-brand"><img src="/images/logo-multicolor.svg" alt="TuCancha"></span>
         <div class="footer-links">
           <a href="{{ route('home') }}">Inicio</a>
           <a href="{{ url('/como-funciona') }}">Cómo funciona</a>

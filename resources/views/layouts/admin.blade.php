@@ -4,8 +4,98 @@
   <meta charset="utf-8">
   <title>@yield('title', 'Panel admin') · TuCancha</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
   @vite(['resources/css/app.css', 'resources/js/app.js'])
   @stack('styles')
+  <style>
+    /* ── Admin layout estructural (no depende de Tailwind responsive) ── */
+    * { box-sizing: border-box; }
+
+    .admin-wrap {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* SIDEBAR — mobile: fixed, oculto off-screen */
+    .admin-sidebar {
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      width: 256px;
+      z-index: 40;
+      transform: translateX(-100%);
+      transition: transform .3s ease;
+      overflow-y: auto;
+      flex-shrink: 0;
+      /* Ocultar scrollbar en todos los navegadores */
+      scrollbar-width: none;        /* Firefox */
+      -ms-overflow-style: none;     /* IE / Edge legacy */
+    }
+    .admin-sidebar::-webkit-scrollbar {
+      display: none;                /* Chrome, Safari, Opera */
+    }
+    .admin-sidebar.is-open {
+      transform: translateX(0);
+    }
+
+    /* Nav interna del sidebar — también ocultar su scrollbar */
+    .admin-sidebar nav {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .admin-sidebar nav::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* OVERLAY — solo mobile */
+    .admin-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.5);
+      z-index: 30;
+    }
+    .admin-overlay.is-open {
+      display: block;
+    }
+
+    /* MAIN — ocupa todo el ancho en mobile */
+    .admin-main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      /* Fondo explícito para evitar que el bg-slate-100 del body
+         se cuele detrás del contenido en mobile */
+      background-color: #f1f5f9; /* slate-100 */
+    }
+
+    /* TOPBAR — evitar que badge y fecha compriman el título en mobile */
+    .admin-topbar-right {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* En pantallas muy chicas (< 400px) ocultar la fecha del topbar */
+    @media (max-width: 399px) {
+      .admin-topbar-date {
+        display: none;
+      }
+    }
+
+    /* DESKTOP (≥1024px): sidebar sticky en el flow, sin overlay */
+    @media (min-width: 1024px) {
+      .admin-sidebar {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        transform: translateX(0) !important;
+      }
+      .admin-overlay { display: none !important; }
+      .admin-hamburger { display: none !important; }
+    }
+  </style>
 </head>
 <body class="bg-slate-100 text-slate-900 antialiased">
 
@@ -17,21 +107,17 @@
 @endphp
 
 {{-- Overlay para cerrar sidebar en mobile --}}
-<div id="sidebarOverlay"
-     onclick="closeSidebar()"
-     class="fixed inset-0 bg-black/50 z-30 hidden lg:hidden"></div>
+<div id="sidebarOverlay" class="admin-overlay" onclick="closeSidebar()"></div>
 
-<div class="flex min-h-screen">
+<div class="admin-wrap">
 
   {{-- ── SIDEBAR ── --}}
-  <aside id="adminSidebar"
-         class="fixed lg:static inset-y-0 left-0 z-40 w-64 flex-shrink-0 bg-slate-900 flex flex-col
-                -translate-x-full lg:translate-x-0 transition-transform duration-300">
+  <aside id="adminSidebar" class="admin-sidebar bg-slate-900 flex flex-col">
 
     {{-- Brand --}}
     <div class="px-6 pt-6 pb-4 border-b border-slate-800">
-      <a href="{{ route('home') ?? url('/') }}" class="flex items-center gap-2">
-        <span class="text-white font-extrabold text-xl tracking-tight">TuCancha</span>
+      <a href="{{ route('venues.index') }}" class="flex items-center gap-2">
+        <img src="/images/logo-blanco.svg" alt="TuCancha" style="height:56px; width:auto; display:block;">
         <span class="text-xs font-semibold text-indigo-400 uppercase tracking-widest">Admin</span>
       </a>
     </div>
@@ -222,19 +308,17 @@
 
   </aside>
 
-  {{-- Spacer para reservar ancho del sidebar en desktop --}}
-  <div class="hidden lg:block w-64 flex-shrink-0"></div>
-
   {{-- ── MAIN ── --}}
-  <div class="flex-1 flex flex-col min-w-0">
+  <div class="admin-main">
 
     {{-- Topbar --}}
     <header class="bg-white border-b border-slate-200 px-4 lg:px-8 py-3 lg:py-4 flex items-center justify-between gap-4">
       <div class="flex items-center gap-3">
         {{-- Botón hamburguesa visible solo en mobile --}}
         <button type="button"
+                id="adminHamburger"
                 onclick="toggleSidebar()"
-                class="lg:hidden inline-flex items-center justify-center w-9 h-9 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors flex-shrink-0"
+                class="admin-hamburger inline-flex items-center justify-center w-9 h-9 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors flex-shrink-0"
                 aria-label="Abrir menú">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
@@ -249,13 +333,13 @@
           <h1 class="text-base lg:text-xl font-bold text-slate-900 leading-tight">@yield('page_title', 'Panel admin')</h1>
         </div>
       </div>
-      <div class="flex items-center gap-3">
+      <div class="admin-topbar-right">
         @if(auth()->user()->role === 'super_admin')
-          <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700 uppercase tracking-widest">
+          <span class="hidden sm:inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700 uppercase tracking-widest">
             Superadmin
           </span>
         @endif
-        <span class="text-xs text-slate-400">{{ now()->format('d/m/Y') }}</span>
+        <span class="admin-topbar-date text-xs text-slate-400">{{ now()->format('d/m/Y') }}</span>
       </div>
     </header>
 
@@ -321,27 +405,15 @@
   function toggleSidebar() {
     const sidebar  = document.getElementById('adminSidebar');
     const overlay  = document.getElementById('sidebarOverlay');
-    const isOpen   = !sidebar.classList.contains('-translate-x-full');
-    if (isOpen) {
-      sidebar.classList.add('-translate-x-full');
-      overlay.classList.add('hidden');
-    } else {
-      sidebar.classList.remove('-translate-x-full');
-      overlay.classList.remove('hidden');
-    }
+    const isOpen   = sidebar.classList.contains('is-open');
+    sidebar.classList.toggle('is-open', !isOpen);
+    overlay.classList.toggle('is-open', !isOpen);
   }
 
   function closeSidebar() {
-    document.getElementById('adminSidebar').classList.add('-translate-x-full');
-    document.getElementById('sidebarOverlay').classList.add('hidden');
+    document.getElementById('adminSidebar').classList.remove('is-open');
+    document.getElementById('sidebarOverlay').classList.remove('is-open');
   }
-
-  // Cerrar sidebar al hacer resize a desktop
-  window.addEventListener('resize', function () {
-    if (window.innerWidth >= 1024) {
-      document.getElementById('sidebarOverlay').classList.add('hidden');
-    }
-  });
 </script>
 </body>
 </html>

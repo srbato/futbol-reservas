@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <title>@yield('title', 'Reservas de canchas')</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
 <style>
   * { box-sizing: border-box; }
 
@@ -39,9 +40,24 @@
   }
 
   .brand {
-    font-size: 20px;
-    font-weight: 800;
+    display: flex;
+    align-items: center;
     text-decoration: none;
+  }
+  .brand-full {
+    height: 64px;
+    width: auto;
+    display: block;
+  }
+  .brand-icon {
+    height: 64px;
+    width: 64px;
+    display: none;
+  }
+
+  @media (max-width: 639px) {
+    .brand-full { display: none; }
+    .brand-icon { display: block; }
   }
 
   .site-nav {
@@ -933,7 +949,10 @@
 <body>
 <header class="site-header" style="position:relative;">
     <div class="site-header-inner">
-      <a href="{{ route('home') }}" class="brand">TuCancha</a>
+      <a href="{{ route('home') }}" class="brand">
+        <img src="/images/logo-multicolor.svg" alt="TuCancha" class="brand-full">
+        <img src="/images/logo-multicolor-responsive.svg" alt="TuCancha" class="brand-icon">
+      </a>
 
       @auth
       {{-- Nav autenticada: oculta en mobile (manejada por hamburguesa) --}}

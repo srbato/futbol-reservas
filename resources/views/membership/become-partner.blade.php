@@ -238,7 +238,7 @@
             </div>
           @else
             {{-- No trial: show normal MP checkout form --}}
-            <form method="POST" action="{{ route('membership.checkout') }}">
+            <form method="POST" action="{{ route('membership.checkout') }}" id="membershipCheckoutForm">
               @csrf
               <input type="hidden" name="plan_slug" value="{{ $plan->slug }}">
               <input type="hidden" name="billing_cycle" value="{{ $billingCycle }}">
@@ -257,7 +257,7 @@
                 </div>
               </div>
 
-              <button type="submit" class="btn btn-primary">
+              <button type="submit" class="btn btn-primary" id="membershipPayButton">
                 {{ $isExpired || $isTrialExpired ? 'Contratar plan ' . $plan->name : 'Activar plan ' . $plan->name }}
               </button>
             </form>
@@ -352,3 +352,38 @@
   @endif {{-- isVenueStaff --}}
 
 @endsection
+
+@push('scripts')
+<style>
+  @keyframes mp-spin { to { transform: rotate(360deg); } }
+  .mp-spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2.5px solid rgba(255,255,255,.35);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: mp-spin .7s linear infinite;
+    vertical-align: middle;
+    margin-right: 7px;
+    flex-shrink: 0;
+  }
+</style>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('membershipCheckoutForm');
+    if (!form) return;
+    form.addEventListener('submit', function () {
+      const btn = document.getElementById('membershipPayButton');
+      if (!btn) return;
+      btn.disabled = true;
+      btn.style.opacity = '.75';
+      btn.style.cursor = 'default';
+      btn.style.transform = 'none';
+      btn.style.display = 'inline-flex';
+      btn.style.alignItems = 'center';
+      btn.innerHTML = '<span class="mp-spinner"></span>Redirigiendo a Mercado Pago&hellip;';
+    });
+  });
+</script>
+@endpush
