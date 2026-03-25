@@ -257,6 +257,20 @@
                 </div>
               </div>
 
+              <div style="margin-bottom:16px;">
+                <label style="display:block; font-size:13px; color:#666; margin-bottom:6px;">
+                  Código de referido <span style="color:#999; font-weight:400;">(opcional)</span>
+                </label>
+                <input type="text" name="referral_code"
+                  placeholder="Ej: ABC123"
+                  value="{{ old('referral_code') }}"
+                  maxlength="32"
+                  style="padding:10px 14px; border:1px solid #ddd; border-radius:10px; font-size:14px; width:100%; max-width:320px; text-transform:uppercase;">
+                <div style="font-size:12px; color:#999; margin-top:5px; line-height:1.5;">
+                  Si te recomendó alguien, ingresá su código aquí.
+                </div>
+              </div>
+
               <button type="submit" class="btn btn-primary" id="membershipPayButton">
                 {{ $isExpired || $isTrialExpired ? 'Contratar plan ' . $plan->name : 'Activar plan ' . $plan->name }}
               </button>

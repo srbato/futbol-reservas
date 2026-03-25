@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\ReservationPaidMail;
+use App\Notifications\ReservationConfirmedNotification;
 use App\Models\PlatformPayout;
 use App\Models\Reservation;
 use App\Models\ReservationBatch;
@@ -21,37 +22,43 @@ class MercadoPagoWebhookController extends Controller
         // Verificación de firma HMAC según documentación oficial de MercadoPago Webhooks v2
         $secret = config('services.mercadopago.webhook_secret');
 
-        if (!empty($secret)) {
-            $xSignature = $request->header('x-signature', '');
-            $xRequestId = $request->header('x-request-id', '');
-            $dataId     = $request->input('data.id') ?? $request->input('id');
+        // SEGURIDAD: Si el secret no está configurado, rechazamos todos los requests.
+        // Configurar MERCADOPAGO_WEBHOOK_SECRET en el panel de Mercado Pago:
+        // Mi negocio > Configuración > Webhooks > Editar > Secreto del webhook
+        if (empty($secret)) {
+            Log::error('MP webhook: MERCADOPAGO_WEBHOOK_SECRET no configurado — request rechazado. Configurar en el panel de Mercado Pago: Mi negocio > Configuración > Webhooks.');
+            return response()->json(['error' => 'Webhook not configured'], 503);
+        }
 
-            // Parsear ts y v1 del header x-signature (formato: ts=TIMESTAMP,v1=HASH)
-            $ts = null;
-            $v1 = null;
-            foreach (explode(',', $xSignature) as $part) {
-                [$key, $value] = array_pad(explode('=', $part, 2), 2, '');
-                if ($key === 'ts') {
-                    $ts = $value;
-                } elseif ($key === 'v1') {
-                    $v1 = $value;
-                }
+        $xSignature = $request->header('x-signature', '');
+        $xRequestId = $request->header('x-request-id', '');
+        $dataId     = $request->input('data.id') ?? $request->input('id');
+
+        // Parsear ts y v1 del header x-signature (formato: ts=TIMESTAMP,v1=HASH)
+        $ts = null;
+        $v1 = null;
+        foreach (explode(',', $xSignature) as $part) {
+            [$key, $value] = array_pad(explode('=', $part, 2), 2, '');
+            if ($key === 'ts') {
+                $ts = $value;
+            } elseif ($key === 'v1') {
+                $v1 = $value;
             }
+        }
 
-            if (!$ts || !$v1) {
-                Log::warning('MP webhook: header x-signature inválido o ausente');
-                return response()->json(['error' => 'Invalid signature'], 401);
-            }
+        if (!$ts || !$v1) {
+            Log::warning('MP webhook: header x-signature inválido o ausente');
+            return response()->json(['error' => 'Invalid signature'], 401);
+        }
 
-            $manifest = "id:{$dataId};request-id:{$xRequestId};ts:{$ts};";
-            $computed = hash_hmac('sha256', $manifest, $secret);
+        $manifest = "id:{$dataId};request-id:{$xRequestId};ts:{$ts};";
+        $computed = hash_hmac('sha256', $manifest, $secret);
 
-            if (!hash_equals($computed, $v1)) {
-                Log::warning('MP webhook: firma HMAC no coincide', [
-                    'manifest' => $manifest,
-                ]);
-                return response()->json(['error' => 'Invalid signature'], 401);
-            }
+        if (!hash_equals($computed, $v1)) {
+            Log::warning('MP webhook: firma HMAC no coincide', [
+                'manifest' => $manifest,
+            ]);
+            return response()->json(['error' => 'Invalid signature'], 401);
         }
 
         Log::info('MP webhook recibido', [
@@ -332,6 +339,8 @@ class MercadoPagoWebhookController extends Controller
 
             Mail::to($reservation->user->email)
                 ->send(new ReservationPaidMail($reservation));
+
+            $reservation->user->notify(new ReservationConfirmedNotification($reservation));
 
             $venueOwner = $reservation->field->venue->owner;
             if ($venueOwner && $venueOwner->email) {

@@ -17,6 +17,7 @@ use App\Http\Controllers\ReservationBatchMercadoPagoController;
 use App\Http\Controllers\VenueAdmin\FieldRecurringDiscountController as VaFieldRecurringDiscountController;
 use App\Http\Controllers\ReservationViewController;
 use App\Http\Controllers\SystemMessageDismissController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\VenueController;
 use App\Http\Controllers\VenueReviewController;
 use App\Http\Controllers\SuperAdmin\PlatformPayoutController;
@@ -143,6 +144,7 @@ Route::middleware(['auth', 'active.user'])->group(function () {
 |--------------------------------------------------------------------------
 */
 
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/venues', [VenueController::class, 'index'])->name('venues.index');
 Route::get('/venues/{venue}', [VenueController::class, 'show'])->name('venues.show');
 Route::get('/falta-uno', [FaltaUnoController::class, 'index'])->name('falta-uno.index');
@@ -271,13 +273,39 @@ Route::middleware(['auth'])->group(function () {
                 if ($mpResponse->successful()) {
                     $payment  = ($mpResponse->json('results') ?? [])[0] ?? null;
                     if (($payment['status'] ?? null) === 'approved') {
-                        // Re-usar la lógica del webhook disparando un request interno no es trivial,
-                        // así que actualizamos el batch directamente
-                        $batch->reservations->each(fn($r) => $r->update(['status' => 'PAID', 'expires_at' => null]));
-                        $batch->update(['status' => 'PAID', 'payment_status' => 'approved',
-                            'payment_external_id' => (string) ($payment['id'] ?? '')]);
+                        $paymentId = (string) ($payment['id'] ?? '');
+                        // Actualizamos el batch y las reservas individuales con todos los campos de pago
+                        \Illuminate\Support\Facades\DB::transaction(function () use ($batch, $paymentId) {
+                            $freshBatch = \App\Models\ReservationBatch::lockForUpdate()->find($batch->id);
+                            if ($freshBatch && $freshBatch->status !== 'PAID') {
+                                $freshBatch->reservations()->update([
+                                    'status'                 => 'PAID',
+                                    'expires_at'             => null,
+                                    'payment_provider'       => 'mercadopago',
+                                    'payment_external_id'    => $paymentId,
+                                    'payment_status'         => 'approved',
+                                    'payment_mp_token_owner' => $freshBatch->payment_mp_token_owner,
+                                ]);
+                                $freshBatch->update([
+                                    'status'              => 'PAID',
+                                    'payment_status'      => 'approved',
+                                    'payment_external_id' => $paymentId,
+                                ]);
+                            }
+                        });
+                        $batch->refresh()->load(['field.venue', 'reservations' => fn($q) => $q->orderBy('start_at'), 'user', 'field.venue.owner']);
+                        // Enviar emails de confirmación (solo si el batch fue marcado PAID en esta request)
+                        if ($batch->payment_external_id === $paymentId && $batch->status === 'PAID') {
+                            \Illuminate\Support\Facades\Mail::to($batch->user->email)
+                                ->send(new \App\Mail\BatchReservationPaidMail($batch));
+                            $venueOwner = $batch->field->venue->owner;
+                            if ($venueOwner?->email) {
+                                \Illuminate\Support\Facades\Mail::to($venueOwner->email)
+                                    ->send(new \App\Mail\VenueAdminBatchReservationMail($batch));
+                            }
+                        }
                         \Illuminate\Support\Facades\Log::info('Batch marcado PAID desde success URL', ['batch_id' => $batch->id]);
-                        $batch->refresh()->load(['field.venue', 'reservations' => fn($q) => $q->orderBy('start_at')]);
+                        $batch->load(['field.venue', 'reservations' => fn($q) => $q->orderBy('start_at')]);
                     }
                 }
             } catch (\Throwable $e) {
@@ -306,11 +334,17 @@ Route::middleware(['auth'])->group(function () {
 
 });
 
-// Rutas de retorno de MercadoPago — sin middleware auth para que funcionen aunque la sesión se pierda en el redirect
+// Rutas de retorno de MercadoPago — requieren auth para proteger datos de la reserva
+Route::middleware(['auth'])->group(function () {
+
 Route::get('/reservation-success/{reservation}', function (\App\Models\Reservation $reservation, \Illuminate\Http\Request $request) {
-    // Verificación de pertenencia (sin explotar si no hay sesión)
+    // Verificación de pertenencia
     $userId = auth()->id();
     $isOwner = $userId && ($reservation->user_id === $userId || optional(auth()->user())->role === 'super_admin');
+
+    if (!$isOwner) {
+        abort(403);
+    }
 
     // Verificar y actualizar el pago usando el payment_id que MP manda en la URL
     if ($reservation->status === 'PENDING_PAYMENT') {
@@ -329,26 +363,38 @@ Route::get('/reservation-success/{reservation}', function (\App\Models\Reservati
                     ->get("https://api.mercadopago.com/v1/payments/{$paymentId}");
 
                 if ($mpResponse->successful() && $mpResponse->json('status') === 'approved') {
-                    $reservation->update([
-                        'status'              => 'PAID',
-                        'payment_status'      => 'approved',
-                        'payment_provider'    => 'mercadopago',
-                        'payment_external_id' => (string) $paymentId,
-                        'expires_at'          => null,
-                    ]);
-                    $reservation->loadMissing(['user', 'field.venue.owner']);
-                    \Illuminate\Support\Facades\Mail::to($reservation->user->email)
-                        ->send(new \App\Mail\ReservationPaidMail($reservation));
-                    $reservation->user->notify(new \App\Notifications\ReservationConfirmedNotification($reservation));
-                    $venueOwner = $reservation->field->venue->owner;
-                    if ($venueOwner?->email) {
-                        \Illuminate\Support\Facades\Mail::to($venueOwner->email)
-                            ->send(new \App\Mail\VenueAdminReservationMail($reservation));
+                    // Usamos lockForUpdate para evitar race condition con el webhook
+                    $shouldSendEmails = false;
+                    \Illuminate\Support\Facades\DB::transaction(function () use ($reservation, $paymentId, &$shouldSendEmails) {
+                        $fresh = \App\Models\Reservation::lockForUpdate()->find($reservation->id);
+                        // Solo procesamos si la reserva no fue ya marcada PAID por el webhook
+                        if ($fresh && $fresh->status !== 'PAID') {
+                            $fresh->update([
+                                'status'              => 'PAID',
+                                'payment_status'      => 'approved',
+                                'payment_provider'    => 'mercadopago',
+                                'payment_external_id' => (string) $paymentId,
+                                'expires_at'          => null,
+                            ]);
+                            $shouldSendEmails = true;
+                        }
+                    });
+
+                    if ($shouldSendEmails) {
+                        $reservation->loadMissing(['user', 'field.venue.owner']);
+                        \Illuminate\Support\Facades\Mail::to($reservation->user->email)
+                            ->send(new \App\Mail\ReservationPaidMail($reservation));
+                        $reservation->user->notify(new \App\Notifications\ReservationConfirmedNotification($reservation));
+                        $venueOwner = $reservation->field->venue->owner;
+                        if ($venueOwner?->email) {
+                            \Illuminate\Support\Facades\Mail::to($venueOwner->email)
+                                ->send(new \App\Mail\VenueAdminReservationMail($reservation));
+                        }
+                        \Illuminate\Support\Facades\Log::info('Reserva marcada PAID desde success URL', [
+                            'reservation_id' => $reservation->id,
+                            'payment_id'     => $paymentId,
+                        ]);
                     }
-                    \Illuminate\Support\Facades\Log::info('Reserva marcada PAID desde success URL', [
-                        'reservation_id' => $reservation->id,
-                        'payment_id'     => $paymentId,
-                    ]);
                     $reservation->refresh();
                 }
             } catch (\Throwable $e) {
@@ -367,7 +413,7 @@ Route::get('/reservation-pending/{reservation}', function (\App\Models\Reservati
     $userId = auth()->id();
     $isOwner = $userId && ($reservation->user_id === $userId || optional(auth()->user())->role === 'super_admin');
     if (!$isOwner) {
-        return auth()->check() ? abort(403) : redirect()->route('home');
+        abort(403);
     }
     return view('reservations.pending', compact('reservation'));
 })->name('reservations.pending');
@@ -376,10 +422,12 @@ Route::get('/reservation-failure/{reservation}', function (\App\Models\Reservati
     $userId = auth()->id();
     $isOwner = $userId && ($reservation->user_id === $userId || optional(auth()->user())->role === 'super_admin');
     if (!$isOwner) {
-        return auth()->check() ? abort(403) : redirect()->route('home');
+        abort(403);
     }
     return view('reservations.failure', compact('reservation'));
 })->name('reservations.failure');
+
+}); // end Route::middleware(['auth']) for reservation return URLs
 
 /*
 |--------------------------------------------------------------------------

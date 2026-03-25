@@ -13,6 +13,19 @@
       <div style="font-size:14px; font-weight:700; color:#0369a1;">{{ session('info') }}</div>
     </div>
   @endif
+
+  @if($availableReward ?? null)
+    <div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7); border:1px solid #86efac; border-radius:14px; padding:14px 18px; margin-bottom:18px; display:flex; align-items:center; gap:12px;">
+      <i data-lucide="gift" style="width:20px;height:20px;stroke:#15803d;flex-shrink:0;"></i>
+      <div>
+        <div style="font-size:14px; font-weight:700; color:#15803d;">Tenés un beneficio de referido disponible</div>
+        <div style="font-size:13px; color:#166534; margin-top:2px; line-height:1.5;">
+          Tenés un beneficio pendiente por haber referido a un nuevo socio.
+          Contactá al soporte de TuCancha para aplicarlo a tu reserva.
+        </div>
+      </div>
+    </div>
+  @endif
   <div style="display:grid; grid-template-columns:1.1fr .9fr; gap:20px; align-items:start;">
     <div class="page-card">
       <h1 style="margin:0 0 10px 0; font-size:34px; letter-spacing:-0.02em;">Pagar reserva</h1>

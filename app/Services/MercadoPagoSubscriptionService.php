@@ -33,12 +33,13 @@ class MercadoPagoSubscriptionService
         ];
 
         $payload = [
-            'reason'           => "Plan {$planName} TuCancha",
-            'payer_email'      => $userEmail,
-            'auto_recurring'   => $autoRecurring,
+            'reason'             => "Plan {$planName} TuCancha",
+            'payer_email'        => $userEmail,
+            'auto_recurring'     => $autoRecurring,
             'back_url'           => $backUrl,
             'notification_url'   => $baseUrl . '/webhooks/mercadopago',
             'external_reference' => 'venue_admin_subscription:' . $subscription->id,
+            'status'             => 'pending',
         ];
 
         $response = $this->http()->post('https://api.mercadopago.com/preapproval', $payload);

@@ -38,7 +38,7 @@ class MercadoPagoOAuthController extends Controller
 
         Log::info('MP OAuth redirect iniciado', ['venue_id' => $venue->id]);
 
-        return redirect()->away('https://auth.mercadopago.com.ar/authorization?' . $query);
+        return redirect()->away('https://auth.mercadopago.com/authorization?' . $query);
     }
 
     /**

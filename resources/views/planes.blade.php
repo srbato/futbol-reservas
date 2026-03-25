@@ -405,7 +405,7 @@
   <div class="billing-toggle-wrap">
     <div class="billing-toggle">
       <button class="billing-opt active" onclick="setBilling('monthly', this)">Mensual</button>
-      <button class="billing-opt" onclick="setBilling('annual', this)">{{ $plans->first()->longTermLabel() }}</button>
+      <button class="billing-opt" onclick="setBilling('annual', this)">{{ $plans->isNotEmpty() ? $plans->first()->longTermLabel() : 'Anual' }}</button>
     </div>
     <span class="annual-badge" id="annualBadge" style="opacity:0; transition:opacity .2s;">
       <i data-lucide="trending-down" style="width:12px;height:12px;stroke:currentColor;stroke-width:2.5;"></i>
@@ -546,7 +546,7 @@
             <span class="faq-icon"><i data-lucide="plus" style="width:14px;height:14px;stroke:currentColor;stroke-width:2.5;"></i></span>
           </button>
           <div class="faq-body">
-            El pago se realiza una vez al mes (o cada {{ $plans->first()->longTermMonths() }} meses si elegís el plan {{ strtolower($plans->first()->longTermLabel()) }}) a través de Mercado Pago.
+            El pago se realiza una vez al mes @if($plans->isNotEmpty())(o cada {{ $plans->first()->longTermMonths() }} meses si elegís el plan {{ strtolower($plans->first()->longTermLabel()) }})@endif a través de Mercado Pago.
             Podés pagar con tarjeta de crédito, débito o transferencia. Al aprobarse el pago,
             tu acceso se activa o renueva automáticamente.
           </div>
