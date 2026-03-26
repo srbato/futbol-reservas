@@ -3,20 +3,16 @@
 namespace App\Notifications;
 
 use App\Models\Reservation;
+use App\Notifications\Concerns\HasWebPush;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 
 class ReservationConfirmedNotification extends Notification implements ShouldQueue
 {
-    use Queueable;
+    use HasWebPush, Queueable;
 
     public function __construct(public readonly Reservation $reservation) {}
-
-    public function via($notifiable): array
-    {
-        return ['database'];
-    }
 
     public function toArray($notifiable): array
     {

@@ -1131,3 +1131,104 @@ TOP 5 PARA CUANDO SE RETOME:
   3. Teléfono en perfil de usuario (#8) — prerequisito para varios features futuros
   4. QR en checkin (#17) — bajo esfuerzo, alto impacto operacional
   5. Filtro de zona en Falta Uno (#18) — rápido de implementar, muy relevante en Argentina
+
+================================================================================
+[2026-03-26] — BACKLOG IMPACTO ALTO: ÍTEMS #2, #3, #5
+================================================================================
+
+ESTADO DEL BACKLOG (ítems trabajados esta sesión):
+
+  ✅ #2 — Fix índice único en reseñas de complejos
+     Migración: 2026_03_26_000001_restore_unique_user_venue_on_venue_reviews_table.php
+     - Elimina duplicados existentes antes de crear el índice
+     - Restaura UNIQUE(venue_id, user_id) en tabla venue_reviews
+
+  ✅ #3 — Búsqueda de complejos por cercanía (geolocalización)
+     - VenueController: auto-geocoding server-side al guardar (Google Geocoding API)
+       Solo re-geocodifica si la dirección cambia o lat es null
+     - VenueController (público): botón "Ordenar por cercanía" en filtros avanzados
+       Usa Haversine en PHP para ordenar $venues y $allVenues por distancia
+     - SecurityHeaders middleware: geolocation=(self) en Permissions-Policy
+     - Nuevo comando artisan: venues:geocode — geocodifica complejos existentes sin coords
+       Opciones: --force, --dry-run. Pausa 200ms entre requests para evitar rate limiting
+     - Vistas create/edit de venue_admin: se eliminó el botón manual de geocoding,
+       ahora se detecta automáticamente al guardar
+     - config/services.php: agregado google_geocoding.key
+
+  ✅ #5 — Web Push Notifications
+     Infraestructura completa de notificaciones push en el navegador.
+
+     INSTALACIÓN:
+     - Package: laravel-notification-channels/webpush v10.5.0
+     - Migración: 2026_03_26_000002_create_push_subscriptions_table.php
+     - config/webpush.php: configuración VAPID
+     - .env: VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY
+       (Keys generadas manualmente con openssl porque artisan webpush:vapid
+        falla en Windows por falta de soporte EC key en OpenSSL)
+
+     ARCHIVOS NUEVOS/MODIFICADOS:
+     - public/sw.js: Service Worker — recibe push events y abre URL al hacer click
+       El payload del package llega en data.data.url (campo anidado)
+     - app/Http/Controllers/PushSubscriptionController.php: store() y destroy()
+     - routes/web.php: POST /push-subscriptions, DELETE /push-subscriptions
+     - app/Models/User.php: trait HasPushSubscriptions agregado
+     - app/Notifications/Concerns/HasWebPush.php: trait compartido por las 8 notificaciones
+       via(): retorna ['database', WebPushChannel::class] si el user tiene suscripción
+       toWebPush(): construye WebPushMessage con (new WebPushMessage) — sin ::create()
+     - Las 8 notificaciones existentes: agregado use HasWebPush, removido via() manual
+     - resources/views/layouts/app.blade.php:
+       - meta csrf-token en <head>
+       - Registro de SW + suscripción push en bloque @auth
+
+     BUGS CORREGIDOS DURANTE EL DESARROLLO:
+     1. Driver [webpush] not supported → se usa FQCN WebPushChannel::class (no string)
+     2. WebPushMessage::create() no existe → cambiado a new WebPushMessage
+     3. sw.js leía data.action_url inexistente → corregido a data.data.url
+     4. SSL en Windows al enviar el push → AppServiceProvider::register() inyecta
+        GuzzleClient con verify:false via Reflection cuando env != production
+     5. action() recibía URL como identificador → cambiado a 'open'
+
+  ⬜ #7 — Reserva manual con cliente real — PENDIENTE
+     El venue_admin puede crear reservas manualmente, pero no puede asociarlas
+     a un usuario real de la plataforma. Hay que agregar un campo de búsqueda
+     de usuario por email/teléfono en el formulario de reserva manual.
+
+================================================================================
+PENDIENTE PARA PRODUCCIÓN — QUEUE WORKER
+================================================================================
+
+Las notificaciones se procesan en background con queue workers. En producción
+se necesita Supervisor para mantener el worker corriendo permanentemente.
+
+  1. Instalar Supervisor en el VPS:
+     sudo apt install supervisor
+
+  2. Crear archivo de configuración:
+     sudo nano /etc/supervisor/conf.d/tucancha-worker.conf
+
+     Contenido:
+     [program:tucancha-worker]
+     process_name=%(program_name)s_%(process_num)02d
+     command=php /var/www/tucancha/artisan queue:work --sleep=3 --tries=3 --max-time=3600
+     autostart=true
+     autorestart=true
+     stopasgroup=true
+     killasgroup=true
+     user=www-data
+     numprocs=1
+     redirect_stderr=true
+     stdout_logfile=/var/www/tucancha/storage/logs/worker.log
+     stopwaitsecs=3600
+
+  3. Activar:
+     sudo supervisorctl reread
+     sudo supervisorctl update
+     sudo supervisorctl start tucancha-worker:*
+
+  4. Ver estado:
+     sudo supervisorctl status
+
+  IMPORTANTE — después de cada deploy:
+     php artisan queue:restart
+     (le dice al worker que termine el job actual y se reinicie con el código nuevo)
+     O bien: sudo supervisorctl restart tucancha-worker:*

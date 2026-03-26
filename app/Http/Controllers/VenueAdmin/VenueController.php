@@ -5,6 +5,8 @@ namespace App\Http\Controllers\VenueAdmin;
 use App\Http\Controllers\Controller;
 use App\Models\Venue;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class VenueController extends Controller
@@ -53,8 +55,6 @@ class VenueController extends Controller
             'cover_image'        => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'address'            => ['nullable', 'string', 'max:200'],
             'zone'               => ['nullable', 'string', 'max:120'],
-            'lat'                => ['nullable', 'numeric', 'between:-90,90'],
-            'lng'                => ['nullable', 'numeric', 'between:-180,180'],
             'cancellation_hours' => ['nullable', 'integer', 'min:1', 'max:720'],
             'amenities'          => ['nullable', 'array'],
             'amenities.*'        => ['string', 'in:' . implode(',', $validAmenityKeys)],
@@ -65,14 +65,16 @@ class VenueController extends Controller
                 ->with('error', 'Ya tenés un complejo creado. Solo podés administrar un complejo por cuenta.');
         }
 
+        $coords = $this->geocodeAddress($data['address'] ?? null);
+
         $venue = new Venue();
         $venue->owner_user_id      = $user->id;
         $venue->name               = $data['name'];
         $venue->description        = $data['description'] ?? null;
         $venue->address            = $data['address'] ?? null;
         $venue->zone               = $data['zone'] ?? null;
-        $venue->lat                = $data['lat'] ?? null;
-        $venue->lng                = $data['lng'] ?? null;
+        $venue->lat                = $coords['lat'];
+        $venue->lng                = $coords['lng'];
         $venue->cancellation_hours = $data['cancellation_hours'] ?? null;
         $venue->amenities          = $data['amenities'] ?? [];
         $venue->is_active          = true;
@@ -121,19 +123,23 @@ class VenueController extends Controller
             'cover_image'        => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'address'            => ['nullable', 'string', 'max:200'],
             'zone'               => ['nullable', 'string', 'max:120'],
-            'lat'                => ['nullable', 'numeric', 'between:-90,90'],
-            'lng'                => ['nullable', 'numeric', 'between:-180,180'],
             'cancellation_hours' => ['nullable', 'integer', 'min:1', 'max:720'],
             'amenities'          => ['nullable', 'array'],
             'amenities.*'        => ['string', 'in:' . implode(',', $validAmenityKeys)],
         ]);
 
+        // Re-geocodificar solo si la dirección cambió
+        $newAddress = $data['address'] ?? null;
+        if ($newAddress !== $venue->address || ($newAddress && !$venue->lat)) {
+            $coords = $this->geocodeAddress($newAddress);
+            $venue->lat = $coords['lat'];
+            $venue->lng = $coords['lng'];
+        }
+
         $venue->name               = $data['name'];
         $venue->description        = $data['description'] ?? null;
-        $venue->address            = $data['address'] ?? null;
+        $venue->address            = $newAddress;
         $venue->zone               = $data['zone'] ?? null;
-        $venue->lat                = $data['lat'] ?? null;
-        $venue->lng                = $data['lng'] ?? null;
         $venue->cancellation_hours = $data['cancellation_hours'] ?? null;
         $venue->amenities          = $data['amenities'] ?? [];
 
@@ -149,5 +155,31 @@ class VenueController extends Controller
         $venue->save();
 
         return redirect()->route('va.dashboard');
+    }
+
+    private function geocodeAddress(?string $address): array
+    {
+        if (!$address) {
+            return ['lat' => null, 'lng' => null];
+        }
+
+        try {
+            $key = config('services.google_geocoding.key');
+            $response = Http::get('https://maps.googleapis.com/maps/api/geocode/json', [
+                'address' => $address,
+                'key'     => $key,
+            ]);
+
+            $data = $response->json();
+
+            if (($data['status'] ?? '') === 'OK') {
+                $location = $data['results'][0]['geometry']['location'];
+                return ['lat' => $location['lat'], 'lng' => $location['lng']];
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Geocoding failed for address: ' . $address . ' — ' . $e->getMessage());
+        }
+
+        return ['lat' => null, 'lng' => null];
     }
 }

@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>@yield('title', 'Reservas de canchas')</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
@@ -1273,5 +1274,68 @@
 
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <script>lucide.createIcons();</script>
+
+@auth
+<script>
+(function() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+
+  const VAPID_PUBLIC_KEY = '{{ config("webpush.vapid.public_key") }}';
+
+  function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = atob(base64);
+    return Uint8Array.from([...rawData].map(c => c.charCodeAt(0)));
+  }
+
+  function savePushSubscription(sub) {
+    const data = sub.toJSON();
+    fetch('{{ route("push.subscribe") }}', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+      },
+      body: JSON.stringify({
+        endpoint: data.endpoint,
+        keys: data.keys,
+        content_encoding: (PushManager.supportedContentEncodings || ['aesgcm'])[0],
+      }),
+    });
+  }
+
+  navigator.serviceWorker.register('/sw.js').then(function(reg) {
+    return reg.pushManager.getSubscription().then(function(sub) {
+      if (Notification.permission === 'denied') return;
+
+      if (sub) {
+        // Ya suscripto en el browser → guardar en el servidor por si no estaba
+        savePushSubscription(sub);
+        return;
+      }
+
+      const askPush = function() {
+        reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+        }).then(savePushSubscription).catch(function() {});
+      };
+
+      if (Notification.permission === 'granted') {
+        askPush();
+      } else {
+        document.addEventListener('click', function onFirstClick() {
+          document.removeEventListener('click', onFirstClick);
+          Notification.requestPermission().then(function(perm) {
+            if (perm === 'granted') askPush();
+          });
+        }, { once: true });
+      }
+    });
+  }).catch(function() {});
+})();
+</script>
+@endauth
 </body>
 </html>

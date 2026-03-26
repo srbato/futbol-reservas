@@ -23,6 +23,8 @@ class VenueController extends Controller
             'date' => ['nullable', 'date'],
             'available_at' => ['nullable', 'date_format:H:i'],
             'falta_uno' => ['nullable', 'in:1,0'],
+            'user_lat' => ['nullable', 'numeric', 'between:-90,90'],
+            'user_lng' => ['nullable', 'numeric', 'between:-180,180'],
         ]);
 
         $q = $validated['q'] ?? null;
@@ -33,6 +35,9 @@ class VenueController extends Controller
         $date = $validated['date'] ?? null;
         $availableAt = $validated['available_at'] ?? null;
         $faltaUno = $request->query('falta_uno') === '1';
+        $userLat  = isset($validated['user_lat'])  ? (float) $validated['user_lat']  : null;
+        $userLng  = isset($validated['user_lng'])  ? (float) $validated['user_lng']  : null;
+        $sortByDistance = $userLat !== null && $userLng !== null;
 
         $zones = Venue::query()
             ->where('is_active', true)
@@ -93,7 +98,7 @@ class VenueController extends Controller
                 $q->where('is_active', true)
                   ->whereHas('faltaUnoSetting', fn($s) => $s->where('enabled', true));
             }])
-            ->orderBy('name');
+            ->when(!$sortByDistance, fn ($q) => $q->orderBy('name'));
 
         $venues = $venuesQuery->get([
             'id',
@@ -179,6 +184,16 @@ class VenueController extends Controller
                 ->values();
         }
 
+        // Ordenar por distancia si el usuario compartió su ubicación
+        if ($sortByDistance) {
+            $venues = $venues->sortBy(function ($venue) use ($userLat, $userLng) {
+                if (!$venue->lat || !$venue->lng) {
+                    return PHP_INT_MAX; // Sin coordenadas van al final
+                }
+                return $this->haversine($userLat, $userLng, (float) $venue->lat, (float) $venue->lng);
+            })->values();
+        }
+
         $favoriteVenueIds = Auth::check()
             ? Auth::user()->favoriteVenues()->pluck('venues.id')->toArray()
             : [];
@@ -232,15 +247,22 @@ class VenueController extends Controller
             ? auth()->user()->favoriteVenues()->where('is_active', true)->orderBy('name')->get()
             : collect();
 
-        $hasFilters = (bool) ($q || $zone || $sport || ($minPrice !== null && $minPrice !== '') || ($maxPrice !== null && $maxPrice !== '') || $date || $availableAt || $faltaUno);
+        $hasFilters = (bool) ($q || $zone || $sport || ($minPrice !== null && $minPrice !== '') || ($maxPrice !== null && $maxPrice !== '') || $date || $availableAt || $faltaUno || $sortByDistance);
 
         $allVenues = Venue::query()
             ->where('is_active', true)
             ->withActiveOwner()
             ->withAvg('reviews', 'rating')
             ->withCount('reviews')
-            ->orderBy('name')
+            ->when(!$sortByDistance, fn ($q) => $q->orderBy('name'))
             ->get(['id', 'name', 'description', 'cover_image_path', 'address', 'zone', 'lat', 'lng']);
+
+        if ($sortByDistance) {
+            $allVenues = $allVenues->sortBy(function ($venue) use ($userLat, $userLng) {
+                if (!$venue->lat || !$venue->lng) return PHP_INT_MAX;
+                return $this->haversine($userLat, $userLng, (float) $venue->lat, (float) $venue->lng);
+            })->values();
+        }
 
         return view('venues.index', compact(
             'venues',
@@ -259,7 +281,10 @@ class VenueController extends Controller
             'favorites',
             'topReservedVenues',
             'discountedVenues',
-            'bestRatedVenues'
+            'bestRatedVenues',
+            'sortByDistance',
+            'userLat',
+            'userLng'
         ));
     }
 
@@ -458,5 +483,15 @@ class VenueController extends Controller
         }
 
         return true;
+    }
+
+    private function haversine(float $lat1, float $lng1, float $lat2, float $lng2): float
+    {
+        $earthRadius = 6371; // km
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLng = deg2rad($lng2 - $lng1);
+        $a = sin($dLat / 2) ** 2
+           + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLng / 2) ** 2;
+        return $earthRadius * 2 * asin(sqrt($a));
     }
 }

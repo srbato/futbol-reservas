@@ -53,6 +53,7 @@ use App\Http\Controllers\FaltaUnoChatController;
 use App\Http\Controllers\FaltaUnoStatsController;
 use App\Http\Controllers\FaltaUnoRatingController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PushSubscriptionController;
 use App\Models\MembershipPlan;
 
 
@@ -233,6 +234,9 @@ Route::middleware(['auth', 'active.user'])->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.mark_all_read');
+
+    Route::post('/push-subscriptions', [PushSubscriptionController::class, 'store'])->name('push.subscribe');
+    Route::delete('/push-subscriptions', [PushSubscriptionController::class, 'destroy'])->name('push.unsubscribe');
 
     Route::post('/referral/redeem-reservation/{reservation}', [ReferralController::class, 'redeemReservation'])
         ->middleware(['throttle:5,1', 'role:super_admin'])

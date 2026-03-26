@@ -4,23 +4,20 @@ namespace App\Notifications;
 
 use App\Models\FaltaUnoGame;
 use App\Models\User;
+use App\Notifications\Concerns\HasWebPush;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 
 class FaltaUnoReminderNotification extends Notification implements ShouldQueue
 {
-    use Queueable;
+    use HasWebPush, Queueable;
 
     public function __construct(
         public readonly FaltaUnoGame $game,
         public readonly User $user,
     ) {}
 
-    public function via($notifiable): array
-    {
-        return ['database'];
-    }
 
     public function toArray($notifiable): array
     {

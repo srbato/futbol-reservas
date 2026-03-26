@@ -77,21 +77,7 @@
           @enderror
         </div>
 
-        <input type="hidden" id="lat" name="lat" value="{{ old('lat') }}">
-        <input type="hidden" id="lng" name="lng" value="{{ old('lng') }}">
-
-        <div>
-          <button type="button" onclick="geocodeAddress()"
-                  class="inline-flex items-center gap-2 border border-slate-300 text-slate-600 font-semibold rounded-xl px-5 py-2.5 hover:bg-slate-50 transition-all duration-200 text-sm">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-            </svg>
-            Buscar ubicación en el mapa
-          </button>
-          <p id="geocodeMsg" class="text-xs mt-2 text-slate-500"></p>
-          <div id="mapPreview" class="hidden mt-3 rounded-xl overflow-hidden h-52 border border-slate-200"></div>
-        </div>
+        <p class="text-xs text-slate-400">La ubicación en el mapa se detecta automáticamente al guardar.</p>
 
       </div>
     </div>
@@ -149,38 +135,5 @@
     reader.readAsDataURL(file);
   }
 
-  function geocodeAddress() {
-    const address = document.getElementById('address').value.trim();
-    const msg     = document.getElementById('geocodeMsg');
-    if (!address) {
-      msg.textContent  = 'Ingresá una dirección primero.';
-      msg.className    = 'text-xs mt-2 text-red-500';
-      return;
-    }
-    msg.className   = 'text-xs mt-2 text-slate-500';
-    msg.textContent = 'Buscando...';
-    fetch(`{{ route('va.geocode') }}?address=${encodeURIComponent(address)}`)
-      .then(r => r.json())
-      .then(data => {
-        if (data.status === 'OK') {
-          const loc = data.results[0].geometry.location;
-          document.getElementById('lat').value = loc.lat;
-          document.getElementById('lng').value = loc.lng;
-          msg.className   = 'text-xs mt-2 text-green-600 font-medium';
-          msg.textContent = 'Ubicación encontrada: ' + data.results[0].formatted_address;
-          const div = document.getElementById('mapPreview');
-          div.classList.remove('hidden');
-          div.innerHTML = `<iframe width="100%" height="208" frameborder="0" style="border:0;"
-            src="https://www.google.com/maps?q=${loc.lat},${loc.lng}&z=16&output=embed" allowfullscreen></iframe>`;
-        } else {
-          msg.className   = 'text-xs mt-2 text-red-500';
-          msg.textContent = 'No se encontró la dirección. Intentá con más detalle (ciudad, país).';
-        }
-      })
-      .catch(() => {
-        msg.className   = 'text-xs mt-2 text-red-500';
-        msg.textContent = 'Error al buscar la dirección.';
-      });
-  }
 </script>
 @endsection

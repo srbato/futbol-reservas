@@ -1378,6 +1378,8 @@
 
   {{-- ── HERO + SEARCH ─────────────────────────────────────────────────── --}}
   <form method="GET" action="{{ route('venues.index') }}" id="venueSearchForm">
+    <input type="hidden" name="user_lat" id="userLat" value="{{ $userLat ?? '' }}">
+    <input type="hidden" name="user_lng" id="userLng" value="{{ $userLng ?? '' }}">
     <div class="vi-hero">
       {{-- Background image + overlay --}}
       <div class="vi-hero-bg"></div>
@@ -1521,10 +1523,19 @@
                   <input type="time" name="available_at" value="{{ $availableAt ?? '' }}">
                 </div>
               </div>
-              <div class="vi-adv-actions">
+              <div class="vi-adv-actions" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
                 <button type="submit" style="padding:9px 20px; background:#22c55e; color:#052e16; border:none; border-radius:10px; font-size:13px; font-weight:800; cursor:pointer; font-family:inherit;">
                   Aplicar filtros
                 </button>
+                <button type="button" id="geoBtn" onclick="requestGeolocation()"
+                  style="padding:9px 16px; background:{{ $sortByDistance ? '#052e16' : 'transparent' }}; color:{{ $sortByDistance ? '#22c55e' : '#555' }}; border:1px solid {{ $sortByDistance ? '#22c55e' : '#ccc' }}; border-radius:10px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; display:inline-flex; align-items:center; gap:6px;">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>
+                  {{ $sortByDistance ? 'Ordenando por cercanía' : 'Ordenar por cercanía' }}
+                </button>
+                @if($sortByDistance)
+                  <a href="{{ request()->fullUrlWithQuery(['user_lat' => '', 'user_lng' => '']) }}"
+                     style="font-size:12px; color:#888; text-decoration:underline;">Quitar</a>
+                @endif
               </div>
             </div>
           </div>
@@ -2222,6 +2233,35 @@
       });
     });
 
+  </script>
+
+  <script>
+    function requestGeolocation() {
+      const btn = document.getElementById('geoBtn');
+      if (!navigator.geolocation) {
+        alert('Tu navegador no soporta geolocalización.');
+        return;
+      }
+      btn.textContent = 'Obteniendo ubicación...';
+      btn.disabled = true;
+      navigator.geolocation.getCurrentPosition(
+        function(pos) {
+          document.getElementById('userLat').value = pos.coords.latitude;
+          document.getElementById('userLng').value = pos.coords.longitude;
+          document.getElementById('venueSearchForm').submit();
+        },
+        function(err) {
+          const msgs = {
+            1: 'Permiso denegado. Permitile al navegador acceder a tu ubicación.',
+            2: 'Ubicación no disponible en este dispositivo.',
+            3: 'Tiempo de espera agotado. Intentá de nuevo.',
+          };
+          btn.textContent = msgs[err.code] || 'No se pudo obtener la ubicación';
+          btn.disabled = false;
+        },
+        { timeout: 8000 }
+      );
+    }
   </script>
 @endpush
 
