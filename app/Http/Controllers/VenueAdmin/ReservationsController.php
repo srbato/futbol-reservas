@@ -62,25 +62,113 @@ class ReservationsController extends Controller
             abort_if(!$user->hasStaffPermission('view_agenda', $user->activeStaffVenueId()), 403);
         }
 
+        $view    = $request->query('view') === 'week' ? 'week' : 'day';
+        $fieldId = $request->query('field_id');
+
         $date = $request->query('date')
             ? Carbon::parse($request->query('date'))
             : now();
 
-        $fieldId = $request->query('field_id');
-        $dayOfWeek = $date->dayOfWeek;
-
-        $startDay = $date->copy()->startOfDay();
-        $endDay   = $date->copy()->addDay()->startOfDay();
-
-        $fields = \App\Models\Field::query()
+        $allFields = \App\Models\Field::query()
             ->whereHas('venue', fn ($q) => $q->accessibleBy($user))
             ->with(['venue', 'price', 'schedules'])
             ->orderBy('name')
             ->get();
 
+        // ── Vista semanal ──────────────────────────────────────────────────────
+        if ($view === 'week') {
+            $weekStart = $date->copy()->startOfWeek(Carbon::MONDAY);
+            $weekEnd   = $weekStart->copy()->addDays(7);
+
+            $selectedField = $fieldId
+                ? $allFields->firstWhere('id', (int) $fieldId)
+                : $allFields->first();
+
+            if ($selectedField) {
+                $fieldId = $selectedField->id;
+            }
+
+            $reservations = $selectedField
+                ? Reservation::query()
+                    ->where('start_at', '>=', $weekStart)
+                    ->where('start_at', '<', $weekEnd)
+                    ->where('field_id', $selectedField->id)
+                    ->where('status', 'PAID')
+                    ->with(['user', 'field'])
+                    ->get()
+                : collect();
+
+            // Mapa: "YYYY-MM-DD|HH:MM" => reservation
+            $reservationMap = [];
+            foreach ($reservations as $reservation) {
+                $key = $reservation->start_at->format('Y-m-d|H:i');
+                $reservationMap[$key] = $reservation;
+            }
+
+            // Armar los 7 días y los slots activos por día
+            $weekDays          = [];
+            $activeSlotsPerDay = [];
+            $slotSet           = [];
+
+            for ($i = 0; $i < 7; $i++) {
+                $day     = $weekStart->copy()->addDays($i);
+                $dateKey = $day->format('Y-m-d');
+                $weekDays[]                    = $day;
+                $activeSlotsPerDay[$dateKey]   = [];
+
+                if ($selectedField) {
+                    $dow      = $day->dayOfWeek;
+                    $schedule = $selectedField->schedules->firstWhere('day_of_week', $dow);
+                    if ($schedule) {
+                        $slotMinutes = $selectedField->slot_minutes ?: 60;
+                        $current     = Carbon::parse($schedule->open_time);
+                        $close       = Carbon::parse($schedule->close_time);
+                        while ($current < $close) {
+                            $t = $current->format('H:i');
+                            $slotSet[$t]                     = true;
+                            $activeSlotsPerDay[$dateKey][]   = $t;
+                            $current->addMinutes($slotMinutes);
+                        }
+                    }
+                }
+            }
+
+            // Incluir horarios reales de reservas existentes
+            foreach ($reservations as $res) {
+                $t       = $res->start_at->format('H:i');
+                $dateKey = $res->start_at->format('Y-m-d');
+                $slotSet[$t] = true;
+                if (!in_array($t, $activeSlotsPerDay[$dateKey] ?? [])) {
+                    $activeSlotsPerDay[$dateKey][] = $t;
+                }
+            }
+
+            ksort($slotSet);
+            $slots = array_keys($slotSet);
+
+            if (empty($slots)) {
+                for ($h = 8; $h <= 23; $h++) {
+                    $slots[] = str_pad($h, 2, '0', STR_PAD_LEFT) . ':00';
+                }
+            }
+
+            $fields = $allFields;
+
+            return view('va.reservations.agenda', compact(
+                'date', 'fields', 'reservations', 'reservationMap', 'fieldId',
+                'slots', 'weekDays', 'weekStart', 'selectedField', 'activeSlotsPerDay', 'view'
+            ));
+        }
+
+        // ── Vista diaria ───────────────────────────────────────────────────────
+        $fields = $allFields;
         if ($fieldId) {
             $fields = $fields->where('id', (int) $fieldId)->values();
         }
+
+        $dayOfWeek = $date->dayOfWeek;
+        $startDay  = $date->copy()->startOfDay();
+        $endDay    = $date->copy()->addDay()->startOfDay();
 
         $reservations = Reservation::query()
             ->where('start_at', '>=', $startDay)
@@ -105,15 +193,14 @@ class ReservationsController extends Controller
                 continue;
             }
             $slotMinutes = $field->slot_minutes ?: 60;
-            $current = Carbon::parse($schedule->open_time);
-            $close   = Carbon::parse($schedule->close_time);
+            $current     = Carbon::parse($schedule->open_time);
+            $close       = Carbon::parse($schedule->close_time);
             while ($current < $close) {
                 $slotSet[$current->format('H:i')] = true;
                 $current->addMinutes($slotMinutes);
             }
         }
 
-        // Incluir también los start_at reales (cubre reservas fuera del horario habitual)
         foreach ($reservations as $res) {
             $slotSet[$res->start_at->format('H:i')] = true;
         }
@@ -121,20 +208,20 @@ class ReservationsController extends Controller
         ksort($slotSet);
         $slots = array_keys($slotSet);
 
-        // Fallback si no hay horarios configurados
         if (empty($slots)) {
             for ($h = 8; $h <= 23; $h++) {
                 $slots[] = str_pad($h, 2, '0', STR_PAD_LEFT) . ':00';
             }
         }
 
+        $weekDays          = null;
+        $weekStart         = null;
+        $selectedField     = null;
+        $activeSlotsPerDay = [];
+
         return view('va.reservations.agenda', compact(
-            'date',
-            'fields',
-            'reservations',
-            'reservationMap',
-            'fieldId',
-            'slots'
+            'date', 'fields', 'reservations', 'reservationMap', 'fieldId',
+            'slots', 'weekDays', 'weekStart', 'selectedField', 'activeSlotsPerDay', 'view'
         ));
     }
 

@@ -4,7 +4,47 @@
 @section('page_title', 'Reportes')
 @section('page_subtitle', 'Ingresos y actividad de tus complejos')
 
+@push('styles')
+<style>
+@media print {
+  /* Ocultar elementos de UI */
+  .no-print,
+  nav, aside, header,
+  [class*="sidebar"],
+  [class*="navbar"],
+  [id*="sidebar"],
+  [id*="navbar"] { display: none !important; }
+
+  /* Forzar fondo blanco */
+  body, .bg-slate-50, .bg-gray-50 { background: #fff !important; }
+
+  /* Ajustar contenedor */
+  main, .main-content, [class*="content"] { margin: 0 !important; padding: 0 !important; }
+
+  /* Evitar cortes dentro de tarjetas */
+  .bg-white { break-inside: avoid; page-break-inside: avoid; }
+
+  /* Reducir márgenes de página */
+  @page { margin: 1.5cm; }
+
+  /* Título de impresión */
+  .print-header { display: block !important; }
+}
+.print-header { display: none; }
+</style>
+@endpush
+
 @section('content')
+
+{{-- Encabezado solo visible al imprimir --}}
+<div class="print-header" style="margin-bottom: 20px;">
+  <h1 style="font-size: 20px; font-weight: 800; margin: 0;">Reporte de reservas — TuCancha</h1>
+  <p style="font-size: 13px; color: #666; margin: 4px 0 0;">
+    Período: {{ $from->format('d/m/Y') }} al {{ $to->format('d/m/Y') }}
+    @if($fieldId) &nbsp;·&nbsp; Cancha filtrada @endif
+    &nbsp;·&nbsp; Generado: {{ now()->format('d/m/Y H:i') }}
+  </p>
+</div>
 
 @include('va.partials.help-modal', [
   'helpKey'   => 'va_reports',
@@ -13,7 +53,7 @@
 ])
 
 {{-- ── Filtros ── --}}
-<div class="bg-white rounded-2xl border border-slate-200 shadow-sm px-6 py-4 mb-6">
+<div class="no-print bg-white rounded-2xl border border-slate-200 shadow-sm px-6 py-4 mb-6">
   <form method="GET" action="{{ route('va.reports') }}">
     <div class="flex flex-wrap items-end gap-4">
 
@@ -53,7 +93,7 @@
         </a>
       </div>
 
-      <div class="ml-auto">
+      <div class="ml-auto flex items-center gap-2">
         <a href="{{ route('va.reports.export', request()->query()) }}"
            class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 text-slate-600 text-sm font-medium rounded-xl hover:bg-slate-50 transition-all duration-200">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -61,6 +101,13 @@
           </svg>
           Exportar CSV
         </a>
+        <button onclick="window.print()"
+                class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 text-slate-600 text-sm font-medium rounded-xl hover:bg-slate-50 transition-all duration-200">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+          </svg>
+          Exportar PDF
+        </button>
       </div>
 
     </div>
@@ -131,6 +178,26 @@
     <div class="py-8 text-center text-sm text-slate-400">No hay datos para el rango seleccionado.</div>
   @else
     <canvas id="peakHoursChart" height="80"></canvas>
+  @endif
+</div>
+
+{{-- ── Comparativa entre canchas ── --}}
+@if(count($fieldOccupancy) > 1)
+<div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-6">
+  <h2 class="text-base font-bold text-slate-900 mb-1">Comparativa entre canchas</h2>
+  <p class="text-sm text-slate-500 mb-5">Reservas e ingresos por cancha en el rango seleccionado</p>
+  <canvas id="fieldComparisonChart" height="80"></canvas>
+</div>
+@endif
+
+{{-- ── Ingresos por franja horaria ── --}}
+<div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-6">
+  <h2 class="text-base font-bold text-slate-900 mb-1">Ingresos por franja horaria</h2>
+  <p class="text-sm text-slate-500 mb-5">Total recaudado según la hora de inicio del turno</p>
+  @if(empty($revenuePerHourData))
+    <div class="py-8 text-center text-sm text-slate-400">No hay datos para el rango seleccionado.</div>
+  @else
+    <canvas id="revenuePerHourChart" height="80"></canvas>
   @endif
 </div>
 
@@ -268,6 +335,84 @@
       responsive: true,
       plugins: { legend: { display: false } },
       scales: { y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } }
+    }
+  });
+  @endif
+
+  @if(count($fieldOccupancy) > 1)
+  new Chart(document.getElementById('fieldComparisonChart'), {
+    type: 'bar',
+    data: {
+      labels: @json(array_map(fn($i) => $i['field']->name, $fieldOccupancy)),
+      datasets: [
+        {
+          label: 'Reservas',
+          data: @json(array_map(fn($i) => $i['reserved_slots'], $fieldOccupancy)),
+          backgroundColor: '#4f46e5',
+          borderRadius: 6,
+          yAxisID: 'yReservas'
+        },
+        {
+          label: 'Ingresos ($)',
+          data: @json(array_map(fn($i) => (float) $i['revenue'], $fieldOccupancy)),
+          backgroundColor: '#4ade80',
+          borderRadius: 6,
+          yAxisID: 'yIngresos'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: true, position: 'top' } },
+      scales: {
+        yReservas: {
+          type: 'linear',
+          position: 'left',
+          beginAtZero: true,
+          ticks: { stepSize: 1, color: '#4f46e5' },
+          grid: { color: '#f1f5f9' },
+          title: { display: true, text: 'Reservas', color: '#4f46e5' }
+        },
+        yIngresos: {
+          type: 'linear',
+          position: 'right',
+          beginAtZero: true,
+          ticks: {
+            color: '#16a34a',
+            callback: v => '$' + v.toLocaleString('es-AR')
+          },
+          grid: { drawOnChartArea: false },
+          title: { display: true, text: 'Ingresos', color: '#16a34a' }
+        },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+  @endif
+
+  @if(!empty($revenuePerHourData))
+  new Chart(document.getElementById('revenuePerHourChart'), {
+    type: 'bar',
+    data: {
+      labels: @json($revenuePerHourLabels),
+      datasets: [{
+        label: 'Ingresos',
+        data: @json($revenuePerHourData),
+        backgroundColor: @json(array_map(fn($v) => $v === max($revenuePerHourData) ? '#4ade80' : '#4f46e5', $revenuePerHourData)),
+        borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: { color: '#f1f5f9' },
+          ticks: { callback: v => '$' + v.toLocaleString('es-AR') }
+        },
+        x: { grid: { display: false } }
+      }
     }
   });
   @endif

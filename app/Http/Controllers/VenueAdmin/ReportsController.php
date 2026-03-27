@@ -140,6 +140,24 @@ class ReportsController extends Controller
             }
         }
 
+        // Ingresos por franja horaria
+        $revenuePerHourRaw = (clone $baseQuery)
+            ->whereBetween('start_at', [$from, $to])
+            ->selectRaw("CAST(strftime('%H', start_at) AS INTEGER) as hour, SUM(total_amount) as revenue")
+            ->groupBy('hour')
+            ->orderBy('hour')
+            ->pluck('revenue', 'hour')
+            ->toArray();
+
+        $revenuePerHourLabels = [];
+        $revenuePerHourData = [];
+        for ($h = 0; $h < 24; $h++) {
+            if (isset($revenuePerHourRaw[$h])) {
+                $revenuePerHourLabels[] = str_pad($h, 2, '0', STR_PAD_LEFT) . ':00';
+                $revenuePerHourData[] = (float) $revenuePerHourRaw[$h];
+            }
+        }
+
         // Tasa de cancelación en el rango
         $totalCreated = Reservation::query()
             ->whereHas('field.venue', function ($q) use ($user) {
@@ -251,7 +269,9 @@ class ReportsController extends Controller
             'peakHourData',
             'cancellationRate',
             'totalCreated',
-            'totalCancelled'
+            'totalCancelled',
+            'revenuePerHourLabels',
+            'revenuePerHourData'
         ));
     }
 
