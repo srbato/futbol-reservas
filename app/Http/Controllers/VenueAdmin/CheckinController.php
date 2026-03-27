@@ -11,16 +11,26 @@ class CheckinController extends Controller
 {
     public function index()
     {
+        $user = auth()->user();
+
+        if ($user->isVenueStaff()) {
+            abort_if(!$user->hasStaffPermission('view_checkin', $user->activeStaffVenueId()), 403);
+        }
+
         return view('va.checkin');
     }
 
     public function store(Request $request)
     {
+        $user = $request->user();
+
+        if ($user->isVenueStaff()) {
+            abort_if(!$user->hasStaffPermission('view_checkin', $user->activeStaffVenueId()), 403);
+        }
+
         $data = $request->validate([
             'code' => ['required','string']
         ]);
-
-        $user = $request->user();
 
         $reservation = Reservation::where('verification_code', $data['code'])
             ->when($user->role !== 'super_admin', function ($q) use ($user) {

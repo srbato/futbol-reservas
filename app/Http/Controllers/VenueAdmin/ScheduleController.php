@@ -16,6 +16,10 @@ class ScheduleController extends Controller
             abort(403);
         }
 
+        if ($request->user()->isVenueStaff()) {
+            abort_if(!$request->user()->hasStaffPermission('manage_schedules', $field->venue->id), 403);
+        }
+
         $existing = $field->schedules()->get()->keyBy('day_of_week');
 
         return view('va.schedule.edit', compact('field', 'existing'));
@@ -27,6 +31,10 @@ class ScheduleController extends Controller
 
         if ($request->user()->role !== 'super_admin' && $field->venue->owner_user_id !== $request->user()->id && !$request->user()->isStaffOf($field->venue->id)) {
             abort(403);
+        }
+
+        if ($request->user()->isVenueStaff()) {
+            abort_if(!$request->user()->hasStaffPermission('manage_schedules', $field->venue->id), 403);
         }
 
         $data = $request->validate([

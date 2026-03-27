@@ -1188,10 +1188,117 @@ ESTADO DEL BACKLOG (ítems trabajados esta sesión):
         GuzzleClient con verify:false via Reflection cuando env != production
      5. action() recibía URL como identificador → cambiado a 'open'
 
-  ⬜ #7 — Reserva manual con cliente real — PENDIENTE
-     El venue_admin puede crear reservas manualmente, pero no puede asociarlas
-     a un usuario real de la plataforma. Hay que agregar un campo de búsqueda
-     de usuario por email/teléfono en el formulario de reserva manual.
+  ✅ #7 — Reserva manual con cliente real — IMPLEMENTADO (2026-03-27)
+
+================================================================================
+[2026-03-27] — SESIÓN DE FEATURES Y FIXES
+================================================================================
+
+[2026-03-27] - Feature #7: Reserva manual con cliente real
+- Modal de reserva manual rediseñado con flujo en dos pasos:
+  · Cancha + fecha → fetch automático al AvailabilityController existente
+  · Slots renderizados como cards por estado (verde=disponible, gris=ocupado,
+    naranja=bloqueado) con precio y descuentos mostrados
+  · Slot seleccionado llena hidden inputs date/time; botón submit deshabilitado
+    hasta selección
+  · AbortController cancela fetches anteriores si el admin cambia cancha/fecha
+- Campo "Buscar cliente registrado": input con autocompletado AJAX (debounce
+  300ms, mínimo 3 caracteres) con spinner "Buscando..." mientras carga
+  · Nueva ruta GET /va/users/search → ManualReservationController@searchUsers
+  · Panel de confirmación al seleccionar (nombre + email + botón X para desvincular)
+  · Hidden input client_user_id enviado al controller
+- Campo "Monto cobrado" (opcional) → guardado en total_amount
+- Campo renombrado de "Cliente / Nota" a "Nota / Comentario"
+- Controller actualizado: si client_user_id válido y activo → user_id del cliente;
+  si no → fallback al admin (comportamiento anterior)
+- Fix bug: querySelector('[name="field_id"]') agarraba el select del filtro de
+  la página en lugar del select del modal → corregido con id="modal-field-id"
+- Fix scroll modal: max-h-[90vh] no funcionaba por min-height:auto en flex.
+  Solución: contenedor externo con overflow-y-auto + items-start, panel con
+  min-h-0 my-auto, grid de slots con max-h-48 overflow-y-auto
+- Archivos: ManualReservationController.php, va/reservations/index.blade.php,
+  routes/web.php
+
+[2026-03-27] - Fix: empleados bloqueados por check de suscripción incorrecto
+- ManualReservationController: verificaba activeVenueAdminSubscription() sobre
+  el empleado ($user) en lugar del dueño del complejo. Corregido a
+  $field->venue->owner->activeVenueAdminSubscription()
+- FieldController::toggleActive: mismo bug en la consulta de suscripción y en
+  el conteo de canchas activas. Corregido con $owner = $field->venue->owner
+
+[2026-03-27] - Feature #8: Teléfono en perfil de usuario y en complejos
+
+  Usuarios:
+  - Migración: 2026_03_27_000001_add_phone_to_users_table (phone varchar(30) nullable)
+  - User model: phone en $fillable
+  - ProfileUpdateRequest: regla nullable|string|max:30 para phone
+  - profile/partials/update-profile-information-form.blade.php: campo type="tel"
+  - va/reservations/index.blade.php: teléfono como link tel: debajo del nombre
+    del cliente en la tabla de reservas
+
+  Complejos:
+  - Migración: 2026_03_27_000002_add_phone_to_venues_table (phone varchar(30) nullable)
+  - Venue model: phone en $fillable
+  - VenueAdmin/VenueController: phone validado y guardado en store() y update()
+  - va/venues/create.blade.php y edit.blade.php: campo teléfono de contacto
+  - venues/show.blade.php: chip clickeable href="tel:..." con ícono de teléfono
+    en los meta chips del hero (visible solo si el complejo tiene teléfono)
+
+[2026-03-27] - Fix: error PUT en editar complejo
+- va/venues/edit.blade.php tenía @method('PUT') pero la ruta acepta POST.
+  Eliminado el @method('PUT') del form.
+
+[2026-03-27] - Sistema de permisos configurables por empleado (venue staff)
+- El dueño del complejo puede configurar qué puede hacer cada empleado desde
+  un modal en el panel de staff.
+
+  Base de datos:
+  - Migración: 2026_03_27_000003_add_permissions_to_venue_staff_tables
+    Agrega columna permissions JSON nullable a venue_staff y
+    venue_staff_invitations
+
+  Modelos:
+  - VenueStaff: permissions en $fillable + cast array
+  - VenueStaffInvitation: permissions en $fillable + cast array
+  - User: tres nuevos métodos:
+    · hasStaffPermission(string $permission, int $venueId): bool
+      — super_admin/venue_admin siempre true; si permissions es null → false
+      (bloquear todo hasta que el dueño configure)
+    · venueStaffRecord(int $venueId): ?VenueStaff
+    · activeStaffVenueId(): ?int
+
+  Permisos disponibles (9):
+    view_reservations, create_manual_reservations, cancel_reservations,
+    view_agenda, manage_fields, manage_schedules, manage_blocks,
+    manage_discounts, view_checkin
+  (view_dashboard eliminado — dashboard siempre accesible para staff)
+
+  Controllers con verificación de permiso (solo afecta a staff):
+  - DashboardController: dashboard siempre accesible (sin abort)
+  - ReservationsController: view_reservations, view_agenda, cancel_reservations
+  - ManualReservationController: create_manual_reservations
+  - FieldController: manage_fields (en create/store/edit/update/toggleActive)
+  - ScheduleController: manage_schedules
+  - FieldBlockController: manage_blocks
+  - FieldDiscountController + FieldRecurringDiscountController: manage_discounts
+  - CheckinController: view_checkin
+
+  Aceptación de invitación:
+  - VenueStaffInvitationController::accept() copia permissions de la invitación
+    al registro de venue_staff al aceptar
+
+  Invitación con permisos:
+  - VenueStaffController::invite() guarda permissions en la invitación
+  - Nueva ruta: POST /va/staff/{staff}/permissions → va.staff.update_permissions
+
+  Vistas:
+  - va/staff/_permissions_checkboxes.blade.php (partial): checkboxes agrupados
+    en 3 secciones (Reservas / Canchas / General) con hover y accent verde
+  - va/staff/index.blade.php: botón "Permisos" por empleado activo que abre
+    modal con checkboxes pre-marcados; shortcuts "Seleccionar todos / Ninguno"
+    Formulario de invitación incluye los checkboxes (todos desmarcados)
+  - layouts/admin.blade.php: sidebar con condiciones hasStaffPermission() por
+    ítem; Dashboard siempre visible
 
 ================================================================================
 PENDIENTE PARA PRODUCCIÓN — QUEUE WORKER

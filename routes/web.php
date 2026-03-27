@@ -535,6 +535,7 @@ Route::middleware(['auth', 'active.user', 'role:venue_admin,super_admin', 'venue
         Route::get('/reservations', [VaReservationsController::class, 'index'])->name('va.reservations.index');
         Route::post('/reservations/{reservation}/cancel', [VaReservationsController::class, 'cancel'])->name('va.reservations.cancel');
         Route::post('/manual-reservations', [VaManualReservationController::class, 'store'])->name('va.reservations.manual_store');
+        Route::get('/users/search', [VaManualReservationController::class, 'searchUsers'])->name('va.users.search');
         Route::get('/agenda', [VaReservationsController::class, 'agenda'])->name('va.reservations.agenda');
 
         // Blocks
@@ -571,6 +572,7 @@ Route::middleware(['auth', 'active.user', 'role:venue_admin,super_admin', 'venue
         Route::post('/staff/invite', [VaVenueStaffController::class, 'invite'])->name('va.staff.invite');
         Route::post('/staff/remove', [VaVenueStaffController::class, 'remove'])->name('va.staff.remove');
         Route::post('/staff/cancel-invitation', [VaVenueStaffController::class, 'cancelInvitation'])->name('va.staff.cancel_invitation');
+        Route::post('/staff/{staff}/permissions', [VaVenueStaffController::class, 'updatePermissions'])->name('va.staff.update_permissions');
     });
 
     Route::get('/mp-oauth/callback', [MercadoPagoOAuthController::class, 'callback'])

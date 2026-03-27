@@ -125,6 +125,11 @@
     </div>
 
     {{-- Navigation --}}
+    @php
+      $navUser      = auth()->user();
+      $isStaff      = $navUser->isVenueStaff();
+      $staffVenueId = $isStaff ? $navUser->activeStaffVenueId() : null;
+    @endphp
     <nav class="flex-1 px-4 py-5 space-y-1 overflow-y-auto">
 
       {{-- Panel venueadmin --}}
@@ -139,6 +144,7 @@
         Dashboard
       </a>
 
+      @if(!$isStaff || $navUser->hasStaffPermission('view_reservations', $staffVenueId))
       <a href="{{ route('va.reservations.index') }}"
          class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
                 {{ request()->routeIs('va.reservations.index') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
@@ -147,7 +153,9 @@
         </svg>
         Reservas
       </a>
+      @endif
 
+      @if(!$isStaff || $navUser->hasStaffPermission('view_agenda', $staffVenueId))
       <a href="{{ route('va.reservations.agenda') }}"
          class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
                 {{ request()->routeIs('va.reservations.agenda') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
@@ -156,8 +164,9 @@
         </svg>
         Agenda
       </a>
+      @endif
 
-      @unless(auth()->user()->isVenueStaff())
+      @unless($isStaff)
       <a href="{{ route('va.reports') }}"
          class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
                 {{ request()->routeIs('va.reports') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
@@ -168,6 +177,7 @@
       </a>
       @endunless
 
+      @if(!$isStaff || $navUser->hasStaffPermission('manage_blocks', $staffVenueId))
       <a href="{{ route('va.blocks.index') }}"
          class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
                 {{ request()->routeIs('va.blocks.*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
@@ -176,7 +186,9 @@
         </svg>
         Bloqueos
       </a>
+      @endif
 
+      @if(!$isStaff || $navUser->hasStaffPermission('manage_discounts', $staffVenueId))
       <a href="{{ route('va.discounts.index') }}"
          class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
                 {{ request()->routeIs('va.discounts.*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
@@ -185,6 +197,18 @@
         </svg>
         Descuentos
       </a>
+      @endif
+
+      @if(!$isStaff || $navUser->hasStaffPermission('view_checkin', $staffVenueId))
+      <a href="{{ route('va.checkin.index') }}"
+         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
+                {{ request()->routeIs('va.checkin.*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        Check-in
+      </a>
+      @endif
 
       @if(auth()->user()->role === 'venue_admin')
       <a href="{{ route('va.staff.index') }}"

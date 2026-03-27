@@ -19,6 +19,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'phone',
         'password',
         'is_active',
         'avatar_path',
@@ -119,5 +120,37 @@ class User extends Authenticatable
     public function sportProfileFor(string $sport): ?FaltaUnoSportProfile
     {
         return $this->faltaUnoSportProfiles()->where('sport', $sport)->first();
+    }
+
+    public function venueStaffRecord(int $venueId): ?VenueStaff
+    {
+        return VenueStaff::where('user_id', $this->id)
+            ->where('venue_id', $venueId)
+            ->first();
+    }
+
+    public function activeStaffVenueId(): ?int
+    {
+        $record = VenueStaff::where('user_id', $this->id)->first();
+        return $record?->venue_id;
+    }
+
+    public function hasStaffPermission(string $permission, int $venueId): bool
+    {
+        if (in_array($this->role, ['super_admin', 'venue_admin'])) {
+            return true;
+        }
+
+        $staff = $this->venueStaffRecord($venueId);
+
+        if (!$staff) {
+            return false;
+        }
+
+        if (empty($staff->permissions)) {
+            return false;
+        }
+
+        return in_array($permission, $staff->permissions);
     }
 }

@@ -1097,6 +1097,9 @@
       @if($venue->cancellation_hours)
         <span class="vs-hero-chip amber" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="clock" style="width:13px;height:13px;stroke:currentColor;"></i> Cancelaciones hasta {{ $venue->cancellation_hours }}h antes</span>
       @endif
+      @if($venue->phone)
+        <a href="tel:{{ $venue->phone }}" class="vs-hero-chip" style="display:inline-flex;align-items:center;gap:4px;text-decoration:none;"><i data-lucide="phone" style="width:13px;height:13px;stroke:currentColor;"></i> {{ $venue->phone }}</a>
+      @endif
     </div>
   </div>
 </section>

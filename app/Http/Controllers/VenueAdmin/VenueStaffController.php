@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\VenueStaffInvitationMail;
 use App\Models\User;
 use App\Models\Venue;
+use App\Models\VenueStaff;
 use App\Models\VenueStaffInvitation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -65,13 +66,19 @@ class VenueStaffController extends Controller
             ->where('user_id', $invitee->id)
             ->delete();
 
+        $permissions = array_values(array_filter(
+            $request->input('permissions', []),
+            fn ($p) => is_string($p)
+        ));
+
         $invitation = VenueStaffInvitation::create([
-            'venue_id'   => $venue->id,
-            'invited_by' => $owner->id,
-            'user_id'    => $invitee->id,
-            'token'      => Str::random(64),
-            'status'     => 'pending',
-            'expires_at' => now()->addHours(48),
+            'venue_id'    => $venue->id,
+            'invited_by'  => $owner->id,
+            'user_id'     => $invitee->id,
+            'token'       => Str::random(64),
+            'status'      => 'pending',
+            'expires_at'  => now()->addHours(48),
+            'permissions' => !empty($permissions) ? $permissions : null,
         ]);
 
         $invitation->load(['venue', 'user', 'invitedBy']);
@@ -96,6 +103,27 @@ class VenueStaffController extends Controller
         $venue->staff()->detach($request->user_id);
 
         return back()->with('success', 'Empleado removido del complejo.');
+    }
+
+    public function updatePermissions(Request $request, VenueStaff $staff)
+    {
+        $owner = auth()->user();
+
+        // Verificar que el staff pertenece a un venue del usuario logueado
+        $venue = Venue::where('id', $staff->venue_id)
+            ->where('owner_user_id', $owner->id)
+            ->firstOrFail();
+
+        $permissions = array_values(array_filter(
+            $request->input('permissions', []),
+            fn ($p) => is_string($p)
+        ));
+
+        $staff->update([
+            'permissions' => !empty($permissions) ? $permissions : null,
+        ]);
+
+        return back()->with('success', 'Permisos actualizados correctamente.');
     }
 
     public function cancelInvitation(Request $request)

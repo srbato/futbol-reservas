@@ -13,6 +13,10 @@ class FieldBlockController extends Controller
     {
         $user = $request->user();
 
+        if ($user->isVenueStaff()) {
+            abort_if(!$user->hasStaffPermission('manage_blocks', $user->activeStaffVenueId()), 403);
+        }
+
         $fields = Field::query()
             ->whereHas('venue', fn ($q) => $q->accessibleBy($user))
             ->with('venue')
@@ -32,6 +36,10 @@ class FieldBlockController extends Controller
     public function store(Request $request)
     {
         $user = $request->user();
+
+        if ($user->isVenueStaff()) {
+            abort_if(!$user->hasStaffPermission('manage_blocks', $user->activeStaffVenueId()), 403);
+        }
 
         $data = $request->validate([
             'field_id' => ['required', 'integer', 'exists:fields,id'],
@@ -64,6 +72,10 @@ class FieldBlockController extends Controller
 
         if ($user->role !== 'super_admin' && $block->field->venue->owner_user_id !== $user->id && !$user->isStaffOf($block->field->venue->id)) {
             abort(403);
+        }
+
+        if ($user->isVenueStaff()) {
+            abort_if(!$user->hasStaffPermission('manage_blocks', $block->field->venue->id), 403);
         }
 
         $block->delete();

@@ -16,7 +16,6 @@
 
   <form method="POST" action="{{ route('va.venues.update', $venue) }}" enctype="multipart/form-data">
     @csrf
-    @method('PUT')
 
     {{-- Información básica --}}
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
@@ -46,6 +45,18 @@
                  placeholder="Una línea que aparece en la página del complejo"
                  class="w-full rounded-xl border px-4 py-2.5 text-sm text-slate-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 {{ $errors->has('description') ? 'border-red-400 focus:ring-red-400' : 'border-slate-300' }}">
           @error('description')
+            <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+          @enderror
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5" for="phone">
+            Teléfono de contacto <span class="text-slate-400 normal-case font-normal">(opcional)</span>
+          </label>
+          <input type="tel" id="phone" name="phone" value="{{ old('phone', $venue->phone) }}" maxlength="30"
+                 placeholder="Ej: +54 11 1234-5678"
+                 class="w-full rounded-xl border px-4 py-2.5 text-sm text-slate-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 {{ $errors->has('phone') ? 'border-red-400 focus:ring-red-400' : 'border-slate-300' }}">
+          @error('phone')
             <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
           @enderror
         </div>

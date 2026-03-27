@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class VenueStaffInvitation extends Model
 {
-    protected $fillable = ['venue_id', 'invited_by', 'user_id', 'token', 'status', 'expires_at'];
+    protected $fillable = ['venue_id', 'invited_by', 'user_id', 'token', 'status', 'expires_at', 'permissions'];
 
     protected $casts = [
-        'expires_at' => 'datetime',
+        'expires_at'  => 'datetime',
+        'permissions' => 'array',
     ];
 
     public function venue()

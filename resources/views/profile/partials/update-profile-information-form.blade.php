@@ -95,6 +95,24 @@
             @enderror
         </div>
 
+        {{-- Teléfono --}}
+        <div>
+            <label class="pf-label" for="phone">Teléfono <span style="font-weight:400; color:#9ca3af;">(opcional)</span></label>
+            <input
+                id="phone"
+                name="phone"
+                type="tel"
+                value="{{ old('phone', $user->phone) }}"
+                autocomplete="tel"
+                maxlength="30"
+                placeholder="Ej: +54 11 1234-5678"
+                class="pf-input"
+            >
+            @error('phone', 'updateProfileInformation')
+                <div style="color:#dc2626; font-size:13px; margin-top:6px;">{{ $message }}</div>
+            @enderror
+        </div>
+
         {{-- Email no verificado --}}
         @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
             <div style="background:#fef9c3; border:1px solid #fde68a; border-radius:14px; padding:14px 16px;">

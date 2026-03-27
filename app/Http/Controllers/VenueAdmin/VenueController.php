@@ -52,6 +52,7 @@ class VenueController extends Controller
         $data = $request->validate([
             'name'               => ['required', 'string', 'max:120'],
             'description'        => ['nullable', 'string', 'max:255'],
+            'phone'              => ['nullable', 'string', 'max:30'],
             'cover_image'        => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'address'            => ['nullable', 'string', 'max:200'],
             'zone'               => ['nullable', 'string', 'max:120'],
@@ -71,6 +72,7 @@ class VenueController extends Controller
         $venue->owner_user_id      = $user->id;
         $venue->name               = $data['name'];
         $venue->description        = $data['description'] ?? null;
+        $venue->phone              = $data['phone'] ?? null;
         $venue->address            = $data['address'] ?? null;
         $venue->zone               = $data['zone'] ?? null;
         $venue->lat                = $coords['lat'];
@@ -120,6 +122,7 @@ class VenueController extends Controller
         $data = $request->validate([
             'name'               => ['required', 'string', 'max:120'],
             'description'        => ['nullable', 'string', 'max:255'],
+            'phone'              => ['nullable', 'string', 'max:30'],
             'cover_image'        => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'address'            => ['nullable', 'string', 'max:200'],
             'zone'               => ['nullable', 'string', 'max:120'],
@@ -138,6 +141,7 @@ class VenueController extends Controller
 
         $venue->name               = $data['name'];
         $venue->description        = $data['description'] ?? null;
+        $venue->phone              = $data['phone'] ?? null;
         $venue->address            = $newAddress;
         $venue->zone               = $data['zone'] ?? null;
         $venue->cancellation_hours = $data['cancellation_hours'] ?? null;

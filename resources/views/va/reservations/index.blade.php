@@ -114,7 +114,10 @@
                 </span>
                 {{ $r->notes ?? '—' }}
               @else
-                {{ $r->user->name ?? '—' }}
+                <span class="font-medium text-slate-800">{{ $r->user->name ?? '—' }}</span>
+                @if($r->user && $r->user->phone)
+                  <br><a href="tel:{{ $r->user->phone }}" class="text-xs text-slate-400 hover:text-indigo-600 transition-colors">{{ $r->user->phone }}</a>
+                @endif
               @endif
             </td>
 
@@ -161,14 +164,14 @@
 {{-- ── Modal: nueva reserva manual ── --}}
 <div id="modal-manual"
      style="display:none;"
-     class="fixed inset-0 z-50 flex items-center justify-center p-4"
+     class="fixed inset-0 z-50 flex items-start justify-center p-4 overflow-y-auto"
      role="dialog" aria-modal="true">
 
   {{-- Backdrop --}}
   <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
 
   {{-- Panel --}}
-  <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
+  <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 max-h-[90vh] overflow-y-auto min-h-0 my-auto">
 
     <div class="flex items-center justify-between mb-6">
       <h2 class="text-lg font-bold text-slate-900">Nueva reserva manual</h2>
@@ -186,7 +189,7 @@
 
       <div class="mb-4">
         <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Cancha</label>
-        <select name="field_id" required
+        <select name="field_id" id="modal-field-id" required
                 class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-sm text-slate-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:shadow-indigo-100">
           <option value="">Seleccioná una cancha</option>
           @foreach($fields as $field)
@@ -195,28 +198,107 @@
         </select>
       </div>
 
-      <div class="grid grid-cols-2 gap-3 mb-4">
-        <div>
-          <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Fecha</label>
-          <input type="date" name="date" required
-                 value="{{ now()->toDateString() }}"
-                 min="{{ now()->toDateString() }}"
-                 class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-sm text-slate-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:shadow-indigo-100">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Hora de inicio</label>
-          <input type="time" name="time" required
-                 class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-sm text-slate-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:shadow-indigo-100">
-        </div>
+      <div class="mb-4">
+        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Fecha</label>
+        <input type="date" id="manual-date-picker"
+               value="{{ now()->toDateString() }}"
+               min="{{ now()->toDateString() }}"
+               class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-sm text-slate-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:shadow-indigo-100">
       </div>
 
+      {{-- Hidden inputs reales que se envían al controller --}}
+      <input type="hidden" name="date" id="manual-hidden-date">
+      <input type="hidden" name="time" id="manual-hidden-time">
+
+      {{-- ── Panel de slots ── --}}
+      <div id="slots-section" class="mb-4">
+        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Horario disponible</label>
+
+        {{-- Estado: esperando selección de cancha y fecha --}}
+        <div id="slots-placeholder" class="px-4 py-3 rounded-xl border border-dashed border-slate-300 text-sm text-slate-400 text-center">
+          Seleccioná una cancha y una fecha para ver los horarios.
+        </div>
+
+        {{-- Estado: cargando --}}
+        <div id="slots-loading" style="display:none;" class="px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-500 text-center flex items-center justify-center gap-2">
+          <svg class="w-4 h-4 animate-spin text-indigo-500" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+          </svg>
+          Cargando horarios...
+        </div>
+
+        {{-- Estado: sin horario --}}
+        <div id="slots-empty" style="display:none;" class="px-4 py-3 rounded-xl border border-dashed border-slate-300 text-sm text-slate-400 text-center">
+          Sin horario disponible para este dia.
+        </div>
+
+        {{-- Estado: error --}}
+        <div id="slots-error" style="display:none;" class="px-4 py-3 rounded-xl border border-red-200 bg-red-50 text-sm text-red-600 text-center">
+          Error al cargar los horarios. Intenta de nuevo.
+        </div>
+
+        {{-- Grid de slots --}}
+        <div id="slots-grid" style="display:none;" class="grid grid-cols-3 gap-2 max-h-48 overflow-y-auto"></div>
+      </div>
+
+      {{-- ── Buscar cliente registrado ── --}}
+      <div class="mb-4">
+        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+          Cliente registrado
+          <span class="text-slate-400 normal-case font-normal ml-1">(opcional — buscá por nombre o email)</span>
+        </label>
+
+        {{-- Panel de cliente seleccionado --}}
+        <div id="selected-client-panel" style="display:none;"
+             class="flex items-center justify-between px-3 py-2 rounded-xl border border-indigo-300 bg-indigo-50 text-sm mb-2">
+          <div>
+            <span id="selected-client-name" class="font-semibold text-slate-900"></span>
+            <span id="selected-client-email" class="text-slate-500 ml-1.5"></span>
+          </div>
+          <button type="button" id="deselect-client"
+                  class="ml-2 text-slate-400 hover:text-red-500 transition-colors" title="Desvincular">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+
+        {{-- Input de búsqueda --}}
+        <div class="relative" id="search-client-wrapper">
+          <input type="text" id="client-search-input"
+                 autocomplete="off"
+                 placeholder="Escribí al menos 3 caracteres..."
+                 class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-sm text-slate-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:shadow-indigo-100">
+          {{-- Dropdown de resultados --}}
+          <div id="client-search-dropdown"
+               style="display:none;"
+               class="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden">
+          </div>
+        </div>
+
+        <input type="hidden" name="client_user_id" id="client_user_id_input">
+      </div>
+
+      {{-- ── Monto cobrado ── --}}
+      <div class="mb-4">
+        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+          Monto cobrado
+          <span class="text-slate-400 normal-case font-normal ml-1">(opcional)</span>
+        </label>
+        <input type="number" name="amount_paid" min="0" step="0.01"
+               placeholder="0.00"
+               class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-sm text-slate-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:shadow-indigo-100">
+      </div>
+
+      {{-- ── Nota / Comentario ── --}}
       <div class="mb-6">
         <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
-          Cliente / Nota
+          Nota / Comentario
           <span class="text-slate-400 normal-case font-normal ml-1">(opcional)</span>
         </label>
         <input type="text" name="notes" maxlength="255"
-               placeholder="Ej: Juan García — llamó por teléfono"
+               placeholder="Ej: llamó por teléfono, pago en efectivo..."
                class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-sm text-slate-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:shadow-indigo-100">
       </div>
 
@@ -226,8 +308,8 @@
                 class="px-4 py-2 bg-white border border-slate-300 text-slate-600 text-sm font-medium rounded-xl hover:bg-slate-50 transition-all duration-200">
           Cancelar
         </button>
-        <button type="submit"
-                class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white text-sm font-semibold rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+        <button type="submit" id="manual-submit-btn" disabled
+                class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white text-sm font-semibold rounded-xl shadow-sm hover:shadow-md transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none">
           Crear reserva
         </button>
       </div>
@@ -237,12 +319,320 @@
 </div>
 
 <script>
-  // Close modal clicking outside (backdrop)
+  // ── Close modal clicking outside (backdrop) ──
   document.getElementById('modal-manual').addEventListener('click', function(e) {
     if (e.target === this || e.target.classList.contains('backdrop-blur-sm')) {
       this.style.display = 'none';
     }
   });
+
+  // ── Client search autocomplete ──
+  (function () {
+    const searchInput    = document.getElementById('client-search-input');
+    const dropdown       = document.getElementById('client-search-dropdown');
+    const hiddenInput    = document.getElementById('client_user_id_input');
+    const selectedPanel  = document.getElementById('selected-client-panel');
+    const selectedName   = document.getElementById('selected-client-name');
+    const selectedEmail  = document.getElementById('selected-client-email');
+    const deselectBtn    = document.getElementById('deselect-client');
+    const searchWrapper  = document.getElementById('search-client-wrapper');
+
+    let debounceTimer = null;
+
+    function showDropdown(results) {
+      dropdown.innerHTML = '';
+      if (!results.length) {
+        dropdown.innerHTML = '<div class="px-4 py-3 text-sm text-slate-400">Sin resultados</div>';
+        dropdown.style.display = 'block';
+        return;
+      }
+      results.forEach(function (u) {
+        const item = document.createElement('button');
+        item.type = 'button';
+        item.className = 'w-full text-left px-4 py-2.5 text-sm hover:bg-indigo-50 transition-colors border-b border-slate-100 last:border-0';
+        item.innerHTML =
+          '<span class="font-semibold text-slate-900">' + escapeHtml(u.name) + '</span>' +
+          '<span class="text-slate-500 ml-2">' + escapeHtml(u.email) + '</span>';
+        item.addEventListener('click', function () {
+          selectClient(u);
+        });
+        dropdown.appendChild(item);
+      });
+      dropdown.style.display = 'block';
+    }
+
+    function hideDropdown() {
+      dropdown.style.display = 'none';
+      dropdown.innerHTML = '';
+    }
+
+    function selectClient(u) {
+      hiddenInput.value       = u.id;
+      selectedName.textContent  = u.name;
+      selectedEmail.textContent = u.email;
+      selectedPanel.style.display = 'flex';
+      searchWrapper.style.display = 'none';
+      hideDropdown();
+      searchInput.value = '';
+    }
+
+    function deselectClient() {
+      hiddenInput.value = '';
+      selectedPanel.style.display = 'none';
+      searchWrapper.style.display = 'block';
+      searchInput.value = '';
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    searchInput.addEventListener('input', function () {
+      clearTimeout(debounceTimer);
+      const q = this.value.trim();
+      if (q.length < 3) {
+        hideDropdown();
+        return;
+      }
+      debounceTimer = setTimeout(function () {
+        dropdown.innerHTML = '<div class="px-4 py-3 text-sm text-slate-400 flex items-center gap-2"><svg class="w-3.5 h-3.5 animate-spin text-indigo-400" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>Buscando...</div>';
+        dropdown.style.display = 'block';
+        fetch('{{ route("va.users.search") }}?q=' + encodeURIComponent(q), {
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (data) { showDropdown(data); })
+          .catch(function () { hideDropdown(); });
+      }, 300);
+    });
+
+    deselectBtn.addEventListener('click', deselectClient);
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function (e) {
+      if (!searchWrapper.contains(e.target)) {
+        hideDropdown();
+      }
+    });
+
+    // Reset state when modal opens
+    document.querySelector('[onclick="document.getElementById(\'modal-manual\').style.display=\'flex\'"]')
+      .addEventListener('click', function () {
+        deselectClient();
+        document.querySelector('[name="amount_paid"]').value = '';
+        document.querySelector('[name="notes"]').value = '';
+        resetSlots();
+      });
+  })();
+
+  // ── Slot picker ──
+  (function () {
+    const fieldSelect    = document.getElementById('modal-field-id');
+    const datePicker     = document.getElementById('manual-date-picker');
+    const hiddenDate     = document.getElementById('manual-hidden-date');
+    const hiddenTime     = document.getElementById('manual-hidden-time');
+    const submitBtn      = document.getElementById('manual-submit-btn');
+
+    const elPlaceholder  = document.getElementById('slots-placeholder');
+    const elLoading      = document.getElementById('slots-loading');
+    const elEmpty        = document.getElementById('slots-empty');
+    const elError        = document.getElementById('slots-error');
+    const elGrid         = document.getElementById('slots-grid');
+
+    let currentFieldId   = null;
+    let currentDate      = null;
+    let fetchController  = null;
+
+    // Exponer resetSlots al scope externo para que el reset del modal lo llame
+    window.resetSlots = function () {
+      hiddenDate.value = '';
+      hiddenTime.value = '';
+      submitBtn.disabled = true;
+      showState('placeholder');
+      currentFieldId = null;
+      currentDate    = null;
+      // Resetear también el date picker a hoy
+      datePicker.value = '{{ now()->toDateString() }}';
+    };
+
+    function showState(state) {
+      elPlaceholder.style.display = state === 'placeholder' ? '' : 'none';
+      elLoading.style.display     = state === 'loading'     ? '' : 'none';
+      elEmpty.style.display       = state === 'empty'       ? '' : 'none';
+      elError.style.display       = state === 'error'       ? '' : 'none';
+      elGrid.style.display        = state === 'grid'        ? '' : 'none';
+    }
+
+    function tryFetch() {
+      const fieldId = fieldSelect.value;
+      const date    = datePicker.value;
+
+      if (!fieldId || !date) {
+        showState('placeholder');
+        clearSelection();
+        return;
+      }
+
+      // Si ya teníamos una selección y algo cambió, la limpiamos
+      clearSelection();
+
+      currentFieldId = fieldId;
+      currentDate    = date;
+
+      // Cancelar fetch previo si hubiera
+      if (fetchController) {
+        fetchController.abort();
+      }
+      fetchController = new AbortController();
+
+      showState('loading');
+
+      const url = '/fields/' + fieldId + '/availability?date=' + encodeURIComponent(date);
+
+      fetch(url, { signal: fetchController.signal })
+        .then(function (r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        })
+        .then(function (data) {
+          fetchController = null;
+          if (!data.slots || data.slots.length === 0) {
+            showState('empty');
+            return;
+          }
+          renderSlots(data.slots, date);
+        })
+        .catch(function (err) {
+          if (err.name === 'AbortError') return;
+          fetchController = null;
+          showState('error');
+        });
+    }
+
+    function clearSelection() {
+      hiddenDate.value = '';
+      hiddenTime.value = '';
+      submitBtn.disabled = true;
+      // Quitar resaltado de cualquier slot seleccionado
+      elGrid.querySelectorAll('.slot-btn').forEach(function (btn) {
+        btn.classList.remove('ring-2', 'ring-indigo-500', 'border-indigo-500', 'bg-indigo-50');
+        btn.classList.add('border-slate-200');
+        const check = btn.querySelector('.slot-check');
+        if (check) check.style.display = 'none';
+      });
+    }
+
+    function formatPrice(price, currency) {
+      if (!price && price !== 0) return '';
+      return currency + ' ' + Number(price).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
+
+    function renderSlots(slots, date) {
+      elGrid.innerHTML = '';
+
+      slots.forEach(function (slot) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.classList.add('slot-btn', 'relative', 'flex', 'flex-col', 'items-center', 'justify-center',
+          'rounded-xl', 'border', 'px-2', 'py-2.5', 'text-center', 'transition-all', 'duration-150', 'text-xs');
+
+        const timeLabel = document.createElement('span');
+        timeLabel.className = 'font-semibold text-sm leading-tight';
+        timeLabel.textContent = slot.start_at + ' – ' + slot.end_at;
+
+        const priceLabel = document.createElement('span');
+        priceLabel.className = 'mt-0.5 leading-tight';
+
+        const statusLabel = document.createElement('span');
+        statusLabel.className = 'mt-0.5 font-medium leading-tight';
+
+        // Checkmark (oculto por defecto)
+        const check = document.createElement('span');
+        check.className = 'slot-check absolute top-1.5 right-1.5 text-indigo-600';
+        check.style.display = 'none';
+        check.innerHTML = '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>';
+
+        if (slot.status === 'AVAILABLE') {
+          btn.classList.add('border-green-300', 'bg-green-50', 'text-green-800', 'hover:border-green-500', 'hover:bg-green-100', 'cursor-pointer');
+          timeLabel.classList.add('text-green-900');
+          priceLabel.classList.add('text-green-700');
+          if (slot.has_discount) {
+            priceLabel.innerHTML =
+              '<span class="line-through text-slate-400 mr-1">' + formatPrice(slot.original_price, slot.currency) + '</span>' +
+              '<span class="text-green-700 font-semibold">' + formatPrice(slot.price, slot.currency) + '</span>';
+          } else {
+            priceLabel.textContent = formatPrice(slot.price, slot.currency);
+          }
+
+          btn.addEventListener('click', function () {
+            // Deselect others
+            elGrid.querySelectorAll('.slot-btn').forEach(function (b) {
+              b.classList.remove('ring-2', 'ring-indigo-500', 'border-indigo-500', 'bg-indigo-50');
+              if (b.classList.contains('border-green-300') || b.classList.contains('border-indigo-500')) {
+                b.classList.remove('border-indigo-500');
+                b.classList.add('border-green-300', 'bg-green-50');
+              }
+              const c = b.querySelector('.slot-check');
+              if (c) c.style.display = 'none';
+            });
+
+            // Select this one
+            btn.classList.remove('border-green-300', 'bg-green-50');
+            btn.classList.add('ring-2', 'ring-indigo-500', 'border-indigo-500', 'bg-indigo-50');
+            check.style.display = '';
+
+            hiddenDate.value = date;
+            hiddenTime.value = slot.start_at;
+            submitBtn.disabled = false;
+          });
+
+        } else if (slot.status === 'UNAVAILABLE') {
+          btn.classList.add('border-slate-200', 'bg-slate-50', 'text-slate-400', 'cursor-not-allowed');
+          btn.disabled = true;
+          timeLabel.classList.add('text-slate-400');
+          statusLabel.textContent = 'Ocupado';
+          statusLabel.classList.add('text-slate-400');
+
+        } else if (slot.status === 'BLOCKED') {
+          btn.classList.add('border-orange-200', 'bg-orange-50', 'text-orange-700', 'cursor-not-allowed');
+          btn.disabled = true;
+          timeLabel.classList.add('text-orange-700');
+          statusLabel.textContent = slot.reason || 'Bloqueado';
+          statusLabel.classList.add('text-orange-600', 'truncate', 'max-w-full');
+
+        } else if (slot.status === 'PAST') {
+          btn.classList.add('border-slate-100', 'bg-slate-50', 'text-slate-300', 'cursor-not-allowed');
+          btn.disabled = true;
+          timeLabel.classList.add('text-slate-300');
+        }
+
+        btn.appendChild(timeLabel);
+        if (slot.status === 'AVAILABLE') {
+          btn.appendChild(priceLabel);
+        } else if (slot.status === 'UNAVAILABLE' || slot.status === 'BLOCKED') {
+          btn.appendChild(statusLabel);
+        }
+        btn.appendChild(check);
+
+        elGrid.appendChild(btn);
+      });
+
+      showState('grid');
+    }
+
+    // Escuchar cambios en cancha y fecha
+    fieldSelect.addEventListener('change', tryFetch);
+    datePicker.addEventListener('change', tryFetch);
+
+    // Inicializar: si ya hay cancha seleccionada (por old() en caso de error de validación), disparar
+    if (fieldSelect.value && datePicker.value) {
+      tryFetch();
+    }
+  })();
 </script>
 
 @endsection

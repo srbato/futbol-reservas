@@ -21,6 +21,7 @@ class Venue extends Model
         'cover_image_path',
         'address',
         'zone',
+        'phone',
         'lat',
         'lng',
         'is_active',
@@ -89,7 +90,9 @@ class Venue extends Model
 
     public function staff()
     {
-        return $this->belongsToMany(User::class, 'venue_staff')->withTimestamps();
+        return $this->belongsToMany(User::class, 'venue_staff')
+            ->withPivot('id', 'permissions')
+            ->withTimestamps();
     }
 
     public function staffInvitations()

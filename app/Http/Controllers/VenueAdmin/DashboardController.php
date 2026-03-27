@@ -18,6 +18,10 @@ class DashboardController extends Controller
     {
         $user = $request->user();
 
+        if ($user->isVenueStaff()) {
+            $venueId = $user->activeStaffVenueId();
+        }
+
         $today = now()->startOfDay();
         $tomorrow = $today->copy()->addDay();
         $startOfWeek = now()->startOfWeek();

@@ -13,6 +13,10 @@ class FieldRecurringDiscountController extends Controller
     {
         $user = $request->user();
 
+        if ($user->isVenueStaff()) {
+            abort_if(!$user->hasStaffPermission('manage_discounts', $user->activeStaffVenueId()), 403);
+        }
+
         $data = $request->validate([
             'field_id'            => ['required', 'integer', 'exists:fields,id'],
             'min_occurrences'     => ['required', 'integer', 'min:2', 'max:12'],
@@ -41,6 +45,10 @@ class FieldRecurringDiscountController extends Controller
 
         if ($user->role !== 'super_admin' && $recurringDiscount->field->venue->owner_user_id !== $user->id && !$user->isStaffOf($recurringDiscount->field->venue->id)) {
             abort(403);
+        }
+
+        if ($user->isVenueStaff()) {
+            abort_if(!$user->hasStaffPermission('manage_discounts', $recurringDiscount->field->venue->id), 403);
         }
 
         $recurringDiscount->delete();

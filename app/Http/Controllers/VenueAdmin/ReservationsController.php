@@ -16,6 +16,10 @@ class ReservationsController extends Controller
     {
         $user = $request->user();
 
+        if ($user->isVenueStaff()) {
+            abort_if(!$user->hasStaffPermission('view_reservations', $user->activeStaffVenueId()), 403);
+        }
+
         $date = $request->query('date')
             ? \Carbon\Carbon::parse($request->query('date'))
             : now();
@@ -53,6 +57,10 @@ class ReservationsController extends Controller
     public function agenda(Request $request)
     {
         $user = $request->user();
+
+        if ($user->isVenueStaff()) {
+            abort_if(!$user->hasStaffPermission('view_agenda', $user->activeStaffVenueId()), 403);
+        }
 
         $date = $request->query('date')
             ? Carbon::parse($request->query('date'))
@@ -138,6 +146,10 @@ class ReservationsController extends Controller
 
         if ($user->role !== 'super_admin' && $reservation->field->venue->owner_user_id !== $user->id && !$user->isStaffOf($reservation->field->venue->id)) {
             abort(403);
+        }
+
+        if ($user->isVenueStaff()) {
+            abort_if(!$user->hasStaffPermission('cancel_reservations', $reservation->field->venue->id), 403);
         }
 
         if (in_array($reservation->status, ['CANCELLED', 'EXPIRED'])) {

@@ -24,6 +24,10 @@ class FieldController extends Controller
             abort(403);
         }
 
+        if ($user->isVenueStaff()) {
+            abort_if(!$user->hasStaffPermission('manage_fields', $venue->id), 403);
+        }
+
         return view('va.fields.create', compact('venue'));
     }
 
@@ -33,6 +37,10 @@ class FieldController extends Controller
 
         if ($user->role !== 'super_admin' && $venue->owner_user_id !== $user->id && !$user->isStaffOf($venue->id)) {
             abort(403);
+        }
+
+        if ($user->isVenueStaff()) {
+            abort_if(!$user->hasStaffPermission('manage_fields', $venue->id), 403);
         }
 
         // Enforce plan field limit against the venue owner (super_admin is exempt)
@@ -106,6 +114,10 @@ class FieldController extends Controller
             abort(403);
         }
 
+        if ($request->user()->isVenueStaff()) {
+            abort_if(!$request->user()->hasStaffPermission('manage_fields', $field->venue->id), 403);
+        }
+
         return view('va.fields.edit', compact('field'));
     }
 
@@ -115,6 +127,10 @@ class FieldController extends Controller
 
         if ($request->user()->role !== 'super_admin' && $field->venue->owner_user_id !== $request->user()->id && !$request->user()->isStaffOf($field->venue->id)) {
             abort(403);
+        }
+
+        if ($request->user()->isVenueStaff()) {
+            abort_if(!$request->user()->hasStaffPermission('manage_fields', $field->venue->id), 403);
         }
 
         $data = $request->validate([
@@ -170,15 +186,20 @@ class FieldController extends Controller
             abort(403);
         }
 
+        if ($user->isVenueStaff()) {
+            abort_if(!$user->hasStaffPermission('manage_fields', $field->venue->id), 403);
+        }
+
         // If re-activating, enforce plan limit
         if (!$field->is_active && $user->role !== 'super_admin') {
-            $subscription = $user->activeVenueAdminSubscription()->first();
+            $owner = $field->venue->owner;
+            $subscription = $owner->activeVenueAdminSubscription()->first();
             $plan = $subscription?->plan_slug
                 ? MembershipPlan::where('slug', $subscription->plan_slug)->first()
                 : null;
 
             if ($plan && $plan->max_fields !== null) {
-                $activeFieldCount = Field::whereHas('venue', fn($q) => $q->where('owner_user_id', $user->id))
+                $activeFieldCount = Field::whereHas('venue', fn($q) => $q->where('owner_user_id', $owner->id))
                     ->where('is_active', true)
                     ->count();
 

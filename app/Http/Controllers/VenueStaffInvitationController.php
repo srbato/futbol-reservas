@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\VenueStaff;
 use App\Models\VenueStaffInvitation;
 use Illuminate\Http\Request;
 
@@ -37,7 +38,10 @@ class VenueStaffInvitationController extends Controller
                 ->withErrors(['invitation' => 'Esta invitación ya venció.']);
         }
 
-        $invitation->venue->staff()->syncWithoutDetaching([$invitation->user_id]);
+        VenueStaff::updateOrCreate(
+            ['venue_id' => $invitation->venue_id, 'user_id' => $invitation->user_id],
+            ['permissions' => $invitation->permissions]
+        );
         $invitation->update(['status' => 'accepted']);
 
         return redirect()->route('va.dashboard')
