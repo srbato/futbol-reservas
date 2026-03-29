@@ -1,6 +1,69 @@
 REGISTRO DE CAMBIOS - Futbol Reservas
 ======================================
 
+[2026-03-29] — AUDITORÍA, FIXES Y CONFIGURACIÓN DE PRODUCCIÓN
+==============================================================
+
+1. FIX — Google OAuth InvalidStateException intermitente
+   - config/services.php: fallback de redirect URI ahora usa APP_URL en lugar de ruta relativa
+   - .env (producción): SESSION_DOMAIN= (vacío, no el string "null") y SESSION_SECURE_COOKIE=true
+
+2. FIX — CONCAT() incompatible con SQLite en previewChange()
+   - ReservationModifyController.php: reemplazado CONCAT(date, ' ', start_time) por (date || ' ' || start_time)
+   - Afectaba el flujo de modificación de reserva cuando la cancha tenía bloqueos configurados
+
+3. FIX — Logs [MODIFY-DEBUG] con datos sensibles eliminados
+   - ~40 llamadas a Log::info/error con prefijo [MODIFY-DEBUG] removidas de:
+     · ReservationModifyController.php
+     · ReservationModifyService.php
+     · MercadoPagoWebhookController.php
+   - Los dos casos útiles convertidos a Log::error sin datos sensibles
+
+4. FIX — Ruta /feedback sin throttle (vector de spam)
+   - routes/web.php: agregado throttle:5,1 a POST /feedback
+
+5. FIX — Doble email en modificación Fase 2 (webhook + success URL en paralelo)
+   - El email de confirmación ahora solo lo envía el webhook (handleModifyPayment)
+   - La success URL ya no envía email, elimina condición de race condition
+
+6. FIX — FeedbackMail síncrono bloqueando el request
+   - FeedbackController.php: Mail::send() → Mail::queue()
+
+7. FIX — modification_hours null sin aviso al venue admin
+   - resources/views/va/venues/edit.blade.php: card de aviso amber cuando la feature está desactivada
+
+8. FIX — Plazo de modificación vencido sin explicación al usuario
+   - resources/views/reservations/show.blade.php: mensaje "El plazo para modificar esta reserva venció"
+     en lugar de simplemente no mostrar el botón
+
+9. FIX — Campos modify_* huérfanos en DB si el usuario abandona el pago
+   - ReservationModifyController.php: cleanup de modify_mp_preference_id, modify_field_id,
+     modify_start_at, modify_diff_amount en modifyPending() y modifyFailure()
+
+10. MEJORA — Slot-picker muestra precio de cada slot disponible
+    - ReservationModifyController.php: buildSlots() calcula precio con ReservationService::calculatePrice()
+    - resources/views/reservations/modify/slot-picker.blade.php: precio visible bajo la hora
+
+11. MEJORA — ReservationModifiedNotification (notificación interna)
+    - app/Notifications/ReservationModifiedNotification.php: nueva notificación (database + web push)
+    - ReservationModifyService.php: se envía desde applyChange() cubriendo todos los paths
+
+12. MEJORA — Email al venue admin cuando un usuario modifica su reserva
+    - ReservationModifyService.php: applyChange() envía ReservationModifiedMail al owner del venue
+
+13. MEJORA — Feedback en marketing layout toma email del usuario logueado automáticamente
+    - resources/views/layouts/marketing.blade.php: si Auth::check(), muestra email del usuario
+      en lugar de campo vacío
+
+14. PRODUCCIÓN — Supervisor configurado para queue worker y scheduler
+    - supervisor/queue-worker.conf: rutas corregidas a /home/santiago/tucancha, user=santiago, numprocs=1
+    - supervisor/scheduler.conf: rutas corregidas a /home/santiago/tucancha, user=santiago
+    - supervisor/deploy.sh: agregado supervisorctl restart tucancha-worker:* al final del deploy
+    - En producción: Supervisor instalado con dnf, conf copiados a /etc/supervisor/conf.d/,
+      /etc/supervisord.conf actualizado con include files = /etc/supervisor/conf.d/*.conf
+    - Procesos activos: tucancha-queue-worker (RUNNING) + tucancha-scheduler (RUNNING)
+    - Reverb (WebSockets) ya corría como proceso independiente desde el 21/3
+
 [2026-03-15]
 - Creado este archivo para registrar cambios de la app
 
