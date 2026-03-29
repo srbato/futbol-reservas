@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Events\NotificationCreated;
+use App\Models\Venue;
+use App\Observers\VenueObserver;
 use GuzzleHttp\Client as GuzzleClient;
 use Illuminate\Routing\UrlGenerator;
 use Illuminate\Support\ServiceProvider;
@@ -35,6 +37,8 @@ class AppServiceProvider extends ServiceProvider
         if (config('app.env') !== 'production') {
             $url->forceScheme('https');
         }
+
+        Venue::observe(VenueObserver::class);
 
         \Illuminate\Notifications\DatabaseNotification::created(function ($notification) {
             try {
