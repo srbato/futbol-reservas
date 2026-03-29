@@ -18,7 +18,6 @@
 
   <form method="POST" action="{{ route('va.fields.update', $field) }}" enctype="multipart/form-data">
     @csrf
-    @method('PUT')
 
     {{-- Foto de la cancha --}}
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
