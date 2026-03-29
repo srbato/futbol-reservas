@@ -40,7 +40,7 @@ class AvailabilityController extends Controller
         $open = Carbon::parse($date->toDateString() . ' ' . $openTime);
         $close = Carbon::parse($date->toDateString() . ' ' . $closeTime);
 
-        $slotMinutes   = (int) $field->slot_minutes;
+        $slotMinutes   = (int) ($field->slot_minutes ?: 60);
         $price         = (float) ($field->price?->price_per_slot ?? 0);
         $currency      = $field->price?->currency ?? 'ARS';
 

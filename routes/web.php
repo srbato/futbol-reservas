@@ -11,6 +11,7 @@ use App\Http\Controllers\PaymentDevController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReservationCancelController;
 use App\Http\Controllers\ReservationController;
+use App\Http\Controllers\ReservationModifyController;
 use App\Http\Controllers\RecurringReservationController;
 use App\Http\Controllers\ReservationBatchCheckoutController;
 use App\Http\Controllers\ReservationBatchMercadoPagoController;
@@ -54,6 +55,7 @@ use App\Http\Controllers\FaltaUnoStatsController;
 use App\Http\Controllers\FaltaUnoRatingController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PushSubscriptionController;
+use App\Http\Controllers\FeedbackController;
 use App\Models\MembershipPlan;
 
 
@@ -66,6 +68,9 @@ use App\Models\MembershipPlan;
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
+
+// Feedback público (sin auth requerido)
+Route::post('/feedback', [FeedbackController::class, 'store'])->middleware('throttle:5,1')->name('feedback.store');
 
 // Google OAuth
 Route::get('/auth/google', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'redirect'])->name('auth.google');
@@ -184,6 +189,19 @@ Route::middleware(['auth', 'active.user'])->group(function () {
 
     Route::post('/reservations/{reservation}/mercadopago', [MercadoPagoController::class, 'checkout'])
         ->name('reservations.mercadopago');
+
+    Route::get('/reservations/{reservation}/modify', [ReservationModifyController::class, 'showSlotPicker'])
+        ->name('reservations.modify.show');
+    Route::post('/reservations/{reservation}/modify/preview', [ReservationModifyController::class, 'previewChange'])
+        ->name('reservations.modify.preview');
+    Route::post('/reservations/{reservation}/modify/confirm', [ReservationModifyController::class, 'confirm'])
+        ->name('reservations.modify.confirm');
+    Route::get('/reservations/{reservation}/modify/payment-success', [ReservationModifyController::class, 'modifySuccess'])
+        ->name('reservations.modify.payment.success');
+    Route::get('/reservations/{reservation}/modify/payment-pending', [ReservationModifyController::class, 'modifyPending'])
+        ->name('reservations.modify.payment.pending');
+    Route::get('/reservations/{reservation}/modify/payment-failure', [ReservationModifyController::class, 'modifyFailure'])
+        ->name('reservations.modify.payment.failure');
 
     Route::get('/my-reservations', [MyReservationsController::class, 'index'])
         ->name('my_reservations');

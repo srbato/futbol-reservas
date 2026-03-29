@@ -310,6 +310,16 @@
                   @endif
                 @endif
 
+                @if($r->status === 'PAID' && $r->batch_id === null && $r->start_at->isFuture())
+                  @php
+                    $modHours = $r->field->venue->modification_hours ?? null;
+                    $canModify = $modHours !== null && now()->isBefore($r->start_at->copy()->subHours($modHours));
+                  @endphp
+                  @if($canModify)
+                    <a href="{{ route('reservations.modify.show', $r) }}" class="btn btn-primary">Cambiar horario</a>
+                  @endif
+                @endif
+
                 @if(in_array($r->status, ['EXPIRED', 'CANCELLED']))
                   <a href="{{ route('fields.show', $r->field) }}" class="btn btn-primary">Volver a la cancha</a>
                 @endif

@@ -1,0 +1,32 @@
+<?php
+
+namespace App\Notifications;
+
+use App\Models\Reservation;
+use App\Notifications\Concerns\HasWebPush;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Notification;
+
+class ReservationModifiedNotification extends Notification implements ShouldQueue
+{
+    use HasWebPush, Queueable;
+
+    public function __construct(public readonly Reservation $reservation) {}
+
+    public function toArray($notifiable): array
+    {
+        $this->reservation->loadMissing('field.venue');
+
+        $venue = $this->reservation->field->venue->name ?? 'el complejo';
+        $date  = $this->reservation->start_at->format('d/m H:i');
+
+        return [
+            'title'        => 'Reserva modificada',
+            'body'         => "Tu reserva en {$venue} fue cambiada al {$date}.",
+            'icon'         => '📅',
+            'action_url'   => route('reservations.show', $this->reservation),
+            'action_label' => 'Ver reserva',
+        ];
+    }
+}

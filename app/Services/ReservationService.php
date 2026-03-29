@@ -64,7 +64,7 @@ class ReservationService
             abort(422, 'El horario elegido está fuera del rango disponible.');
         }
 
-        return DB::transaction(function () use ($field, $start, $end, $date, $dow, $userId, $expiresInMinutes, $batchId) {
+        return DB::transaction(function () use ($field, $start, $end, $date, $userId, $expiresInMinutes, $batchId) {
             DB::table('fields')
                 ->where('id', $field->id)
                 ->lockForUpdate()
@@ -104,46 +104,7 @@ class ReservationService
                 abort(409, 'Ese horario ya está reservado.');
             }
 
-            // Precio nocturno
-            $basePrice  = (float) ($field->price?->price_per_slot ?? 0);
-            $nightPrice = $field->price?->night_price_per_slot ? (float) $field->price->night_price_per_slot : null;
-            $nightStart = $field->price?->night_start_time ?? null;
-            $nightEnd   = $field->price?->night_end_time ?? null;
-
-            if ($nightPrice !== null && $nightStart && $nightEnd) {
-                $nightStartCarbon = Carbon::parse($date->toDateString() . ' ' . $nightStart);
-                $nightEndCarbon   = Carbon::parse($date->toDateString() . ' ' . $nightEnd);
-                if ($nightStartCarbon < $end && $nightEndCarbon > $start) {
-                    $basePrice = $nightPrice;
-                }
-            }
-
-            $finalPrice = $basePrice;
-
-            $matchingDiscount = $field->discounts()
-                ->where('is_active', true)
-                ->get()
-                ->first(function ($discount) use ($date, $dow, $start, $end) {
-                    if ($discount->date && $discount->date->toDateString() !== $date->toDateString()) {
-                        return false;
-                    }
-
-                    if (!$discount->date && !is_null($discount->day_of_week) && (int) $discount->day_of_week !== $dow) {
-                        return false;
-                    }
-
-                    if ($discount->start_time && $discount->end_time) {
-                        $discountStart = Carbon::parse($date->toDateString() . ' ' . $discount->start_time);
-                        $discountEnd = Carbon::parse($date->toDateString() . ' ' . $discount->end_time);
-                        return $discountStart < $end && $discountEnd > $start;
-                    }
-
-                    return true;
-                });
-
-            if ($matchingDiscount) {
-                $finalPrice = (float) $matchingDiscount->discount_price;
-            }
+            $finalPrice = $this->calculatePrice($field, $start);
 
             $reservation = Reservation::create([
                 'batch_id' => $batchId,
@@ -162,5 +123,57 @@ class ReservationService
 
             return $reservation;
         });
+    }
+
+    /**
+     * Calcula el precio de un slot para una cancha y horario dados.
+     * Aplica precio nocturno y descuentos activos.
+     */
+    public function calculatePrice(Field $field, Carbon $start): float
+    {
+        $field->loadMissing(['price', 'discounts']);
+
+        $date = $start->copy()->startOfDay();
+        $end  = $start->copy()->addMinutes((int) ($field->slot_minutes ?: 60));
+        $dow  = (int) $start->dayOfWeek;
+
+        $basePrice  = (float) ($field->price?->price_per_slot ?? 0);
+        $nightPrice = $field->price?->night_price_per_slot ? (float) $field->price->night_price_per_slot : null;
+        $nightStart = $field->price?->night_start_time ?? null;
+        $nightEnd   = $field->price?->night_end_time ?? null;
+
+        if ($nightPrice !== null && $nightStart && $nightEnd) {
+            $nightStartCarbon = Carbon::parse($date->toDateString() . ' ' . $nightStart);
+            $nightEndCarbon   = Carbon::parse($date->toDateString() . ' ' . $nightEnd);
+            if ($nightStartCarbon < $end && $nightEndCarbon > $start) {
+                $basePrice = $nightPrice;
+            }
+        }
+
+        $finalPrice = $basePrice;
+
+        $matchingDiscount = $field->discounts()
+            ->where('is_active', true)
+            ->get()
+            ->first(function ($discount) use ($date, $dow, $start, $end) {
+                if ($discount->date && $discount->date->toDateString() !== $date->toDateString()) {
+                    return false;
+                }
+                if (!$discount->date && !is_null($discount->day_of_week) && (int) $discount->day_of_week !== $dow) {
+                    return false;
+                }
+                if ($discount->start_time && $discount->end_time) {
+                    $discountStart = Carbon::parse($date->toDateString() . ' ' . $discount->start_time);
+                    $discountEnd   = Carbon::parse($date->toDateString() . ' ' . $discount->end_time);
+                    return $discountStart < $end && $discountEnd > $start;
+                }
+                return true;
+            });
+
+        if ($matchingDiscount) {
+            $finalPrice = (float) $matchingDiscount->discount_price;
+        }
+
+        return $finalPrice;
     }
 }

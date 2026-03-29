@@ -29,6 +29,7 @@ class Venue extends Model
         'mp_refresh_token',
         'mp_user_id',
         'cancellation_hours',
+        'modification_hours',
         'amenities',
     ];
 
@@ -36,7 +37,9 @@ class Venue extends Model
         'mp_access_token'  => 'encrypted',
         'mp_refresh_token' => 'encrypted',
         'is_active'        => 'boolean',
-        'amenities'        => 'array',
+        'amenities'           => 'array',
+        'cancellation_hours'  => 'integer',
+        'modification_hours'  => 'integer',
     ];
 
     public function fields(): HasMany

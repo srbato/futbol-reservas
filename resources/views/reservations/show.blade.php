@@ -151,6 +151,23 @@
               </a>
             @endif
 
+            @if($reservation->status === 'PAID' && $reservation->batch_id === null && $reservation->start_at->isFuture())
+              @php
+                $modHours = $reservation->field->venue->modification_hours ?? null;
+                $canModify = $modHours !== null && now()->isBefore($reservation->start_at->copy()->subHours($modHours));
+                $deadlineExpired = $modHours !== null && !$canModify;
+              @endphp
+              @if($canModify)
+                <a href="{{ route('reservations.modify.show', $reservation) }}" class="btn btn-primary">
+                  Cambiar horario
+                </a>
+              @elseif($deadlineExpired)
+                <span class="muted" style="font-size:13px; align-self:center;">
+                  El plazo para modificar esta reserva venció (requiere {{ $modHours }}h de anticipación)
+                </span>
+              @endif
+            @endif
+
             @if(in_array($reservation->status, ['EXPIRED', 'CANCELLED']))
               <a href="{{ route('fields.show', $reservation->field) }}" class="btn btn-primary">
                 Volver a la cancha

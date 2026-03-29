@@ -2,15 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ReservationModifiedMail;
 use App\Mail\ReservationPaidMail;
 use App\Notifications\ReservationConfirmedNotification;
+use App\Models\Field;
 use App\Models\PlatformPayout;
 use App\Models\Reservation;
 use App\Models\ReservationBatch;
 use App\Models\Venue;
 use App\Models\VenueAdminSubscription;
 use App\Services\MercadoPagoSubscriptionService;
+use App\Services\ReservationModifyService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -111,6 +116,10 @@ class MercadoPagoWebhookController extends Controller
         if (!$externalReference) {
             Log::warning('Pago sin external_reference', $payment);
             return response()->json(['ok' => true]);
+        }
+
+        if (str_starts_with($externalReference, 'modify:')) {
+            return $this->handleModifyPayment($externalReference, $paymentStatus, $paymentId);
         }
 
         if (str_starts_with($externalReference, 'venue_admin_subscription:')) {
@@ -458,6 +467,121 @@ class MercadoPagoWebhookController extends Controller
         }
 
         return response()->json(['ok' => true]);
+    }
+
+    private function handleModifyPayment(string $externalReference, ?string $paymentStatus, $paymentId)
+    {
+        $reservationId = (int) str_replace('modify:', '', $externalReference);
+        $reservation   = Reservation::find($reservationId);
+
+        if (!$reservation) {
+            Log::warning('handleModifyPayment: reserva no encontrada', ['reservation_id' => $reservationId]);
+            return response('OK', 200);
+        }
+
+        if ($paymentStatus !== 'approved') {
+            return response('OK', 200);
+        }
+
+        // Paso 1: verificar idempotencia y leer datos dentro de una transacción corta.
+        // applyChange NO va aquí — tiene su propia transacción interna.
+        $processData = DB::transaction(function () use ($reservation) {
+            $fresh = Reservation::lockForUpdate()->find($reservation->id);
+
+            if (!$fresh || !$fresh->modify_mp_preference_id || $fresh->modification_status === 'COMPLETED') {
+                return null;
+            }
+
+            $newField = Field::with(['venue', 'price', 'discounts', 'blocks'])->find($fresh->modify_field_id);
+
+            if (!$newField) {
+                Log::error('handleModifyPayment: campo pendiente no encontrado', [
+                    'reservation_id'  => $fresh->id,
+                    'modify_field_id' => $fresh->modify_field_id,
+                ]);
+                return null;
+            }
+
+            $newField->loadMissing('venue');
+
+            $accessToken = $newField->venue->mp_access_token ?? config('services.mercadopago.access_token');
+            $newStart    = Carbon::parse($fresh->modify_start_at);
+            $newPrice    = (float) $fresh->total_amount + (float) $fresh->modify_diff_amount;
+
+            return [
+                'fresh'       => $fresh,
+                'newField'    => $newField,
+                'accessToken' => $accessToken,
+                'newStart'    => $newStart,
+                'newPrice'    => $newPrice,
+                'diffAmount'  => (float) $fresh->modify_diff_amount,
+            ];
+        });
+
+        if (!$processData) {
+            return response('OK', 200);
+        }
+
+        // Paso 2: verificar el estado real del pago con el token correcto (fuera de transacción).
+        $paymentResponse = Http::withOptions(['verify' => app()->isProduction()])
+            ->withToken($processData['accessToken'])
+            ->get("https://api.mercadopago.com/v1/payments/{$paymentId}");
+
+        $verifiedStatus = $paymentResponse->successful()
+            ? ($paymentResponse->json()['status'] ?? null)
+            : null;
+
+        if ($verifiedStatus !== 'approved') {
+            return response('OK', 200);
+        }
+
+        // Paso 3: aplicar el cambio. applyChange tiene su propia transacción — no anidar.
+        $fresh      = $processData['fresh'];
+        $newField   = $processData['newField'];
+        $newStart   = $processData['newStart'];
+        $newPrice   = $processData['newPrice'];
+        $diffAmount = $processData['diffAmount'];
+
+        /** @var ReservationModifyService $modifyService */
+        $modifyService = app(ReservationModifyService::class);
+
+        try {
+            $modifyService->applyChange($fresh, $newField, $newStart, $newPrice);
+        } catch (\Throwable $e) {
+            Log::error('handleModifyPayment: slot tomado al aplicar cambio, reembolsando', [
+                'reservation_id' => $fresh->id,
+                'error'          => $e->getMessage(),
+            ]);
+
+            Http::withOptions(['verify' => app()->isProduction()])
+                ->withToken($processData['accessToken'])
+                ->post("https://api.mercadopago.com/v1/payments/{$paymentId}/refunds", [
+                    'amount' => round($diffAmount, 2),
+                ]);
+
+            $fresh->update([
+                'modify_mp_preference_id' => null,
+                'modify_diff_amount'      => null,
+                'modify_field_id'         => null,
+                'modify_start_at'         => null,
+                'modification_status'     => 'REFUNDED',
+            ]);
+
+            return response('OK', 200);
+        }
+
+        // Paso 4: limpiar datos de modificación pendiente y notificar.
+        $fresh->update([
+            'modify_mp_preference_id' => null,
+            'modify_diff_amount'      => null,
+            'modify_field_id'         => null,
+            'modify_start_at'         => null,
+        ]);
+
+        $freshLoaded = $fresh->fresh()->loadMissing(['user', 'field.venue']);
+        Mail::to($freshLoaded->user->email)->queue(new ReservationModifiedMail($freshLoaded, 0, null));
+
+        return response('OK', 200);
     }
 
     private function handleVenueAdminSubscriptionPayment(string $externalReference, ?string $paymentStatus, $paymentId)

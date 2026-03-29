@@ -28,13 +28,22 @@ class Reservation extends Model
         'match_result',
         'match_outcome',
         'notes',
+        'modified_at',
+        'modification_status',
+        'modify_mp_preference_id',
+        'modify_diff_amount',
+        'modify_field_id',
+        'modify_start_at',
     ];
 
     protected $casts = [
         'start_at'      => 'datetime',
         'end_at'        => 'datetime',
         'expires_at'    => 'datetime',
-        'reminder_sent' => 'boolean',
+        'modified_at'        => 'datetime',
+        'modify_start_at'    => 'datetime',
+        'modify_diff_amount' => 'float',
+        'reminder_sent'      => 'boolean',
     ];
 
     public function field(): BelongsTo

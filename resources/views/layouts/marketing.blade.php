@@ -371,6 +371,59 @@
         </div>
         <span class="footer-copy">© {{ date('Y') }} TuCancha</span>
       </div>
+
+      {{-- Bloque de feedback público --}}
+      <div style="margin-top: 28px; padding-top: 24px; border-top: 1px solid #ececec;">
+        <p style="font-size:14px; color:#555; margin:0 0 14px 0; font-weight:600;">
+          ¿Tenés alguna sugerencia o comentario?
+        </p>
+
+        @if(session('feedback_sent'))
+          <div style="background:#e8f7ee; color:#157347; border:1px solid #cfe9d7; border-radius:10px; padding:12px 16px; font-size:14px; font-weight:600; max-width:560px;">
+            Gracias por tu feedback. Lo revisaremos pronto.
+          </div>
+        @else
+          <form method="POST" action="{{ route('feedback.store') }}" style="max-width:560px;">
+            @csrf
+            <div style="display:flex; flex-direction:column; gap:10px;">
+              @auth
+                <p style="font-size:13px; color:#888; margin:0;">
+                  Se enviará desde tu cuenta: <strong>{{ auth()->user()->email }}</strong>
+                </p>
+              @else
+                <input
+                  type="email"
+                  name="feedback_email"
+                  placeholder="Tu email (opcional)"
+                  style="padding:10px 14px; border:1px solid #ddd; border-radius:10px; font-size:14px; font-family:inherit; background:#fff; color:#111; outline:none;"
+                >
+              @endauth
+              <textarea
+                name="feedback_message"
+                rows="3"
+                placeholder="Escribí tu sugerencia, error o comentario..."
+                required
+                minlength="10"
+                style="padding:10px 14px; border:1px solid #ddd; border-radius:10px; font-size:14px; font-family:inherit; resize:vertical; background:#fff; color:#111; outline:none;"
+              ></textarea>
+              @error('feedback_message')
+                <span style="font-size:13px; color:#b91c1c;">{{ $message }}</span>
+              @enderror
+              <div>
+                <button
+                  type="submit"
+                  style="padding:10px 20px; background:#111; color:#fff; border:none; border-radius:10px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; transition:background .15s;"
+                  onmouseover="this.style.background='#222'"
+                  onmouseout="this.style.background='#111'"
+                >
+                  Enviar feedback
+                </button>
+              </div>
+            </div>
+          </form>
+        @endif
+      </div>
+
     </div>
   </footer>
 

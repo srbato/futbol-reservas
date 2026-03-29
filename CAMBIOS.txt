@@ -1339,3 +1339,214 @@ se necesita Supervisor para mantener el worker corriendo permanentemente.
      php artisan queue:restart
      (le dice al worker que termine el job actual y se reinicie con el código nuevo)
      O bien: sudo supervisorctl restart tucancha-worker:*
+
+[2026-03-27] — FEATURES DEL DÍA
+=================================
+
+0. TUNNEL CLOUDFLARE
+   - .env actualizado: REVERB_CLIENT_HOST y REVERB_SERVER_HOSTNAME
+     → ministries-disciplines-chair-guidance.trycloudflare.com
+
+---
+
+FEATURE #9 — VISTA SEMANAL EN AGENDA DEL VENUE ADMIN
+------------------------------------------------------
+- app/Http/Controllers/VenueAdmin/ReservationsController.php
+  · Nuevo parámetro $view = 'day'|'week' desde query string
+  · Vista semana: calcula weekStart/weekEnd, selección de una cancha,
+    construye $activeSlotsPerDay (mapa fecha → array de slots activos)
+  · Vista día: sin cambios en lógica, pasa $view y nulls/vacíos extras
+
+- resources/views/va/reservations/agenda.blade.php (reescrito)
+  · Toggle "Día / Semana" en el encabezado
+  · Vista día: grilla original (todas las canchas, un día)
+  · Vista semana: una cancha, 7 columnas (días), filas = franjas horarias,
+    hoy destacado en verde oscuro, celdas: "Libre" / "—" / card de reserva
+
+---
+
+FEATURE #15 — REPORTES MEJORADOS DEL VENUE ADMIN
+--------------------------------------------------
+- app/Http/Controllers/VenueAdmin/ReportsController.php
+  · Nueva query: ingresos por franja horaria (GROUP BY hora, SUM total_amount)
+  · Pasa $revenuePerHourLabels y $revenuePerHourData a la vista
+
+- resources/views/va/reports/index.blade.php
+  · Nuevo gráfico "Comparativa entre canchas" (bar chart dual Y, solo si >1 cancha)
+  · Nuevo gráfico "Ingresos por franja horaria" (bar chart por hora del día)
+  · Botón "Exportar PDF" → window.print()
+  · @media print CSS: oculta nav, sidebar, filtros, banner de membresía
+  · .print-header visible solo al imprimir (período + fecha de generación)
+  · Clase no-print en la card de filtros
+
+- resources/views/layouts/admin.blade.php
+  · Clase no-print en el banner de membresía activa (no aparece en PDF)
+
+---
+
+FEATURE #12 — MODIFICAR RESERVA (Fase 1: igual precio o más barato)
+---------------------------------------------------------------------
+
+### Migraciones
+- 2026_03_27_111345_add_modification_hours_to_venues_table.php
+  · Columna: modification_hours (unsignedSmallInteger, nullable)
+- 2026_03_27_111348_add_modification_fields_to_reservations_table.php
+  · Columnas: modified_at (timestamp, nullable), modification_status (varchar 30, nullable)
+
+### Modelos
+- app/Models/Venue.php
+  · modification_hours en $fillable
+  · Casts integer para cancellation_hours y modification_hours
+- app/Models/Reservation.php
+  · modified_at, modification_status en $fillable y $casts
+
+### Servicios
+- app/Services/ReservationService.php
+  · Extraído calculatePrice(Field, Carbon): float como método público reutilizable
+- app/Services/MercadoPagoPartialRefundService.php (nuevo)
+  · refundPartial(Reservation, float): ?bool
+  · Llama POST /v1/payments/{id}/refunds con { amount: X }
+  · Retorna true (ok), false (error MP, logeado), null (no aplica)
+- app/Services/ReservationModifyService.php (nuevo)
+  · applyChange(Reservation, Field, Carbon, float): void
+  · DB::transaction() + lockForUpdate() para atomicidad
+  · Verifica overlap y bloques antes de actualizar
+  · Broadcast FieldAvailabilityChanged para cancha vieja y nueva
+
+### Controlador
+- app/Http/Controllers/ReservationModifyController.php (nuevo)
+  · showSlotPicker: carga canchas del complejo, construye grilla de slots
+  · previewChange: verifica disponibilidad (excluye PENDING_PAYMENT expirados),
+    verifica bloques, calcula precio, guarda en sesión 10 min
+  · confirm: valida sesión y TTL, solo diff <= 0 (Fase 1), aplica cambio,
+    reembolso parcial si más barato, envía email, limpia sesión
+  · authorizeModify: PAID, no batch, no pasada, modification_hours configurado, plazo vigente
+  · buildSlots: batch-load reservas y bloques del día, marca slot actual
+
+### Mail y email
+- app/Mail/ReservationModifiedMail.php (nuevo)
+  · Asunto: "Tu reserva #X fue modificada — TuCancha"
+- resources/views/emails/reservation-modified.blade.php (nuevo)
+  · Muestra nuevo horario completo
+  · Card verde si reembolso procesado, amarilla si falló
+
+### Vistas
+- resources/views/reservations/modify/slot-picker.blade.php (nuevo)
+  · Info de reserva actual como referencia
+  · Formulario: selector de cancha + fecha
+  · Grilla de slots: verde (disponible), gris punteado (actual), gris (ocupado)
+- resources/views/reservations/modify/preview.blade.php (nuevo)
+  · Comparativa lado a lado: horario actual vs nuevo
+  · Delta: "sin diferencia" / "reembolso de $X" / aviso caso 3 no disponible
+  · Botón "Confirmar cambio" solo si diff <= 0
+
+### Rutas (routes/web.php)
+- GET  /reservations/{reservation}/modify          → reservations.modify.show
+- POST /reservations/{reservation}/modify/preview  → reservations.modify.preview
+- POST /reservations/{reservation}/modify/confirm  → reservations.modify.confirm
+
+### Panel venue admin
+- resources/views/va/venues/edit.blade.php
+  · Campo modification_hours en sección "Política de cancelación y modificación"
+- app/Http/Controllers/VenueAdmin/VenueController.php
+  · Validación y asignación de modification_hours en store() y update()
+
+### Botones en vistas de usuario
+- resources/views/reservations/show.blade.php
+  · Botón "Cambiar horario" en card Acciones
+- resources/views/reservations/my.blade.php
+  · Botón "Cambiar horario" en cada reserva individual
+
+### Condición para mostrar botón "Cambiar horario":
+  · Reserva PAID + no recurrente + fecha futura + complejo tiene modification_hours
+    configurado + todavía dentro del plazo (ahora < start_at - modification_hours)
+
+### PENDIENTE — Fase 2 (no implementada):
+  · Caso 3: nuevo horario más caro que el original
+  · Requiere cobrar la diferencia vía MercadoPago (nuevo pago parcial)
+  · Por ahora el sistema muestra un aviso "próximamente" y no permite confirmar
+
+---
+
+FEATURE #13 — MODIFICAR RESERVA (Fase 2: nuevo horario más caro)
+-----------------------------------------------------------------
+
+### Migración
+- database/migrations/2026_03_27_200000_add_modify_payment_fields_to_reservations_table.php
+  · Columnas: modify_mp_preference_id (string nullable), modify_diff_amount (decimal 10,2 nullable),
+    modify_field_id (FK nullable → fields), modify_start_at (datetime nullable)
+
+### Modelos
+- app/Models/Reservation.php
+  · 4 columnas modify_* + modified_at + modification_status en $fillable
+  · Casts: modify_start_at como datetime, modify_diff_amount como float
+
+### Servicios
+- app/Services/ReservationModifyPaymentService.php (nuevo)
+  · createPreference(Reservation, Field, Carbon, float): string (init_point)
+  · Resuelve token MP del complejo o plataforma
+  · Crea preferencia con external_reference = "modify:{id}", back_urls, auto_return: approved
+  · Persiste 4 columnas modify_* en la reserva
+- app/Services/ReservationModifyService.php
+  · Fix crítico: broadcasts movidos FUERA de DB::transaction con try-catch
+    (ShouldBroadcastNow dentro de transacción revertía todo si Reverb fallaba)
+
+### Controlador
+- app/Http/Controllers/ReservationModifyController.php
+  · confirm(): si diff > 0 → llama ReservationModifyPaymentService y redirige a MP
+  · modifySuccess(): dos ramas separadas: COMPLETED → éxito, null preference → error
+    Fix: lee payment_id ?: collection_id (MP a veces envía collection_id)
+  · modifyPending(), modifyFailure(): nuevas páginas de resultado
+- app/Http/Controllers/MercadoPagoWebhookController.php
+  · handleModifyPayment() reestructurado: evita transacciones anidadas
+    Paso 1: transacción corta solo para idempotencia
+    Paso 2: verificación MP fuera de transacción
+    Paso 3: applyChange() fuera de transacción (tiene su propia transacción interna)
+    Paso 4: cleanup + email tras éxito confirmado
+
+### Rutas (routes/web.php)
+- GET /reservations/{reservation}/modify/payment-success  → reservations.modify.payment.success
+- GET /reservations/{reservation}/modify/payment-pending  → reservations.modify.payment.pending
+- GET /reservations/{reservation}/modify/payment-failure  → reservations.modify.payment.failure
+
+### Vistas
+- resources/views/reservations/modify/preview.blade.php
+  · Reemplazado aviso "próximamente" por botón real de confirmación para diff > 0
+- resources/views/reservations/modify/payment-pending.blade.php (nuevo)
+- resources/views/reservations/modify/payment-failure.blade.php (nuevo)
+
+### Bugs corregidos
+- AvailabilityController: slot_minutes = 0 → addMinutes(0) → loop infinito → timeout PHP
+  · Fix: (int)($field->slot_minutes ?: 60)
+- fields/show.blade.php: fetch de disponibilidad sin Accept: application/json
+  · Recibía HTML de error en vez de JSON → "ERROR CARGANDO DISPONIBILIDAD"
+- Slot nocturno ocupado no se ponía gris: ternario de priceClass evaluaba is_night_price
+  antes que disabled → Fix: invertido el orden (disabled primero)
+
+---
+
+FEATURE #14 — BOTÓN FLOTANTE DE FEEDBACK
+-----------------------------------------
+
+### Archivos creados
+- app/Http/Controllers/FeedbackController.php
+  · store(): valida mensaje (min 10), toma email del usuario logueado automáticamente
+  · Responde JSON si expectsJson(), redirect con flash si no
+  · Destino: tucancha10@gmail.com
+- app/Mail/FeedbackMail.php
+  · Mailable con feedbackMessage y senderEmail
+- resources/views/emails/feedback.blade.php
+  · Email HTML con header negro, cuerpo claro, hora de envío y email del remitente
+
+### Archivos modificados
+- routes/web.php
+  · POST /feedback → feedback.store (sin auth requerido)
+- resources/views/layouts/marketing.blade.php
+  · Bloque de feedback al pie del footer: formulario clásico con flash de éxito,
+    campo de email solo visible para guests
+- resources/views/layouts/app.blade.php
+  · Botón flotante circular negro (bottom:90px; right:24px) con SVG de burbuja de mensaje
+  · Card panel con vanilla JS puro (sin Alpine): toggle, submit, close on outside click
+  · Responsive: en ≤400px la card usa calc(100vw - 32px) centrada horizontalmente
+  · Mensajes de error inline, estado "Enviando...", mensaje de éxito verde auto-cierre 2s
+

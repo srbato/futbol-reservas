@@ -57,6 +57,7 @@ class VenueController extends Controller
             'address'            => ['nullable', 'string', 'max:200'],
             'zone'               => ['nullable', 'string', 'max:120'],
             'cancellation_hours' => ['nullable', 'integer', 'min:1', 'max:720'],
+            'modification_hours' => ['nullable', 'integer', 'min:1', 'max:720'],
             'amenities'          => ['nullable', 'array'],
             'amenities.*'        => ['string', 'in:' . implode(',', $validAmenityKeys)],
         ]);
@@ -78,6 +79,7 @@ class VenueController extends Controller
         $venue->lat                = $coords['lat'];
         $venue->lng                = $coords['lng'];
         $venue->cancellation_hours = $data['cancellation_hours'] ?? null;
+        $venue->modification_hours = $data['modification_hours'] ?? null;
         $venue->amenities          = $data['amenities'] ?? [];
         $venue->is_active          = true;
 
@@ -127,6 +129,7 @@ class VenueController extends Controller
             'address'            => ['nullable', 'string', 'max:200'],
             'zone'               => ['nullable', 'string', 'max:120'],
             'cancellation_hours' => ['nullable', 'integer', 'min:1', 'max:720'],
+            'modification_hours' => ['nullable', 'integer', 'min:1', 'max:720'],
             'amenities'          => ['nullable', 'array'],
             'amenities.*'        => ['string', 'in:' . implode(',', $validAmenityKeys)],
         ]);
@@ -145,6 +148,7 @@ class VenueController extends Controller
         $venue->address            = $newAddress;
         $venue->zone               = $data['zone'] ?? null;
         $venue->cancellation_hours = $data['cancellation_hours'] ?? null;
+        $venue->modification_hours = $data['modification_hours'] ?? null;
         $venue->amenities          = $data['amenities'] ?? [];
 
         if ($request->hasFile('cover_image')) {

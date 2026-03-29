@@ -26,6 +26,7 @@
   <meta name="twitter:description" content="{{ $ogDesc }}">
   <meta name="twitter:image" content="{{ $ogImage }}">
 <style>
+  [x-cloak] { display: none !important; }
   * { box-sizing: border-box; }
 
   body {
@@ -1274,6 +1275,126 @@
 
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <script>lucide.createIcons();</script>
+
+{{-- Botón flotante de feedback --}}
+<style>
+  #feedbackWidget { position:fixed; bottom:90px; right:24px; z-index:9990; }
+  #feedbackPanel  { display:none; position:absolute; bottom:60px; right:0; width:300px; background:#fff; border:1px solid #ececec; border-radius:16px; box-shadow:0 12px 36px rgba(0,0,0,.14); padding:20px; }
+  @media (max-width: 400px) {
+    #feedbackWidget { bottom:80px; right:16px; }
+    #feedbackPanel  { width: calc(100vw - 32px); right: auto; left: 50%; transform: translateX(-50%); bottom: 60px; }
+  }
+</style>
+<div id="feedbackWidget">
+  <button
+    id="feedbackToggle"
+    title="Enviar feedback"
+    style="width:48px; height:48px; border-radius:999px; background:#111; color:#fff; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 16px rgba(0,0,0,.22); transition:transform .15s, box-shadow .15s;"
+    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,.28)'"
+    onmouseout="this.style.transform=''; this.style.boxShadow='0 4px 16px rgba(0,0,0,.22)'"
+    aria-label="Feedback"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  </button>
+
+  <div id="feedbackPanel">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+      <span style="font-size:15px; font-weight:700; color:#111;">Envianos tu feedback</span>
+      <button id="feedbackClose" style="background:none; border:none; cursor:pointer; color:#aaa; font-size:18px; line-height:1; padding:0;" aria-label="Cerrar">&times;</button>
+    </div>
+
+    <div id="feedbackSuccess" style="display:none; background:#e8f7ee; color:#157347; border:1px solid #cfe9d7; border-radius:10px; padding:12px 14px; font-size:14px; font-weight:600; text-align:center;">
+      Gracias por tu feedback.
+    </div>
+
+    <div id="feedbackForm">
+      <textarea
+        id="feedbackMessage"
+        rows="4"
+        placeholder="Sugerencia, error o comentario..."
+        style="width:100%; padding:10px 12px; border:1px solid #ddd; border-radius:10px; font-size:14px; font-family:inherit; resize:vertical; color:#111; background:#fff; outline:none; box-sizing:border-box;"
+      ></textarea>
+      <div id="feedbackError" style="display:none; color:#b91c1c; font-size:13px; margin-top:6px;"></div>
+      <button
+        id="feedbackSubmit"
+        style="margin-top:10px; width:100%; padding:10px; background:#111; color:#fff; border:none; border-radius:10px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; transition:background .15s;"
+        onmouseover="if(!this.disabled) this.style.background='#222'"
+        onmouseout="this.style.background='#111'"
+      >Enviar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var toggle  = document.getElementById('feedbackToggle');
+  var panel   = document.getElementById('feedbackPanel');
+  var close   = document.getElementById('feedbackClose');
+  var submit  = document.getElementById('feedbackSubmit');
+  var msg     = document.getElementById('feedbackMessage');
+  var err     = document.getElementById('feedbackError');
+  var success = document.getElementById('feedbackSuccess');
+  var form    = document.getElementById('feedbackForm');
+
+  function openPanel()  { panel.style.display = 'block'; }
+  function closePanel() { panel.style.display = 'none'; success.style.display = 'none'; form.style.display = 'block'; msg.value = ''; err.style.display = 'none'; }
+
+  toggle.addEventListener('click', function(e) {
+    e.stopPropagation();
+    panel.style.display === 'none' ? openPanel() : closePanel();
+  });
+
+  close.addEventListener('click', closePanel);
+
+  document.addEventListener('click', function(e) {
+    if (panel.style.display !== 'none' && !document.getElementById('feedbackWidget').contains(e.target)) {
+      closePanel();
+    }
+  });
+
+  submit.addEventListener('click', function() {
+    var message = msg.value.trim();
+    if (message.length < 10) {
+      err.textContent = 'El mensaje debe tener al menos 10 caracteres.';
+      err.style.display = 'block';
+      return;
+    }
+    err.style.display = 'none';
+    submit.disabled = true;
+    submit.textContent = 'Enviando...';
+
+    fetch('{{ route('feedback.store') }}', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({ feedback_message: message }),
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      submit.disabled = false;
+      submit.textContent = 'Enviar';
+      if (data.ok) {
+        form.style.display = 'none';
+        success.style.display = 'block';
+        setTimeout(closePanel, 2000);
+      } else {
+        err.textContent = 'Ocurrió un error. Intentá de nuevo.';
+        err.style.display = 'block';
+      }
+    })
+    .catch(function() {
+      submit.disabled = false;
+      submit.textContent = 'Enviar';
+      err.textContent = 'Ocurrió un error. Intentá de nuevo.';
+      err.style.display = 'block';
+    });
+  });
+})();
+</script>
+
 
 @auth
 <script>

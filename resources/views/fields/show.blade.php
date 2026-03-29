@@ -1177,10 +1177,10 @@
              <span class="fs-slot-price-strike">${formatMoney(slot.original_price, slot.currency)}</span>
              <span class="fs-slot-price yellow">${formatMoney(slot.price, slot.currency)}</span>
            </div>`
-        : slot.is_night_price
-        ? `<span class="fs-slot-price purple">${formatMoney(slot.price, slot.currency)}</span>`
         : disabled
         ? `<span class="fs-slot-price muted">${formatMoney(slot.price, slot.currency)}</span>`
+        : slot.is_night_price
+        ? `<span class="fs-slot-price purple">${formatMoney(slot.price, slot.currency)}</span>`
         : `<span class="fs-slot-price green">${formatMoney(slot.price, slot.currency)}</span>`;
 
       const discountHtml = slot.has_discount
@@ -1241,7 +1241,7 @@
     skeletonHtml += '</div>';
     document.getElementById('slots').innerHTML = skeletonHtml;
 
-    fetch(`{{ route('fields.availability', $field, false) }}?date=${encodeURIComponent(date)}`)
+    fetch(`{{ route('fields.availability', $field, false) }}?date=${encodeURIComponent(date)}`, { headers: { 'Accept': 'application/json' } })
       .then(async (r) => {
         const text = await r.text();
         if (!r.ok) throw new Error(`HTTP ${r.status}\n\n${text}`);

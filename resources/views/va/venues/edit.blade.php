@@ -104,10 +104,10 @@
     {{-- Política de cancelación --}}
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
       <p class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-4 pb-3 border-b border-slate-100">
-        Política de cancelación
+        Política de cancelación y modificación
       </p>
 
-      <div class="flex items-center gap-3 flex-wrap">
+      <div class="flex items-center gap-3 flex-wrap mb-4">
         <input type="number" id="cancellation_hours" name="cancellation_hours"
                value="{{ old('cancellation_hours', $venue->cancellation_hours) }}"
                min="1" max="720" placeholder="—"
@@ -116,9 +116,32 @@
           horas mínimas de anticipación para cancelar
         </label>
       </div>
-      <p class="text-xs text-slate-400 mt-2">
+      <p class="text-xs text-slate-400 mb-4">
         Dejá vacío para permitir cancelaciones en cualquier momento. Cuando se supere el límite, el botón de cancelar desaparece para el usuario.
       </p>
+
+      <div class="flex items-center gap-3 flex-wrap">
+        <input type="number" id="modification_hours" name="modification_hours"
+               value="{{ old('modification_hours', $venue->modification_hours) }}"
+               min="1" max="720" placeholder="—"
+               class="w-28 rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+        <label for="modification_hours" class="text-sm text-slate-500">
+          horas mínimas de anticipación para modificar horario
+        </label>
+      </div>
+      <p class="text-xs text-slate-400 mt-2">
+        Dejá vacío para no permitir modificaciones. Cuando se configure, los usuarios podrán cambiar el horario de su reserva pagada con la anticipación indicada.
+      </p>
+      @if(old('modification_hours', $venue->modification_hours) === null)
+        <div class="mt-3 flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+          <svg class="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+          <p class="text-xs text-amber-700">
+            La modificación de reservas está desactivada para este complejo. Los usuarios no podrán cambiar el horario de sus reservas. Para habilitarla, configurá las horas mínimas de anticipación en el campo de arriba.
+          </p>
+        </div>
+      @endif
     </div>
 
     {{-- Servicios e instalaciones --}}
