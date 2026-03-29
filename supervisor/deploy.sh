@@ -37,6 +37,6 @@ echo "==> Restarting queue workers..."
 $PHP artisan queue:restart
 
 echo "==> Restarting Supervisor worker..."
-sudo supervisorctl restart tucancha-worker:*
+sudo supervisorctl restart tucancha-queue-worker:*
 
 echo "==> Deploy completado."
