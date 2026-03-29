@@ -15,6 +15,7 @@ composer install --no-dev --optimize-autoloader
 echo "==> Installing JS dependencies and building assets..."
 npm ci
 npm run build
+rm -rf node_modules
 
 echo "==> Running migrations..."
 $PHP artisan migrate --force
