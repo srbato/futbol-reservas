@@ -11,12 +11,12 @@ class GoogleAuthController extends Controller
 {
     public function redirect()
     {
-        return Socialite::driver('google')->redirect();
+        return Socialite::driver('google')->stateless()->redirect();
     }
 
     public function callback()
     {
-        $googleUser = Socialite::driver('google')->setHttpClient(
+        $googleUser = Socialite::driver('google')->stateless()->setHttpClient(
             new \GuzzleHttp\Client(['verify' => app()->isProduction()])
         )->user();
 
