@@ -28,13 +28,14 @@ class GoogleAuthController extends Controller
             if ($user) {
                 $user->update(['google_id' => $googleUser->getId()]);
             } else {
-                $user = User::create([
-                    'name'      => $googleUser->getName(),
-                    'email'     => $googleUser->getEmail(),
-                    'google_id' => $googleUser->getId(),
-                    'password'  => null,
-                    'is_active' => true,
+                // Redirigir al registro con datos pre-completados
+                session([
+                    'google_name'  => $googleUser->getName(),
+                    'google_email' => $googleUser->getEmail(),
+                    'google_id'    => $googleUser->getId(),
                 ]);
+
+                return redirect()->route('register');
             }
         }
 

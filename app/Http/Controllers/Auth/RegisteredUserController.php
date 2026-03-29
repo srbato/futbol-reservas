@@ -21,7 +21,10 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
-        return view('auth.register');
+        return view('auth.register', [
+            'googleName'  => session('google_name'),
+            'googleEmail' => session('google_email'),
+        ]);
     }
 
     /**
@@ -38,10 +41,13 @@ class RegisteredUserController extends Controller
         ]);
 
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'name'      => $request->name,
+            'email'     => $request->email,
+            'password'  => Hash::make($request->password),
+            'google_id' => session('google_id'),
         ]);
+
+        session()->forget(['google_name', 'google_email', 'google_id']);
 
         event(new Registered($user));
 

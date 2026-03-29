@@ -29,7 +29,7 @@
                 class="block mt-1 w-full rounded-xl"
                 type="text"
                 name="name"
-                :value="old('name')"
+                :value="old('name', $googleName ?? '')"
                 required
                 autofocus
                 autocomplete="name"
@@ -44,7 +44,7 @@
                 class="block mt-1 w-full rounded-xl"
                 type="email"
                 name="email"
-                :value="old('email')"
+                :value="old('email', $googleEmail ?? '')"
                 required
                 autocomplete="username"
             />
