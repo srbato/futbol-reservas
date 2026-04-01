@@ -2538,3 +2538,131 @@ Archivos nuevos:
   app/Notifications/FaltaUnoKickedNotification.php
   app/Notifications/ReviewReminderNotification.php
   app/Console/Commands/SendReviewReminders.php
+
+FIX: forceScheme HTTPS en local con ngrok (1 abril 2025)
+---------------------------------------------------------
+  app/Providers/AppServiceProvider.php:
+    - forceScheme('https') ahora se activa cuando APP_URL empieza con https://
+      (antes solo en APP_ENV=production, lo que hacía que los forms generaran
+       URLs http:// en local con ngrok, rompiendo todos los filtros y botones)
+
+FEATURE: Sistema de Temas Visuales por Deporte (1 abril 2025)
+--------------------------------------------------------------
+  Sistema que cambia la estética completa de la vista de complejos según el
+  deporte seleccionado en el filtro. Se activa automáticamente con el form GET
+  (?sport=padel o ?sport=football). Al quitar el filtro, vuelve al tema verde
+  default. Implementado con clases CSS condicionales server-side (Blade @if)
+  y body:has() para afectar layout/header/footer/logo.
+
+  Tema Pádel Neón:
+    - Clase: theme-padel (cuando sport=padel)
+    - Paleta: violeta (#a855f7), rosa neón (#ec4899), azul eléctrico (#3b82f6)
+    - Fondo: #0a0a0f con radial gradients violeta/rosa/azul fijos al viewport
+    - Hero: imagen padelneon.webp, overlay violeta oscuro
+    - Raqueta decorativa: raquetapadelfondo.webp, 520px, 55% opacidad,
+      mix-blend-mode: screen, glow animado pulsante violeta/rosa
+    - Irradiación de luz: radial-gradient 700px desde la raqueta, animado
+    - Líneas de pista neón: 3 horizontales + 1 vertical en el hero
+    - Líneas ambientales: 3 líneas fijas sutiles que cruzan toda la página
+    - Cards: gradiente violeta oscuro, línea top neón con glow, hover dramático
+    - Partículas: violeta/rosa/azul con glow
+    - Todos los elementos (search bar, filter chips, carousel, FAB, cursor,
+      scroll bar, favoritos, mapa, etc.) tematizados en violeta/rosa
+    - Logo: swap automático a logo-blanco.svg via CSS body:has()
+    - Responsive: raqueta se achica en tablet, se centra en mobile
+
+  Tema Fútbol "Arrabal Dorado":
+    - Clase: theme-futbol (cuando sport=football)
+    - Paleta: dorado (#d4a017), ámbar (#f0c040), marrón cálido, negro profundo
+    - Estética porteña/arrabalera inspirada en fileteado, tango, barrio
+    - Fondo: #0d0a06 con radial gradients dorados/ámbar fijos
+    - Hero: imagen futboltematica.webp, overlay negro cálido a marrón
+    - Líneas decorativas del campo SE MANTIENEN (en dorado tenue)
+    - Cards: fondo #130f08, línea top gradiente dorado (fileteado), hover dorado
+    - Partículas: doradas/ámbar con glow cálido
+    - Todos los elementos tematizados en dorado/ámbar
+    - Logo: swap automático a logo-blanco.svg
+    - Animación fade-in cálida
+
+  resources/views/venues/index.blade.php:
+    - CSS condicional con @if Blade para cada tema (~350 líneas c/u)
+    - Clases dinámicas en .vi-wrap, .vi-scroll-progress, .vi-cursor-dot, .vi-fab
+    - Partículas con @if/@elseif/@else para colores por tema
+    - HTML decorativo condicional (raqueta, líneas de pista, líneas ambientales)
+
+  resources/views/layouts/app.blade.php:
+    - Agregado logo-blanco.svg con clase brand-dark (display:none por default)
+    - Clases brand-light/brand-dark para swap de logo por tema via CSS
+
+  Archivos de imagen usados:
+    public/images/padelneon.webp (hero pádel)
+    public/images/raquetapadelfondo.png (raqueta decorativa — corregido de .webp a .png)
+    public/images/futboltematica.webp (hero fútbol)
+
+[2026-04-01] — REDISENO COMPLETO TEMA PADEL NEON
+===================================================
+
+Revisión integral de la paleta de colores, layout y efectos visuales del tema
+Pádel en la vista de complejos (venues/index). Solo cambios CSS/HTML, sin tocar
+lógica, rutas ni controladores.
+
+PALETA DE COLORES — Reemplazo global:
+  - Violeta principal: #a855f7 -> #7c3aed (más saturado y profundo)
+  - Rosa/pink: #ec4899 -> #ff2d9b (rosa neón más vibrante)
+  - Fondo principal body: #0b0a12 -> #0d0b1e
+  - Fondo secciones (featured, search results, empty): #0d0b18 -> #12102a
+  - Fondo cards: transparencias con backdrop-filter -> sólido #1e1b3a
+  - Texto secundario: unificado a #a0a0b0 (antes mezclaba #8080a0, #707088, etc.)
+  - Bordes: rgba transparencias -> sólido #2d2a4e
+  - Glow violeta: rgba(124,58,237,.3)
+  - Glow rosa: rgba(255,45,155,.3)
+  - Todas las partículas actualizadas a los nuevos colores
+
+HERO:
+  - Min-height: 340px -> 500px (más impacto visual)
+  - Overlay: degradado horizontal #1a1a2e -> #2d1b4e (en vez de 135deg oscuro)
+  - Texto "perfecta" (h1 em): color #ff2d9b con text-shadow neón
+  - Líneas de perspectiva de pista futurista en la parte inferior:
+    * Nuevo contenedor con perspective: 400px y rotateX(55deg)
+    * 5 líneas horizontales con opacidad decreciente
+    * 5 líneas verticales que convergen al centro
+    * Colores rosa #ff2d9b y violeta #7c3aed
+  - Irradiación de raqueta con nuevos colores de glow
+
+NAVBAR (cuando tema padel activo):
+  - Fondo negro puro #000000 (antes #0a0a0f)
+  - Links y botones: texto blanco, borde blanco, fondo transparente
+  - Botón primario: fondo blanco con texto negro
+
+BARRA DE BUSQUEDA:
+  - Borde por defecto: #4a2d6e (antes sin estilo específico)
+  - Botón: degradado #7c3aed -> #ff2d9b
+
+FILTROS:
+  - Filtro activo: fondo sólido #7c3aed con texto blanco (antes transparencia)
+  - "Limpiar filtros": rosa neón #ff2d9b (antes blanco tenue)
+
+CARDS:
+  - Fondo sólido #1e1b3a (sin backdrop-filter, más performance)
+  - Borde: 1px solid #2d2a4e
+  - Border-radius: 12px (antes 22px heredado)
+  - Línea top gradiente con nuevos colores
+
+SECCION DESTACADOS:
+  - Número decorativo: opacidad ~11% (antes 6%)
+  - Tabs y progress bar con nuevos colores
+  - Flechas de navegación con borde #2d2a4e
+
+MAPA:
+  - Filtro CSS oscuro: brightness(0.7) hue-rotate(240deg) saturate(0.8)
+    para que el mapa se integre visualmente con el tema oscuro
+
+IMAGEN RAQUETA:
+  - Corregida referencia: raquetapadelfondo.webp -> raquetapadelfondo.png
+    (el archivo real en public/images/ es .png)
+
+  resources/views/venues/index.blade.php:
+    - ~120 propiedades CSS actualizadas dentro del bloque @if padel
+    - HTML de court lines reestructurado para efecto perspectiva
+    - Partículas con colores actualizados
+    - Referencia de imagen corregida

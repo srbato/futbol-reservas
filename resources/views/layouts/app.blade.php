@@ -971,8 +971,9 @@
 <header class="site-header" style="position:relative;">
     <div class="site-header-inner">
       <a href="{{ route('home') }}" class="brand">
-        <img src="/images/logo-multicolor.svg" alt="TuCancha" class="brand-full">
-        <img src="/images/logo-multicolor-responsive.svg" alt="TuCancha" class="brand-icon">
+        <img src="/images/logo-multicolor.svg" alt="TuCancha" class="brand-full brand-light">
+        <img src="/images/logo-multicolor-responsive.svg" alt="TuCancha" class="brand-icon brand-light">
+        <img src="/images/logo-blanco.svg" alt="TuCancha" class="brand-full brand-dark" style="display:none;">
       </a>
 
       @auth

@@ -34,7 +34,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(UrlGenerator $url): void
     {
-        if (config('app.env') === 'production') {
+        if (str_starts_with(config('app.url'), 'https://')) {
             $url->forceScheme('https');
         }
 

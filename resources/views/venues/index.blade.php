@@ -1496,24 +1496,1007 @@
   @media (max-width: 400px) {
     .vi-adv-grid { grid-template-columns: 1fr; }
   }
+
+@if(($sport ?? '') === 'padel')
+  /* ═══════════════════════════════════════════════════
+     THEME: Pádel Neón
+     Condicional — solo activo cuando sport=padel
+     ═══════════════════════════════════════════════════ */
+
+  /* ── Fondo global neón ─────────────────────────────── */
+  .theme-padel {
+    background: #0d0b1e;
+    color: #e2e8f0;
+    animation: vi-padel-fadein 0.6s ease forwards;
+  }
+
+  /* Forzar fondo oscuro en body, main y footer cuando hay tema padel */
+  body:has(.theme-padel) {
+    background:
+      radial-gradient(ellipse 800px 500px at 5% 40%, rgba(124,58,237,.18) 0%, transparent 70%),
+      radial-gradient(ellipse 700px 450px at 92% 80%, rgba(255,45,155,.14) 0%, transparent 70%),
+      radial-gradient(ellipse 500px 400px at 50% 20%, rgba(124,58,237,.12) 0%, transparent 70%),
+      radial-gradient(ellipse 600px 400px at 75% 55%, rgba(255,45,155,.10) 0%, transparent 70%),
+      radial-gradient(ellipse 400px 300px at 20% 75%, rgba(59,130,246,.08) 0%, transparent 70%),
+      #0d0b1e !important;
+    background-attachment: fixed !important;
+  }
+  body:has(.theme-padel) .site-header {
+    background: #000000 !important;
+    border-bottom-color: rgba(124,58,237,.15) !important;
+  }
+  body:has(.theme-padel) .site-header .site-nav a,
+  body:has(.theme-padel) .site-header .site-nav button,
+  body:has(.theme-padel) .site-header .user-menu-button,
+  body:has(.theme-padel) .site-header .notif-bell {
+    color: #fff !important;
+    background: transparent !important;
+    border-color: #fff !important;
+  }
+  body:has(.theme-padel) .site-header .site-nav a.primary {
+    background: #fff !important;
+    color: #000 !important;
+    border-color: #fff !important;
+  }
+  body:has(.theme-padel) .brand-light { display: none !important; }
+  body:has(.theme-padel) .brand-dark { display: block !important; }
+  body:has(.theme-padel) footer {
+    background: #0d0b1e !important;
+    border-top-color: rgba(124,58,237,.15) !important;
+    color: #a0a0b0 !important;
+  }
+
+  @keyframes vi-padel-fadein {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Scroll progress bar ─────────────────────────── */
+  .vi-scroll-progress.vi-scroll-padel {
+    background: linear-gradient(90deg, #7c3aed, #ff2d9b);
+    box-shadow: 0 0 12px rgba(124,58,237,.6);
+  }
+
+  /* ── Hero ─────────────────────────────────────────── */
+  .theme-padel .vi-hero {
+    min-height: 500px;
+  }
+
+  .theme-padel .vi-hero-bg {
+    background-image: url('/images/padelneon.webp');
+    opacity: 0.35;
+  }
+
+  .theme-padel .vi-hero-overlay {
+    background: linear-gradient(90deg, #1a1a2e 0%, #2d1b4e 100%);
+    opacity: 0.92;
+  }
+
+  /* Irradiación de luz desde la raqueta */
+  .theme-padel .vi-hero::before {
+    display: block !important;
+    content: '';
+    position: absolute;
+    right: 0%;
+    top: -10%;
+    width: 900px;
+    height: 900px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(124,58,237,.45) 0%, rgba(255,45,155,.30) 30%, rgba(124,58,237,.12) 55%, transparent 75%);
+    z-index: 1;
+    pointer-events: none;
+    transform: translate(15%, 10%);
+    animation: vi-neon-radiate 5s ease-in-out infinite alternate;
+    border-left: none !important;
+    bottom: auto !important;
+    left: auto !important;
+  }
+
+  @keyframes vi-neon-radiate {
+    0%   { opacity: 0.85; transform: translate(15%, 10%) scale(1); }
+    100% { opacity: 1;    transform: translate(15%, 10%) scale(1.15); }
+  }
+  .theme-padel .vi-hero-field-circle {
+    display: none;
+  }
+
+  .theme-padel .vi-hero-badge {
+    background: rgba(124,58,237,.14);
+    border-color: rgba(124,58,237,.35);
+    color: #c084fc;
+  }
+
+  .theme-padel .vi-hero-badge-dot {
+    background: #7c3aed;
+    animation-name: vi-pulse-padel;
+  }
+
+  @keyframes vi-pulse-padel {
+    0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(124,58,237,.5); }
+    50% { opacity: .8; transform: scale(1.1); box-shadow: 0 0 0 6px rgba(124,58,237,.0); }
+  }
+
+  .theme-padel .vi-hero-text h1 em {
+    color: #ff2d9b;
+    -webkit-text-fill-color: #ff2d9b;
+    text-shadow: 0 0 20px rgba(255,45,155,.3);
+  }
+
+  .theme-padel .vi-hero-microstat-val {
+    color: #c084fc;
+  }
+
+  .theme-padel .vi-hero-microstat-sep {
+    background: rgba(124,58,237,.2);
+  }
+
+  .theme-padel .vi-hero-racket-deco {
+    position: absolute;
+    right: 2%;
+    top: -5%;
+    width: 540px;
+    height: auto;
+    opacity: 0.9;
+    z-index: 3;
+    pointer-events: none;
+    transform: rotate(-12deg);
+    filter: drop-shadow(0 0 60px rgba(124,58,237,.8)) drop-shadow(0 0 120px rgba(255,45,155,.5)) drop-shadow(0 0 200px rgba(124,58,237,.3)) brightness(1.25);
+    user-select: none;
+    -webkit-user-drag: none;
+    animation: vi-racket-glow 4s ease-in-out infinite alternate;
+  }
+
+  @keyframes vi-racket-glow {
+    0%   { filter: drop-shadow(0 0 60px rgba(124,58,237,.8)) drop-shadow(0 0 120px rgba(255,45,155,.5)) drop-shadow(0 0 200px rgba(124,58,237,.3)) brightness(1.25); }
+    100% { filter: drop-shadow(0 0 80px rgba(124,58,237,1)) drop-shadow(0 0 160px rgba(255,45,155,.7)) drop-shadow(0 0 250px rgba(124,58,237,.4)) brightness(1.4); }
+  }
+
+  @media (max-width: 1024px) {
+    .theme-padel .vi-hero-racket-deco {
+      width: 420px;
+      opacity: 0.8;
+      right: -2%;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .theme-padel .vi-hero-racket-deco {
+      width: 280px;
+      opacity: 0.35;
+      right: auto;
+      left: 50%;
+      transform: translateX(-50%) rotate(-12deg);
+      top: auto;
+      bottom: -10%;
+    }
+  }
+
+  /* ── Search bar ──────────────────────────────────── */
+  .theme-padel .vi-search-bar {
+    border-color: #4a2d6e;
+  }
+
+  .theme-padel .vi-search-bar:focus-within {
+    border-color: rgba(124,58,237,.55);
+    box-shadow: 0 0 0 3px rgba(124,58,237,.12);
+  }
+
+  .theme-padel .vi-search-btn {
+    background: linear-gradient(135deg, #7c3aed 0%, #ff2d9b 100%);
+    color: #fff;
+  }
+
+  .theme-padel .vi-search-btn:hover {
+    background: linear-gradient(135deg, #6d28d9 0%, #e0267f 100%);
+    box-shadow: 0 4px 16px rgba(124,58,237,.4);
+  }
+
+  /* ── Filter chips ────────────────────────────────── */
+  .theme-padel .vi-filter-chip.active {
+    background: #7c3aed;
+    border-color: #7c3aed;
+    color: #fff;
+  }
+
+  .theme-padel .vi-filter-chip:hover,
+  .theme-padel .vi-filter-chip:focus-within {
+    border-color: rgba(124,58,237,.3);
+  }
+
+  .theme-padel .vi-clear-btn {
+    color: #ff2d9b;
+  }
+
+  .theme-padel .vi-clear-btn:hover {
+    color: #ff5db5;
+  }
+
+  /* ── Advanced filters panel ──────────────────────── */
+  .theme-padel .vi-adv-panel-inner {
+    background: rgba(13,11,30,.9);
+    border-color: #2d2a4e;
+  }
+
+  .theme-padel .vi-adv-field input:focus,
+  .theme-padel .vi-adv-field select:focus {
+    border-color: rgba(124,58,237,.5);
+  }
+
+  /* ── Active filter tags ──────────────────────────── */
+  .theme-padel .vi-active-filters span[style] {
+    color: #a0a0b0 !important;
+  }
+
+  .theme-padel .vi-active-filter-tag {
+    background: rgba(124,58,237,.12);
+    color: #c084fc;
+    border-color: #2d2a4e;
+  }
+
+  /* ── Textos generales sobre fondo oscuro ─────────── */
+  .theme-padel .vi-venue-meta,
+  .theme-padel .vi-venue-address {
+    color: #a0a0b0;
+  }
+
+  .theme-padel .vi-no-reviews {
+    color: #a0a0b0;
+  }
+
+  /* ── Cards de venues ─────────────────────────────── */
+  .theme-padel .vi-venue-card {
+    background: #1e1b3a;
+    border: 1px solid #2d2a4e;
+    border-radius: 12px;
+    position: relative;
+    box-shadow: 0 0 16px rgba(124,58,237,.08);
+  }
+
+  .theme-padel .vi-venue-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #7c3aed, #ff2d9b, #3b82f6);
+    border-radius: 12px 12px 0 0;
+    z-index: 5;
+    opacity: 1;
+    box-shadow: 0 2px 16px rgba(124,58,237,.4), 0 0 8px rgba(255,45,155,.2);
+  }
+
+  .theme-padel .vi-venue-card:hover {
+    border-color: rgba(124,58,237,.55);
+    box-shadow: 0 8px 40px rgba(124,58,237,.3), 0 0 24px rgba(255,45,155,.12), 0 0 0 1px rgba(124,58,237,.15);
+  }
+
+  .theme-padel .vi-venue-name {
+    color: #f0f0ff;
+  }
+
+  .theme-padel .vi-venue-desc {
+    color: #a0a0b0;
+  }
+
+  .theme-padel .vi-venue-rating-text {
+    color: #f0f0ff;
+  }
+
+  .theme-padel .vi-venue-rating-count {
+    color: #a0a0b0;
+  }
+
+  .theme-padel .vi-venue-img-placeholder {
+    background: linear-gradient(135deg, #12102a 0%, #1e1b3a 100%);
+  }
+
+  .theme-padel .vi-venue-zone-badge {
+    background: rgba(124,58,237,.15);
+    color: #c084fc;
+    border-color: #2d2a4e;
+  }
+
+  .theme-padel .vi-btn-primary {
+    background: linear-gradient(135deg, #7c3aed 0%, #ff2d9b 100%);
+    color: #fff;
+  }
+
+  .theme-padel .vi-btn-primary:hover {
+    background: linear-gradient(135deg, #6d28d9 0%, #e0267f 100%);
+    box-shadow: 0 4px 18px rgba(124,58,237,.4);
+    color: #fff;
+  }
+
+  .theme-padel .vi-card-shine {
+    background: radial-gradient(circle at 50% 50%, rgba(124,58,237,.12) 0%, transparent 60%);
+  }
+
+  /* ── Search results panel ────────────────────────── */
+  .theme-padel .vi-search-results-panel {
+    background: #12102a;
+    border-color: #2d2a4e;
+  }
+
+  .theme-padel .vi-search-results-header h2 {
+    color: #f0f0ff;
+  }
+
+  .theme-padel .vi-search-results-count {
+    color: #c084fc;
+    background: rgba(124,58,237,.1);
+    border-color: #2d2a4e;
+  }
+
+  /* ── Featured section ────────────────────────────── */
+  .theme-padel .vi-featured {
+    background: #12102a;
+    border-color: #2d2a4e;
+  }
+
+  .theme-padel .vi-featured-header h2 {
+    color: #f0f0ff;
+  }
+
+  .theme-padel .carousel-subtitle {
+    color: #a0a0b0 !important;
+  }
+
+  .theme-padel .vi-featured-bg-num {
+    color: rgba(124,58,237,.11);
+  }
+
+  .theme-padel .feature-tabs {
+    background: rgba(124,58,237,.08);
+    border-color: #2d2a4e;
+  }
+
+  .theme-padel .feature-tab {
+    color: #a0a0b0;
+  }
+
+  .theme-padel .feature-tab.active {
+    background: linear-gradient(135deg, #7c3aed, #ff2d9b);
+    color: #fff;
+  }
+
+  .theme-padel .vi-featured-progress-bar {
+    background: linear-gradient(90deg, #7c3aed, #ff2d9b);
+    box-shadow: 0 0 6px rgba(124,58,237,.5);
+  }
+
+  .theme-padel .featured-nav-arrow {
+    background: rgba(124,58,237,.1);
+    border-color: #2d2a4e;
+    color: #c084fc;
+  }
+
+  .theme-padel .featured-nav-arrow:hover {
+    background: #7c3aed;
+    border-color: #7c3aed;
+    color: #fff;
+  }
+
+  .theme-padel .featured-card:hover {
+    box-shadow: 0 8px 32px rgba(124,58,237,.3);
+  }
+
+  .theme-padel .featured-card-btn {
+    background: linear-gradient(135deg, #7c3aed, #ff2d9b);
+    color: #fff;
+  }
+
+  .theme-padel .featured-card-btn:hover {
+    background: linear-gradient(135deg, #6d28d9, #e0267f);
+    box-shadow: 0 4px 14px rgba(124,58,237,.4);
+  }
+
+  /* ── Favorites ───────────────────────────────────── */
+  .theme-padel .vi-favorites {
+    background: rgba(124,58,237,.06);
+    border-left-color: #7c3aed;
+    border-top-color: #2d2a4e;
+    border-right-color: #2d2a4e;
+    border-bottom-color: #2d2a4e;
+  }
+
+  .theme-padel .vi-favorites h2 {
+    color: #c084fc;
+  }
+
+  .theme-padel .vi-fav-chip {
+    background: rgba(124,58,237,.08);
+    border-color: #2d2a4e;
+    color: #c084fc;
+  }
+
+  .theme-padel .vi-fav-chip:hover {
+    background: #7c3aed;
+    color: #fff;
+    border-color: #7c3aed;
+  }
+
+  /* ── Map ──────────────────────────────────────────── */
+  .theme-padel .vi-map-wrap {
+    border-color: #2d2a4e;
+  }
+
+  .theme-padel .vi-map-wrap #map,
+  .theme-padel .vi-map-wrap .vi-map-skeleton {
+    filter: brightness(0.7) hue-rotate(240deg) saturate(0.8);
+  }
+
+  .theme-padel .vi-map-label {
+    color: #f0f0ff;
+  }
+
+  /* ── Results header ──────────────────────────────── */
+  .theme-padel .vi-results-header h2 {
+    color: #f0f0ff;
+  }
+
+  .theme-padel .vi-section-title::after {
+    background: linear-gradient(90deg, #7c3aed, #ff2d9b);
+    box-shadow: 0 0 8px rgba(124,58,237,.4);
+  }
+
+  .theme-padel .vi-count-pill {
+    background: linear-gradient(135deg, #7c3aed, #ff2d9b);
+    color: #fff;
+  }
+
+  /* ── Empty state ─────────────────────────────────── */
+  .theme-padel .vi-empty {
+    background: #12102a;
+    border-color: #2d2a4e;
+    color: #f0f0ff;
+  }
+
+  .theme-padel .vi-empty h3 {
+    color: #f0f0ff;
+  }
+
+  .theme-padel .vi-empty p {
+    color: #a0a0b0;
+  }
+
+  .theme-padel .vi-empty-clear-btn {
+    background: linear-gradient(135deg, #7c3aed, #ff2d9b);
+    color: #fff;
+  }
+
+  .theme-padel .vi-empty-clear-btn:hover {
+    background: linear-gradient(135deg, #6d28d9, #e0267f);
+    box-shadow: 0 4px 18px rgba(124,58,237,.4);
+  }
+
+  /* ── Cursor dot ──────────────────────────────────── */
+  .vi-cursor-dot.vi-cursor-padel {
+    background: #7c3aed;
+    box-shadow: 0 0 12px rgba(124,58,237,.6);
+  }
+
+  /* ── FAB ──────────────────────────────────────────── */
+  .vi-fab.vi-fab-padel {
+    background: linear-gradient(135deg, #7c3aed, #ff2d9b);
+    box-shadow: 0 8px 32px rgba(124,58,237,.4);
+    color: #fff;
+  }
+
+  .vi-fab.vi-fab-padel:hover {
+    background: linear-gradient(135deg, #6d28d9, #e0267f);
+    box-shadow: 0 12px 40px rgba(124,58,237,.55);
+  }
+
+  /* ── Falta Uno badge neón ────────────────────────── */
+  .theme-padel .vi-venue-faltauno-badge {
+    background: #7c3aed;
+    color: #fff;
+  }
+
+  .theme-padel .vi-faltauno-dot {
+    background: #fff;
+  }
+
+  /* ── Perspective court lines in hero bottom ────────── */
+  .vi-padel-court-lines {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 45%;
+    z-index: 1;
+    pointer-events: none;
+    overflow: hidden;
+    perspective: 400px;
+  }
+
+  .vi-padel-court-lines-inner {
+    position: absolute;
+    bottom: -10%;
+    left: -10%;
+    right: -10%;
+    height: 110%;
+    transform: rotateX(55deg);
+    transform-origin: bottom center;
+  }
+
+  .vi-court-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,45,155,.3) 15%, rgba(124,58,237,.5) 35%, rgba(255,45,155,.45) 50%, rgba(124,58,237,.5) 65%, rgba(255,45,155,.3) 85%, transparent 100%);
+    box-shadow: 0 0 12px rgba(124,58,237,.3), 0 0 25px rgba(255,45,155,.15);
+  }
+
+  .vi-court-line-1 { bottom: 15%; opacity: 0.85; }
+  .vi-court-line-2 { bottom: 35%; opacity: 0.65; }
+  .vi-court-line-3 { bottom: 55%; opacity: 0.45; }
+  .vi-court-line-4 { bottom: 70%; opacity: 0.30; }
+  .vi-court-line-5 { bottom: 82%; opacity: 0.18; }
+
+  .vi-court-line-vert {
+    position: absolute;
+    bottom: 0;
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(to top, rgba(124,58,237,.4), rgba(255,45,155,.15), transparent);
+    box-shadow: 0 0 10px rgba(124,58,237,.2);
+  }
+
+  .vi-court-line-vert-1 { left: 20%; opacity: 0.35; }
+  .vi-court-line-vert-2 { left: 40%; opacity: 0.50; }
+  .vi-court-line-vert-3 { left: 50%; opacity: 0.65; box-shadow: 0 0 14px rgba(255,45,155,.25); }
+  .vi-court-line-vert-4 { left: 60%; opacity: 0.50; }
+  .vi-court-line-vert-5 { left: 80%; opacity: 0.35; }
+
+  @media (max-width: 768px) {
+    .vi-padel-court-lines { display: none; }
+  }
+
+  /* ── Ambient lines in body ───────────────────────── */
+  .vi-padel-ambient-lines {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .vi-ambient-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, rgba(124,58,237,.18) 25%, rgba(255,45,155,.14) 50%, rgba(124,58,237,.18) 75%, transparent 100%);
+    box-shadow: 0 0 8px rgba(124,58,237,.08);
+  }
+@endif
+
+@if(($sport ?? '') === 'football')
+  /* ═══════════════════════════════════════════════════
+     THEME: Fútbol — Arrabal Dorado
+     Condicional — solo activo cuando sport=football
+     ═══════════════════════════════════════════════════ */
+
+  /* ── Fondo global dorado ────────────────────────────── */
+  .theme-futbol {
+    background: #0d0a06;
+    color: #f5edd6;
+    animation: vi-futbol-fadein 0.6s ease forwards;
+  }
+
+  body:has(.theme-futbol) {
+    background:
+      radial-gradient(ellipse 600px 400px at 10% 35%, rgba(212,160,23,.07) 0%, transparent 70%),
+      radial-gradient(ellipse 500px 350px at 88% 75%, rgba(139,105,20,.06) 0%, transparent 70%),
+      radial-gradient(ellipse 400px 300px at 50% 55%, rgba(180,130,30,.04) 0%, transparent 70%),
+      radial-gradient(ellipse 300px 250px at 75% 25%, rgba(240,192,64,.05) 0%, transparent 70%),
+      #0d0a06 !important;
+    background-attachment: fixed !important;
+  }
+  body:has(.theme-futbol) .site-header {
+    background: #0d0a06 !important;
+    border-bottom-color: rgba(212,160,23,.15) !important;
+  }
+  body:has(.theme-futbol) .brand-light { display: none !important; }
+  body:has(.theme-futbol) .brand-dark { display: block !important; }
+  body:has(.theme-futbol) footer {
+    background: #0d0a06 !important;
+    border-top-color: rgba(212,160,23,.15) !important;
+    color: #a0937a !important;
+  }
+
+  @keyframes vi-futbol-fadein {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Scroll progress bar ─────────────────────────── */
+  .vi-scroll-progress.vi-scroll-futbol {
+    background: linear-gradient(90deg, #d4a017, #f0c040);
+    box-shadow: 0 0 12px rgba(212,160,23,.6);
+  }
+
+  /* ── Hero ─────────────────────────────────────────── */
+  .theme-futbol .vi-hero-bg {
+    background-image: url('/images/futboltematica.webp');
+    opacity: 0.35;
+  }
+
+  .theme-futbol .vi-hero-overlay {
+    background: linear-gradient(135deg, rgba(13,10,6,.92) 0%, rgba(40,30,10,.75) 60%, rgba(25,18,5,.65) 100%);
+  }
+
+  /* Líneas decorativas del campo — color dorado */
+  @media (min-width: 769px) {
+    .theme-futbol .vi-hero::before {
+      border-left-color: rgba(212,160,23,.06);
+    }
+    .theme-futbol .vi-hero-field-circle {
+      border-color: rgba(212,160,23,.06);
+    }
+  }
+
+  .theme-futbol .vi-hero-badge {
+    background: rgba(212,160,23,.14);
+    border-color: rgba(212,160,23,.35);
+    color: #f0c040;
+  }
+
+  .theme-futbol .vi-hero-badge-dot {
+    background: #d4a017;
+    animation-name: vi-pulse-futbol;
+  }
+
+  @keyframes vi-pulse-futbol {
+    0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(212,160,23,.5); }
+    50% { opacity: .8; transform: scale(1.1); box-shadow: 0 0 0 6px rgba(212,160,23,.0); }
+  }
+
+  .theme-futbol .vi-hero-text h1 em {
+    color: #f0c040;
+    -webkit-text-fill-color: #f0c040;
+    text-shadow: none;
+  }
+
+  .theme-futbol .vi-hero-microstat-val {
+    color: #f0c040;
+  }
+
+  .theme-futbol .vi-hero-microstat-sep {
+    background: rgba(212,160,23,.2);
+  }
+
+  /* ── Search bar ──────────────────────────────────── */
+  .theme-futbol .vi-search-bar:focus-within {
+    border-color: rgba(212,160,23,.55);
+    box-shadow: 0 0 0 3px rgba(212,160,23,.12);
+  }
+
+  .theme-futbol .vi-search-btn {
+    background: linear-gradient(135deg, #d4a017 0%, #8b6914 100%);
+    color: #fff;
+  }
+
+  .theme-futbol .vi-search-btn:hover {
+    background: linear-gradient(135deg, #b8860b 0%, #7a5c10 100%);
+    box-shadow: 0 4px 16px rgba(212,160,23,.4);
+  }
+
+  /* ── Filter chips ────────────────────────────────── */
+  .theme-futbol .vi-filter-chip.active {
+    background: rgba(212,160,23,.15);
+    border-color: rgba(212,160,23,.4);
+    color: #f0c040;
+  }
+
+  .theme-futbol .vi-filter-chip:hover,
+  .theme-futbol .vi-filter-chip:focus-within {
+    border-color: rgba(212,160,23,.3);
+  }
+
+  /* ── Advanced filters panel ──────────────────────── */
+  .theme-futbol .vi-adv-panel-inner {
+    background: rgba(13,10,6,.8);
+    border-color: rgba(212,160,23,.2);
+  }
+
+  .theme-futbol .vi-adv-field input:focus,
+  .theme-futbol .vi-adv-field select:focus {
+    border-color: rgba(212,160,23,.5);
+  }
+
+  /* ── Active filter tags ──────────────────────────── */
+  .theme-futbol .vi-active-filters span[style] {
+    color: #a0937a !important;
+  }
+
+  .theme-futbol .vi-active-filter-tag {
+    background: rgba(212,160,23,.12);
+    color: #f0c040;
+    border-color: rgba(212,160,23,.35);
+  }
+
+  /* ── Textos generales sobre fondo oscuro ─────────── */
+  .theme-futbol .vi-venue-meta,
+  .theme-futbol .vi-venue-address {
+    color: #a0937a;
+  }
+
+  .theme-futbol .vi-no-reviews {
+    color: #706050;
+  }
+
+  /* ── Cards de venues ─────────────────────────────── */
+  .theme-futbol .vi-venue-card {
+    background: #130f08;
+    border-color: rgba(212,160,23,.15);
+    position: relative;
+  }
+
+  .theme-futbol .vi-venue-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #d4a017, #f0c040, #8b6914);
+    border-radius: 22px 22px 0 0;
+    z-index: 5;
+    opacity: 0.7;
+  }
+
+  .theme-futbol .vi-venue-card:hover {
+    border-color: rgba(212,160,23,.4);
+    box-shadow: 0 8px 32px rgba(212,160,23,.18), 0 0 0 1px rgba(212,160,23,.08);
+  }
+
+  .theme-futbol .vi-venue-card:hover::after {
+    opacity: 1;
+  }
+
+  .theme-futbol .vi-venue-name {
+    color: #f5edd6;
+  }
+
+  .theme-futbol .vi-venue-desc {
+    color: #a0937a;
+  }
+
+  .theme-futbol .vi-venue-rating-text {
+    color: #f5edd6;
+  }
+
+  .theme-futbol .vi-venue-rating-count {
+    color: #706050;
+  }
+
+  .theme-futbol .vi-venue-img-placeholder {
+    background: linear-gradient(135deg, #130f08 0%, #1a1408 100%);
+  }
+
+  .theme-futbol .vi-venue-zone-badge {
+    background: rgba(212,160,23,.15);
+    color: #f0c040;
+    border-color: rgba(212,160,23,.3);
+  }
+
+  .theme-futbol .vi-btn-primary {
+    background: linear-gradient(135deg, #d4a017 0%, #8b6914 100%);
+    color: #fff;
+  }
+
+  .theme-futbol .vi-btn-primary:hover {
+    background: linear-gradient(135deg, #b8860b 0%, #7a5c10 100%);
+    box-shadow: 0 4px 18px rgba(212,160,23,.4);
+    color: #fff;
+  }
+
+  .theme-futbol .vi-card-shine {
+    background: radial-gradient(circle at 50% 50%, rgba(212,160,23,.12) 0%, transparent 60%);
+  }
+
+  /* ── Search results panel ────────────────────────── */
+  .theme-futbol .vi-search-results-panel {
+    background: #0f0c07;
+    border-color: rgba(212,160,23,.15);
+  }
+
+  .theme-futbol .vi-search-results-header h2 {
+    color: #f5edd6;
+  }
+
+  .theme-futbol .vi-search-results-count {
+    color: #f0c040;
+    background: rgba(212,160,23,.1);
+    border-color: rgba(212,160,23,.2);
+  }
+
+  /* ── Featured section ────────────────────────────── */
+  .theme-futbol .vi-featured {
+    background: #0f0c07;
+    border-color: rgba(212,160,23,.15);
+  }
+
+  .theme-futbol .vi-featured-header h2 {
+    color: #f5edd6;
+  }
+
+  .theme-futbol .carousel-subtitle {
+    color: #706050 !important;
+  }
+
+  .theme-futbol .vi-featured-bg-num {
+    color: rgba(212,160,23,.06);
+  }
+
+  .theme-futbol .feature-tabs {
+    background: rgba(212,160,23,.08);
+    border-color: rgba(212,160,23,.15);
+  }
+
+  .theme-futbol .feature-tab {
+    color: #a0937a;
+  }
+
+  .theme-futbol .feature-tab.active {
+    background: linear-gradient(135deg, #d4a017, #8b6914);
+    color: #fff;
+  }
+
+  .theme-futbol .vi-featured-progress-bar {
+    background: linear-gradient(90deg, #d4a017, #f0c040);
+    box-shadow: 0 0 6px rgba(212,160,23,.5);
+  }
+
+  .theme-futbol .featured-nav-arrow {
+    background: rgba(212,160,23,.1);
+    border-color: rgba(212,160,23,.2);
+    color: #f0c040;
+  }
+
+  .theme-futbol .featured-nav-arrow:hover {
+    background: #d4a017;
+    border-color: #d4a017;
+    color: #fff;
+  }
+
+  .theme-futbol .featured-card:hover {
+    box-shadow: 0 8px 32px rgba(212,160,23,.25);
+  }
+
+  .theme-futbol .featured-card-btn {
+    background: linear-gradient(135deg, #d4a017, #8b6914);
+    color: #fff;
+  }
+
+  .theme-futbol .featured-card-btn:hover {
+    background: linear-gradient(135deg, #b8860b, #7a5c10);
+    box-shadow: 0 4px 14px rgba(212,160,23,.4);
+  }
+
+  /* ── Favorites ───────────────────────────────────── */
+  .theme-futbol .vi-favorites {
+    background: rgba(212,160,23,.06);
+    border-left-color: #d4a017;
+    border-top-color: rgba(212,160,23,.2);
+    border-right-color: rgba(212,160,23,.2);
+    border-bottom-color: rgba(212,160,23,.2);
+  }
+
+  .theme-futbol .vi-favorites h2 {
+    color: #f0c040;
+  }
+
+  .theme-futbol .vi-fav-chip {
+    background: rgba(212,160,23,.08);
+    border-color: rgba(212,160,23,.2);
+    color: #f0c040;
+  }
+
+  .theme-futbol .vi-fav-chip:hover {
+    background: #d4a017;
+    color: #fff;
+    border-color: #d4a017;
+  }
+
+  /* ── Map ──────────────────────────────────────────── */
+  .theme-futbol .vi-map-wrap {
+    border-color: rgba(212,160,23,.2);
+  }
+
+  .theme-futbol .vi-map-label {
+    color: #f5edd6;
+  }
+
+  /* ── Results header ──────────────────────────────── */
+  .theme-futbol .vi-results-header h2 {
+    color: #f5edd6;
+  }
+
+  .theme-futbol .vi-section-title::after {
+    background: linear-gradient(90deg, #d4a017, #f0c040);
+    box-shadow: 0 0 8px rgba(212,160,23,.4);
+  }
+
+  .theme-futbol .vi-count-pill {
+    background: linear-gradient(135deg, #d4a017, #8b6914);
+    color: #fff;
+  }
+
+  /* ── Empty state ─────────────────────────────────── */
+  .theme-futbol .vi-empty {
+    background: #0f0c07;
+    border-color: rgba(212,160,23,.15);
+    color: #f5edd6;
+  }
+
+  .theme-futbol .vi-empty h3 {
+    color: #f5edd6;
+  }
+
+  .theme-futbol .vi-empty p {
+    color: #a0937a;
+  }
+
+  .theme-futbol .vi-empty-clear-btn {
+    background: linear-gradient(135deg, #d4a017, #8b6914);
+    color: #fff;
+  }
+
+  .theme-futbol .vi-empty-clear-btn:hover {
+    background: linear-gradient(135deg, #b8860b, #7a5c10);
+    box-shadow: 0 4px 18px rgba(212,160,23,.4);
+  }
+
+  /* ── Cursor dot ──────────────────────────────────── */
+  .vi-cursor-dot.vi-cursor-futbol {
+    background: #d4a017;
+    box-shadow: 0 0 12px rgba(212,160,23,.6);
+  }
+
+  /* ── FAB ──────────────────────────────────────────── */
+  .vi-fab.vi-fab-futbol {
+    background: linear-gradient(135deg, #d4a017, #8b6914);
+    box-shadow: 0 8px 32px rgba(212,160,23,.4);
+    color: #fff;
+  }
+
+  .vi-fab.vi-fab-futbol:hover {
+    background: linear-gradient(135deg, #b8860b, #7a5c10);
+    box-shadow: 0 12px 40px rgba(212,160,23,.55);
+  }
+
+  /* ── Falta Uno badge dorado ──────────────────────── */
+  .theme-futbol .vi-venue-faltauno-badge {
+    background: #d4a017;
+    color: #fff;
+  }
+
+  .theme-futbol .vi-faltauno-dot {
+    background: #fff;
+  }
+@endif
 </style>
 @endpush
 
 @section('content')
 
 {{-- Scroll progress bar --}}
-<div class="vi-scroll-progress" id="viScrollProgress"></div>
+<div class="vi-scroll-progress {{ ($sport ?? '') === 'padel' ? 'vi-scroll-padel' : (($sport ?? '') === 'football' ? 'vi-scroll-futbol' : '') }}" id="viScrollProgress"></div>
 
 {{-- Custom cursor dot --}}
-<div class="vi-cursor-dot" id="viCursorDot"></div>
+<div class="vi-cursor-dot {{ ($sport ?? '') === 'padel' ? 'vi-cursor-padel' : (($sport ?? '') === 'football' ? 'vi-cursor-futbol' : '') }}" id="viCursorDot"></div>
 
 {{-- Floating Action Button --}}
-<button class="vi-fab" id="viFab" onclick="document.querySelector('.vi-hero').scrollIntoView({behavior:'smooth'})" title="Buscar cancha">
+<button class="vi-fab {{ ($sport ?? '') === 'padel' ? 'vi-fab-padel' : (($sport ?? '') === 'football' ? 'vi-fab-futbol' : '') }}" id="viFab" onclick="document.querySelector('.vi-hero').scrollIntoView({behavior:'smooth'})" title="Buscar cancha">
   <span class="vi-fab-tooltip">Buscar cancha</span>
   <i data-lucide="search" style="width:20px;height:20px;stroke:currentColor;"></i>
 </button>
 
-<div class="vi-wrap">
+<div class="vi-wrap {{ ($sport ?? '') === 'padel' ? 'theme-padel' : (($sport ?? '') === 'football' ? 'theme-futbol' : '') }}">
 
   {{-- ── HERO + SEARCH ─────────────────────────────────────────────────── --}}
   <form method="GET" action="{{ route('venues.index') }}" id="venueSearchForm">
@@ -1528,18 +2511,67 @@
       <div class="vi-hero-field-circle"></div>
 
       {{-- Partículas flotantes (12) --}}
-      <div class="vi-particle" style="width:8px;height:8px;background:rgba(34,197,94,.4);left:8%;bottom:20%;animation-duration:9s;animation-delay:0s;"></div>
-      <div class="vi-particle" style="width:5px;height:5px;background:rgba(110,234,160,.5);left:15%;bottom:35%;animation-duration:12s;animation-delay:1.2s;"></div>
-      <div class="vi-particle" style="width:10px;height:10px;background:rgba(34,197,94,.25);left:25%;bottom:15%;animation-duration:7s;animation-delay:2.5s;"></div>
-      <div class="vi-particle" style="width:6px;height:6px;background:rgba(110,234,160,.6);left:40%;bottom:28%;animation-duration:11s;animation-delay:0.8s;"></div>
-      <div class="vi-particle" style="width:4px;height:4px;background:rgba(34,197,94,.5);left:55%;bottom:10%;animation-duration:8s;animation-delay:3.1s;"></div>
-      <div class="vi-particle" style="width:12px;height:12px;background:rgba(110,234,160,.3);left:62%;bottom:40%;animation-duration:14s;animation-delay:1.7s;"></div>
-      <div class="vi-particle" style="width:7px;height:7px;background:rgba(34,197,94,.35);left:72%;bottom:22%;animation-duration:10s;animation-delay:4.0s;"></div>
-      <div class="vi-particle" style="width:5px;height:5px;background:rgba(110,234,160,.55);left:80%;bottom:48%;animation-duration:6s;animation-delay:0.4s;"></div>
-      <div class="vi-particle" style="width:9px;height:9px;background:rgba(34,197,94,.3);left:88%;bottom:18%;animation-duration:13s;animation-delay:2.2s;"></div>
-      <div class="vi-particle" style="width:4px;height:4px;background:rgba(110,234,160,.6);left:32%;bottom:55%;animation-duration:9s;animation-delay:5.5s;"></div>
-      <div class="vi-particle" style="width:11px;height:11px;background:rgba(34,197,94,.2);left:48%;bottom:62%;animation-duration:11s;animation-delay:3.8s;"></div>
-      <div class="vi-particle" style="width:6px;height:6px;background:rgba(110,234,160,.45);left:92%;bottom:38%;animation-duration:8s;animation-delay:1.0s;"></div>
+      @if(($sport ?? '') === 'padel')
+        <div class="vi-particle" style="width:8px;height:8px;background:rgba(124,58,237,.4);left:8%;bottom:20%;animation-duration:9s;animation-delay:0s;box-shadow:0 0 6px rgba(124,58,237,.3);"></div>
+        <div class="vi-particle" style="width:5px;height:5px;background:rgba(255,45,155,.5);left:15%;bottom:35%;animation-duration:12s;animation-delay:1.2s;box-shadow:0 0 6px rgba(255,45,155,.3);"></div>
+        <div class="vi-particle" style="width:10px;height:10px;background:rgba(59,130,246,.3);left:25%;bottom:15%;animation-duration:7s;animation-delay:2.5s;box-shadow:0 0 6px rgba(59,130,246,.3);"></div>
+        <div class="vi-particle" style="width:6px;height:6px;background:rgba(192,132,252,.5);left:40%;bottom:28%;animation-duration:11s;animation-delay:0.8s;box-shadow:0 0 6px rgba(192,132,252,.3);"></div>
+        <div class="vi-particle" style="width:4px;height:4px;background:rgba(124,58,237,.5);left:55%;bottom:10%;animation-duration:8s;animation-delay:3.1s;box-shadow:0 0 6px rgba(124,58,237,.3);"></div>
+        <div class="vi-particle" style="width:12px;height:12px;background:rgba(255,45,155,.3);left:62%;bottom:40%;animation-duration:14s;animation-delay:1.7s;box-shadow:0 0 8px rgba(255,45,155,.3);"></div>
+        <div class="vi-particle" style="width:7px;height:7px;background:rgba(96,165,250,.35);left:72%;bottom:22%;animation-duration:10s;animation-delay:4.0s;box-shadow:0 0 6px rgba(96,165,250,.3);"></div>
+        <div class="vi-particle" style="width:5px;height:5px;background:rgba(124,58,237,.55);left:80%;bottom:48%;animation-duration:6s;animation-delay:0.4s;box-shadow:0 0 6px rgba(124,58,237,.3);"></div>
+        <div class="vi-particle" style="width:9px;height:9px;background:rgba(255,45,155,.3);left:88%;bottom:18%;animation-duration:13s;animation-delay:2.2s;box-shadow:0 0 6px rgba(255,45,155,.3);"></div>
+        <div class="vi-particle" style="width:4px;height:4px;background:rgba(192,132,252,.6);left:32%;bottom:55%;animation-duration:9s;animation-delay:5.5s;box-shadow:0 0 6px rgba(192,132,252,.3);"></div>
+        <div class="vi-particle" style="width:11px;height:11px;background:rgba(59,130,246,.25);left:48%;bottom:62%;animation-duration:11s;animation-delay:3.8s;box-shadow:0 0 8px rgba(59,130,246,.3);"></div>
+        <div class="vi-particle" style="width:6px;height:6px;background:rgba(255,45,155,.45);left:92%;bottom:38%;animation-duration:8s;animation-delay:1.0s;box-shadow:0 0 6px rgba(255,45,155,.3);"></div>
+      @elseif(($sport ?? '') === 'football')
+        <div class="vi-particle" style="width:8px;height:8px;background:rgba(212,160,23,.4);left:8%;bottom:20%;animation-duration:9s;animation-delay:0s;box-shadow:0 0 6px rgba(212,160,23,.25);"></div>
+        <div class="vi-particle" style="width:5px;height:5px;background:rgba(240,192,64,.5);left:15%;bottom:35%;animation-duration:12s;animation-delay:1.2s;box-shadow:0 0 6px rgba(240,192,64,.3);"></div>
+        <div class="vi-particle" style="width:10px;height:10px;background:rgba(139,105,20,.35);left:25%;bottom:15%;animation-duration:7s;animation-delay:2.5s;box-shadow:0 0 6px rgba(139,105,20,.25);"></div>
+        <div class="vi-particle" style="width:6px;height:6px;background:rgba(180,130,30,.45);left:40%;bottom:28%;animation-duration:11s;animation-delay:0.8s;box-shadow:0 0 6px rgba(180,130,30,.3);"></div>
+        <div class="vi-particle" style="width:4px;height:4px;background:rgba(212,160,23,.4);left:55%;bottom:10%;animation-duration:8s;animation-delay:3.1s;box-shadow:0 0 6px rgba(212,160,23,.25);"></div>
+        <div class="vi-particle" style="width:12px;height:12px;background:rgba(240,192,64,.35);left:62%;bottom:40%;animation-duration:14s;animation-delay:1.7s;box-shadow:0 0 8px rgba(240,192,64,.25);"></div>
+        <div class="vi-particle" style="width:7px;height:7px;background:rgba(139,105,20,.35);left:72%;bottom:22%;animation-duration:10s;animation-delay:4.0s;box-shadow:0 0 6px rgba(139,105,20,.25);"></div>
+        <div class="vi-particle" style="width:5px;height:5px;background:rgba(212,160,23,.5);left:80%;bottom:48%;animation-duration:6s;animation-delay:0.4s;box-shadow:0 0 6px rgba(212,160,23,.3);"></div>
+        <div class="vi-particle" style="width:9px;height:9px;background:rgba(180,130,30,.35);left:88%;bottom:18%;animation-duration:13s;animation-delay:2.2s;box-shadow:0 0 6px rgba(180,130,30,.25);"></div>
+        <div class="vi-particle" style="width:4px;height:4px;background:rgba(240,192,64,.5);left:32%;bottom:55%;animation-duration:9s;animation-delay:5.5s;box-shadow:0 0 6px rgba(240,192,64,.3);"></div>
+        <div class="vi-particle" style="width:11px;height:11px;background:rgba(139,105,20,.3);left:48%;bottom:62%;animation-duration:11s;animation-delay:3.8s;box-shadow:0 0 8px rgba(139,105,20,.25);"></div>
+        <div class="vi-particle" style="width:6px;height:6px;background:rgba(212,160,23,.45);left:92%;bottom:38%;animation-duration:8s;animation-delay:1.0s;box-shadow:0 0 6px rgba(212,160,23,.3);"></div>
+      @else
+        <div class="vi-particle" style="width:8px;height:8px;background:rgba(34,197,94,.4);left:8%;bottom:20%;animation-duration:9s;animation-delay:0s;"></div>
+        <div class="vi-particle" style="width:5px;height:5px;background:rgba(110,234,160,.5);left:15%;bottom:35%;animation-duration:12s;animation-delay:1.2s;"></div>
+        <div class="vi-particle" style="width:10px;height:10px;background:rgba(34,197,94,.25);left:25%;bottom:15%;animation-duration:7s;animation-delay:2.5s;"></div>
+        <div class="vi-particle" style="width:6px;height:6px;background:rgba(110,234,160,.6);left:40%;bottom:28%;animation-duration:11s;animation-delay:0.8s;"></div>
+        <div class="vi-particle" style="width:4px;height:4px;background:rgba(34,197,94,.5);left:55%;bottom:10%;animation-duration:8s;animation-delay:3.1s;"></div>
+        <div class="vi-particle" style="width:12px;height:12px;background:rgba(110,234,160,.3);left:62%;bottom:40%;animation-duration:14s;animation-delay:1.7s;"></div>
+        <div class="vi-particle" style="width:7px;height:7px;background:rgba(34,197,94,.35);left:72%;bottom:22%;animation-duration:10s;animation-delay:4.0s;"></div>
+        <div class="vi-particle" style="width:5px;height:5px;background:rgba(110,234,160,.55);left:80%;bottom:48%;animation-duration:6s;animation-delay:0.4s;"></div>
+        <div class="vi-particle" style="width:9px;height:9px;background:rgba(34,197,94,.3);left:88%;bottom:18%;animation-duration:13s;animation-delay:2.2s;"></div>
+        <div class="vi-particle" style="width:4px;height:4px;background:rgba(110,234,160,.6);left:32%;bottom:55%;animation-duration:9s;animation-delay:5.5s;"></div>
+        <div class="vi-particle" style="width:11px;height:11px;background:rgba(34,197,94,.2);left:48%;bottom:62%;animation-duration:11s;animation-delay:3.8s;"></div>
+        <div class="vi-particle" style="width:6px;height:6px;background:rgba(110,234,160,.45);left:92%;bottom:38%;animation-duration:8s;animation-delay:1.0s;"></div>
+      @endif
+
+      @if(($sport ?? '') === 'padel')
+        <img src="/images/raquetapadelfondo.png" alt="" aria-hidden="true" class="vi-hero-racket-deco">
+      @endif
+
+      @if(($sport ?? '') === 'padel')
+      <div class="vi-padel-court-lines" aria-hidden="true">
+        <div class="vi-padel-court-lines-inner">
+          <div class="vi-court-line vi-court-line-1"></div>
+          <div class="vi-court-line vi-court-line-2"></div>
+          <div class="vi-court-line vi-court-line-3"></div>
+          <div class="vi-court-line vi-court-line-4"></div>
+          <div class="vi-court-line vi-court-line-5"></div>
+          <div class="vi-court-line-vert vi-court-line-vert-1"></div>
+          <div class="vi-court-line-vert vi-court-line-vert-2"></div>
+          <div class="vi-court-line-vert vi-court-line-vert-3"></div>
+          <div class="vi-court-line-vert vi-court-line-vert-4"></div>
+          <div class="vi-court-line-vert vi-court-line-vert-5"></div>
+        </div>
+      </div>
+      @endif
 
       <div class="vi-hero-content">
 
@@ -2131,6 +3163,14 @@
         </article>
       @endforeach
     </div>
+  @endif
+
+  @if(($sport ?? '') === 'padel')
+  <div class="vi-padel-ambient-lines" aria-hidden="true">
+    <div class="vi-ambient-line" style="top:25%"></div>
+    <div class="vi-ambient-line" style="top:50%"></div>
+    <div class="vi-ambient-line" style="top:75%"></div>
+  </div>
   @endif
 
 </div>
