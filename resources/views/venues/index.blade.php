@@ -1208,6 +1208,145 @@
     transform: translateY(-1px);
   }
 
+  /* ── Plan badges (Destacado / Premium) ─────────── */
+  .vi-plan-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    z-index: 4;
+    backdrop-filter: blur(4px);
+  }
+
+  .vi-plan-badge-pro {
+    background: rgba(34,197,94,.9);
+    color: #052e16;
+    border: 1px solid rgba(34,197,94,.6);
+  }
+
+  .vi-plan-badge-full {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: #1a1a1a;
+    border: 1px solid rgba(251,191,36,.6);
+    font-weight: 800;
+    text-shadow: 0 1px 0 rgba(255,255,255,.2);
+    box-shadow: 0 2px 8px rgba(251,191,36,.35);
+  }
+
+  /* Card diferenciada por plan */
+  .vi-venue-card.vi-card-pro {
+    border-top: 3px solid #22c55e;
+    box-shadow: 0 4px 20px rgba(34,197,94,.12);
+  }
+
+  .vi-venue-card.vi-card-pro:hover {
+    box-shadow: 0 16px 48px rgba(34,197,94,.22);
+  }
+
+  /* ── FULL / PREMIUM card ─────────────────────── */
+  .vi-venue-card.vi-card-full {
+    background: linear-gradient(160deg, #1a1a1a 0%, #111111 50%, #1a1a1a 100%);
+    border: 1.5px solid rgba(251,191,36,.3);
+    box-shadow:
+      0 6px 24px rgba(0,0,0,.35),
+      0 0 0 1px rgba(251,191,36,.08),
+      0 2px 20px rgba(251,191,36,.1);
+    position: relative;
+  }
+
+  /* Borde dorado sutil brillante en top */
+  .vi-venue-card.vi-card-full::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent 0%, #fbbf24 20%, #f59e0b 50%, #fbbf24 80%, transparent 100%);
+    z-index: 5;
+    border-radius: 22px 22px 0 0;
+  }
+
+  .vi-venue-card.vi-card-full:hover {
+    box-shadow:
+      0 20px 56px rgba(0,0,0,.45),
+      0 0 0 1px rgba(251,191,36,.15),
+      0 4px 30px rgba(251,191,36,.18);
+    border-color: rgba(251,191,36,.45);
+  }
+
+  /* Textos claros dentro de card Full */
+  .vi-venue-card.vi-card-full .vi-venue-name {
+    color: #fff;
+  }
+
+  .vi-venue-card.vi-card-full .vi-venue-desc {
+    color: #a1a1aa;
+  }
+
+  .vi-venue-card.vi-card-full .vi-venue-rating-text {
+    color: #fbbf24;
+  }
+
+  .vi-venue-card.vi-card-full .vi-venue-rating-count {
+    color: #71717a;
+  }
+
+  /* Tags deportes en card Full */
+  .vi-venue-card.vi-card-full .vi-tag {
+    background: rgba(255,255,255,.07);
+    border-color: rgba(255,255,255,.12);
+    color: #d4d4d8;
+  }
+
+  /* Boton "Ver complejo" en card Full */
+  .vi-venue-card.vi-card-full .vi-btn-primary {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: #1a1a1a;
+    font-weight: 800;
+  }
+
+  .vi-venue-card.vi-card-full .vi-btn-primary:hover {
+    background: linear-gradient(135deg, #fcd34d 0%, #fbbf24 100%);
+  }
+
+  /* Placeholder de imagen en card Full */
+  .vi-venue-card.vi-card-full .vi-venue-img-placeholder {
+    background: linear-gradient(135deg, #1a1a1a 0%, #262626 100%);
+  }
+
+  /* Shine overlay en card Full: tono dorado */
+  .vi-venue-card.vi-card-full .vi-card-shine {
+    background: radial-gradient(circle at 50% 50%, rgba(251,191,36,.1) 0%, transparent 60%);
+  }
+
+  /* Hover shadow en card Full */
+  .vi-venue-card.vi-card-full:hover .vi-card-shine {
+    opacity: 1;
+  }
+
+  /* Falta Uno badge se mueve a la derecha cuando hay plan badge */
+  .vi-venue-card.vi-card-pro .vi-venue-faltauno-badge,
+  .vi-venue-card.vi-card-full .vi-venue-faltauno-badge {
+    left: auto;
+    right: 50px;
+  }
+
+  /* Plan badge en featured cards del carousel */
+  .featured-card .vi-plan-badge {
+    top: 10px;
+    left: 10px;
+    z-index: 4;
+  }
+
   /* ── Empty state ──────────────────────────────── */
   .vi-empty {
     background: #f8fafc;
@@ -1609,8 +1748,12 @@
       @else
         <div class="vi-venues-grid">
           @foreach($venues as $index => $venue)
-            @php $delay = min($index * 50, 300); @endphp
-            <article class="vi-venue-card" data-aos="fade-up" data-aos-delay="{{ $delay }}">
+            @php
+              $delay = min($index * 50, 300);
+              $planSlug = $venue->owner_plan_slug ?? 'starter';
+              $cardClass = match($planSlug) { 'pro' => 'vi-card-pro', 'full' => 'vi-card-full', default => '' };
+            @endphp
+            <article class="vi-venue-card {{ $cardClass }}" data-aos="fade-up" data-aos-delay="{{ $delay }}">
               <div class="vi-venue-img-wrap">
                 @if($venue->cover_image_path)
                   <img src="{{ \Illuminate\Support\Facades\Storage::url($venue->cover_image_path) }}" alt="{{ $venue->name }}" loading="lazy" class="vi-img-loading" onload="this.classList.remove('vi-img-loading')">
@@ -1618,6 +1761,15 @@
                   <div class="vi-venue-img-placeholder"><i data-lucide="building-2" style="width:32px;height:32px;stroke:#ccc;stroke-width:1.5;"></i></div>
                 @endif
                 <div class="vi-card-shine"></div>
+                @if($planSlug === 'pro')
+                  <div class="vi-plan-badge vi-plan-badge-pro">
+                    <i data-lucide="star" style="width:12px;height:12px;stroke:currentColor;fill:currentColor;"></i> Destacado
+                  </div>
+                @elseif($planSlug === 'full')
+                  <div class="vi-plan-badge vi-plan-badge-full">
+                    <i data-lucide="shield-check" style="width:12px;height:12px;stroke:currentColor;"></i> Premium
+                  </div>
+                @endif
                 @auth
                   @if(in_array($venue->id, $favoriteVenueIds ?? []))
                     <form method="POST" action="{{ route('venues.unfavorite', $venue) }}" style="margin:0;">
@@ -1814,6 +1966,60 @@
     <div id="map" style="height: 380px; display:none;"></div>
   </div>
 
+  {{-- ── COMPLEJOS PREMIUM CAROUSEL ──────────────────────────────────────── --}}
+  @if(($premiumVenues ?? collect())->isNotEmpty())
+    <div class="vi-featured" style="margin-bottom:28px;">
+      <div class="vi-featured-header">
+        <div>
+          <h2 class="vi-section-title" style="display:inline-flex;align-items:center;gap:8px;">
+            <i data-lucide="crown" style="width:20px;height:20px;stroke:#fbbf24;"></i> Complejos Premium
+          </h2>
+          <div class="carousel-subtitle">Los mejores complejos deportivos de la plataforma.</div>
+        </div>
+        <div class="featured-nav-arrows">
+          <button type="button" class="featured-nav-arrow" onclick="document.getElementById('premiumTrack').scrollBy({left:-314,behavior:'smooth'})" aria-label="Anterior">&#8249;</button>
+          <button type="button" class="featured-nav-arrow" onclick="document.getElementById('premiumTrack').scrollBy({left:314,behavior:'smooth'})" aria-label="Siguiente">&#8250;</button>
+        </div>
+      </div>
+      <div class="feature-carousel-shell">
+        <div class="carousel-track featured-track" id="premiumTrack">
+          @foreach($premiumVenues as $venue)
+            @php $planSlug = $venue->owner_plan_slug ?? 'starter'; @endphp
+            <article class="featured-card" style="{{ $planSlug === 'full' ? 'border:2px solid #22c55e;' : 'border-top:3px solid #22c55e;' }}">
+              @if($venue->cover_image_path)
+                <img src="{{ \Illuminate\Support\Facades\Storage::url($venue->cover_image_path) }}" alt="{{ $venue->name }}">
+              @else
+                <div class="featured-card-placeholder"><i data-lucide="crown" style="width:28px;height:28px;stroke:#fbbf24;stroke-width:1.5;"></i></div>
+              @endif
+              <div class="featured-card-overlay"></div>
+              @if($planSlug === 'pro')
+                <div class="vi-plan-badge vi-plan-badge-pro">
+                  <i data-lucide="star" style="width:12px;height:12px;stroke:currentColor;fill:currentColor;"></i> Destacado
+                </div>
+              @elseif($planSlug === 'full')
+                <div class="vi-plan-badge vi-plan-badge-full">
+                  <i data-lucide="shield-check" style="width:12px;height:12px;stroke:currentColor;"></i> Premium
+                </div>
+              @endif
+              <div class="featured-card-body">
+                <h3>{{ $venue->name }}</h3>
+                <div class="featured-card-meta">
+                  @if($venue->zone)
+                    <span class="featured-card-badge" style="display:inline-flex;align-items:center;gap:3px;"><i data-lucide="map-pin" style="width:11px;height:11px;stroke:currentColor;"></i> {{ $venue->zone }}</span>
+                  @endif
+                  @if(($venue->reviews_count ?? 0) > 0)
+                    <span style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="star" style="width:13px;height:13px;stroke:currentColor;"></i> {{ number_format($venue->reviews_avg_rating, 1) }}</span>
+                  @endif
+                </div>
+                <a href="{{ route('venues.show', $venue) }}" class="featured-card-btn" style="display:inline-flex;align-items:center;gap:5px;">Ver complejo <i data-lucide="arrow-right" style="width:14px;height:14px;stroke:currentColor;"></i></a>
+              </div>
+            </article>
+          @endforeach
+        </div>
+      </div>
+    </div>
+  @endif
+
   {{-- ── ALL VENUES ───────────────────────────────────────────────────────── --}}
   <div class="vi-results-header" id="complejos">
     <h2 class="vi-section-title">
@@ -1842,8 +2048,12 @@
   @else
     <div class="vi-venues-grid">
       @foreach($allVenues as $index => $venue)
-        @php $delay = min($index * 50, 300); @endphp
-        <article class="vi-venue-card" data-aos="fade-up" data-aos-delay="{{ $delay }}">
+        @php
+          $delay = min($index * 50, 300);
+          $planSlug = $venue->owner_plan_slug ?? 'starter';
+          $cardClass = match($planSlug) { 'pro' => 'vi-card-pro', 'full' => 'vi-card-full', default => '' };
+        @endphp
+        <article class="vi-venue-card {{ $cardClass }}" data-aos="fade-up" data-aos-delay="{{ $delay }}">
 
           {{-- Image --}}
           <div class="vi-venue-img-wrap">
@@ -1855,6 +2065,17 @@
 
             {{-- Shine overlay --}}
             <div class="vi-card-shine"></div>
+
+            {{-- Plan badge --}}
+            @if($planSlug === 'pro')
+              <div class="vi-plan-badge vi-plan-badge-pro">
+                <i data-lucide="star" style="width:12px;height:12px;stroke:currentColor;fill:currentColor;"></i> Destacado
+              </div>
+            @elseif($planSlug === 'full')
+              <div class="vi-plan-badge vi-plan-badge-full">
+                <i data-lucide="shield-check" style="width:12px;height:12px;stroke:currentColor;"></i> Premium
+              </div>
+            @endif
 
             {{-- Favorite button --}}
             @auth
@@ -2013,6 +2234,9 @@
   carouselMovePrevBtn?.addEventListener('click', () => { activateFeatureTab(getActiveFeatureIndex() - 1); restartAutoplay(); });
   carouselMoveNextBtn?.addEventListener('click', () => { activateFeatureTab(getActiveFeatureIndex() + 1); restartAutoplay(); });
   document.querySelectorAll('[data-carousel-track]').forEach(attachDragToTrack);
+  // Drag para el carousel premium
+  const premiumTrack = document.getElementById('premiumTrack');
+  if (premiumTrack) attachDragToTrack(premiumTrack);
 
   if (featuredSection) {
     featuredSection.addEventListener('mouseenter', stopAutoplay);

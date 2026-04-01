@@ -20,9 +20,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
 
         $middleware->alias([
-            'active.user'   => \App\Http\Middleware\EnsureUserIsActive::class,
-            'role'          => \App\Http\Middleware\RoleMiddleware::class,
-            'venue.mp'      => \App\Http\Middleware\EnsureVenueMpConnected::class,
+            'active.user'        => \App\Http\Middleware\EnsureUserIsActive::class,
+            'role'               => \App\Http\Middleware\RoleMiddleware::class,
+            'venue.mp'           => \App\Http\Middleware\EnsureVenueMpConnected::class,
+            'venue.onboarding'   => \App\Http\Middleware\VenueAdminOnboarding::class,
         ]);
 
         $middleware->validateCsrfTokens(except: [

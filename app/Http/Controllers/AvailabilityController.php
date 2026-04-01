@@ -167,4 +167,122 @@ class AvailabilityController extends Controller
             'slots' => $slots,
         ]);
     }
+
+    /**
+     * Check availability for all slots in a recurring reservation.
+     */
+    public function recurring(Request $request, Field $field)
+    {
+        $request->validate([
+            'start_at'    => ['required', 'date'],
+            'frequency'   => ['required', 'in:weekly,biweekly'],
+            'occurrences' => ['required', 'integer', 'min:2', 'max:12'],
+        ]);
+
+        $baseStart   = Carbon::parse($request->query('start_at'))->seconds(0);
+        $occurrences = (int) $request->query('occurrences');
+        $weekInterval = $request->query('frequency') === 'biweekly' ? 2 : 1;
+        $slotMinutes = (int) ($field->slot_minutes ?: 60);
+
+        $field->loadMissing(['venue', 'schedules', 'exceptions', 'price']);
+
+        $slots = [];
+
+        for ($i = 0; $i < $occurrences; $i++) {
+            $start = $baseStart->copy()->addWeeks($i * $weekInterval);
+            $end   = $start->copy()->addMinutes($slotMinutes);
+            $date  = $start->copy()->startOfDay();
+            $dow   = (int) $start->dayOfWeek;
+
+            $status = 'available';
+            $reason = null;
+
+            // Past
+            if ($start->lessThan(now())) {
+                $status = 'unavailable';
+                $reason = 'Turno pasado';
+                $slots[] = compact('start', 'status', 'reason') + ['start' => $start->toDateTimeString()];
+                continue;
+            }
+
+            // Exception closed
+            $exception = $field->exceptions()->whereDate('date', $date->toDateString())->first();
+            if ($exception?->is_closed) {
+                $status = 'unavailable';
+                $reason = 'Cancha cerrada ese día';
+                $slots[] = ['start' => $start->toDateTimeString(), 'status' => $status, 'reason' => $reason];
+                continue;
+            }
+
+            // No schedule
+            $schedule = $field->schedules->firstWhere('day_of_week', $dow);
+            if (!$schedule && !$exception) {
+                $status = 'unavailable';
+                $reason = 'Sin horario ese día';
+                $slots[] = ['start' => $start->toDateTimeString(), 'status' => $status, 'reason' => $reason];
+                continue;
+            }
+
+            // Out of range
+            $openTime  = $exception?->open_time ?? $schedule?->open_time;
+            $closeTime = $exception?->close_time ?? $schedule?->close_time;
+            if ($openTime && $closeTime) {
+                $open  = Carbon::parse($date->toDateString() . ' ' . $openTime);
+                $close = Carbon::parse($date->toDateString() . ' ' . $closeTime);
+                if ($start->lt($open) || $end->gt($close)) {
+                    $status = 'unavailable';
+                    $reason = 'Fuera del horario de la cancha';
+                    $slots[] = ['start' => $start->toDateTimeString(), 'status' => $status, 'reason' => $reason];
+                    continue;
+                }
+            }
+
+            // Blocked
+            $blocked = $field->blocks()
+                ->whereDate('date', $date->toDateString())
+                ->get(['start_time', 'end_time', 'reason'])
+                ->first(function ($block) use ($date, $start, $end) {
+                    $blockStart = Carbon::parse($date->toDateString() . ' ' . $block->start_time);
+                    $blockEnd   = Carbon::parse($date->toDateString() . ' ' . $block->end_time);
+                    return $blockStart < $end && $blockEnd > $start;
+                });
+
+            if ($blocked) {
+                $status = 'unavailable';
+                $reason = 'Horario bloqueado';
+                $slots[] = ['start' => $start->toDateTimeString(), 'status' => $status, 'reason' => $reason];
+                continue;
+            }
+
+            // Overlap with existing reservation
+            $overlap = Reservation::query()
+                ->where('field_id', $field->id)
+                ->whereIn('status', ['PENDING_PAYMENT', 'PAID'])
+                ->where(function ($q) {
+                    $q->where('status', '!=', 'PENDING_PAYMENT')
+                      ->orWhere(function ($q2) {
+                          $q2->where('status', 'PENDING_PAYMENT')
+                             ->whereNotNull('expires_at')
+                             ->where('expires_at', '>', now());
+                      });
+                })
+                ->where(function ($q) use ($start, $end) {
+                    $q->where('start_at', '<', $end)
+                      ->where('end_at', '>', $start);
+                })
+                ->exists();
+
+            if ($overlap) {
+                $status = 'unavailable';
+                $reason = 'Ya está reservado';
+            }
+
+            $slots[] = ['start' => $start->toDateTimeString(), 'status' => $status, 'reason' => $reason];
+        }
+
+        return response()->json([
+            'field_id' => $field->id,
+            'slots'    => $slots,
+        ]);
+    }
 }

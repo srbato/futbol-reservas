@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\FaltaUnoCancelledMail;
 use App\Mail\ReservationCancelledMail;
+use App\Models\FaltaUnoGame;
 use App\Models\Reservation;
+use App\Notifications\FaltaUnoCancelledNotification;
 use App\Services\MercadoPagoRefundService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -20,6 +23,14 @@ class ReservationCancelController extends Controller
 
         if (in_array($reservation->status, ['CANCELLED', 'EXPIRED'])) {
             return back()->with('error', 'Esta reserva no se puede cancelar.');
+        }
+
+        // No permitir cancelar reservas vinculadas a una suscripcion recurrente activa
+        if ($reservation->recurring_subscription_id) {
+            $subscription = \App\Models\RecurringSubscription::find($reservation->recurring_subscription_id);
+            if ($subscription && in_array($subscription->status, ['ACTIVE', 'PENDING_PAYMENT'])) {
+                return back()->with('error', 'Esta reserva pertenece a una suscripcion recurrente activa. Para cancelarla, cancela primero la suscripcion desde "Mis Reservas".');
+            }
         }
 
         // Check venue cancellation policy
@@ -41,6 +52,25 @@ class ReservationCancelController extends Controller
             'status'     => 'CANCELLED',
             'expires_at' => null,
         ]);
+
+        // Si la reserva pertenece a un partido Falta Uno, cancelarlo y notificar participantes
+        $faltaUnoGame = FaltaUnoGame::where('reservation_id', $reservation->id)->first();
+        if ($faltaUnoGame && in_array($faltaUnoGame->status, ['open', 'full'])) {
+            $faltaUnoGame->load('activeParticipants.user', 'field.venue');
+
+            foreach ($faltaUnoGame->activeParticipants as $participant) {
+                if ($participant->user && $participant->user->email) {
+                    Mail::to($participant->user->email)
+                        ->send(new FaltaUnoCancelledMail($faltaUnoGame, $participant->user));
+                    $participant->user->notify(new FaltaUnoCancelledNotification($faltaUnoGame));
+                }
+            }
+
+            $faltaUnoGame->update([
+                'status'       => 'cancelled',
+                'cancelled_at' => now(),
+            ]);
+        }
 
         $reservation->loadMissing(['user', 'field.venue.owner']);
 

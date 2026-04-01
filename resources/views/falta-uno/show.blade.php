@@ -198,6 +198,8 @@
   .fus-btn-rate:hover  { background: #fde68a; }
   .fus-btn-cancel { background: transparent; border: 1.5px solid #fecaca; color: #dc2626; }
   .fus-btn-cancel:hover { background: #fef2f2; }
+  .fus-btn-leave  { background: transparent; border: 1.5px solid #fed7aa; color: #ea580c; }
+  .fus-btn-leave:hover  { background: #fff7ed; }
   .fus-badge-rated {
     display: inline-flex; align-items: center; gap: 6px;
     background: #f0fdf4; color: #15803d;
@@ -268,7 +270,8 @@
     border-radius: 12px;
     padding: 16px;
   }
-  .fus-detail-tile.gender { background: #fdf2f8; }
+  .fus-detail-tile.gender-male   { background: #eff6ff; }
+  .fus-detail-tile.gender-female { background: #fdf2f8; }
   .fus-detail-tile.cat    { background: #f0fdf4; }
   .fus-tile-label {
     font-size: 11px;
@@ -284,7 +287,8 @@
     color: #111;
     line-height: 1.1;
   }
-  .fus-detail-tile.gender .fus-tile-val { color: #db2777; }
+  .fus-detail-tile.gender-male   .fus-tile-val { color: #2563eb; }
+  .fus-detail-tile.gender-female .fus-tile-val { color: #db2777; }
   .fus-detail-tile.cat    .fus-tile-val { color: #15803d; }
 
   /* ── Jugadores ─────────────────────────────────── */
@@ -364,6 +368,78 @@
     font-style: italic;
   }
 
+  /* ── Badges de reputacion ─────────────────────── */
+  .fus-rep-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-left: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .fus-rep-good   { background: #f0fdf4; color: #15803d; }
+  .fus-rep-warn   { background: #fffbeb; color: #b45309; }
+  .fus-rep-bad    { background: #fef2f2; color: #dc2626; }
+  .fus-late-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #fff7ed;
+    color: #ea580c;
+    margin-left: 6px;
+  }
+  .fus-btn-kick {
+    background: transparent;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    margin-left: auto;
+    flex-shrink: 0;
+    transition: background .15s, color .15s;
+  }
+  .fus-btn-kick:hover { background: #fef2f2; }
+  .fus-warning-org {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 10px;
+    padding: 6px 12px;
+    font-size: 12px;
+    color: #92400e;
+    font-weight: 600;
+    margin-left: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .fus-late-warning {
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #9a3412;
+    font-weight: 600;
+    margin-top: 8px;
+  }
+  .fus-penalty-block {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    font-size: 14px;
+    color: #991b1b;
+    font-weight: 600;
+  }
+
   /* ── Resultados ────────────────────────────────── */
   .fus-results-card {
     background: #f0fdf4;
@@ -434,6 +510,7 @@
     'full'      => 'Completo',
     'cancelled' => 'Cancelado',
     'expired'   => 'Expirado',
+    'finished'  => 'Finalizado',
     default     => ucfirst($game->status),
   };
 @endphp
@@ -513,12 +590,28 @@
         @endif
       @endif
 
-      @if($isInitiator && in_array($game->status, ['open', 'full']))
+      @if($isInitiator && in_array($game->status, ['open', 'full']) && !$game->isFinished())
         <form method="POST" action="{{ route('falta-uno.cancel', $game) }}"
               onsubmit="return confirm('¿Cancelar el partido?{{ $game->canRefund() ? ' Recibirás un reembolso.' : ' No se devuelve el dinero.' }}')">
           @csrf
           <button type="submit" class="fus-btn fus-btn-cancel">Cancelar partido</button>
         </form>
+      @endif
+
+      @if($isJoined && in_array($game->status, ['open', 'full']) && !$game->isFinished())
+        <form method="POST" action="{{ route('falta-uno.leave', $game) }}"
+              onsubmit="return {{ $wouldBeLateLeave ? "confirm('ATENCION: Esta bajada es tardia y recibiras una penalizacion (cooldown). ¿Seguro que queres salirte?')" : "confirm('¿Salirte del partido? Tu lugar quedara disponible para otros jugadores.')" }}">
+          @csrf
+          <button type="submit" class="fus-btn fus-btn-leave" style="display:inline-flex;align-items:center;gap:5px;">
+            <i data-lucide="log-out" style="width:14px;height:14px;stroke:currentColor;"></i>
+            Salirme del partido
+          </button>
+        </form>
+        @if($wouldBeLateLeave)
+          <div class="fus-late-warning">
+            Bajarse ahora es una bajada tardia. Se aplicara una penalizacion a tu cuenta.
+          </div>
+        @endif
       @endif
 
     </div>
@@ -529,20 +622,37 @@
   {{-- CTA unirse --}}
   @auth
   @if(!$isParticipant && $game->status === 'open' && !$game->isFinished())
-    @if(auth()->user()->faltaUnoSportProfiles()->doesntExist())
+    @if($wasKicked)
+      <div class="fus-penalty-block" data-aos="fade-up" style="background:#fef2f2; border:1px solid #fecaca; border-radius:14px; padding:20px; text-align:center;">
+        <div style="margin-bottom:8px;"><i data-lucide="user-x" style="width:32px;height:32px;stroke:#dc2626;stroke-width:1.5;"></i></div>
+        <div style="font-size:15px; font-weight:700; color:#991b1b; margin-bottom:4px;">Fuiste removido de este partido</div>
+        <div style="font-size:13px; color:#b91c1c;">El organizador te removio del partido. No podes volver a unirte.</div>
+      </div>
+    @elseif(!$joinCheck['allowed'])
+      <div class="fus-penalty-block" data-aos="fade-up">
+        {{ $joinCheck['reason'] }}
+      </div>
+    @elseif(auth()->user()->faltaUnoSportProfiles()->doesntExist())
       <div class="fus-join-card needs-profile" data-aos="fade-up">
         <div style="margin-bottom:12px;"><i data-lucide="alert-triangle" style="width:32px;height:32px;stroke:#92400e;stroke-width:1.5;"></i></div>
-        <div style="font-size:15px; font-weight:700; color:#92400e; margin-bottom:6px;">Necesitás completar tu perfil deportivo</div>
-        <div style="font-size:13px; color:#b45309; margin-bottom:18px;">Tu categoría y género determinan a qué partidos podés unirte.</div>
+        <div style="font-size:15px; font-weight:700; color:#92400e; margin-bottom:6px;">Necesitas completar tu perfil deportivo</div>
+        <div style="font-size:13px; color:#b45309; margin-bottom:18px;">Tu categoria y genero determinan a que partidos podes unirte.</div>
         <a href="/profile#sport-profile" class="fus-btn fus-btn-chat" style="display:inline-flex; border-radius:12px; padding:10px 22px;">Completar perfil</a>
       </div>
     @else
       <div class="fus-join-card" data-aos="fade-up">
+        @if(!empty($joinCheck['warnings']))
+          <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:10px; padding:10px 14px; margin-bottom:14px; font-size:13px; color:#92400e; font-weight:600; text-align:left;">
+            @foreach($joinCheck['warnings'] as $w)
+              <div>{{ $w }}</div>
+            @endforeach
+          </div>
+        @endif
         <form method="POST" action="{{ route('falta-uno.join', $game) }}">
           @csrf
           <button type="submit" class="fus-btn-join">Unirme a este partido</button>
         </form>
-        <p class="fus-join-sub">Confirmás tu lugar al unirte. Presentate en el complejo el día del partido.</p>
+        <p class="fus-join-sub">Confirmas tu lugar al unirte. Presentate en el complejo el dia del partido.</p>
       </div>
     @endif
   @endif
@@ -567,8 +677,8 @@
         <div class="fus-tile-val">{{ $game->total_players }}</div>
       </div>
       @if($game->gender_filter && $game->gender_filter !== 'mixed')
-      <div class="fus-detail-tile gender">
-        <div class="fus-tile-label" style="color:#db2777;">Género</div>
+      <div class="fus-detail-tile gender-{{ $game->gender_filter }}">
+        <div class="fus-tile-label" style="color:{{ $game->gender_filter === 'male' ? '#2563eb' : '#db2777' }};">Género</div>
         <div class="fus-tile-val">{{ $game->gender_filter === 'male' ? 'Masculino' : 'Femenino' }}</div>
       </div>
       @endif
@@ -598,6 +708,7 @@
     </h2>
 
     {{-- Iniciador --}}
+    @auth
     <div class="fus-player-row" data-aos="fade-up" data-aos-delay="0">
       @if($game->initiator->avatar_path)
         <img src="{{ \Illuminate\Support\Facades\Storage::url($game->initiator->avatar_path) }}"
@@ -617,10 +728,23 @@
         {{ $game->initiator_players }} lugar{{ $game->initiator_players > 1 ? 'es' : '' }}
       </span>
     </div>
+    @else
+    <div class="fus-player-row" data-aos="fade-up" data-aos-delay="0">
+      <div class="fus-avatar-empty"></div>
+      <div style="flex:1; min-width:0;">
+        <span class="fus-slot-text">Organizador (iniciá sesión para ver)</span>
+        <span class="fus-badge-org">Organizador</span>
+      </div>
+      <span style="font-size:12px; color:#888; font-weight:600; flex-shrink:0;">
+        {{ $game->initiator_players }} lugar{{ $game->initiator_players > 1 ? 'es' : '' }}
+      </span>
+    </div>
+    @endauth
 
     {{-- Participantes --}}
     @foreach($game->activeParticipants as $pi => $p)
     <div class="fus-player-row" data-aos="fade-up" data-aos-delay="{{ min(($pi + 1) * 60, 360) }}">
+      @auth
       @if($p->user->avatar_path)
         <img src="{{ \Illuminate\Support\Facades\Storage::url($p->user->avatar_path) }}"
              class="fus-avatar" alt="{{ $p->user->name }}" title="{{ $p->user->name }}">
@@ -633,13 +757,48 @@
         <a href="{{ route('sport-profile.public', $p->user) }}" class="fus-player-name">
           {{ $p->user->name }}
         </a>
+        @php $rep = $reputationData[$p->user_id] ?? null; @endphp
+        @if($rep && $rep['attendance_rate'] < 100)
+          @php
+            $repClass = $rep['attendance_rate'] >= 90 ? 'fus-rep-good' : ($rep['attendance_rate'] >= 70 ? 'fus-rep-warn' : 'fus-rep-bad');
+          @endphp
+          <span class="fus-rep-badge {{ $repClass }}">{{ number_format($rep['attendance_rate'], 0) }}%</span>
+        @endif
+        @if($rep && $rep['has_badge'])
+          <span class="fus-late-badge">Se bajo {{ $rep['late_leaves_30_days'] }}x</span>
+        @endif
+        @if($isInitiator && $rep && $rep['attendance_rate'] < 80)
+          <span class="fus-warning-org">Baja asistencia</span>
+        @endif
       </div>
-      @if($game->isFinished() && $p->result)
-        @php $rMap = ['win'=>['Victoria','fus-result-win'],'draw'=>['Empate','fus-result-draw'],'loss'=>['Derrota','fus-result-loss']]; @endphp
-        <span class="fus-result-badge {{ $rMap[$p->result][1] ?? '' }}">
-          {{ $rMap[$p->result][0] ?? '-' }}
-        </span>
+      @if($game->isFinished() && $p->stats_submitted_at)
+        <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
+          @if($p->goals !== null || $p->assists !== null)
+            <span style="font-size:11px; color:#888; white-space:nowrap;">
+              @if($p->goals !== null){{ $p->goals }}G @endif
+              @if($p->assists !== null){{ $p->assists }}A @endif
+            </span>
+          @endif
+          @if($p->result)
+            @php $rMap = ['win'=>['Victoria','fus-result-win'],'draw'=>['Empate','fus-result-draw'],'loss'=>['Derrota','fus-result-loss']]; @endphp
+            <span class="fus-result-badge {{ $rMap[$p->result][1] ?? '' }}">
+              {{ $rMap[$p->result][0] ?? '-' }}
+            </span>
+          @endif
+        </div>
       @endif
+      @if($isInitiator && $p->user_id !== auth()->id() && in_array($game->status, ['open', 'full']) && !$game->isFinished())
+        <form method="POST" action="{{ route('falta-uno.kick', [$game, $p->user]) }}"
+              onsubmit="return confirm('¿Seguro que queres remover a {{ $p->user->name }} del partido?')"
+              style="margin-left:auto; flex-shrink:0;">
+          @csrf
+          <button type="submit" class="fus-btn-kick">Remover</button>
+        </form>
+      @endif
+      @else
+      <div class="fus-avatar-empty"></div>
+      <span class="fus-slot-text">Jugador confirmado</span>
+      @endauth
     </div>
     @endforeach
 
@@ -657,9 +816,11 @@
   {{-- Resultados --}}
   @if($game->isFinished() && $game->activeParticipants->whereNotNull('result')->isNotEmpty())
   @php
-    $wins   = $game->activeParticipants->where('result', 'win')->count();
-    $draws  = $game->activeParticipants->where('result', 'draw')->count();
-    $losses = $game->activeParticipants->where('result', 'loss')->count();
+    $wins       = $game->activeParticipants->where('result', 'win')->count();
+    $draws      = $game->activeParticipants->where('result', 'draw')->count();
+    $losses     = $game->activeParticipants->where('result', 'loss')->count();
+    $totalGoals = $game->activeParticipants->sum('goals');
+    $totalAssists = $game->activeParticipants->sum('assists');
   @endphp
   <div class="fus-results-card" data-aos="zoom-in">
     <p class="fus-results-title">Resultado del partido</p>
@@ -677,6 +838,22 @@
         <div class="fus-result-tile-label">Derrotas</div>
       </div>
     </div>
+    @if($totalGoals > 0 || $totalAssists > 0)
+      <div style="display:flex; justify-content:center; gap:20px; margin-top:12px; padding-top:12px; border-top:1px solid rgba(0,0,0,.06);">
+        @if($totalGoals > 0)
+          <div style="text-align:center;">
+            <div style="font-size:20px; font-weight:800; color:#111;">{{ $totalGoals }}</div>
+            <div style="font-size:11px; color:#888; font-weight:600;">Goles</div>
+          </div>
+        @endif
+        @if($totalAssists > 0)
+          <div style="text-align:center;">
+            <div style="font-size:20px; font-weight:800; color:#111;">{{ $totalAssists }}</div>
+            <div style="font-size:11px; color:#888; font-weight:600;">Asistencias</div>
+          </div>
+        @endif
+      </div>
+    @endif
   </div>
   @endif
 

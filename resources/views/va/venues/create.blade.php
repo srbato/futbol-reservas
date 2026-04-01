@@ -94,6 +94,94 @@
       </div>
     </div>
 
+    {{-- Política de cancelación y modificación --}}
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+      <p class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-4 pb-3 border-b border-slate-100">
+        Política de cancelación y modificación
+      </p>
+
+      <div class="flex items-center gap-3 flex-wrap mb-4">
+        <input type="number" id="cancellation_hours" name="cancellation_hours"
+               value="{{ old('cancellation_hours') }}"
+               min="1" max="720" placeholder="—"
+               class="w-28 rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+        <label for="cancellation_hours" class="text-sm text-slate-500">
+          horas mínimas de anticipación para cancelar
+        </label>
+      </div>
+      <p class="text-xs text-slate-400 mb-4">
+        Dejá vacío para permitir cancelaciones en cualquier momento. Cuando se supere el límite, el botón de cancelar desaparece para el usuario.
+      </p>
+
+      <div class="flex items-center gap-3 flex-wrap">
+        <input type="number" id="modification_hours" name="modification_hours"
+               value="{{ old('modification_hours') }}"
+               min="1" max="720" placeholder="—"
+               class="w-28 rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+        <label for="modification_hours" class="text-sm text-slate-500">
+          horas mínimas de anticipación para modificar horario
+        </label>
+      </div>
+      <p class="text-xs text-slate-400 mt-2">
+        Dejá vacío para no permitir modificaciones. Cuando se configure, los usuarios podrán cambiar el horario de su reserva pagada con la anticipación indicada.
+      </p>
+    </div>
+
+    {{-- Reservas recurrentes --}}
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+      <p class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-4 pb-3 border-b border-slate-100">
+        Reservas recurrentes
+      </p>
+
+      <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Modo de pago</label>
+      <select name="recurring_payment_mode"
+              class="w-full max-w-xs px-3 py-2.5 rounded-xl border border-slate-300 bg-white text-sm text-slate-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+        <option value="upfront" {{ old('recurring_payment_mode', 'upfront') === 'upfront' ? 'selected' : '' }}>
+          Pago único online (MercadoPago)
+        </option>
+        <option value="manual" {{ old('recurring_payment_mode') === 'manual' ? 'selected' : '' }}>
+          Solo manual / efectivo
+        </option>
+        <option value="subscription" {{ old('recurring_payment_mode') === 'subscription' ? 'selected' : '' }}>
+          Suscripción mensual (requiere MercadoPago conectado)
+        </option>
+      </select>
+      @error('recurring_payment_mode')
+        <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+      @enderror
+      <p class="text-xs text-slate-400 mt-2">
+        <strong>Pago único online:</strong> el jugador paga todos los turnos de una vez por MercadoPago.<br>
+        <strong>Solo manual:</strong> el botón "Reservar recurrente" no aparece en la página pública. El admin crea las reservas recurrentes desde el panel.<br>
+        <strong>Suscripción mensual:</strong> MercadoPago cobra automáticamente al jugador cada mes y genera los turnos. Requiere tener MercadoPago conectado.
+      </p>
+    </div>
+
+    {{-- Servicios e instalaciones --}}
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+      <p class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-1 pb-3 border-b border-slate-100">
+        Servicios e instalaciones
+      </p>
+      <p class="text-xs text-slate-400 mb-4 mt-3">
+        Seleccioná todo lo que ofrece el complejo. Aparece como chips en la página pública.
+      </p>
+
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-2" id="amenityGrid">
+        @foreach($amenitiesList as $key => $amenity)
+          @php $checked = in_array($key, old('amenities', [])); @endphp
+          <label id="amenity-label-{{ $key }}"
+                 class="flex items-center gap-2 px-3 py-2.5 rounded-xl border cursor-pointer select-none transition-all duration-150 text-sm
+                        {{ $checked ? 'border-indigo-500 bg-indigo-50 text-indigo-700 font-semibold' : 'border-slate-200 text-slate-600 hover:border-slate-400 hover:bg-slate-50' }}">
+            <input type="checkbox" name="amenities[]" value="{{ $key }}" {{ $checked ? 'checked' : '' }} class="hidden">
+            <span class="flex-shrink-0 w-4 h-4 rounded border flex items-center justify-center text-xs transition-all duration-150
+                         {{ $checked ? 'bg-indigo-500 border-indigo-500 text-white' : 'border-slate-300 opacity-0' }}">
+              ✓
+            </span>
+            <span>{{ $amenity['emoji'] }} {{ $amenity['label'] }}</span>
+          </label>
+        @endforeach
+      </div>
+    </div>
+
     {{-- Imagen --}}
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
       <p class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-4 pb-3 border-b border-slate-100">
@@ -132,6 +220,24 @@
 </div>
 
 <script>
+  // Amenities toggle
+  document.getElementById('amenityGrid').addEventListener('change', function(e) {
+    if (e.target.type !== 'checkbox') return;
+    const label    = e.target.closest('label');
+    const checkBox = label.querySelector('span.flex-shrink-0');
+    if (e.target.checked) {
+      label.classList.remove('border-slate-200', 'text-slate-600', 'hover:border-slate-400', 'hover:bg-slate-50');
+      label.classList.add('border-indigo-500', 'bg-indigo-50', 'text-indigo-700', 'font-semibold');
+      checkBox.classList.remove('border-slate-300', 'opacity-0');
+      checkBox.classList.add('bg-indigo-500', 'border-indigo-500', 'text-white');
+    } else {
+      label.classList.add('border-slate-200', 'text-slate-600', 'hover:border-slate-400', 'hover:bg-slate-50');
+      label.classList.remove('border-indigo-500', 'bg-indigo-50', 'text-indigo-700', 'font-semibold');
+      checkBox.classList.add('border-slate-300', 'opacity-0');
+      checkBox.classList.remove('bg-indigo-500', 'border-indigo-500', 'text-white');
+    }
+  });
+
   function previewVenueImage(input) {
     const file = input.files[0];
     if (!file) return;

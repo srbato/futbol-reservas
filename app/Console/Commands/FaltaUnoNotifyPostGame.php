@@ -3,13 +3,14 @@
 namespace App\Console\Commands;
 
 use App\Models\FaltaUnoGame;
+use App\Models\FaltaUnoSportProfile;
 use App\Notifications\FaltaUnoPostGameNotification;
 use Illuminate\Console\Command;
 
 class FaltaUnoNotifyPostGame extends Command
 {
     protected $signature   = 'falta-uno:notify-post-game';
-    protected $description = 'Notifica a los participantes 30 minutos después del inicio del partido para que califiquen';
+    protected $description = 'Notifica a los participantes 30 minutos después del inicio del partido para que califiquen, marca el partido como finished e incrementa games_played';
 
     public function handle(): int
     {
@@ -18,7 +19,7 @@ class FaltaUnoNotifyPostGame extends Command
         $games = FaltaUnoGame::whereIn('status', ['open', 'full'])
             ->where('start_at', '<', now()->subMinutes(30))
             ->whereNull('post_game_notified_at')
-            ->with(['initiator', 'activeParticipants.user'])
+            ->with(['initiator', 'activeParticipants.user', 'field'])
             ->get();
 
         $total = 0;
@@ -38,8 +39,27 @@ class FaltaUnoNotifyPostGame extends Command
                 }
             }
 
-            $game->update(['post_game_notified_at' => now()]);
-            $this->info("Juego #{$game->id}: notificaciones post-partido enviadas.");
+            // Incrementar games_played automáticamente para todos los participantes y el iniciador
+            $sport = $game->field->sport ?? null;
+            if ($sport) {
+                $allUserIds = $game->activeParticipants
+                    ->pluck('user_id')
+                    ->push($game->initiator_user_id)
+                    ->unique()
+                    ->filter();
+
+                FaltaUnoSportProfile::where('sport', $sport)
+                    ->whereIn('user_id', $allUserIds)
+                    ->increment('games_played');
+            }
+
+            // Marcar el partido como finished
+            $game->update([
+                'status'               => 'finished',
+                'post_game_notified_at' => now(),
+            ]);
+
+            $this->info("Juego #{$game->id}: notificaciones post-partido enviadas, games_played incrementado, estado -> finished.");
         }
 
         $this->info("Total: {$total} notificación(es) enviadas en {$games->count()} partido(s).");

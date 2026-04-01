@@ -463,6 +463,34 @@
     </div>
   @endif
 
+  {{-- ── Banner retomar onboarding ──────────────────────────────────── --}}
+  @php
+    $user = auth()->user();
+    $hasVenue = \App\Models\Venue::where('owner_user_id', $user->id)->exists();
+    $hasField = $hasVenue ? \App\Models\Venue::where('owner_user_id', $user->id)->first()->fields()->exists() : false;
+    $hasSchedule = $hasField ? \App\Models\Venue::where('owner_user_id', $user->id)->first()->fields()->first()?->schedules()->exists() : false;
+    $setupIncomplete = !$hasVenue || !$hasField || !$hasSchedule;
+  @endphp
+  @if($user->onboarding_completed_at && $setupIncomplete)
+    <div style="background:#fefce8; border:1px solid #fde68a; border-radius:14px; padding:16px 20px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+      <div>
+        <div style="font-weight:700; color:#92400e; font-size:14px; margin-bottom:2px;">Configuración incompleta</div>
+        <div style="font-size:13px; color:#a16207;">
+          @if(!$hasVenue) Todavía no creaste tu complejo.
+          @elseif(!$hasField) Falta agregar una cancha.
+          @else Falta configurar los horarios.
+          @endif
+        </div>
+      </div>
+      <form method="POST" action="{{ route('va.onboarding.resume') }}">
+        @csrf
+        <button type="submit" style="padding:8px 20px; border-radius:10px; background:#111; color:#fff; font-size:13px; font-weight:700; border:none; cursor:pointer; font-family:inherit; white-space:nowrap;">
+          Completar configuración
+        </button>
+      </form>
+    </div>
+  @endif
+
   {{-- ── Tabs ──────────────────────────────────────────────────────────── --}}
   <div class="dash-tabs">
     <button class="dash-tab" data-tab="resumen" onclick="showTab('resumen')" style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="bar-chart-2" style="width:14px;height:14px;stroke:currentColor;"></i> Resumen</button>

@@ -3,11 +3,15 @@
 namespace App\Http\Controllers\VenueAdmin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\FaltaUnoCancelledMail;
+use App\Models\FaltaUnoGame;
+use App\Models\FaltaUnoSetting;
 use App\Models\Field;
 use App\Models\FieldPrice;
 use App\Models\MembershipPlan;
 use App\Models\Reservation;
 use App\Models\Venue;
+use App\Notifications\FaltaUnoCancelledNotification;
 use App\Services\MercadoPagoRefundService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -73,15 +77,19 @@ class FieldController extends Controller
         }
 
         $data = $request->validate([
-            'name'                 => ['required', 'string', 'max:120'],
-            'sport'                => ['required', 'in:football,padel,tennis,basketball,volleyball'],
-            'format'               => ['required', 'integer', 'min:1', 'max:11'],
-            'slot_minutes'         => ['required', 'integer', 'min:30', 'max:180'],
-            'price_per_slot'       => ['required', 'numeric', 'min:0'],
-            'currency'             => ['required', 'string', 'size:3'],
-            'night_price_per_slot' => ['nullable', 'numeric', 'min:0'],
-            'night_start_time'     => ['nullable', 'date_format:H:i', 'required_with:night_price_per_slot'],
-            'night_end_time'       => ['nullable', 'date_format:H:i', 'required_with:night_price_per_slot', 'after:night_start_time'],
+            'name'                    => ['required', 'string', 'max:120'],
+            'sport'                   => ['required', 'in:football,padel,tennis,basketball,volleyball'],
+            'format'                  => ['required', 'integer', 'min:1', 'max:11'],
+            'slot_minutes'            => ['required', 'integer', 'min:30', 'max:180'],
+            'price_per_slot'          => ['required', 'numeric', 'min:0'],
+            'currency'                => ['required', 'string', 'size:3'],
+            'cover_image'             => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'night_price_per_slot'    => ['nullable', 'numeric', 'min:0'],
+            'night_start_time'        => ['nullable', 'date_format:H:i', 'required_with:night_price_per_slot'],
+            'night_end_time'          => ['nullable', 'date_format:H:i', 'required_with:night_price_per_slot', 'after:night_start_time'],
+            'falta_uno_enabled'       => ['nullable', 'boolean'],
+            'refund_deadline_minutes' => ['nullable', 'integer', 'min:0', 'max:10080'],
+            'fill_deadline_minutes'   => ['nullable', 'integer', 'min:0', 'max:10080'],
         ]);
 
         $field = Field::create([
@@ -94,6 +102,12 @@ class FieldController extends Controller
             'is_active'    => true,
         ]);
 
+        if ($request->hasFile('cover_image')) {
+            $path = $request->file('cover_image')->store('fields', 'public');
+            $field->cover_image_path = $path;
+            $field->save();
+        }
+
         FieldPrice::create([
             'field_id'             => $field->id,
             'price_per_slot'       => $data['price_per_slot'],
@@ -101,6 +115,13 @@ class FieldController extends Controller
             'night_price_per_slot' => $data['night_price_per_slot'] ?? null,
             'night_start_time'     => $data['night_start_time'] ?? null,
             'night_end_time'       => $data['night_end_time'] ?? null,
+        ]);
+
+        FaltaUnoSetting::create([
+            'field_id'                => $field->id,
+            'enabled'                 => $request->boolean('falta_uno_enabled'),
+            'refund_deadline_minutes' => $data['refund_deadline_minutes'] ?? 60,
+            'fill_deadline_minutes'   => $data['fill_deadline_minutes'] ?? 120,
         ]);
 
         return redirect()->route('va.schedule.edit', $field);
@@ -266,6 +287,36 @@ class FieldController extends Controller
                         'refund_result'  => $refundResult,
                     ]);
                 }
+            }
+        }
+
+        // Al desactivar, cancelar partidos Falta Uno abiertos/full y notificar participantes
+        if ($field->is_active) {
+            $openGames = FaltaUnoGame::where('field_id', $field->id)
+                ->whereIn('status', ['open', 'full'])
+                ->where('start_at', '>', now())
+                ->get();
+
+            foreach ($openGames as $game) {
+                $game->load('activeParticipants.user', 'field.venue');
+
+                foreach ($game->activeParticipants as $participant) {
+                    if ($participant->user && $participant->user->email) {
+                        Mail::to($participant->user->email)
+                            ->send(new FaltaUnoCancelledMail($game, $participant->user));
+                        $participant->user->notify(new FaltaUnoCancelledNotification($game));
+                    }
+                }
+
+                $game->update([
+                    'status'       => 'cancelled',
+                    'cancelled_at' => now(),
+                ]);
+
+                Log::info('Partido Falta Uno cancelado por desactivacion de cancha', [
+                    'game_id'  => $game->id,
+                    'field_id' => $field->id,
+                ]);
             }
         }
 

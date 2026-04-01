@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Reservation extends Model
 {
@@ -34,6 +36,7 @@ class Reservation extends Model
         'modify_diff_amount',
         'modify_field_id',
         'modify_start_at',
+        'recurring_subscription_id',
     ];
 
     protected $casts = [
@@ -69,5 +72,15 @@ class Reservation extends Model
     public function results(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ReservationResult::class);
+    }
+
+    public function recurringSubscription(): BelongsTo
+    {
+        return $this->belongsTo(RecurringSubscription::class);
+    }
+
+    public function faltaUnoGame(): HasOne
+    {
+        return $this->hasOne(FaltaUnoGame::class, 'reservation_id');
     }
 }

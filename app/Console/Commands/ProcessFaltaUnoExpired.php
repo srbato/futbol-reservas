@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Mail\FaltaUnoExpiredMail;
+use App\Mail\FaltaUnoExpiredParticipantMail;
 use App\Models\FaltaUnoGame;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
@@ -17,7 +18,7 @@ class ProcessFaltaUnoExpired extends Command
         // Buscamos partidos abiertos con reserva pagada cuyo fill_deadline ya pasó
         $games = FaltaUnoGame::where('status', 'open')
             ->whereHas('reservation', fn($q) => $q->where('status', 'PAID'))
-            ->with(['field.faltaUnoSetting', 'field.venue', 'initiator', 'activeParticipants'])
+            ->with(['field.faltaUnoSetting', 'field.venue', 'initiator', 'activeParticipants.user'])
             ->get()
             ->filter(fn($game) => $game->hasPassedFillDeadline());
 
@@ -47,7 +48,20 @@ class ProcessFaltaUnoExpired extends Command
                 $this->warn("No se pudo enviar mail al iniciador del juego #{$game->id}: {$e->getMessage()}");
             }
 
-            $this->info("Juego #{$game->id} expirado. Slot liberado.");
+            // Notificar a los participantes confirmados
+            foreach ($game->activeParticipants as $participant) {
+                if (!$participant->user) {
+                    continue;
+                }
+                try {
+                    Mail::to($participant->user->email)
+                        ->send(new FaltaUnoExpiredParticipantMail($game, $participant->user));
+                } catch (\Throwable $e) {
+                    $this->warn("No se pudo enviar mail al participante #{$participant->user_id} del juego #{$game->id}: {$e->getMessage()}");
+                }
+            }
+
+            $this->info("Juego #{$game->id} expirado. Slot liberado. Participantes notificados.");
         }
 
         $this->info("OK: {$count} partido(s) procesado(s).");

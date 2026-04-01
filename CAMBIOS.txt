@@ -1,6 +1,465 @@
 REGISTRO DE CAMBIOS - Futbol Reservas
 ======================================
 
+[2026-03-30 noche] — FIXES RESERVAS RECURRENTES + VALIDACIÓN DISPONIBILIDAD
+=============================================================================
+
+FIX — SELECTOR DE MODO DE PAGO (UPFRONT/SUSCRIPCIÓN) NO FUNCIONABA
+--------------------------------------------------------------------
+El JavaScript que registraba los event listeners de los botones "Pago único" /
+"Suscripción mensual" se ejecutaba ANTES de que el HTML del modal existiera en
+el DOM. querySelectorAll no encontraba nada → los clicks no hacían nada.
+
+  resources/views/fields/show.blade.php:
+    - Separado el JS en dos partes: funciones (en el script principal) y
+      event listeners (en un <script> después del HTML del modal)
+    - Agregado radio.checked = true antes del dispatchEvent para asegurar
+      que el radio quede seleccionado
+
+FIX — MODAL RECURRENTE SE SALÍA DE PANTALLA
+---------------------------------------------
+  resources/views/fields/show.blade.php:
+    - Agregado max-height: calc(100vh - 40px) y overflow-y: auto al .fs-modal
+      para que el contenido largo haga scroll interno
+
+FEATURE — VALIDACIÓN DE DISPONIBILIDAD ANTES DE PAGAR (RECURRENTE)
+--------------------------------------------------------------------
+Antes: el jugador pagaba y si algún slot estaba ocupado, se enteraba después
+(o directamente no se enteraba en modo suscripción). Ahora se valida ANTES.
+
+Endpoint nuevo:
+  GET /fields/{field}/recurring-availability?start_at=...&frequency=...&occurrences=...
+  app/Http/Controllers/AvailabilityController.php → método recurring()
+    - Calcula todas las fechas futuras del turno recurrente
+    - Para cada una verifica: pasado, cancha cerrada, sin horario, bloqueado,
+      ya reservado
+    - Devuelve JSON con status: available|unavailable y reason por slot
+
+Ruta nueva:
+  routes/web.php:
+    GET /fields/{field}/recurring-availability → fields.recurring_availability
+
+Frontend (resources/views/fields/show.blade.php):
+  - Nueva función checkRecurringAvailability() con AbortController para
+    cancelar requests previos
+  - Se dispara al abrir el modal, cambiar frecuencia, cantidad o modo de pago
+  - Muestra lista visual con check verde o X roja por cada turno
+  - Si hay alguno no disponible, el botón "Crear reservas" queda deshabilitado
+    con mensaje pidiendo cambiar las opciones
+
+FEATURE — SELECTOR DE CANTIDAD DE TURNOS EN MODO SUSCRIPCIÓN
+--------------------------------------------------------------
+Antes: en modo suscripción se ocultaba el selector de cantidad de turnos y
+se hardcodeaba 4 (weekly) o 2 (biweekly). Ahora el jugador elige cuántos
+turnos quiere (2 a 12), igual que en pago único.
+
+  Base de datos:
+    database/migrations/2026_03_30_000005_add_occurrences_to_recurring_subscriptions_table.php
+      - Campo occurrences (unsignedTinyInteger, default 4) en recurring_subscriptions
+
+  app/Models/RecurringSubscription.php:
+    - occurrences agregado a $fillable
+
+  app/Http/Controllers/RecurringSubscriptionController.php:
+    - store(): valida occurrences (required, integer, min:2, max:12)
+    - Pasa occurrences al create de RecurringSubscription
+
+  app/Services/RecurringReservationSubscriptionService.php:
+    - calculateMonthlyAmount(): calcula con slots por mes (4 weekly / 2 biweekly),
+      NO con occurrences total — el monto mensual es siempre por mes
+    - generateMonthReservations(): genera slots_per_month por cobro (4 o 2),
+      no el total de occurrences
+    - createPreapproval(): start_date y end_date calculados según occurrences
+      y frecuencia (ej: 12 weekly = 3 meses de suscripción)
+
+  resources/views/fields/show.blade.php:
+    - Selector de occurrences visible en ambos modos (upfront y suscripción)
+    - submitRecurring() envía occurrences en el form POST de suscripción
+    - updateSubscriptionPreview() muestra monto mensual (slots/mes × precio)
+
+FEATURE — PREVIEW DE PRECIO EN MODO UPFRONT
+---------------------------------------------
+  resources/views/fields/show.blade.php:
+    - Nuevo div #upfrontPreview: "Total a pagar: $X"
+    - Si hay descuento por cantidad, muestra precio original tachado + final
+      con porcentaje de descuento
+    - Función updateUpfrontPreview() se dispara al abrir modal y cambiar
+      cantidad de turnos
+    - Se oculta al cambiar a modo suscripción, se muestra al volver a upfront
+
+FIX — PREAPPROVAL: FORMATO DE FECHAS INVÁLIDO
+-----------------------------------------------
+  app/Services/RecurringReservationSubscriptionService.php:
+    - toIso8601String() generaba formato que MP no aceptaba
+    - Cambiado a formato explícito: Y-m-d\TH:i:s.000-03:00
+
+FIX — PREAPPROVAL: MENSAJES DE ERROR ESPECÍFICOS
+--------------------------------------------------
+  app/Http/Controllers/RecurringSubscriptionController.php:
+    - En vez del genérico "No se pudo iniciar el pago", parsea la respuesta
+      de MP y muestra mensajes específicos:
+      - Monto menor al mínimo ($15) → "Probá con más turnos"
+      - Otros errores → mensaje genérico
+
+FIX — SUSCRIPCIÓN NO SE ACTIVABA (POLLING NO CONSULTABA MP)
+-------------------------------------------------------------
+El statusCheck solo leía el estado de la DB. Si el webhook de MP no llegaba
+(desarrollo, tunnel caído, etc.), la suscripción quedaba en PENDING_PAYMENT
+eternamente.
+
+  app/Services/RecurringReservationSubscriptionService.php:
+    - Nuevo método syncPreapprovalStatus(): consulta GET /preapproval/{id}
+      a la API de MP. Si status=authorized → activa. Si cancelled/paused →
+      cancela localmente.
+
+  app/Http/Controllers/RecurringSubscriptionController.php:
+    - statusCheck(): si la suscripción sigue en PENDING_PAYMENT y tiene
+      mp_preapproval_id, llama a syncPreapprovalStatus() antes de responder.
+      Así el polling de la vista de resultado activa la suscripción sin
+      depender del webhook.
+
+Archivos nuevos:
+  database/migrations/2026_03_30_000005_add_occurrences_to_recurring_subscriptions_table.php
+
+Archivos modificados:
+  app/Http/Controllers/AvailabilityController.php (método recurring)
+  app/Http/Controllers/RecurringSubscriptionController.php (occurrences, errores MP, sync)
+  app/Models/RecurringSubscription.php (occurrences en fillable)
+  app/Services/RecurringReservationSubscriptionService.php (sync, fechas, monthly calc)
+  resources/views/fields/show.blade.php (modal scroll, availability check, price previews)
+  routes/web.php (ruta recurring-availability)
+
+[2026-03-30] — SUSCRIPCIÓN MENSUAL RESERVAS RECURRENTES + MEJORAS VARIAS
+==========================================================================
+
+FEATURE — SUSCRIPCIÓN MENSUAL PARA RESERVAS RECURRENTES
+---------------------------------------------------------
+Sistema completo de cobro automático mensual via MercadoPago Preapproval
+para jugadores que quieren reservar un horario fijo todas las semanas.
+
+Base de datos (3 migraciones nuevas):
+  - 2026_03_30_000002_create_recurring_subscriptions_table.php
+    Tabla recurring_subscriptions: user_id, field_id, status, frequency,
+    day_of_week, start_time, slot_minutes, monthly_amount, currency,
+    mp_preapproval_id, mp_subscription_status, payment_mp_token_owner,
+    next_billing_date, subscription_starts_at, cancelled_at, cancel_reason,
+    last_payment_id, last_payment_at
+  - 2026_03_30_000003_create_recurring_subscription_periods_table.php
+    Tabla recurring_subscription_periods: recurring_subscription_id,
+    mp_authorized_payment_id (unique, idempotencia), period_start, period_end,
+    amount_charged, status (PAID/FAILED/REFUNDED), reservations_created
+  - 2026_03_30_000004_add_recurring_subscription_id_to_reservations_table.php
+    FK nullable en reservations hacia recurring_subscriptions
+
+Modelos nuevos:
+  app/Models/RecurringSubscription.php
+    - Relaciones: user, field, periods, reservations
+    - Helpers: isActive(), statusLabel(), dayLabel(), frequencyLabel(), nextOccurrences()
+  app/Models/RecurringSubscriptionPeriod.php
+    - Relación: subscription()
+
+Modelos modificados:
+  app/Models/Reservation.php
+    - recurring_subscription_id agregado a $fillable
+    - Relación recurringSubscription() agregada
+  app/Models/User.php
+    - Relación recurringSubscriptions() agregada
+  app/Services/ReservationService.php
+    - createSingle() recibe nuevo parámetro opcional ?int $recurringSubscriptionId = null
+
+Service principal:
+  app/Services/RecurringReservationSubscriptionService.php
+    - calculateMonthlyAmount(): precio_slot × (4 weekly / 2 biweekly)
+    - createPreapproval(): crea preapproval en MP, usa token del venue o de plataforma
+    - activateSubscription(): marca ACTIVE, calcula subscription_starts_at
+    - generateMonthReservations(): genera reservas del mes al recibir cobro de MP.
+      Idempotencia via mp_authorized_payment_id. Maneja slots ocupados sin abortar.
+    - handleFailedPayment(): marca FAILED, crea período con status FAILED
+    - cancelSubscription(): cancela en MP, cancela reservas futuras en bulk
+    - Dispara mails en cada evento
+
+Controller del jugador:
+  app/Http/Controllers/RecurringSubscriptionController.php
+    - store(): valida venue en modo subscription, crea RecurringSubscription,
+      llama createPreapproval(), redirige a MP
+    - result(): vista post-autorización con polling cada 5 segundos
+    - statusCheck(): endpoint JSON para el polling
+    - cancel(): cancela la suscripción con confirmación
+
+Rutas del jugador (dentro del grupo auth):
+  POST  /reservas/suscripcion                          recurring.subscription.store
+  GET   /reservas/suscripcion/{subscription}/resultado recurring.subscription.result
+  GET   /reservas/suscripcion/{subscription}/estado    recurring.subscription.status
+  POST  /reservas/suscripcion/{subscription}/cancelar  recurring.subscription.cancel
+
+Webhook extendido (app/Http/Controllers/MercadoPagoWebhookController.php):
+  - Nuevo método privado handleRecurringSubscriptionPreapproval():
+    maneja subscription_preapproval con external_reference recurring_subscription:{id}
+    → si authorized: activa; si cancelled: cancela localmente
+  - Nuevo método privado handleRecurringSubscriptionAuthorizedPayment():
+    maneja subscription_authorized_payment buscando por mp_preapproval_id
+    → si processed: generateMonthReservations(); si otro: handleFailedPayment()
+  - Idempotencia completa: no crea períodos duplicados
+  - Los handlers existentes (reserva, batch, venue admin) NO fueron modificados
+
+Panel venue admin:
+  app/Http/Controllers/VenueAdmin/RecurringSubscriptionAdminController.php
+    - index(): lista suscripciones del venue con último período
+    - cancel(): cancela con reason 'venue_cancelled'
+  resources/views/va/recurring-subscriptions/index.blade.php
+    - Tabla: jugador, cancha, turno, monto, estado, último cobro, próximo cobro
+    - Alerta roja si hay suscripciones con status FAILED
+  resources/views/layouts/admin.blade.php
+    - Link "Suscripciones" en el sidebar del panel, solo para venue_admin
+
+Rutas del venue admin:
+  GET  /va/suscripciones                              va.recurring_subscriptions.index
+  POST /va/suscripciones/{subscription}/cancelar      va.recurring_subscriptions.cancel
+
+Vista del jugador:
+  resources/views/reservations/my.blade.php
+    - Nueva tab "Suscripciones" con cards por suscripción
+    - Badge de estado con colores, próximos turnos estimados, botón cancelar
+  resources/views/recurring-subscriptions/result.blade.php
+    - 3 estados: ACTIVE (check verde), PENDING_PAYMENT (reloj + polling), FAILED/CANCELLED (X rojo)
+
+Mails nuevos:
+  app/Mail/RecurringSubscriptionActivatedMail.php → emails/recurring-subscription/activated
+  app/Mail/RecurringSubscriptionPaymentFailedMail.php → emails/recurring-subscription/payment-failed
+  app/Mail/RecurringSubscriptionCancelledMail.php → emails/recurring-subscription/cancelled
+  app/Mail/VenueAdminRecurringSubscriptionActivatedMail.php → emails/recurring-subscription/venue-admin-activated
+
+Vista pública de la cancha (resources/views/fields/show.blade.php):
+  - Si venue tiene recurring_payment_mode = 'subscription':
+    el modal de reserva recurrente muestra selector de tipo de pago
+    (cards clickeables: "Pago único" / "Suscripción mensual")
+  - En modo suscripción: oculta el selector de cantidad de turnos y descuentos,
+    muestra preview del monto mensual calculado en tiempo real
+  - submitRecurring() redirige a /reservas/suscripcion via form POST si modo = subscription,
+    o hace el fetch original sin cambios si modo = upfront
+
+Config del venue (edit y create):
+  - Opción "Suscripción mensual (requiere MercadoPago conectado)" habilitada
+  - VenueController::update/store: si se elige subscription sin mp_access_token → error de validación
+  - Texto explicativo de las 3 opciones actualizado
+
+Comando de reconciliación:
+  app/Console/Commands/ReconcileRecurringSubscriptions.php
+    - Detecta suscripciones ACTIVE con next_billing_date vencido hace +3 días sin cobro
+    - Loguea Log::warning por cada una para revisión manual
+    - Registrado en routes/console.php como tarea diaria
+
+FEATURE — RESERVAS RECURRENTES MANUALES (ADMIN)
+------------------------------------------------
+1. Nuevo controller: app/Http/Controllers/VenueAdmin/ManualRecurringReservationController.php
+   - store(): crea N reservas con payment_provider=manual, status=PAID
+   - Respeta la lógica de overlap igual que ManualReservationController
+   - Crea un ReservationBatch con status=PAID para agruparlas
+   - Monto total se divide en partes iguales entre los turnos
+   - Si algún slot está ocupado, lo saltea e informa cuántos fallaron
+
+2. Ruta: POST /va/manual-recurring-reservations (va.reservations.manual_recurring_store)
+
+3. Panel de reservas (resources/views/va/reservations/index.blade.php):
+   - Nuevo botón "Recurrente manual" junto al existente "Nueva reserva manual"
+   - Modal completo con: cancha, fecha primer turno (selector de slots),
+     frecuencia, cantidad de turnos, cliente opcional, monto total, nota
+   - JS independiente del modal simple (prefijos recur- en todos los IDs)
+
+FEATURE — MODO DE PAGO RESERVAS RECURRENTES POR VENUE
+------------------------------------------------------
+1. Migración: 2026_03_30_000001_add_recurring_payment_mode_to_venues_table.php
+   - Campo recurring_payment_mode string(20) default 'upfront' en venues
+
+2. Venue model: recurring_payment_mode agregado a $fillable
+
+3. VenueController: validación y asignación de recurring_payment_mode en store() y update()
+
+4. Vista edit/create del venue: sección "Reservas recurrentes" con select de 3 opciones
+
+5. FieldController: pasa $recurringPaymentMode a fields/show
+
+6. fields/show.blade.php: botón "Reservar recurrente" oculto si modo = manual
+
+MEJORAS — CREATE/EDIT PARIDAD DE VISTAS
+----------------------------------------
+1. venues/create.blade.php: agregadas secciones faltantes:
+   - Política de cancelación y modificación
+   - Reservas recurrentes
+   - Servicios e instalaciones (con JS de amenities)
+
+2. fields/create.blade.php: agregadas secciones faltantes:
+   - Foto de la cancha
+   - Falta Uno (con toggle y panel de configuración)
+
+3. FieldController::store(): ahora maneja cover_image y FaltaUnoSetting
+
+MEJORAS — UI AMENITIES
+-----------------------
+- resources/views/va/venues/edit.blade.php y create.blade.php:
+  Cambiado text-transparent → opacity-0 en el checkmark del cuadradito
+  para que la diferencia entre seleccionado/no seleccionado sea clara
+
+MEJORAS — REFERIDO
+------------------
+- resources/views/membership/become-partner.blade.php:
+  Bloque del código de referido ocultado ({{-- referral code hidden --}})
+
+Archivos nuevos:
+  database/migrations/2026_03_30_000001_add_recurring_payment_mode_to_venues_table.php
+  database/migrations/2026_03_30_000002_create_recurring_subscriptions_table.php
+  database/migrations/2026_03_30_000003_create_recurring_subscription_periods_table.php
+  database/migrations/2026_03_30_000004_add_recurring_subscription_id_to_reservations_table.php
+  app/Models/RecurringSubscription.php
+  app/Models/RecurringSubscriptionPeriod.php
+  app/Services/RecurringReservationSubscriptionService.php
+  app/Http/Controllers/RecurringSubscriptionController.php
+  app/Http/Controllers/VenueAdmin/RecurringSubscriptionAdminController.php
+  app/Http/Controllers/VenueAdmin/ManualRecurringReservationController.php
+  app/Console/Commands/ReconcileRecurringSubscriptions.php
+  app/Mail/RecurringSubscriptionActivatedMail.php
+  app/Mail/RecurringSubscriptionPaymentFailedMail.php
+  app/Mail/RecurringSubscriptionCancelledMail.php
+  app/Mail/VenueAdminRecurringSubscriptionActivatedMail.php
+  resources/views/recurring-subscriptions/result.blade.php
+  resources/views/va/recurring-subscriptions/index.blade.php
+  resources/views/emails/recurring-subscription/activated.blade.php
+  resources/views/emails/recurring-subscription/payment-failed.blade.php
+  resources/views/emails/recurring-subscription/cancelled.blade.php
+  resources/views/emails/recurring-subscription/venue-admin-activated.blade.php
+
+Archivos modificados:
+  app/Models/Reservation.php
+  app/Models/User.php
+  app/Models/Venue.php
+  app/Services/ReservationService.php
+  app/Http/Controllers/MercadoPagoWebhookController.php
+  app/Http/Controllers/FieldController.php
+  app/Http/Controllers/VenueAdmin/VenueController.php
+  app/Http/Controllers/VenueAdmin/FieldController.php
+  app/Http/Controllers/VenueAdmin/ReservationsController.php
+  resources/views/fields/show.blade.php
+  resources/views/reservations/my.blade.php
+  resources/views/va/reservations/index.blade.php
+  resources/views/va/venues/edit.blade.php
+  resources/views/va/venues/create.blade.php
+  resources/views/va/fields/create.blade.php
+  resources/views/layouts/admin.blade.php
+  routes/web.php
+  routes/console.php
+
+---
+
+[2026-03-29] — CORRECCIONES FLUJO FALTA UNO
+============================================
+
+1. CRITICO — Salirse del partido (nueva feature)
+   - Nuevo método FaltaUnoController::leave() con validaciones completas
+     (solo participantes no iniciadores, partido no empezado, estado open/full)
+   - Si el partido estaba full, vuelve a open al salir el último participante
+   - Notifica al iniciador por email (FaltaUnoLeftMail) y notificación interna
+     (FaltaUnoParticipantLeftNotification)
+   - Nueva ruta POST /falta-uno/{game}/leave (falta-uno.leave)
+   - Botón "Salirme del partido" en show.blade.php con confirmación JS,
+     estilo visual consistente (fus-btn-leave, naranja suave)
+
+2. CRITICO — Estado finished para partidos terminados
+   - Nueva migración: 2026_03_29_000001_add_finished_status_to_falta_uno_games.php
+     (SQLite: sin cambio DDL; MySQL: ALTER TABLE para agregar 'finished' al enum)
+   - FaltaUnoNotifyPostGame ahora cambia status a 'finished' tras notificar
+   - FaltaUnoGame::isFinished() también retorna true cuando status === 'finished'
+   - Vista show.blade.php: statusLabel incluye 'Finalizado'
+   - Botones de cancelar/salirse no aparecen en partidos finished
+
+3. IMPORTANTE — Expiración notifica también a participantes
+   - ProcessFaltaUnoExpired: después de notificar al iniciador, itera los
+     participantes confirmados y les envía FaltaUnoExpiredParticipantMail
+   - Nueva vista: resources/views/emails/falta-uno/expired-participant.blade.php
+
+4. IMPORTANTE — Validaciones faltantes en join()
+   - FaltaUnoController::join(): agrega validacion start_at > now()
+   - FaltaUnoController::join(): agrega validacion hasPassedFillDeadline()
+   - Mensajes de error claros al usuario en ambos casos
+
+5. IMPORTANTE — Chat bloqueado en partidos cerrados
+   - FaltaUnoChatController::store(): rechaza mensajes con 422 si el partido
+     está en estado cancelled, expired o finished
+
+6. MODERADO — Recordatorio a inscriptos 2 horas antes del partido
+   - FaltaUnoSendReminders: agrega segundo bloque que busca partidos open/full
+     entre 105 y 135 minutos antes del inicio y notifica a todos los inscriptos
+   - Notificación interna: FaltaUnoGameReminderParticipantNotification
+   - Email: FaltaUnoGameReminderMail / vista game-reminder.blade.php
+   - Ya programado en console.php cada 5 minutos (reutiliza el schedule existente)
+
+7. MODERADO — Bloqueo de cambio de categoría manual
+   - FaltaUnoSportProfileController::update(): si games_played >= 3 y la
+     categoría enviada difiere de la actual, retorna error de validación
+   - Vista sport-profile/edit.blade.php: si games_played >= 3, muestra la
+     categoría como texto no editable con mensaje explicativo;
+     si < 3, muestra el hint con la advertencia
+
+8. MENOR — games_played auto-incrementado al terminar el partido
+   - FaltaUnoNotifyPostGame: después de notificar, incrementa games_played
+     para todos los participantes confirmados e iniciador vía FaltaUnoSportProfile
+   - Desacopla el conteo de stats manuales
+
+9. MENOR — Validacion de categoría del iniciador al crear partido
+   - FaltaUnoController::store(): verifica que la categoría del perfil del
+     iniciador esté dentro del rango category_min/category_max definido
+
+10. MENOR — Acceso público no expone jugadores
+    - show.blade.php: usuarios no autenticados ven "Organizador (iniciá sesión
+      para ver)" y "Jugador confirmado" en lugar de nombres y avatares reales
+
+Archivos nuevos:
+  app/Mail/FaltaUnoLeftMail.php
+  app/Mail/FaltaUnoExpiredParticipantMail.php
+  app/Mail/FaltaUnoGameReminderMail.php
+  app/Notifications/FaltaUnoParticipantLeftNotification.php
+  app/Notifications/FaltaUnoGameReminderParticipantNotification.php
+  resources/views/emails/falta-uno/left.blade.php
+  resources/views/emails/falta-uno/expired-participant.blade.php
+  resources/views/emails/falta-uno/game-reminder.blade.php
+  database/migrations/2026_03_29_000001_add_finished_status_to_falta_uno_games.php
+
+Archivos modificados:
+  app/Http/Controllers/FaltaUnoController.php
+  app/Http/Controllers/FaltaUnoChatController.php
+  app/Http/Controllers/FaltaUnoSportProfileController.php
+  app/Console/Commands/FaltaUnoNotifyPostGame.php
+  app/Console/Commands/ProcessFaltaUnoExpired.php
+  app/Console/Commands/FaltaUnoSendReminders.php
+  app/Models/FaltaUnoGame.php
+  resources/views/falta-uno/show.blade.php
+  resources/views/falta-uno/sport-profile/edit.blade.php
+  routes/web.php
+
+---
+
+[2026-03-29] — FEATURES Y FIXES DEL DÍA
+========================================
+
+FEATURE #18 — FILTRO DE ZONA EN FALTA UNO
+------------------------------------------
+- FaltaUnoController::index(): nuevo parámetro zone, filtro con whereHas('field.venue')
+- Se construye $zones con las zonas distintas de venues que tienen partidos abiertos
+- falta-uno/index.blade.php: fila de pills "Zona:" debajo de los filtros existentes,
+  solo visible si $zones no está vacío. Pills con scroll horizontal en mobile.
+- Todos los links de filtro existentes propagan el parámetro zone para no perderlo
+- Cards del listado muestran la zona del complejo en gris junto al nombre del venue
+
+FIX — ÍNDICE ÚNICO EN RESEÑAS (backlog #2)
+-------------------------------------------
+- La migración 2026_03_26_000001_restore_unique_user_venue_on_venue_reviews_table
+  ya existía y estaba aplicada (batch 45). El constraint UNIQUE(venue_id, user_id) estaba OK.
+- Lo que faltaba: VenueReviewController::store() tenía check exists() + create() sin manejo
+  de UniqueConstraintViolationException (race condition TOCTOU).
+- Fix: create() envuelto en try/catch que captura UniqueConstraintViolationException
+  y devuelve mensaje de error amigable en lugar de crash 500.
+
+---
+
 [2026-03-29] — AUDITORÍA, FIXES Y CONFIGURACIÓN DE PRODUCCIÓN
 ==============================================================
 
@@ -1637,3 +2096,445 @@ FIXES 2026-03-29
   · Agregado "rm -rf node_modules" tras "npm run build" para no acumular espacio en disco
   · Los assets quedan en public/build/ que es lo único que Laravel necesita en producción
 
+---
+
+FIXES 2026-03-31 — SUSCRIPCIONES RECURRENTES (ROBUSTEZ)
+---------------------------------------------------------
+
+### Bug crítico: webhook de MP usaba token incorrecto para suscripciones recurrentes
+- app/Http/Controllers/MercadoPagoWebhookController.php
+  · handleSubscriptionPreapproval(): cuando el token de plataforma no puede obtener el
+    preapproval (porque fue creado con token del venue), ahora busca la RecurringSubscription
+    y reintenta con el token del venue
+  · handleSubscriptionAuthorizedPayment(): mismo fix — nuevo método fetchAuthorizedPaymentWithVenueToken()
+    busca entre las suscripciones activas y reintenta con el token correcto
+  · Antes: el webhook fallaba silenciosamente → suscripción nunca se activaba
+
+### Bug crítico: reservas de suscripción expiraban inmediatamente
+- app/Services/ReservationService.php
+  · createSingle(): cuando recurringSubscriptionId != null, la reserva se crea con
+    status='PAID' (no PENDING_PAYMENT) y expires_at=null (no now())
+  · Antes: expires_at=now()->addMinutes(null) = now() → la reserva expiraba al instante
+
+### Bug: suscripción activada sin reservas
+- app/Services/RecurringReservationSubscriptionService.php
+  · activateSubscription(): ahora crea las reservas del primer mes inmediatamente al activar
+    (nuevo método createFirstMonthReservations)
+  · Antes: dependía exclusivamente del webhook authorized_payment para crear reservas,
+    que fallaba por el bug del token
+  · Guarda idempotente: si ya existen reservas, no duplica
+
+### Fix: timezone en preview de disponibilidad recurrente
+- resources/views/fields/show.blade.php
+  · El JS usaba new Date(s.start) que interpretaba "YYYY-MM-DD HH:MM:SS" como UTC en
+    algunos browsers → mostraba hora incorrecta al convertir a timezone local
+  · Ahora parsea el string directamente sin pasar por Date() para la hora
+
+### Mejora: tab Suscripciones muestra reservas reales
+- app/Http/Controllers/MyReservationsController.php
+  · Carga reservations en la relación de recurringSubscriptions
+  · Excluye reservas con recurring_subscription_id del tab "Próximas" (evita duplicación)
+- resources/views/reservations/my.blade.php
+  · Tab Suscripciones: muestra las reservas reales (con status, horario, código) en vez
+    de solo los "próximos turnos estimados" de nextOccurrences()
+  · Fallback a nextOccurrences() solo cuando aún no hay reservas generadas
+
+### Mejora: sync inmediato al cargar página de resultado
+- app/Http/Controllers/RecurringSubscriptionController.php
+  · result(): sincroniza estado con MP al cargar la página (no solo via polling JS)
+  · Si MP ya autorizó, activa la suscripción y crea reservas inmediatamente
+
+### Mejora: tabs unificados en "Mis reservas"
+- resources/views/reservations/my.blade.php
+  · Eliminado tab separado "Suscripciones"
+  · Tab "Recurrentes" ahora tiene sub-pestañas: "Suscripciones" y "Pago único"
+  · Sub-tabs verdes con contador, toggle vía JS (switchRecurSubtab)
+  · CSS nuevo para .recur-subtab
+
+---
+
+FEATURE #15 — ONBOARDING PARA VENUE ADMINS
+--------------------------------------------
+
+### Migración
+- database/migrations/2026_03_31_000001_add_onboarding_completed_at_to_users_table.php
+  · Columna onboarding_completed_at (timestamp nullable) en users
+  · Migración de datos: venue_admins existentes con venues+fields marcados como completados
+
+### Middleware
+- app/Http/Middleware/VenueAdminOnboarding.php
+  · Se aplica al grupo de rutas va.*
+  · Si el usuario needsOnboarding(), calcula el paso actual según estado real:
+    Sin venue → paso 1, sin fields → paso 2, sin horarios → paso 3, todo listo → paso 4
+  · Rutas de onboarding exentas del redirect
+
+### Controlador
+- app/Http/Controllers/VenueAdmin/OnboardingController.php
+  · show(step): muestra el paso indicado, no permite saltar pasos incompletos
+  · storeVenue(): crea venue con geocodificación automática + imagen de portada
+  · storeField(): crea field + FieldPrice + FaltaUnoSetting
+  · storeSchedule(): crea horarios por día con opción de personalizar y marcar días cerrados
+  · complete(): marca onboarding_completed_at = now(), redirige al dashboard
+  · skip(): marca como completado, redirige con flash informativo
+  · resume(): resetea onboarding_completed_at a null para retomar
+
+### Vistas (nuevas)
+- resources/views/va/onboarding/layout.blade.php
+  · Stepper horizontal 4 pasos: Complejo > Cancha > Horarios > Listo
+  · Paso completado = círculo verde con check, actual = negro, pendiente = gris
+  · Responsive: en mobile solo muestra números sin texto
+  · Link "Saltar configuración" en pasos 1-3
+- resources/views/va/onboarding/step1.blade.php — Formulario complejo
+- resources/views/va/onboarding/step2.blade.php — Formulario cancha
+- resources/views/va/onboarding/step3.blade.php — Formulario horarios con personalización por día
+- resources/views/va/onboarding/step4.blade.php — Resumen con mini-cards verdes + tip de completar perfil
+
+### Modelo User
+- app/Models/User.php
+  · onboarding_completed_at en $fillable y $casts
+  · Método needsOnboarding(): true si role=venue_admin y onboarding_completed_at es null
+
+### Rutas
+- GET  va/onboarding/{step}     → OnboardingController@show
+- POST va/onboarding/venue      → OnboardingController@storeVenue
+- POST va/onboarding/field      → OnboardingController@storeField
+- POST va/onboarding/schedule   → OnboardingController@storeSchedule
+- POST va/onboarding/complete   → OnboardingController@complete
+- POST va/onboarding/skip       → OnboardingController@skip
+- POST va/onboarding/resume     → OnboardingController@resume
+
+### Otros
+- bootstrap/app.php: registrado alias venue.onboarding para el middleware
+- routes/web.php: middleware venue.onboarding aplicado al grupo va + 7 rutas de onboarding
+- app/Http/Middleware/EnsureVenueMpConnected.php: exención para rutas va.onboarding.*
+- resources/views/va/dashboard.blade.php: banner amarillo "Configuración incompleta" con
+  botón "Completar configuración" para retomar el onboarding si se salteó
+
+---
+
+MEJORA — COLOR GÉNERO EN FALTA UNO
+------------------------------------
+
+- resources/views/falta-uno/index.blade.php
+  · Chip de género ahora usa clase dinámica: fui-chip-gender-male (azul) / fui-chip-gender-female (rosa)
+- resources/views/falta-uno/show.blade.php
+  · Tile de género: gender-male (fondo celeste, texto azul) / gender-female (fondo rosa, texto rosa)
+
+---
+
+FEATURE #16 — REDISEÑO LOGIN Y REGISTER
+-----------------------------------------
+
+### Archivos modificados
+- resources/views/layouts/guest.blade.php
+  · Layout de dos columnas en desktop: imagen hero izquierda (50%) + formulario derecha (50%)
+  · Mobile: una columna, imagen como fondo sutil con opacity + blur
+  · Header con backdrop-blur en mobile
+  · Animación cardSlideUp (slide-up + fade-in) en la card del formulario
+  · Animación heroZoom (zoom lento infinito 25s) en la imagen hero
+  · Overlay verde/negro con gradiente + texto promocional sobre la imagen
+  · Inputs con focus verde, botones verdes
+- resources/views/auth/login.blade.php
+  · Botón "Ingresar" verde full-width, Google button con hover verde
+  · Links verdes, placeholders en inputs
+- resources/views/auth/register.blade.php
+  · Mismo tratamiento visual, mantiene lógica de Google OAuth intacta
+
+---
+
+FEATURE #17 — DIFERENCIACIÓN DE PLANES EN LISTADO DE VENUES
+-------------------------------------------------------------
+
+### Modelo Venue
+- app/Models/Venue.php
+  · Nuevo accessor getOwnerPlanSlugAttribute(): devuelve slug del plan activo del owner
+  · Nuevo accessor getOwnerPlanSortOrderAttribute(): valor numérico para ordenamiento (Full=3, Pro=2, Starter=1)
+
+### Controlador
+- app/Http/Controllers/VenueController.php
+  · Eager load de owner.venueAdminSubscriptions en todas las queries de venues
+  · Posicionamiento prioritario: sin filtro de distancia, ordena Full > Pro > Starter, luego por nombre
+  · Nueva variable $premiumVenues: venues con plan Pro o Full (primeros 8) para sección premium
+
+### Vista
+- resources/views/venues/index.blade.php
+  · Badges en cards: Pro = badge verde "Destacado" con estrella, Full = badge dorado "Premium" con shield
+  · Cards diferenciadas: Pro = borde superior verde + sombra marcada, Full = fondo negro con gradiente,
+    borde dorado, textos blancos, botón dorado, sombra con halo dorado
+  · Nueva sección "Complejos Premium" (carousel) entre el mapa y "Todos los complejos"
+    Solo muestra venues Pro/Full, mismo estilo que carousels existentes
+
+### Página de planes
+- resources/views/planes.blade.php
+  · Features diferenciadas por tier: Starter 6 habilitadas (resto tachadas en gris),
+    Pro 10 habilitadas, Full 12 habilitadas
+  · Badges y texto de trial gratis se ocultan en pestaña semestral (solo mensual)
+  · Botón cambia de "Empezar gratis" a "Empezar" al cambiar a semestral
+
+### Trial por plan
+- Starter: 60 días gratis (2 meses)
+- Pro: 60 días gratis (2 meses)
+- Full: 30 días gratis (1 mes)
+- Trial solo disponible en ciclo mensual (no semestral)
+- app/Http/Controllers/VenueAdminMembershipController.php: $trialAvailable requiere billingCycle === 'monthly'
+
+---
+
+FEATURE #18 — SISTEMA DE PENALIZACIÓN FALTA UNO
+-------------------------------------------------
+
+### Migración
+- database/migrations/2026_03_31_000001_add_falta_uno_penalties_system.php
+  · Columnas en falta_uno_participants: is_late_leave (boolean), left_at (timestamp nullable)
+  · Columnas en falta_uno_sport_profiles: attendance_rate (decimal 5,2 default 100), late_leaves_count (int default 0)
+  · Columna en falta_uno_settings: late_leave_deadline_minutes (int default 240 = 4 horas)
+  · Tabla nueva: falta_uno_penalties (id, user_id, sport, type, reason, expires_at, timestamps)
+
+### Modelo
+- app/Models/FaltaUnoPenalty.php (nuevo)
+  · Relación belongsTo User
+  · Scopes: active(), cooldowns(), bans()
+
+### Servicio
+- app/Services/FaltaUnoPenaltyService.php (nuevo)
+  · registerLateLeave(): marca bajada tardía, recalcula attendance, aplica cooldown/ban
+  · canJoin(): verifica cooldown/ban activos, retorna allowed + reason + warnings
+  · getReputationData(): attendance_rate, late_leaves_count, badge info
+  · calculateCooldownHours(): escalonado 24h × cantidad de bajadas recientes
+
+### Reglas de negocio
+- Umbral "tarde": 4 horas antes del start_at (configurable por cancha)
+- Cooldown escalonado: 24h la 1ra vez, 48h la 2da, 72h la 3ra...
+- Badge negativo: visible si 2+ bajadas tardías en 30 días
+- Bloqueo total: 5 bajadas tardías en 60 días → ban de 7 días
+- Reputación: attendance_rate = completados / (completados + tardías) × 100
+- Warning al organizador: visible si attendance_rate < 80%
+
+### Controlador
+- app/Http/Controllers/FaltaUnoController.php
+  · leave(): detecta bajadas tardías (now > start_at - deadline), aplica penalización
+  · join(): verifica cooldown/ban antes de anotar, pasa warnings a la vista
+  · kick(): nuevo método — organizador puede expulsar participante (status → cancelled + mail)
+  · show(): pasa datos de reputación de participantes a la vista
+
+### Vistas
+- resources/views/falta-uno/show.blade.php
+  · Badge de attendance_rate junto a cada jugador (verde ≥90%, amarillo 70-89%, rojo <70%)
+  · Badge "Se bajó X veces" si tiene 2+ bajadas tardías en 30 días
+  · Warning "Baja asistencia" visible solo al organizador
+  · Botón "Remover" junto a cada participante (solo visible al organizador)
+  · Advertencia al hacer leave si la bajada sería tardía
+  · Bloque rojo si el usuario tiene penalty activo (en vez del botón de unirse)
+
+### Mail
+- app/Mail/FaltaUnoKickedMail.php (nuevo)
+- resources/views/emails/falta-uno/kicked.blade.php (nuevo)
+
+### Rutas
+- POST /falta-uno/{game}/kick/{user} → FaltaUnoController@kick
+
+### Modelos modificados
+- FaltaUnoParticipant: is_late_leave, left_at en fillable/casts
+- FaltaUnoSportProfile: attendance_rate, late_leaves_count en fillable/casts
+- FaltaUnoSetting: late_leave_deadline_minutes en fillable
+- User: relación faltaUnoPenalties(), métodos hasActiveCooldown(), hasActiveBan()
+
+
+[2026-04-01] — MEJORAS UX + AUDITORÍA SEGURIDAD + FIXES FALTA UNO
+====================================================================
+
+FEATURE — JUGADOR EXPULSADO NO PUEDE VOLVER A UNIRSE
+------------------------------------------------------
+Antes: un jugador removido podía volver a unirse al mismo partido.
+Ahora se bloquea el rejoin y se le muestra un mensaje claro.
+
+  database/migrations/2026_04_01_000001_add_was_kicked_to_falta_uno_participants_table.php
+    - Campo was_kicked (boolean, default false) en falta_uno_participants
+
+  app/Models/FaltaUnoParticipant.php:
+    - was_kicked en $fillable y $casts
+
+  app/Http/Controllers/FaltaUnoController.php:
+    - kick(): marca was_kicked = true al expulsar
+    - join(): verifica was_kicked antes de permitir rejoin
+    - show(): pasa $wasKicked a la vista
+
+  app/Notifications/FaltaUnoKickedNotification.php (NUEVO):
+    - Notificación web/database "Fuiste removido de un partido"
+
+  resources/views/falta-uno/show.blade.php:
+    - Bloque rojo "Fuiste removido de este partido" en vez del botón unirse
+
+MEJORAS UX — FASE 1 (Quick Wins)
+----------------------------------
+  Naming consistente "Mi actividad":
+    - resources/views/reservations/my.blade.php: título y h1 cambiados de
+      "Mis reservas" a "Mi actividad", descripción más genérica
+
+  Tildes en auth:
+    - resources/views/auth/login.blade.php: "Contrasena" → "Contraseña"
+    - resources/views/auth/register.blade.php: idem en 3 campos
+
+  "Hacete socio" reubicado:
+    - resources/views/layouts/app.blade.php: eliminado del nav desktop y mobile
+    - Footer nuevo con links "Cómo funciona", "Nosotros", "Registrá tu complejo"
+    - La sección "Para dueños" ya existía en welcome.blade.php
+
+  Tab Historial vacía eliminada:
+    - resources/views/reservations/my.blade.php: eliminada tab y panel vacío,
+      agregado link "Ver historial completo" al final del panel Mis turnos
+
+MEJORAS UX — FASE 2 (Navegación)
+----------------------------------
+  Selector de canchas Falta Uno:
+    - app/Http/Controllers/FaltaUnoController.php: index() pasa $faltaUnoFields
+    - resources/views/falta-uno/index.blade.php: botón "Crear partido" abre modal
+      con buscador y lista de canchas habilitadas con link directo
+
+  Links cruzados Mi actividad ↔ Falta Uno:
+    - resources/views/falta-uno/index.blade.php: link "Mis partidos" →
+      /my-reservations?tab=faltauno
+    - resources/views/reservations/my.blade.php: link "Ver todos los partidos
+      Falta Uno", soporte ?tab= en JS para activar tab automáticamente
+
+  Footer con links útiles:
+    - resources/views/layouts/app.blade.php: "Cómo funciona", "Nosotros",
+      "Sos dueño de un complejo?"
+
+MEJORAS UX — FASE 3 (Engagement)
+----------------------------------
+  Banner "partidos sin calificar":
+    - app/Http/Controllers/MyReservationsController.php: detecta partidos pasados
+      sin rating, excluye cancelled/expired
+    - resources/views/reservations/my.blade.php: banner amarillo con botón
+      "Calificar" que lleva al primer partido pendiente
+
+  Recordatorio de reseña post-reserva:
+    - database/migrations/2026_04_01_000002_add_review_reminder_sent_at...
+      Campo review_reminder_sent_at en reservations (anti-spam)
+    - app/Notifications/ReviewReminderNotification.php (NUEVO)
+    - app/Console/Commands/SendReviewReminders.php (NUEVO):
+      busca reservas PAID entre 2-48hs atrás sin reminder ni reseña
+    - routes/console.php: registrado hourly
+
+MEJORAS — RESULTADOS MÁS VISIBLES
+------------------------------------
+  Mi actividad panel Falta Uno:
+    - Cada partido pasado muestra badge de resultado (Victoria/Empate/Derrota)
+      con borde izquierdo coloreado + goles y asistencias
+    - Link "Ver mi perfil de jugador" en panel Falta Uno
+    - Sección "Cancelados" separada para partidos cancelados/expirados recientes
+
+  Detalle del partido (show.blade.php):
+    - Goles (G) y asistencias (A) al lado de cada jugador
+    - Total de goles y asistencias del partido en el resumen
+
+  Perfil público:
+    - Botón "Ver mi perfil público" en página de Perfil sección deportiva
+    - Arreglado botón "Volver a mis perfiles" que hacía loop de redirect
+
+FIX — RESERVAS CONVENCIONALES EN PERFIL PÚBLICO
+-------------------------------------------------
+  app/Http/Controllers/FaltaUnoProfilePublicController.php:
+    - La query usaba campo 'result' inexistente en tabla reservations
+    - Cambiado a consultar ReservationResult (tabla correcta con match_outcome W/D/L)
+    - Ahora muestra victorias, empates, derrotas y marcador correctamente
+
+  resources/views/falta-uno/sport-profile/public-show.blade.php:
+    - Actualizado para usar outcome (W/D/L) en vez de result (win/draw/loss)
+    - Muestra marcador al lado del nombre de la cancha
+
+FIX — RESERVAS FALTA UNO APARECÍAN EN "MIS TURNOS"
+-----------------------------------------------------
+  app/Models/Reservation.php:
+    - Nueva relación faltaUnoGame() (HasOne)
+
+  app/Http/Controllers/MyReservationsController.php:
+    - whereDoesntHave('faltaUnoGame') en query de reservas individuales
+    - $misPartidos carga relación 'reservation' para mostrar estado de pago
+
+  resources/views/reservations/my.blade.php:
+    - Badge "Pendiente de pago" + botón "Pagar" para games sin pagar
+    - Partidos cancelled/expired en sección separada "Cancelados"
+
+FIX — CANCELAR RESERVA NO CANCELABA PARTIDO FALTA UNO
+-------------------------------------------------------
+  app/Http/Controllers/ReservationCancelController.php:
+    - Al cancelar reserva con FaltaUnoGame, cancela el game
+    - Notifica a todos los participantes (mail + notificación web)
+    - Bloquea cancelación de reservas de suscripción recurrente activa
+
+  app/Console/Commands/ExpireReservations.php:
+    - Al expirar reservas por timeout, cancela FaltaUnoGames asociados
+
+FEATURE — CARTEL INFORMATIVO PRE-PAGO FALTA UNO
+--------------------------------------------------
+  resources/views/falta-uno/create.blade.php:
+    - Cartel con 5 puntos antes del botón de pagar:
+      cancelación con reembolso, sin reembolso, qué pasa si no se llena,
+      penalización por bajarse, y cómo pagan los demás
+    - Tiempos dinámicos según FaltaUnoSetting de cada cancha
+
+AUDITORÍA SEGURIDAD — FASE 1 (Crítica)
+-----------------------------------------
+  app/Http/Controllers/MercadoPagoWebhookController.php:
+    - Webhook rechaza requests sin MERCADOPAGO_WEBHOOK_SECRET en producción
+    - Comentario aclaratorio sobre uso de token de plataforma
+    - Verifica si reserva ya está EXPIRED/CANCELLED antes de marcar PAID
+
+  app/Http/Controllers/VenueAdmin/ManualRecurringReservationController.php:
+    - Loop de creación envuelto en DB::transaction() + lockForUpdate
+
+  routes/web.php:
+    - /va/geocode: validación de address requerido, max 300 chars
+
+AUDITORÍA SEGURIDAD — FASE 2 (Bugs funcionales)
+--------------------------------------------------
+  app/Http/Controllers/FaltaUnoStatsController.php:
+    - Eliminado incremento duplicado de games_played (ya lo hace PostGame command)
+
+  app/Models/FaltaUnoGame.php:
+    - isFinished(): excluye cancelled/expired de la condición
+    - isInCategoryRange(): categoría desconocida retorna false (no true)
+
+  app/Http/Controllers/MyReservationsController.php:
+    - 'finished' agregado al whereIn de $misPartidos
+    - pendingRatingGames excluye cancelled/expired
+
+  app/Http/Controllers/FaltaUnoRatingController.php:
+    - Valida que cada user_id calificado sea participante real del partido
+
+  app/Http/Controllers/FaltaUnoController.php:
+    - store(): valida precio > 0 antes de crear partido
+    - store() catch: mensaje genérico + Log::error (no expone $e->getMessage())
+    - show(): partido con reserva no-PAID redirige a no-iniciadores
+    - join(): mensaje de error incluye nombre del deporte
+
+AUDITORÍA SEGURIDAD — FASE 3 (Importante)
+--------------------------------------------
+  routes/web.php:
+    - Chat POST con throttle:30,1
+    - PaymentDevController condicionado a local/testing
+
+  app/Http/Controllers/VenueAdmin/OnboardingController.php:
+    - storeField(): 'surface' incluido en Field::create()
+    - skip(): requiere al menos un venue para marcar completado
+
+  app/Http/Controllers/ReservationModifyController.php:
+    - Bloquea modificación de reservas con FaltaUnoGame o suscripción recurrente
+
+  app/Http/Controllers/VenueAdmin/FieldController.php:
+    - Al desactivar cancha, cancela FaltaUnoGames abiertos/full + notifica
+
+  app/Http/Controllers/FaltaUnoSportProfileController.php:
+    - store() verifica existencia antes de crear (previene duplicados)
+
+  app/Http/Controllers/VenueReviewController.php:
+    - Solo permite reseñas con reservas pasadas (start_at < now)
+
+Archivos nuevos:
+  database/migrations/2026_04_01_000001_add_was_kicked_to_falta_uno_participants_table.php
+  database/migrations/2026_04_01_000002_add_review_reminder_sent_at_to_reservations_table.php
+  app/Notifications/FaltaUnoKickedNotification.php
+  app/Notifications/ReviewReminderNotification.php
+  app/Console/Commands/SendReviewReminders.php

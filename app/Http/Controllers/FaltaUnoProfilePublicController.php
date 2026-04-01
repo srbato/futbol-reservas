@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\FaltaUnoParticipant;
 use App\Models\Reservation;
+use App\Models\ReservationResult;
 use App\Models\User;
 
 class FaltaUnoProfilePublicController extends Controller
@@ -34,21 +35,30 @@ class FaltaUnoProfilePublicController extends Controller
             ];
         })->reverse()->values();
 
-        // Historial de reservas convencionales (últimas 10 pagadas)
-        $conventionalHistory = Reservation::query()
+        // Historial de reservas convencionales (últimas 10 con resultado cargado)
+        $conventionalResults = ReservationResult::with(['reservation.field.venue'])
             ->where('user_id', $user->id)
-            ->where('status', 'PAID')
-            ->whereNotNull('result')
-            ->with(['field.venue'])
-            ->orderByDesc('start_at')
+            ->whereNotNull('match_outcome')
+            ->orderByDesc('created_at')
             ->limit(10)
             ->get();
 
+        $conventionalHistory = $conventionalResults->map(function ($r) {
+            return (object) [
+                'reservation' => $r->reservation,
+                'field'       => $r->reservation->field ?? null,
+                'venue'       => $r->reservation->field->venue ?? null,
+                'outcome'     => $r->match_outcome,
+                'score'       => $r->match_result,
+                'date'        => $r->reservation->start_at,
+            ];
+        });
+
         $conventionalStats = [
-            'total' => $conventionalHistory->count(),
-            'wins'  => $conventionalHistory->where('result', 'win')->count(),
-            'draws' => $conventionalHistory->where('result', 'draw')->count(),
-            'losses'=> $conventionalHistory->where('result', 'loss')->count(),
+            'total'  => $conventionalResults->count(),
+            'wins'   => $conventionalResults->where('match_outcome', 'W')->count(),
+            'draws'  => $conventionalResults->where('match_outcome', 'D')->count(),
+            'losses' => $conventionalResults->where('match_outcome', 'L')->count(),
         ];
 
         return view('falta-uno.sport-profile.public-show', compact('user', 'profiles', 'recentParticipations', 'chartData', 'conventionalHistory', 'conventionalStats'));

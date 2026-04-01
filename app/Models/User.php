@@ -24,6 +24,7 @@ class User extends Authenticatable
         'is_active',
         'avatar_path',
         'google_id',
+        'onboarding_completed_at',
     ];
     
     protected $hidden = [
@@ -34,10 +35,16 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-            'is_active' => 'boolean',
+            'email_verified_at'      => 'datetime',
+            'password'               => 'hashed',
+            'is_active'              => 'boolean',
+            'onboarding_completed_at' => 'datetime',
         ];
+    }
+
+    public function needsOnboarding(): bool
+    {
+        return $this->role === 'venue_admin' && is_null($this->onboarding_completed_at);
     }
 
     public function favoriteVenues()
@@ -115,6 +122,26 @@ class User extends Authenticatable
     public function faltaUnoSportProfiles(): HasMany
     {
         return $this->hasMany(FaltaUnoSportProfile::class);
+    }
+
+    public function faltaUnoPenalties(): HasMany
+    {
+        return $this->hasMany(FaltaUnoPenalty::class);
+    }
+
+    public function hasActiveCooldown(): bool
+    {
+        return $this->faltaUnoPenalties()->active()->cooldowns()->exists();
+    }
+
+    public function hasActiveBan(): bool
+    {
+        return $this->faltaUnoPenalties()->active()->bans()->exists();
+    }
+
+    public function recurringSubscriptions(): HasMany
+    {
+        return $this->hasMany(RecurringSubscription::class);
     }
 
     public function sportProfileFor(string $sport): ?FaltaUnoSportProfile

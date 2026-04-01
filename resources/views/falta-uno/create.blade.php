@@ -524,6 +524,78 @@
 
       </div>
 
+      {{-- Cartel informativo de politicas --}}
+      @php
+        $setting = $field->faltaUnoSetting;
+        $refundMin = $setting->refund_deadline_minutes ?? 60;
+        $fillMin   = $setting->fill_deadline_minutes ?? 120;
+        $lateMin   = $setting->late_leave_deadline_minutes ?? 240;
+
+        // Formatear minutos a texto legible
+        $fmt = function($min) {
+          if ($min >= 1440) {
+            $d = floor($min / 1440);
+            $h = floor(($min % 1440) / 60);
+            return $d . ' dia' . ($d > 1 ? 's' : '') . ($h > 0 ? ' y ' . $h . 'h' : '');
+          }
+          if ($min >= 60) {
+            $h = floor($min / 60);
+            $m = $min % 60;
+            return $h . 'h' . ($m > 0 ? ' ' . $m . 'min' : '');
+          }
+          return $min . ' minutos';
+        };
+      @endphp
+      <div style="background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:14px; padding:18px 20px; margin:0 20px 20px;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+          <i data-lucide="info" style="width:18px;height:18px;stroke:#3b82f6;stroke-width:2;flex-shrink:0;"></i>
+          <span style="font-size:14px; font-weight:800; color:#1e293b;">Antes de crear tu partido</span>
+        </div>
+        <div style="display:grid; gap:10px; font-size:13px; color:#475569; line-height:1.5;">
+
+          <div style="display:flex; gap:8px; align-items:flex-start;">
+            <i data-lucide="clock" style="width:15px;height:15px;stroke:#22c55e;stroke-width:2;flex-shrink:0;margin-top:2px;"></i>
+            <div>
+              <strong style="color:#15803d;">Cancelacion con reembolso</strong><br>
+              Podes cancelar hasta <strong>{{ $fmt($refundMin) }} antes</strong> del inicio y se te devuelve el dinero completo.
+            </div>
+          </div>
+
+          <div style="display:flex; gap:8px; align-items:flex-start;">
+            <i data-lucide="clock" style="width:15px;height:15px;stroke:#f59e0b;stroke-width:2;flex-shrink:0;margin-top:2px;"></i>
+            <div>
+              <strong style="color:#92400e;">Cancelacion sin reembolso</strong><br>
+              Si cancelás con menos de {{ $fmt($refundMin) }} de anticipacion, <strong>no se devuelve el dinero</strong>.
+            </div>
+          </div>
+
+          <div style="display:flex; gap:8px; align-items:flex-start;">
+            <i data-lucide="users" style="width:15px;height:15px;stroke:#3b82f6;stroke-width:2;flex-shrink:0;margin-top:2px;"></i>
+            <div>
+              <strong style="color:#1d4ed8;">Si no se completa el partido</strong><br>
+              Si el partido no se llena {{ $fmt($fillMin) }} antes del inicio, se cancela automaticamente y se libera el horario. <strong>No hay reembolso</strong> en este caso.
+            </div>
+          </div>
+
+          <div style="display:flex; gap:8px; align-items:flex-start;">
+            <i data-lucide="user-minus" style="width:15px;height:15px;stroke:#dc2626;stroke-width:2;flex-shrink:0;margin-top:2px;"></i>
+            <div>
+              <strong style="color:#991b1b;">Si un jugador se baja</strong><br>
+              Los jugadores que se bajen con menos de {{ $fmt($lateMin) }} de anticipacion reciben una penalizacion en su cuenta.
+            </div>
+          </div>
+
+          <div style="display:flex; gap:8px; align-items:flex-start;">
+            <i data-lucide="wallet" style="width:15px;height:15px;stroke:#6b7280;stroke-width:2;flex-shrink:0;margin-top:2px;"></i>
+            <div>
+              <strong style="color:#374151;">Pago de los demas jugadores</strong><br>
+              Vos pagas tu parte ahora. Los jugadores que se unan abonan su parte directamente en el complejo el dia del partido.
+            </div>
+          </div>
+
+        </div>
+      </div>
+
       {{-- Footer con botón --}}
       <div class="fu-card-footer">
         <button type="submit" class="fu-submit" style="display:inline-flex;align-items:center;justify-content:center;gap:6px;">

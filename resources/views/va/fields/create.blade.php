@@ -10,6 +10,28 @@
   <form method="POST" action="{{ route('va.fields.store', $venue) }}" enctype="multipart/form-data">
     @csrf
 
+    {{-- Foto de la cancha --}}
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+      <p class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-4 pb-3 border-b border-slate-100">
+        Foto de la cancha
+      </p>
+
+      <label class="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center cursor-pointer hover:border-indigo-400 hover:bg-indigo-50 transition-all duration-200 block" id="uploadZone">
+        <input type="file" name="cover_image" accept="image/*" class="hidden" onchange="previewFieldImage(this)">
+        <img id="imgPreview" class="hidden mx-auto h-36 rounded-xl object-cover shadow-sm mb-3" alt="Preview">
+        <div id="imgPlaceholder" class="flex flex-col items-center gap-2 text-slate-400">
+          <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+          <span class="text-sm font-medium">Hacé clic para elegir una foto</span>
+        </div>
+        <p id="fileName" class="text-xs text-slate-400 mt-2">JPG, PNG o WEBP · máx. 4 MB</p>
+      </label>
+      @error('cover_image')
+        <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+      @enderror
+    </div>
+
     {{-- Datos básicos --}}
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
       <p class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-4 pb-3 border-b border-slate-100">
@@ -161,6 +183,54 @@
       </div>
     </div>
 
+    {{-- Falta Uno --}}
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+      <p class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-4 pb-3 border-b border-slate-100">
+        Falta Uno
+      </p>
+
+      <div class="flex items-center justify-between gap-4 mb-4">
+        <div>
+          <div class="text-sm font-bold text-slate-700">Habilitar Falta Uno en esta cancha</div>
+          <div class="text-xs text-slate-500 mt-0.5">Los usuarios podrán iniciar partidos abiertos y otros se unen para completar el equipo.</div>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
+          <input type="checkbox" id="toggle_falta_uno" name="falta_uno_enabled" value="1" class="sr-only peer"
+                 onchange="toggleFaltaUnoPanel()">
+          <div class="w-10 h-6 bg-slate-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-500 rounded-full peer peer-checked:bg-indigo-600 transition-colors duration-200 after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:rounded-full after:h-[18px] after:w-[18px] after:transition-all after:shadow-sm peer-checked:after:translate-x-4"></div>
+        </label>
+      </div>
+
+      <div id="falta_uno_panel" class="hidden border-t border-slate-100 pt-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+              Límite para cancelar con reembolso
+            </label>
+            <div class="flex items-center gap-2">
+              <input type="number" name="refund_deadline_minutes" min="0" max="10080"
+                     value="{{ old('refund_deadline_minutes', 60) }}"
+                     class="w-24 rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+              <span class="text-xs text-slate-500">minutos antes del partido</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">El iniciador puede cancelar y recibir reembolso hasta X minutos antes del partido.</p>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+              Límite para que se llene el partido
+            </label>
+            <div class="flex items-center gap-2">
+              <input type="number" name="fill_deadline_minutes" min="0" max="10080"
+                     value="{{ old('fill_deadline_minutes', 120) }}"
+                     class="w-24 rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+              <span class="text-xs text-slate-500">minutos antes del partido</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">Si el partido no se llena X minutos antes, se cancela automáticamente y el slot vuelve a estar disponible.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
     {{-- Acciones --}}
     <div class="flex items-center gap-3 flex-wrap">
       <button type="submit"
@@ -216,5 +286,26 @@
   }
 
   updateFormat('{{ old("format") }}');
+
+  function toggleFaltaUnoPanel() {
+    const cb    = document.getElementById('toggle_falta_uno');
+    const panel = document.getElementById('falta_uno_panel');
+    panel.classList.toggle('hidden', !cb.checked);
+  }
+
+  function previewFieldImage(input) {
+    const file = input.files[0];
+    if (!file) return;
+    document.getElementById('fileName').textContent = file.name;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const preview     = document.getElementById('imgPreview');
+      const placeholder = document.getElementById('imgPlaceholder');
+      preview.src = e.target.result;
+      preview.classList.remove('hidden');
+      if (placeholder) placeholder.classList.add('hidden');
+    };
+    reader.readAsDataURL(file);
+  }
 </script>
 @endsection

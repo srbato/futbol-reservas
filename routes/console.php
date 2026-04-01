@@ -43,3 +43,11 @@ Schedule::command('falta-uno:purge-chats')
 Schedule::command('falta-uno:notify-post-game')
     ->everyFiveMinutes()
     ->withoutOverlapping();
+
+Schedule::command('subscriptions:reconcile')
+    ->daily()
+    ->withoutOverlapping();
+
+Schedule::command('reviews:send-reminders')
+    ->hourly()
+    ->withoutOverlapping();

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Venue;
 use App\Models\VenueReview;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
 
 class VenueReviewController extends Controller
@@ -16,6 +17,7 @@ class VenueReviewController extends Controller
         $hasReservation = $venue->reservations()
             ->where('user_id', $user->id)
             ->whereIn('status', ['PAID'])
+            ->where('start_at', '<', now())
             ->exists();
 
         if (!$hasReservation) {
@@ -40,12 +42,18 @@ class VenueReviewController extends Controller
             'comment' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        VenueReview::create([
-            'venue_id' => $venue->id,
-            'user_id'  => $user->id,
-            'rating'   => $data['rating'],
-            'comment'  => $data['comment'] ?? null,
-        ]);
+        try {
+            VenueReview::create([
+                'venue_id' => $venue->id,
+                'user_id'  => $user->id,
+                'rating'   => $data['rating'],
+                'comment'  => $data['comment'] ?? null,
+            ]);
+        } catch (UniqueConstraintViolationException) {
+            return redirect()
+                ->route('venues.show', $venue)
+                ->with('error', 'Ya dejaste una reseña para este complejo.');
+        }
 
         return redirect()
             ->route('venues.show', $venue)

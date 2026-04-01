@@ -12,6 +12,7 @@ class FaltaUnoSetting extends Model
         'enabled',
         'refund_deadline_minutes',
         'fill_deadline_minutes',
+        'late_leave_deadline_minutes',
     ];
 
     protected $casts = [

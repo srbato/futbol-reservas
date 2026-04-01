@@ -30,6 +30,7 @@ class Venue extends Model
         'mp_user_id',
         'cancellation_hours',
         'modification_hours',
+        'recurring_payment_mode',
         'amenities',
     ];
 
@@ -118,5 +119,46 @@ class Venue extends Model
                      ->where('expires_at', '>', now());
               });
         });
+    }
+
+    /**
+     * Devuelve el slug del plan activo del owner (starter, pro, full).
+     * Si es super_admin o no tiene plan, devuelve 'full' o 'starter' respectivamente.
+     */
+    public function getOwnerPlanSlugAttribute(): string
+    {
+        if ($this->relationLoaded('owner') && $this->owner) {
+            if ($this->owner->role === 'super_admin') {
+                return 'full';
+            }
+
+            $activeSub = $this->owner->relationLoaded('venueAdminSubscriptions')
+                ? $this->owner->venueAdminSubscriptions
+                    ->filter(function ($sub) {
+                        return in_array($sub->status, ['ACTIVE', 'TRIAL'])
+                            && $sub->starts_at && $sub->starts_at <= now()
+                            && $sub->expires_at && $sub->expires_at > now();
+                    })
+                    ->sortByDesc('expires_at')
+                    ->first()
+                : $this->owner->activeVenueAdminSubscription()->first();
+
+            return $activeSub?->plan_slug ?? 'starter';
+        }
+
+        return 'starter';
+    }
+
+    /**
+     * Devuelve el sort_order numérico del plan del owner para ordenamiento.
+     * Full=3 (primero), Pro=2 (segundo), Starter=1 (último).
+     */
+    public function getOwnerPlanSortOrderAttribute(): int
+    {
+        return match ($this->owner_plan_slug) {
+            'full' => 3,
+            'pro' => 2,
+            default => 1,
+        };
     }
 }

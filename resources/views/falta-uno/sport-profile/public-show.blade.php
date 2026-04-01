@@ -328,6 +328,15 @@
           @for($i=1;$i<=5;$i++){{ $i<=$stars ? '★' : '☆' }}@endfor
           <span class="fpp-rating-num">{{ number_format($profile->average_rating,1) }}</span>
         </div>
+        @if($profile->attendance_rate < 100)
+          @php
+            $attColor = $profile->attendance_rate >= 90 ? '#15803d' : ($profile->attendance_rate >= 70 ? '#b45309' : '#dc2626');
+            $attBg    = $profile->attendance_rate >= 90 ? '#f0fdf4' : ($profile->attendance_rate >= 70 ? '#fffbeb' : '#fef2f2');
+          @endphp
+          <div style="margin-top:8px; display:inline-flex; align-items:center; gap:4px; font-size:12px; font-weight:700; padding:3px 10px; border-radius:999px; background:{{ $attBg }}; color:{{ $attColor }};">
+            Asistencia: {{ number_format($profile->attendance_rate, 0) }}%
+          </div>
+        @endif
       </div>
       @endforeach
     </div>
@@ -402,18 +411,18 @@
       </div>
       @foreach($conventionalHistory as $ci => $r)
       @php
-        $rCfg = match($r->result) {
-          'win'  => ['Victoria', 'fpp-result-win'],
-          'draw' => ['Empate',   'fpp-result-draw'],
-          'loss' => ['Derrota',  'fpp-result-loss'],
+        $rCfg = match($r->outcome) {
+          'W'    => ['Victoria', 'fpp-result-win'],
+          'D'    => ['Empate',   'fpp-result-draw'],
+          'L'    => ['Derrota',  'fpp-result-loss'],
           default=> ['-',        'fpp-result-none'],
         };
       @endphp
       <div class="fpp-conv-row" data-aos="fade-up" data-aos-delay="{{ min($ci * 50, 300) }}">
         <span class="fpp-result-pill {{ $rCfg[1] }}">{{ $rCfg[0] }}</span>
         <div style="flex:1; min-width:0;">
-          <div style="font-size:13px; font-weight:700; color:#111;">{{ $r->field->name ?? '—' }}</div>
-          <div style="font-size:11px; color:#888;">{{ $r->field->venue->name ?? '' }} · {{ $r->start_at->format('d/m/Y') }}</div>
+          <div style="font-size:13px; font-weight:700; color:#111;">{{ $r->field->name ?? '—' }}@if($r->score) <span style="font-weight:400; color:#888; font-size:12px;">{{ $r->score }}</span>@endif</div>
+          <div style="font-size:11px; color:#888;">{{ $r->venue->name ?? '' }} · {{ $r->date?->format('d/m/Y') }}</div>
         </div>
       </div>
       @endforeach

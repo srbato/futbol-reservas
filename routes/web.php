@@ -13,6 +13,7 @@ use App\Http\Controllers\ReservationCancelController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\ReservationModifyController;
 use App\Http\Controllers\RecurringReservationController;
+use App\Http\Controllers\RecurringSubscriptionController;
 use App\Http\Controllers\ReservationBatchCheckoutController;
 use App\Http\Controllers\ReservationBatchMercadoPagoController;
 use App\Http\Controllers\VenueAdmin\FieldRecurringDiscountController as VaFieldRecurringDiscountController;
@@ -32,6 +33,7 @@ use App\Http\Controllers\VenueAdmin\ReportsController as VaReportsController;
 use App\Http\Controllers\VenueAdmin\ReservationsController as VaReservationsController;
 use App\Http\Controllers\VenueAdmin\ScheduleController as VaScheduleController;
 use App\Http\Controllers\VenueAdmin\ManualReservationController as VaManualReservationController;
+use App\Http\Controllers\VenueAdmin\ManualRecurringReservationController as VaManualRecurringReservationController;
 use App\Http\Controllers\VenueAdmin\VenueController as VaVenueController;
 use App\Http\Controllers\VenueAdmin\VenuePayoutController as VaVenuePayoutController;
 use Illuminate\Http\Request;
@@ -158,6 +160,7 @@ Route::get('/falta-uno/{game}', [FaltaUnoController::class, 'show'])->name('falt
 
 Route::get('/fields/{field}', [FieldController::class, 'show'])->name('fields.show');
 Route::get('/fields/{field}/availability', [AvailabilityController::class, 'show'])->name('fields.availability');
+Route::get('/fields/{field}/recurring-availability', [AvailabilityController::class, 'recurring'])->name('fields.recurring_availability');
 
 /*
 |--------------------------------------------------------------------------
@@ -178,14 +181,27 @@ Route::middleware(['auth', 'active.user'])->group(function () {
         ->middleware('throttle:10,1')
         ->name('batches.mercadopago');
 
+    // Suscripciones recurrentes (modo subscription)
+    Route::post('/reservas/suscripcion', [RecurringSubscriptionController::class, 'store'])
+        ->middleware('throttle:10,1')
+        ->name('recurring.subscription.store');
+    Route::get('/reservas/suscripcion/{subscription}/resultado', [RecurringSubscriptionController::class, 'result'])
+        ->name('recurring.subscription.result');
+    Route::get('/reservas/suscripcion/{subscription}/estado', [RecurringSubscriptionController::class, 'statusCheck'])
+        ->name('recurring.subscription.status');
+    Route::post('/reservas/suscripcion/{subscription}/cancelar', [RecurringSubscriptionController::class, 'cancel'])
+        ->name('recurring.subscription.cancel');
+
     Route::get('/reservations/{reservation}', [ReservationViewController::class, 'show'])
         ->name('reservations.show');
 
     Route::get('/reservations/{reservation}/checkout', [CheckoutController::class, 'show'])
         ->name('reservations.checkout');
 
-    Route::post('/reservations/{reservation}/pay-dev', [PaymentDevController::class, 'pay'])
-        ->name('reservations.pay_dev');
+    if (app()->environment('local', 'testing')) {
+        Route::post('/reservations/{reservation}/pay-dev', [PaymentDevController::class, 'pay'])
+            ->name('reservations.pay_dev');
+    }
 
     Route::post('/reservations/{reservation}/mercadopago', [MercadoPagoController::class, 'checkout'])
         ->name('reservations.mercadopago');
@@ -224,7 +240,9 @@ Route::middleware(['auth', 'active.user'])->group(function () {
     Route::get('/fields/{field}/falta-uno/create', [FaltaUnoController::class, 'create'])->name('falta-uno.create');
     Route::post('/fields/{field}/falta-uno', [FaltaUnoController::class, 'store'])->name('falta-uno.store');
     Route::post('/falta-uno/{game}/join', [FaltaUnoController::class, 'join'])->name('falta-uno.join');
+    Route::post('/falta-uno/{game}/leave', [FaltaUnoController::class, 'leave'])->name('falta-uno.leave');
     Route::post('/falta-uno/{game}/cancel', [FaltaUnoController::class, 'cancel'])->name('falta-uno.cancel');
+    Route::post('/falta-uno/{game}/kick/{user}', [FaltaUnoController::class, 'kick'])->name('falta-uno.kick');
 
     // Perfil deportivo propio
     Route::get('/mi-perfil-deportivo', [FaltaUnoSportProfileController::class, 'index'])->name('sport-profile.index');
@@ -238,7 +256,7 @@ Route::middleware(['auth', 'active.user'])->group(function () {
 
     // Chat
     Route::get('/falta-uno/{game}/chat', [FaltaUnoChatController::class, 'index'])->name('falta-uno.chat');
-    Route::post('/falta-uno/{game}/chat', [FaltaUnoChatController::class, 'store'])->name('falta-uno.chat.store');
+    Route::post('/falta-uno/{game}/chat', [FaltaUnoChatController::class, 'store'])->middleware('throttle:30,1')->name('falta-uno.chat.store');
 
     // Stats personales
     Route::get('/falta-uno/{game}/stats', [FaltaUnoStatsController::class, 'create'])->name('falta-uno.stats');
@@ -506,6 +524,8 @@ Route::post('/contact', function (Request $request) {
             ->subject('Nuevo contacto desde TuCancha')
             ->replyTo($data['email'], $data['name']);
     });
+    // Nota: se usa Mail::raw sincrono porque no hay un Mailable dedicado.
+    // Si se crea un Mailable, usar Mail::to(...)->queue(...) para mejor performance.
 
     return redirect()
         ->route('home')
@@ -518,12 +538,25 @@ Route::post('/contact', function (Request $request) {
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth', 'active.user', 'role:venue_admin,super_admin', 'venue.mp'])->prefix('va')->group(function () {
+Route::middleware(['auth', 'active.user', 'role:venue_admin,super_admin', 'venue.mp', 'venue.onboarding'])->prefix('va')->group(function () {
+
+        // Onboarding
+        Route::get('/onboarding/{step}', [\App\Http\Controllers\VenueAdmin\OnboardingController::class, 'show'])->where('step', '[1-4]')->name('va.onboarding.step');
+        Route::post('/onboarding/venue', [\App\Http\Controllers\VenueAdmin\OnboardingController::class, 'storeVenue'])->name('va.onboarding.store_venue');
+        Route::post('/onboarding/field', [\App\Http\Controllers\VenueAdmin\OnboardingController::class, 'storeField'])->name('va.onboarding.store_field');
+        Route::post('/onboarding/schedule', [\App\Http\Controllers\VenueAdmin\OnboardingController::class, 'storeSchedule'])->name('va.onboarding.store_schedule');
+        Route::post('/onboarding/complete', [\App\Http\Controllers\VenueAdmin\OnboardingController::class, 'complete'])->name('va.onboarding.complete');
+        Route::post('/onboarding/skip', [\App\Http\Controllers\VenueAdmin\OnboardingController::class, 'skip'])->name('va.onboarding.skip');
+        Route::post('/onboarding/resume', [\App\Http\Controllers\VenueAdmin\OnboardingController::class, 'resume'])->name('va.onboarding.resume');
+
         Route::get('/', [DashboardController::class, 'index'])->name('va.dashboard');
 
         // Geocode
         Route::get('/geocode', function(\Illuminate\Http\Request $request) {
             $address = $request->query('address');
+            if (empty($address) || mb_strlen($address) > 300) {
+                return response()->json(['status' => 'INVALID_REQUEST', 'results' => []], 400);
+            }
             $key = config('services.google_geocoding.key');
             $url = 'https://maps.googleapis.com/maps/api/geocode/json?address=' . urlencode($address) . '&key=' . $key;
             $response = \Illuminate\Support\Facades\Http::get($url);
@@ -553,6 +586,7 @@ Route::middleware(['auth', 'active.user', 'role:venue_admin,super_admin', 'venue
         Route::get('/reservations', [VaReservationsController::class, 'index'])->name('va.reservations.index');
         Route::post('/reservations/{reservation}/cancel', [VaReservationsController::class, 'cancel'])->name('va.reservations.cancel');
         Route::post('/manual-reservations', [VaManualReservationController::class, 'store'])->name('va.reservations.manual_store');
+        Route::post('/manual-recurring-reservations', [VaManualRecurringReservationController::class, 'store'])->name('va.reservations.manual_recurring_store');
         Route::get('/users/search', [VaManualReservationController::class, 'searchUsers'])->name('va.users.search');
         Route::get('/agenda', [VaReservationsController::class, 'agenda'])->name('va.reservations.agenda');
 
@@ -584,6 +618,10 @@ Route::middleware(['auth', 'active.user', 'role:venue_admin,super_admin', 'venue
         // Checkin
         Route::get('/checkin', [VaCheckinController::class, 'index'])->name('va.checkin.index');
         Route::post('/checkin', [VaCheckinController::class, 'store'])->name('va.checkin.store');
+
+        // Suscripciones recurrentes (abonos mensuales)
+        Route::get('/suscripciones', [\App\Http\Controllers\VenueAdmin\RecurringSubscriptionAdminController::class, 'index'])->name('va.recurring_subscriptions.index');
+        Route::post('/suscripciones/{subscription}/cancelar', [\App\Http\Controllers\VenueAdmin\RecurringSubscriptionAdminController::class, 'cancel'])->name('va.recurring_subscriptions.cancel');
 
         // Staff
         Route::get('/staff', [VaVenueStaffController::class, 'index'])->name('va.staff.index');

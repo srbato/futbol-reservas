@@ -15,6 +15,8 @@ class FieldController extends Controller
             ->orderBy('min_occurrences')
             ->get(['min_occurrences', 'discount_percentage']);
 
-        return view('fields.show', compact('field', 'recurringDiscounts'));
+        $recurringPaymentMode = $field->venue->recurring_payment_mode ?? 'upfront';
+
+        return view('fields.show', compact('field', 'recurringDiscounts', 'recurringPaymentMode'));
     }
 }

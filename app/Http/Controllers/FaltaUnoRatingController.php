@@ -79,13 +79,25 @@ class FaltaUnoRatingController extends Controller
             'ratings.*.comment'      => ['nullable', 'string', 'max:500'],
         ]);
 
-        $game->loadMissing('field');
+        $game->loadMissing(['field', 'activeParticipants']);
         $sport = $game->field->sport;
+
+        // IDs validos para calificar: iniciador + participantes confirmados
+        $validUserIds = $game->activeParticipants->pluck('user_id')
+            ->push($game->initiator_user_id)
+            ->unique()
+            ->filter(fn($id) => $id !== $user->id)
+            ->values();
 
         foreach ($data['ratings'] as $ratingData) {
             $ratedUserId = $ratingData['user_id'];
 
             if ($ratedUserId == $user->id) {
+                continue;
+            }
+
+            // Validar que el usuario calificado sea participante o iniciador del partido
+            if (!$validUserIds->contains($ratedUserId)) {
                 continue;
             }
 

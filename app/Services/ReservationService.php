@@ -14,7 +14,7 @@ class ReservationService
     /**
      * Creates a single reservation. Throws HttpException on failure.
      */
-    public function createSingle(Field $field, Carbon $start, int $userId, int $expiresInMinutes = 10, ?int $batchId = null): Reservation
+    public function createSingle(Field $field, Carbon $start, int $userId, int $expiresInMinutes = 10, ?int $batchId = null, ?int $recurringSubscriptionId = null): Reservation
     {
         if (!$field->is_active) {
             abort(422, 'La cancha no está activa.');
@@ -64,7 +64,7 @@ class ReservationService
             abort(422, 'El horario elegido está fuera del rango disponible.');
         }
 
-        return DB::transaction(function () use ($field, $start, $end, $date, $userId, $expiresInMinutes, $batchId) {
+        return DB::transaction(function () use ($field, $start, $end, $date, $userId, $expiresInMinutes, $batchId, $recurringSubscriptionId) {
             DB::table('fields')
                 ->where('id', $field->id)
                 ->lockForUpdate()
@@ -106,17 +106,21 @@ class ReservationService
 
             $finalPrice = $this->calculatePrice($field, $start);
 
+            // Reservas de suscripción recurrente ya están pagas (la suscripción cubre el pago)
+            $isPaidBySubscription = $recurringSubscriptionId !== null;
+
             $reservation = Reservation::create([
                 'batch_id' => $batchId,
                 'field_id' => $field->id,
                 'user_id' => $userId,
                 'start_at' => $start,
                 'end_at' => $end,
-                'status' => 'PENDING_PAYMENT',
+                'status' => $isPaidBySubscription ? 'PAID' : 'PENDING_PAYMENT',
                 'total_amount' => $finalPrice,
                 'currency' => $field->price?->currency ?? 'ARS',
-                'expires_at' => now()->addMinutes($expiresInMinutes),
+                'expires_at' => $isPaidBySubscription ? null : now()->addMinutes($expiresInMinutes ?? 10),
                 'verification_code' => Str::upper(Str::random(8)),
+                'recurring_subscription_id' => $recurringSubscriptionId,
             ]);
 
             broadcast(new FieldAvailabilityChanged($field->id, $start->toDateString()));

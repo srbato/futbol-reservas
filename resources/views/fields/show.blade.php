@@ -445,6 +445,8 @@
     padding: 28px 30px;
     width: 100%;
     max-width: 420px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
     box-shadow: 0 24px 64px rgba(0,0,0,.15);
     position: relative;
   }
@@ -561,6 +563,28 @@
     background: #f9fafb;
     border: 1px solid #e5e7eb;
     border-radius: 12px;
+  }
+
+  .modo-btn {
+    display: block;
+    padding: 12px 14px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    cursor: pointer;
+    background: #fff;
+    transition: border-color .15s, background .15s;
+    font-size: 13px;
+    color: #111827;
+    line-height: 1.4;
+  }
+
+  .modo-btn:hover {
+    border-color: #86efac;
+  }
+
+  .modo-btn--active {
+    border-color: #16a34a;
+    background: #f0fdf4;
   }
 
   .fs-modal-btn-row {
@@ -1125,6 +1149,8 @@
   </div>
 </div>
 
+@php $venueRecurringMode = $field->venue->recurring_payment_mode ?? 'upfront'; @endphp
+
 <script>
   // ── Feedback helpers ────────────────────────────
   function showReservationFeedback(message, type = 'error') {
@@ -1194,7 +1220,9 @@
            </button>`
         : `<div style="display:flex; flex-direction:column; gap:7px;">
              <button type="button" class="fs-btn-reserve" onclick="reserve('${slot.start_at}')">Reservar</button>
+             @if(($recurringPaymentMode ?? 'upfront') !== 'manual')
              <button type="button" class="fs-btn-recurring" onclick="openRecurringModal('${slot.start_at}')">Reservar recurrente</button>
+             @endif
            </div>`;
 
       return `
@@ -1329,6 +1357,8 @@
     const label = document.getElementById('recurringDateLabel');
     if (label) label.textContent = date + ' a las ' + time;
     document.getElementById('recurringModal').style.display = 'flex';
+    updateUpfrontPreview();
+    checkRecurringAvailability();
   }
 
   function closeRecurringModal() {
@@ -1356,10 +1386,159 @@
     }
   }
 
+  const fieldPricePerSlot = {{ (float) ($field->price?->price_per_slot ?? 0) }};
+  const fieldCurrency     = '{{ $field->price?->currency ?? 'ARS' }}';
+
+  function formatPrice(amount) {
+    return new Intl.NumberFormat('es-AR', { style: 'currency', currency: fieldCurrency, maximumFractionDigits: 0 }).format(amount);
+  }
+
+  function updateUpfrontPreview() {
+    const occurrences = parseInt(document.getElementById('recurOccurrences')?.value ?? '4', 10);
+    const subtotal = fieldPricePerSlot * occurrences;
+    const applicable = recurringTiers.filter(t => t.min_occurrences <= occurrences).sort((a, b) => b.min_occurrences - a.min_occurrences)[0];
+    const discount = applicable ? applicable.discount_percentage : 0;
+    const total = Math.round(subtotal * (1 - discount / 100));
+    const el = document.getElementById('upfrontTotalAmount');
+    if (el) {
+      el.textContent = formatPrice(total);
+      if (discount > 0) {
+        el.innerHTML = '<s style="color:#9ca3af; font-weight:400;">' + formatPrice(subtotal) + '</s> ' + formatPrice(total) + ' <span style="font-size:12px; color:#16a34a;">(' + discount + '% off)</span>';
+      }
+    }
+  }
+
+  @if(($venueRecurringMode ?? 'upfront') === 'subscription')
+  function updateSubscriptionPreview() {
+    const frequency = document.querySelector('input[name="recurFrequency"]:checked')?.value ?? 'weekly';
+    const slotsPerMonth = frequency === 'biweekly' ? 2 : 4;
+    const monthly = fieldPricePerSlot * slotsPerMonth;
+    const el = document.getElementById('subscriptionMonthlyAmount');
+    if (el) el.textContent = formatPrice(monthly);
+  }
+  @else
+  function updateSubscriptionPreview() {}
+  @endif
+
+  let recurAvailAbort = null;
+
+  function checkRecurringAvailability() {
+    if (!recurringTime) return;
+    const date = document.getElementById('datePicker').value;
+    const frequency = document.querySelector('input[name="recurFrequency"]:checked')?.value ?? 'weekly';
+    const occurrences = parseInt(document.getElementById('recurOccurrences')?.value ?? '4', 10);
+
+    const preview = document.getElementById('recurringAvailabilityPreview');
+    const btn = document.getElementById('recurSubmitBtn');
+
+    preview.style.display = 'block';
+    preview.innerHTML = '<div style="text-align:center; padding:12px; color:#6b7280; font-size:13px;">Verificando disponibilidad...</div>';
+    btn.disabled = true;
+
+    if (recurAvailAbort) recurAvailAbort.abort();
+    recurAvailAbort = new AbortController();
+
+    const params = new URLSearchParams({
+      start_at: date + ' ' + recurringTime,
+      frequency: frequency,
+      occurrences: occurrences,
+    });
+
+    fetch(`/fields/{{ $field->id }}/recurring-availability?${params}`, {
+      signal: recurAvailAbort.signal,
+    })
+    .then(r => r.json())
+    .then(data => {
+      const slots = data.slots || [];
+      const unavailable = slots.filter(s => s.status === 'unavailable');
+      const available = slots.filter(s => s.status === 'available');
+
+      let html = '<div style="font-size:10px; font-weight:700; color:#9ca3af; margin-bottom:8px; text-transform:uppercase; letter-spacing:.07em;">Turnos a reservar</div>';
+
+      html += '<div style="display:flex; flex-direction:column; gap:4px;">';
+      slots.forEach(function(s) {
+        // Parsear directamente el string "YYYY-MM-DD HH:MM:SS" sin pasar por Date()
+        // para evitar conversiones de timezone del browser
+        const parts = s.start.split(/[- :]/);
+        const dateStr = new Date(parts[0], parts[1]-1, parts[2]).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'short' });
+        const timeStr = (parts[3] || '00') + ':' + (parts[4] || '00');
+        const isOk = s.status === 'available';
+        const icon = isOk
+          ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>'
+          : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+        const color = isOk ? '#166534' : '#991b1b';
+        const bg = isOk ? '#f0fdf4' : '#fef2f2';
+        const border = isOk ? '#bbf7d0' : '#fecaca';
+        const reason = !isOk && s.reason ? ' — ' + s.reason : '';
+
+        html += `<div style="display:flex; align-items:center; gap:8px; padding:8px 10px; background:${bg}; border:1px solid ${border}; border-radius:8px; font-size:13px; color:${color};">
+          ${icon}
+          <span style="font-weight:600;">${dateStr}</span> ${timeStr}${reason}
+        </div>`;
+      });
+      html += '</div>';
+
+      if (unavailable.length > 0) {
+        html += `<div style="margin-top:10px; padding:10px 12px; background:#fef2f2; border:1px solid #fecaca; border-radius:8px; font-size:13px; color:#991b1b; font-weight:600;">
+          ${unavailable.length} de ${slots.length} turnos no disponibles. Cambia la frecuencia o la cantidad para continuar.
+        </div>`;
+        btn.disabled = true;
+      } else {
+        btn.disabled = false;
+      }
+
+      preview.innerHTML = html;
+    })
+    .catch(err => {
+      if (err.name === 'AbortError') return;
+      preview.innerHTML = '<div style="padding:10px; color:#991b1b; font-size:13px;">Error al verificar disponibilidad.</div>';
+      btn.disabled = false;
+    });
+  }
+
   function submitRecurring() {
     if (!recurringTime) return;
     const date = document.getElementById('datePicker').value;
     const frequency = document.querySelector('input[name="recurFrequency"]:checked')?.value ?? 'weekly';
+    const mode = document.querySelector('[name="recurring_mode"]:checked')?.value ?? 'upfront';
+
+    if (mode === 'subscription') {
+      const occurrences = parseInt(document.getElementById('recurOccurrences').value, 10);
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '/reservas/suscripcion';
+
+      const csrf = document.createElement('input');
+      csrf.type = 'hidden'; csrf.name = '_token';
+      csrf.value = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+
+      const fieldId = document.createElement('input');
+      fieldId.type = 'hidden'; fieldId.name = 'field_id';
+      fieldId.value = {{ $field->id }};
+
+      const startAt = document.createElement('input');
+      startAt.type = 'hidden'; startAt.name = 'start_at';
+      startAt.value = date + ' ' + recurringTime;
+
+      const freq = document.createElement('input');
+      freq.type = 'hidden'; freq.name = 'frequency';
+      freq.value = frequency;
+
+      const occ = document.createElement('input');
+      occ.type = 'hidden'; occ.name = 'occurrences';
+      occ.value = occurrences;
+
+      form.appendChild(csrf);
+      form.appendChild(fieldId);
+      form.appendChild(startAt);
+      form.appendChild(freq);
+      form.appendChild(occ);
+      document.body.appendChild(form);
+      form.submit();
+      return;
+    }
+
+    // Modo upfront — comportamiento original sin cambios
     const occurrences = parseInt(document.getElementById('recurOccurrences').value, 10);
     const btn = document.getElementById('recurSubmitBtn');
     btn.disabled = true; btn.textContent = 'Creando reservas...';
@@ -1446,23 +1625,41 @@
     <h3 class="fs-modal-title" style="display:flex;align-items:center;gap:8px;"><i data-lucide="refresh-cw" style="width:18px;height:18px;stroke:currentColor;"></i> Reserva recurrente</h3>
     <p class="fs-modal-sub">Turno: <strong id="recurringDateLabel" style="color:#111827;"></strong></p>
 
+    @if($venueRecurringMode === 'subscription')
+    <div style="margin-bottom:18px;">
+      <label class="fs-modal-label">Tipo de pago</label>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <label class="modo-btn modo-btn--active" data-mode="upfront" style="flex:1; min-width:130px;">
+          <input type="radio" name="recurring_mode" value="upfront" checked style="display:none;">
+          <strong style="display:block; margin-bottom:3px;">Pago unico</strong>
+          <span style="font-size:12px; color:#6b7280;">Pagas todo ahora</span>
+        </label>
+        <label class="modo-btn" data-mode="subscription" style="flex:1; min-width:130px;">
+          <input type="radio" name="recurring_mode" value="subscription" style="display:none;">
+          <strong style="display:block; margin-bottom:3px;">Suscripcion mensual</strong>
+          <span style="font-size:12px; color:#6b7280;">MP te cobra automaticamente cada mes</span>
+        </label>
+      </div>
+    </div>
+    @endif
+
     <div style="margin-bottom:18px;">
       <label class="fs-modal-label">Frecuencia</label>
       <div class="fs-freq-pills">
         <label class="fs-freq-pill active" id="fsFreqWeekly">
-          <input type="radio" name="recurFrequency" value="weekly" checked>
+          <input type="radio" name="recurFrequency" value="weekly" checked onchange="updateSubscriptionPreview(); checkRecurringAvailability();">
           Semanal
         </label>
         <label class="fs-freq-pill" id="fsFreqBiweekly">
-          <input type="radio" name="recurFrequency" value="biweekly">
+          <input type="radio" name="recurFrequency" value="biweekly" onchange="updateSubscriptionPreview(); checkRecurringAvailability();">
           Quincenal
         </label>
       </div>
     </div>
 
-    <div style="margin-bottom:18px;">
+    <div id="occurrencesSection" style="margin-bottom:18px;">
       <label for="recurOccurrences" class="fs-modal-label">Cantidad de turnos</label>
-      <select id="recurOccurrences" onchange="updateDiscountPreview()" class="fs-modal-select">
+      <select id="recurOccurrences" onchange="updateDiscountPreview(); updateSubscriptionPreview(); updateUpfrontPreview(); checkRecurringAvailability();" class="fs-modal-select">
         <option value="2">2 turnos</option>
         <option value="3">3 turnos</option>
         <option value="4" selected>4 turnos (~1 mes)</option>
@@ -1480,6 +1677,18 @@
     @endphp
 
     <div id="discountPreview" class="fs-discount-preview" style="margin-bottom:18px;"></div>
+
+    <div id="upfrontPreview" style="margin-bottom:18px; padding:12px 14px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; font-size:13px; color:#166534;">
+      Total a pagar: <strong id="upfrontTotalAmount">—</strong>
+    </div>
+
+    <div id="subscriptionPreview" style="display:none; margin-bottom:18px; padding:12px 14px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; font-size:13px; color:#166534;">
+      MercadoPago cobrara <strong id="subscriptionMonthlyAmount">—</strong> por mes automaticamente.
+      <div style="font-size:12px; color:#16a34a; margin-top:4px;">Podes cancelar cuando quieras.</div>
+    </div>
+
+    {{-- Previsualización de disponibilidad --}}
+    <div id="recurringAvailabilityPreview" style="display:none; margin-bottom:18px;"></div>
 
     @if($recurringDiscounts->isNotEmpty())
       <div class="fs-discount-tiers" style="margin-bottom:18px;">
@@ -1511,6 +1720,37 @@
     </div>
   </div>
 </div>
+
+@if(($venueRecurringMode ?? 'upfront') === 'subscription')
+<script>
+  // ── Subscription mode selector (after modal HTML exists) ──
+  document.querySelectorAll('[name="recurring_mode"]').forEach(function(radio) {
+    radio.addEventListener('change', function() {
+      const isSubscription = this.value === 'subscription';
+      document.getElementById('discountPreview').style.display      = isSubscription ? 'none' : '';
+      document.getElementById('upfrontPreview').style.display        = isSubscription ? 'none' : '';
+      document.getElementById('subscriptionPreview').style.display  = isSubscription ? '' : 'none';
+      document.querySelectorAll('.modo-btn').forEach(function(btn) { btn.classList.remove('modo-btn--active'); });
+      this.closest('.modo-btn').classList.add('modo-btn--active');
+      if (isSubscription) updateSubscriptionPreview();
+      else updateUpfrontPreview();
+      checkRecurringAvailability();
+    });
+  });
+
+  document.querySelectorAll('.modo-btn').forEach(function(label) {
+    label.addEventListener('click', function() {
+      const radio = this.querySelector('input[type="radio"]');
+      if (radio) {
+        radio.checked = true;
+        radio.dispatchEvent(new Event('change'));
+      }
+    });
+  });
+
+  updateSubscriptionPreview();
+</script>
+@endif
 
 @push('scripts')
 <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>

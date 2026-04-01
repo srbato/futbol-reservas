@@ -29,6 +29,13 @@ class FaltaUnoSportProfileController extends Controller
             'age_group' => ['nullable', 'string', 'required_if:sport,padel'],
         ]);
 
+        // Verificar si ya existe un perfil para este deporte
+        $existing = auth()->user()->sportProfileFor($data['sport']);
+        if ($existing) {
+            return redirect('/profile#sport-profile')
+                ->with('error', 'Ya tenes un perfil deportivo para este deporte. Podes editarlo en vez de crear uno nuevo.');
+        }
+
         auth()->user()->faltaUnoSportProfiles()->create($data);
 
         return redirect('/profile#sport-profile')
@@ -61,6 +68,13 @@ class FaltaUnoSportProfileController extends Controller
             'gender'    => ['required', 'in:male,female'],
             'age_group' => ['nullable', 'string', 'required_if:sport,padel'],
         ]);
+
+        // Bloquear cambio manual de categoría si el jugador ya tiene 3 o más partidos jugados
+        if ($profile->games_played >= 3 && $data['category'] !== $profile->category) {
+            return back()
+                ->withErrors(['category' => 'No podés cambiar tu categoría manualmente una vez que jugaste 3 o más partidos. La categoría se actualiza automáticamente según tu desempeño.'])
+                ->withInput();
+        }
 
         $profile->update($data);
 

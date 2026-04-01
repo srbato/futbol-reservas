@@ -37,6 +37,10 @@ class FaltaUnoChatController extends Controller
             abort(403);
         }
 
+        if (in_array($game->status, ['cancelled', 'expired', 'finished'])) {
+            return response()->json(['error' => 'El chat de este partido está cerrado.'], 422);
+        }
+
         $data = $request->validate([
             'body' => ['required', 'string', 'max:1000'],
         ]);

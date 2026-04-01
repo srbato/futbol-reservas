@@ -1024,9 +1024,16 @@
           <h2 class="pf-card-title">Perfil deportivo</h2>
           <p class="pf-card-subtitle">Tus deportes y estadísticas para Falta Uno</p>
         </div>
-        <a href="{{ route('sport-profile.create') }}" class="pf-btn-cta" style="padding:9px 18px; font-size:13px;">
-          + Agregar deporte
-        </a>
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+          @if($sportProfiles->isNotEmpty())
+            <a href="{{ route('sport-profile.public', auth()->user()) }}" style="padding:9px 18px; font-size:13px; font-weight:700; color:#16a34a; border:1.5px solid #dcfce7; border-radius:10px; text-decoration:none; background:#f0fdf4; transition:all .15s;" onmouseover="this.style.background='#dcfce7'" onmouseout="this.style.background='#f0fdf4'">
+              Ver mi perfil publico
+            </a>
+          @endif
+          <a href="{{ route('sport-profile.create') }}" class="pf-btn-cta" style="padding:9px 18px; font-size:13px;">
+            + Agregar deporte
+          </a>
+        </div>
       </div>
 
       @if($sportProfiles->isEmpty())

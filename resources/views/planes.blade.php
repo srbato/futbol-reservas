@@ -259,6 +259,27 @@
     color: #4ade80;
   }
 
+  /* Feature deshabilitada (tachada) */
+  .plan-feature.disabled {
+    opacity: 0.45;
+    text-decoration: line-through;
+    color: #aaa;
+  }
+
+  .plan-card.featured .plan-feature.disabled {
+    color: rgba(255,255,255,.35);
+  }
+
+  .plan-feature.disabled .plan-feature-icon {
+    background: #f0f0f0;
+    color: #bbb;
+  }
+
+  .plan-card.featured .plan-feature.disabled .plan-feature-icon {
+    background: rgba(255,255,255,.08);
+    color: rgba(255,255,255,.25);
+  }
+
   /* CTA buttons */
   .plan-btn {
     display: block;
@@ -426,7 +447,7 @@
         <div class="plan-card {{ $plan->is_featured ? 'featured' : '' }}"
              data-aos="{{ $aosDir }}" data-aos-delay="{{ $aosDelay }}">
           @if($plan->hasTrial())
-            <div class="plan-popular-badge" style="background:#157347;">
+            <div class="plan-popular-badge trial-badge" style="background:#157347;">
               <i data-lucide="gift" style="width:12px;height:12px;stroke:#fff;stroke-width:2;"></i>
               {{ $plan->trial_days }} días gratis
             </div>
@@ -449,39 +470,40 @@
             <div class="plan-price-period">ARS / mes</div>
           </div>
 
+          @php
+            $allFeatures = [
+              ['label' => $plan->maxFieldsLabel(), 'plans' => ['starter', 'pro', 'full']],
+              ['label' => 'Reservas online 24/7', 'plans' => ['starter', 'pro', 'full']],
+              ['label' => 'Cobro por Mercado Pago', 'plans' => ['starter', 'pro', 'full']],
+              ['label' => 'Panel de administración', 'plans' => ['starter', 'pro', 'full']],
+              ['label' => 'Mails automáticos', 'plans' => ['starter', 'pro', 'full']],
+              ['label' => 'Reportes de actividad', 'plans' => ['starter', 'pro', 'full']],
+              ['label' => 'Soporte prioritario', 'plans' => ['pro', 'full']],
+              ['label' => 'Badge "Destacado" en el listado', 'plans' => ['pro', 'full']],
+              ['label' => 'Posicionamiento prioritario', 'plans' => ['pro', 'full']],
+              ['label' => 'Card diferenciada en búsqueda', 'plans' => ['pro', 'full']],
+              ['label' => 'Badge "Premium" exclusivo', 'plans' => ['full']],
+              ['label' => 'Máxima visibilidad y prioridad', 'plans' => ['full']],
+            ];
+          @endphp
           <ul class="plan-features">
-            <li class="plan-feature">
-              <span class="plan-feature-icon"><i data-lucide="check" style="width:11px;height:11px;stroke:currentColor;stroke-width:3;"></i></span>
-              {{ $plan->maxFieldsLabel() }}
-            </li>
-            <li class="plan-feature">
-              <span class="plan-feature-icon"><i data-lucide="check" style="width:11px;height:11px;stroke:currentColor;stroke-width:3;"></i></span>
-              Reservas online 24/7
-            </li>
-            <li class="plan-feature">
-              <span class="plan-feature-icon"><i data-lucide="check" style="width:11px;height:11px;stroke:currentColor;stroke-width:3;"></i></span>
-              Cobro por Mercado Pago
-            </li>
-            <li class="plan-feature">
-              <span class="plan-feature-icon"><i data-lucide="check" style="width:11px;height:11px;stroke:currentColor;stroke-width:3;"></i></span>
-              Panel de administración
-            </li>
-            <li class="plan-feature">
-              <span class="plan-feature-icon"><i data-lucide="check" style="width:11px;height:11px;stroke:currentColor;stroke-width:3;"></i></span>
-              Mails automáticos
-            </li>
-            <li class="plan-feature">
-              <span class="plan-feature-icon"><i data-lucide="check" style="width:11px;height:11px;stroke:currentColor;stroke-width:3;"></i></span>
-              Reportes de actividad
-            </li>
-            <li class="plan-feature">
-              <span class="plan-feature-icon"><i data-lucide="check" style="width:11px;height:11px;stroke:currentColor;stroke-width:3;"></i></span>
-              Soporte por mail
-            </li>
+            @foreach($allFeatures as $feature)
+              @php $enabled = in_array($plan->slug, $feature['plans']); @endphp
+              <li class="plan-feature {{ !$enabled ? 'disabled' : '' }}">
+                <span class="plan-feature-icon">
+                  @if($enabled)
+                    <i data-lucide="check" style="width:11px;height:11px;stroke:currentColor;stroke-width:3;"></i>
+                  @else
+                    <i data-lucide="x" style="width:11px;height:11px;stroke:currentColor;stroke-width:3;"></i>
+                  @endif
+                </span>
+                {{ $feature['label'] }}
+              </li>
+            @endforeach
           </ul>
 
           @if($plan->hasTrial())
-            <div style="font-size:12px; color:#157347; font-weight:600; text-align:center; margin-bottom:10px;">
+            <div class="trial-text" style="font-size:12px; color:#157347; font-weight:600; text-align:center; margin-bottom:10px;">
               {{ $plan->trial_days }} días gratis · luego se cobra automáticamente
             </div>
           @endif
@@ -560,9 +582,10 @@
 
 @php
   $planDataForJs = $plans->map(fn($p) => [
-    'slug'    => $p->slug,
-    'monthly' => number_format($p->monthly_price, 0, ',', '.'),
-    'annual'  => number_format($p->annualMonthlyEquivalent(), 0, ',', '.'),
+    'slug'     => $p->slug,
+    'monthly'  => number_format($p->monthly_price, 0, ',', '.'),
+    'annual'   => number_format($p->annualMonthlyEquivalent(), 0, ',', '.'),
+    'hasTrial' => $p->hasTrial(),
   ])->values()->toArray();
 @endphp
 
@@ -593,14 +616,22 @@
         origEl.style.display = 'none';
       }
 
-      // Update CTA link billing cycle
+      // Update CTA link billing cycle and trial visibility
       const ctaBtn = document.getElementById(plan.slug + '-btn');
       if (ctaBtn) {
         const url = new URL(ctaBtn.href);
         url.searchParams.set('billing', mode);
         ctaBtn.href = url.toString();
+
+        if (plan.hasTrial) {
+          ctaBtn.textContent = isAnnual ? 'Empezar' : 'Empezar gratis';
+        }
       }
     });
+
+    // Ocultar/mostrar badges y textos de trial según billing
+    document.querySelectorAll('.trial-badge').forEach(el => el.style.display = isAnnual ? 'none' : '');
+    document.querySelectorAll('.trial-text').forEach(el => el.style.display = isAnnual ? 'none' : '');
   }
 
   function toggleFaq(trigger) {

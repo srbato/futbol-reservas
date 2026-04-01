@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\FaltaUnoGame;
 use App\Models\Reservation;
 use Illuminate\Console\Command;
 
@@ -24,10 +25,23 @@ class ExpireReservations extends Command
             return self::SUCCESS;
         }
 
+        // Obtener IDs antes del update masivo para cancelar Falta Uno games
+        $expiringIds = (clone $query)->pluck('id');
+
         // update masivo (rápido)
         $updated = $query->update([
             'status' => 'EXPIRED',
         ]);
+
+        // Cancelar Falta Uno games cuya reserva expiró
+        if ($expiringIds->isNotEmpty()) {
+            FaltaUnoGame::whereIn('reservation_id', $expiringIds)
+                ->whereIn('status', ['open', 'full'])
+                ->update([
+                    'status'       => 'cancelled',
+                    'cancelled_at' => now(),
+                ]);
+        }
 
         $this->info("OK: expirada(s) {$updated} reserva(s).");
         return self::SUCCESS;

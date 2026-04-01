@@ -18,10 +18,14 @@ class FaltaUnoSportProfile extends Model
         'draws',
         'losses',
         'average_rating',
+        'attendance_rate',
+        'late_leaves_count',
     ];
 
     protected $casts = [
-        'average_rating' => 'decimal:2',
+        'average_rating'   => 'decimal:2',
+        'attendance_rate'  => 'decimal:2',
+        'late_leaves_count' => 'integer',
     ];
 
     public function user(): BelongsTo

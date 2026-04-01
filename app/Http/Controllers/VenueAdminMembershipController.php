@@ -61,7 +61,7 @@ class VenueAdminMembershipController extends Controller
             ? $plan->annualTotalPrice()
             : (float) $plan->monthly_price;
 
-        $trialAvailable = $plan->hasTrial() && !$user->venueAdminSubscriptions()
+        $trialAvailable = $billingCycle === 'monthly' && $plan->hasTrial() && !$user->venueAdminSubscriptions()
             ->whereNotNull('trial_ends_at')
             ->exists();
 

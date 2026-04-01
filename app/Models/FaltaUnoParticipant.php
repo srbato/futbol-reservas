@@ -11,6 +11,9 @@ class FaltaUnoParticipant extends Model
         'game_id',
         'user_id',
         'status',
+        'is_late_leave',
+        'was_kicked',
+        'left_at',
         'goals',
         'assists',
         'result',
@@ -18,6 +21,9 @@ class FaltaUnoParticipant extends Model
     ];
 
     protected $casts = [
+        'is_late_leave'     => 'boolean',
+        'was_kicked'        => 'boolean',
+        'left_at'           => 'datetime',
         'stats_submitted_at' => 'datetime',
     ];
 

@@ -81,7 +81,7 @@ class FaltaUnoGame extends Model
         $userIdx = array_search($category, $cats);
 
         if ($userIdx === false) {
-            return true; // categoría desconocida, permitir
+            return false; // categoria desconocida, rechazar por seguridad
         }
 
         $minSearch = $this->category_min ? array_search($this->category_min, $cats) : false;
@@ -92,10 +92,11 @@ class FaltaUnoGame extends Model
         return $userIdx >= $minIdx && $userIdx <= $maxIdx;
     }
 
-    /** Si el partido ya terminó (la hora de inicio ya pasó) */
+    /** Si el partido ya terminó (fue marcado finished, o la hora de inicio pasó y estaba open/full) */
     public function isFinished(): bool
     {
-        return $this->start_at->lt(now());
+        return $this->status === 'finished'
+            || ($this->start_at->lt(now()) && in_array($this->status, ['open', 'full']));
     }
 
     /** Jugadores confirmados = los del iniciador + los que se unieron */

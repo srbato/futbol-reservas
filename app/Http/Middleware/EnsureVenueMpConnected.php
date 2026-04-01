@@ -19,6 +19,11 @@ class EnsureVenueMpConnected
         'va.mp_oauth.disconnect',
     ];
 
+    // Prefijos de ruta exentos
+    private const EXEMPT_PREFIXES = [
+        'va.onboarding.',
+    ];
+
     public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
@@ -29,8 +34,16 @@ class EnsureVenueMpConnected
         }
 
         // Rutas exentas
-        if (in_array($request->route()?->getName(), self::EXEMPT)) {
+        $routeName = $request->route()?->getName();
+        if (in_array($routeName, self::EXEMPT)) {
             return $next($request);
+        }
+
+        // Prefijos exentos (onboarding, etc.)
+        foreach (self::EXEMPT_PREFIXES as $prefix) {
+            if ($routeName && str_starts_with($routeName, $prefix)) {
+                return $next($request);
+            }
         }
 
         $venue = Venue::where('owner_user_id', $user->id)->first();

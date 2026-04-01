@@ -9,9 +9,12 @@ use App\Models\Field;
 use App\Models\PlatformPayout;
 use App\Models\Reservation;
 use App\Models\ReservationBatch;
+use App\Models\RecurringSubscription;
+use App\Models\RecurringSubscriptionPeriod;
 use App\Models\Venue;
 use App\Models\VenueAdminSubscription;
 use App\Services\MercadoPagoSubscriptionService;
+use App\Services\RecurringReservationSubscriptionService;
 use App\Services\ReservationModifyService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -27,11 +30,14 @@ class MercadoPagoWebhookController extends Controller
         // Verificación de firma HMAC según documentación oficial de MercadoPago Webhooks v2
         $secret = config('services.mercadopago.webhook_secret');
 
-        // Si el secret no está configurado, se omite la verificación de firma (menos seguro).
-        // Para mayor seguridad, configurar MERCADOPAGO_WEBHOOK_SECRET en el panel de MP:
-        // Mi negocio > Configuración > Webhooks > Editar > Secreto del webhook
+        // Si el secret no está configurado, rechazar en producción por seguridad.
+        // Para configurar: panel de MP > Mi negocio > Configuración > Webhooks > Editar > Secreto del webhook
         if (empty($secret)) {
-            Log::warning('MP webhook: MERCADOPAGO_WEBHOOK_SECRET no configurado, omitiendo verificación de firma.');
+            if (app()->environment('production')) {
+                Log::error('MP webhook: MERCADOPAGO_WEBHOOK_SECRET no configurado en producción. Rechazando request.');
+                return response()->json(['error' => 'Webhook secret not configured'], 503);
+            }
+            Log::warning('MP webhook: MERCADOPAGO_WEBHOOK_SECRET no configurado, omitiendo verificación de firma (entorno no productivo).');
         }
 
         $xSignature = $request->header('x-signature', '');
@@ -95,6 +101,9 @@ class MercadoPagoWebhookController extends Controller
             return response()->json(['ok' => true]);
         }
 
+        // Se usa el token de plataforma porque en este punto aún no sabemos a qué venue
+        // pertenece el pago. Luego, en handleReservationPayment/handleBatchPayment se
+        // re-consulta con el token específico del venue para mayor seguridad.
         $paymentResponse = Http::withOptions(['verify' => app()->isProduction()])
             ->withToken(config('services.mercadopago.access_token'))
             ->get("https://api.mercadopago.com/v1/payments/{$dataId}");
@@ -158,7 +167,26 @@ class MercadoPagoWebhookController extends Controller
         $service = app(MercadoPagoSubscriptionService::class);
         [$ok, $data] = $service->getPreapproval($preapprovalId);
 
+        // Si el token de plataforma no puede obtener el preapproval,
+        // intentar con el token del venue (recurring subscriptions usan el token del venue)
         if (!$ok) {
+            $recurring = RecurringSubscription::where('mp_preapproval_id', $preapprovalId)
+                ->with('field.venue')
+                ->first();
+
+            if ($recurring) {
+                $venueToken = $recurring->field->venue->mp_access_token ?? null;
+                if ($venueToken) {
+                    $response = Http::withOptions(['verify' => app()->isProduction()])
+                        ->withToken($venueToken)
+                        ->get("https://api.mercadopago.com/preapproval/{$preapprovalId}");
+
+                    if ($response->successful()) {
+                        return $this->handleRecurringSubscriptionPreapproval($preapprovalId, $response->json());
+                    }
+                }
+            }
+
             Log::error('MP Subscription: no se pudo obtener preapproval', ['preapproval_id' => $preapprovalId]);
             return response()->json(['ok' => true]);
         }
@@ -175,6 +203,11 @@ class MercadoPagoWebhookController extends Controller
         }
 
         if (!$subscription) {
+            // Intentar como RecurringSubscription antes de loguear el warning
+            if (str_starts_with((string) $externalReference, 'recurring_subscription:')) {
+                return $this->handleRecurringSubscriptionPreapproval($preapprovalId, $data);
+            }
+
             Log::warning('MP Subscription: suscripción no encontrada para preapproval', [
                 'preapproval_id'     => $preapprovalId,
                 'external_reference' => $externalReference,
@@ -239,25 +272,45 @@ class MercadoPagoWebhookController extends Controller
         $service = app(MercadoPagoSubscriptionService::class);
         [$ok, $data] = $service->getAuthorizedPayment($paymentId);
 
+        // Si el token de plataforma no puede obtener el pago,
+        // buscar la RecurringSubscription y reintentar con el token del venue
         if (!$ok) {
-            Log::error('MP Subscription: no se pudo obtener authorized_payment', ['payment_id' => $paymentId]);
-            return response()->json(['ok' => true]);
+            $data = $this->fetchAuthorizedPaymentWithVenueToken($paymentId);
+            if (!$data) {
+                Log::error('MP Subscription: no se pudo obtener authorized_payment', ['payment_id' => $paymentId]);
+                return response()->json(['ok' => true]);
+            }
+            $ok = true;
         }
 
         $preapprovalId = $data['preapproval_id'] ?? null;
         $status        = $data['status'] ?? null;
 
-        if (!$preapprovalId || $status !== 'processed') {
+        if (!$preapprovalId) {
             return response()->json(['ok' => true]);
         }
 
         $subscription = VenueAdminSubscription::where('mp_preapproval_id', $preapprovalId)->first();
 
         if (!$subscription) {
+            // Intentar como RecurringSubscription antes de loguear el warning
+            $recurring = RecurringSubscription::where('mp_preapproval_id', $preapprovalId)->first();
+            if ($recurring) {
+                return $this->handleRecurringSubscriptionAuthorizedPayment($paymentId, $data);
+            }
+
+            if ($status !== 'processed') {
+                return response()->json(['ok' => true]);
+            }
+
             Log::warning('MP Subscription: suscripción no encontrada para authorized_payment', [
                 'payment_id'     => $paymentId,
                 'preapproval_id' => $preapprovalId,
             ]);
+            return response()->json(['ok' => true]);
+        }
+
+        if ($status !== 'processed') {
             return response()->json(['ok' => true]);
         }
 
@@ -331,6 +384,17 @@ class MercadoPagoWebhookController extends Controller
             }
         }
 
+        // Verificar si la reserva ya fue cancelada o expiró antes de marcar como pagada
+        if (in_array($reservation->status, ['EXPIRED', 'CANCELLED'])) {
+            Log::warning('Webhook reserva: pago recibido para reserva ya expirada/cancelada', [
+                'reservation_id' => $reservation->id,
+                'status'         => $reservation->status,
+                'payment_id'     => $paymentId,
+                'payment_status' => $paymentStatus,
+            ]);
+            return response()->json(['ok' => true]);
+        }
+
         $reservation->payment_provider    = 'mercadopago';
         $reservation->payment_external_id = (string) $paymentId;
         $reservation->payment_status      = $paymentStatus;
@@ -347,10 +411,12 @@ class MercadoPagoWebhookController extends Controller
         if ($paymentStatus === 'approved' && !$wasPaidBefore) {
             $reservation->loadMissing(['user', 'field.venue.owner']);
 
-            Mail::to($reservation->user->email)
-                ->send(new ReservationPaidMail($reservation));
+            if ($reservation->user && $reservation->user->email) {
+                Mail::to($reservation->user->email)
+                    ->send(new ReservationPaidMail($reservation));
 
-            $reservation->user->notify(new ReservationConfirmedNotification($reservation));
+                $reservation->user->notify(new ReservationConfirmedNotification($reservation));
+            }
 
             $venueOwner = $reservation->field->venue->owner;
             if ($venueOwner && $venueOwner->email) {
@@ -417,8 +483,10 @@ class MercadoPagoWebhookController extends Controller
         if ($paymentStatus === 'approved' && !$wasPaidBefore) {
             $batch->loadMissing(['user', 'field.venue.owner']);
 
-            Mail::to($batch->user->email)
-                ->send(new \App\Mail\BatchReservationPaidMail($batch));
+            if ($batch->user && $batch->user->email) {
+                Mail::to($batch->user->email)
+                    ->send(new \App\Mail\BatchReservationPaidMail($batch));
+            }
 
             $venueOwner = $batch->field->venue->owner;
             if ($venueOwner && $venueOwner->email) {
@@ -582,6 +650,151 @@ class MercadoPagoWebhookController extends Controller
         Mail::to($freshLoaded->user->email)->queue(new ReservationModifiedMail($freshLoaded, 0, null));
 
         return response('OK', 200);
+    }
+
+    private function fetchAuthorizedPaymentWithVenueToken(string $paymentId): ?array
+    {
+        // Buscar todas las RecurringSubscription con preapproval_id (tienen venue token)
+        $subscriptions = RecurringSubscription::whereNotNull('mp_preapproval_id')
+            ->whereIn('status', ['ACTIVE', 'PENDING_PAYMENT'])
+            ->with('field.venue')
+            ->get();
+
+        foreach ($subscriptions as $sub) {
+            $venueToken = $sub->field->venue->mp_access_token ?? null;
+            if (!$venueToken) continue;
+
+            $response = Http::withOptions(['verify' => app()->isProduction()])
+                ->withToken($venueToken)
+                ->get("https://api.mercadopago.com/authorized_payments/{$paymentId}");
+
+            if ($response->successful()) {
+                return $response->json();
+            }
+        }
+
+        return null;
+    }
+
+    private function handleRecurringSubscriptionPreapproval(string $preapprovalId, array $preapprovalData)
+    {
+        $externalReference = $preapprovalData['external_reference'] ?? null;
+        $mpStatus          = $preapprovalData['status'] ?? null;
+
+        // Buscar por preapproval_id primero, luego por external_reference
+        $subscription = RecurringSubscription::where('mp_preapproval_id', $preapprovalId)->first();
+
+        if (!$subscription && str_starts_with((string) $externalReference, 'recurring_subscription:')) {
+            $subscriptionId = (int) explode(':', $externalReference)[1];
+            $subscription   = RecurringSubscription::find($subscriptionId);
+        }
+
+        if (!$subscription) {
+            Log::warning('RecurringSubscription: suscripción no encontrada para preapproval', [
+                'preapproval_id'     => $preapprovalId,
+                'external_reference' => $externalReference,
+            ]);
+            return response()->json(['ok' => true]);
+        }
+
+        // Guardar preapproval_id si aún no lo tiene
+        if (!$subscription->mp_preapproval_id) {
+            $subscription->mp_preapproval_id = $preapprovalId;
+        }
+
+        $service = app(RecurringReservationSubscriptionService::class);
+
+        try {
+            if ($mpStatus === 'authorized') {
+                $service->activateSubscription($subscription, $preapprovalData);
+
+                Log::info('RecurringSubscription: suscripción activada via preapproval', [
+                    'subscription_id' => $subscription->id,
+                    'preapproval_id'  => $preapprovalId,
+                ]);
+            } elseif ($mpStatus === 'cancelled') {
+                $subscription->status                 = 'CANCELLED';
+                $subscription->mp_subscription_status = 'cancelled';
+                $subscription->cancelled_at           = now();
+                $subscription->cancel_reason          = 'mp_cancelled';
+                $subscription->save();
+
+                Log::info('RecurringSubscription: suscripción cancelada via preapproval webhook', [
+                    'subscription_id' => $subscription->id,
+                    'preapproval_id'  => $preapprovalId,
+                ]);
+            } else {
+                $subscription->mp_subscription_status = $mpStatus;
+                $subscription->save();
+            }
+        } catch (\Throwable $e) {
+            Log::error('RecurringSubscription: error al procesar preapproval webhook', [
+                'subscription_id' => $subscription->id,
+                'preapproval_id'  => $preapprovalId,
+                'mp_status'       => $mpStatus,
+                'error'           => $e->getMessage(),
+                'trace'           => $e->getTraceAsString(),
+            ]);
+        }
+
+        return response()->json(['ok' => true]);
+    }
+
+    private function handleRecurringSubscriptionAuthorizedPayment(string $paymentId, array $paymentData)
+    {
+        $preapprovalId = $paymentData['preapproval_id'] ?? null;
+        $status        = $paymentData['status'] ?? null;
+        $amount        = (float) ($paymentData['transaction_amount'] ?? 0);
+
+        $subscription = RecurringSubscription::where('mp_preapproval_id', $preapprovalId)->first();
+
+        if (!$subscription) {
+            Log::warning('RecurringSubscription: suscripción no encontrada para authorized_payment', [
+                'payment_id'     => $paymentId,
+                'preapproval_id' => $preapprovalId,
+            ]);
+            return response()->json(['ok' => true]);
+        }
+
+        // Idempotencia: si ya existe un período para este pago, no procesar de nuevo
+        $alreadyProcessed = RecurringSubscriptionPeriod::where('mp_authorized_payment_id', $paymentId)->exists();
+        if ($alreadyProcessed) {
+            return response()->json(['ok' => true]);
+        }
+
+        $service = app(RecurringReservationSubscriptionService::class);
+
+        try {
+            if ($status === 'processed') {
+                $period = $service->generateMonthReservations($subscription, $paymentId, $amount);
+
+                Log::info('RecurringSubscription: mes generado via authorized_payment', [
+                    'subscription_id'          => $subscription->id,
+                    'period_id'                => $period->id,
+                    'mp_authorized_payment_id' => $paymentId,
+                    'amount'                   => $amount,
+                    'reservations_created'     => $period->reservations_created,
+                ]);
+            } else {
+                $service->handleFailedPayment($subscription, $paymentId, $amount);
+
+                Log::error('RecurringSubscription: pago autorizado con status no procesado', [
+                    'subscription_id' => $subscription->id,
+                    'payment_id'      => $paymentId,
+                    'status'          => $status,
+                    'amount'          => $amount,
+                ]);
+            }
+        } catch (\Throwable $e) {
+            Log::error('RecurringSubscription: error al procesar authorized_payment webhook', [
+                'subscription_id' => $subscription->id,
+                'payment_id'      => $paymentId,
+                'error'           => $e->getMessage(),
+                'trace'           => $e->getTraceAsString(),
+            ]);
+        }
+
+        return response()->json(['ok' => true]);
     }
 
     private function handleVenueAdminSubscriptionPayment(string $externalReference, ?string $paymentStatus, $paymentId)

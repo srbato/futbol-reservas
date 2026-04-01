@@ -56,10 +56,11 @@ class VenueController extends Controller
             'cover_image'        => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'address'            => ['nullable', 'string', 'max:200'],
             'zone'               => ['nullable', 'string', 'max:120'],
-            'cancellation_hours' => ['nullable', 'integer', 'min:1', 'max:720'],
-            'modification_hours' => ['nullable', 'integer', 'min:1', 'max:720'],
-            'amenities'          => ['nullable', 'array'],
-            'amenities.*'        => ['string', 'in:' . implode(',', $validAmenityKeys)],
+            'cancellation_hours'      => ['nullable', 'integer', 'min:1', 'max:720'],
+            'modification_hours'      => ['nullable', 'integer', 'min:1', 'max:720'],
+            'recurring_payment_mode'  => ['nullable', 'string', 'in:upfront,manual,subscription'],
+            'amenities'               => ['nullable', 'array'],
+            'amenities.*'             => ['string', 'in:' . implode(',', $validAmenityKeys)],
         ]);
 
         if ($user->role !== 'super_admin' && Venue::where('owner_user_id', $user->id)->exists()) {
@@ -78,10 +79,11 @@ class VenueController extends Controller
         $venue->zone               = $data['zone'] ?? null;
         $venue->lat                = $coords['lat'];
         $venue->lng                = $coords['lng'];
-        $venue->cancellation_hours = $data['cancellation_hours'] ?? null;
-        $venue->modification_hours = $data['modification_hours'] ?? null;
-        $venue->amenities          = $data['amenities'] ?? [];
-        $venue->is_active          = true;
+        $venue->cancellation_hours     = $data['cancellation_hours'] ?? null;
+        $venue->modification_hours     = $data['modification_hours'] ?? null;
+        $venue->recurring_payment_mode = $data['recurring_payment_mode'] ?? 'upfront';
+        $venue->amenities              = $data['amenities'] ?? [];
+        $venue->is_active              = true;
 
         if ($request->hasFile('cover_image')) {
             $path = $request->file('cover_image')->store('venues', 'public');
@@ -128,11 +130,18 @@ class VenueController extends Controller
             'cover_image'        => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'address'            => ['nullable', 'string', 'max:200'],
             'zone'               => ['nullable', 'string', 'max:120'],
-            'cancellation_hours' => ['nullable', 'integer', 'min:1', 'max:720'],
-            'modification_hours' => ['nullable', 'integer', 'min:1', 'max:720'],
-            'amenities'          => ['nullable', 'array'],
-            'amenities.*'        => ['string', 'in:' . implode(',', $validAmenityKeys)],
+            'cancellation_hours'      => ['nullable', 'integer', 'min:1', 'max:720'],
+            'modification_hours'      => ['nullable', 'integer', 'min:1', 'max:720'],
+            'recurring_payment_mode'  => ['nullable', 'string', 'in:upfront,manual,subscription'],
+            'amenities'               => ['nullable', 'array'],
+            'amenities.*'             => ['string', 'in:' . implode(',', $validAmenityKeys)],
         ]);
+
+        if (($data['recurring_payment_mode'] ?? null) === 'subscription' && empty($venue->mp_access_token)) {
+            return back()
+                ->withInput()
+                ->withErrors(['recurring_payment_mode' => 'Para activar la suscripcion mensual, primero conecta tu cuenta de MercadoPago.']);
+        }
 
         // Re-geocodificar solo si la dirección cambió
         $newAddress = $data['address'] ?? null;
@@ -147,9 +156,10 @@ class VenueController extends Controller
         $venue->phone              = $data['phone'] ?? null;
         $venue->address            = $newAddress;
         $venue->zone               = $data['zone'] ?? null;
-        $venue->cancellation_hours = $data['cancellation_hours'] ?? null;
-        $venue->modification_hours = $data['modification_hours'] ?? null;
-        $venue->amenities          = $data['amenities'] ?? [];
+        $venue->cancellation_hours     = $data['cancellation_hours'] ?? null;
+        $venue->modification_hours     = $data['modification_hours'] ?? null;
+        $venue->recurring_payment_mode = $data['recurring_payment_mode'] ?? 'upfront';
+        $venue->amenities              = $data['amenities'] ?? [];
 
         if ($request->hasFile('cover_image')) {
             if ($venue->cover_image_path) {

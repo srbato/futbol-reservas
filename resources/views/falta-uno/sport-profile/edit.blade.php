@@ -102,10 +102,10 @@
 
 <div class="sp-form-wrap">
   <div style="margin-bottom:14px;">
-    <a href="{{ route('sport-profile.index') }}"
+    <a href="{{ url('/profile#sport-profile') }}"
        style="display:inline-flex; align-items:center; gap:5px; font-size:13px; color:#888; text-decoration:none; font-weight:600;"
        onmouseover="this.style.color='#111'" onmouseout="this.style.color='#888'">
-      ← Volver a mis perfiles
+      ← Volver a mi perfil
     </a>
   </div>
 
@@ -146,14 +146,24 @@
         {{-- Categoría --}}
         <div class="sp-field">
           <label class="sp-label" for="category">Categoría</label>
-          <select id="category" name="category" class="sp-select" required>
-            @foreach($categories as $cat)
-              <option value="{{ $cat }}" {{ old('category', $profile->category) === $cat ? 'selected' : '' }}>
-                {{ ucfirst($cat) }}
-              </option>
-            @endforeach
-          </select>
-          <p class="sp-hint">Elegí honestamente para que los partidos sean justos.</p>
+          @if($profile->games_played >= 3)
+            <div class="sp-sport-badge" style="background:#f0fdf4; color:#15803d; border:1px solid #bbf7d0;">
+              {{ ucfirst($profile->category) }}
+            </div>
+            <p class="sp-hint" style="color:#b45309;">
+              Jugaste {{ $profile->games_played }} partido(s). Tu categoría se actualiza automáticamente y no se puede cambiar manualmente.
+            </p>
+            <input type="hidden" name="category" value="{{ $profile->category }}">
+          @else
+            <select id="category" name="category" class="sp-select" required>
+              @foreach($categories as $cat)
+                <option value="{{ $cat }}" {{ old('category', $profile->category) === $cat ? 'selected' : '' }}>
+                  {{ ucfirst($cat) }}
+                </option>
+              @endforeach
+            </select>
+            <p class="sp-hint">Elegí honestamente para que los partidos sean justos. Después de 3 partidos, la categoría se actualiza automáticamente.</p>
+          @endif
         </div>
 
         {{-- Género --}}

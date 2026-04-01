@@ -374,6 +374,14 @@ class ReservationModifyController extends Controller
             abort(422, 'Las reservas recurrentes no se pueden modificar individualmente.');
         }
 
+        if ($reservation->recurring_subscription_id !== null) {
+            abort(422, 'Las reservas de suscripciones recurrentes no se pueden modificar.');
+        }
+
+        if (\App\Models\FaltaUnoGame::where('reservation_id', $reservation->id)->exists()) {
+            abort(422, 'Las reservas vinculadas a un partido Falta Uno no se pueden modificar.');
+        }
+
         if ($reservation->start_at->isPast()) {
             abort(422, 'No podés modificar una reserva pasada.');
         }

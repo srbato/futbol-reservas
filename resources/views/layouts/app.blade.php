@@ -985,10 +985,6 @@
         <a href="{{ route('falta-uno.index') }}"
            @if(request()->routeIs('falta-uno.*')) style="background:#111; color:#fff; border-color:#111; font-weight:700;" @endif><i data-lucide="zap" style="width:14px;height:14px;stroke:currentColor;vertical-align:middle;margin-right:4px;"></i> Falta Uno</a>
 
-          @if(auth()->user()->role === 'user')
-            <a href="{{ route('planes') }}">Hacete socio</a>
-          @endif
-
         @php $unreadCount = auth()->user()->unreadNotifications()->count(); @endphp
         <div class="notif-wrap">
             <button type="button" class="notif-bell" id="notifBellBtn" onclick="toggleNotifDropdown()" aria-label="Notificaciones">
@@ -1099,9 +1095,6 @@
       <a href="{{ route('home') }}">Inicio</a>
       <a href="{{ route('venues.index') }}">Complejos</a>
       <a href="{{ route('falta-uno.index') }}" style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="zap" style="width:14px;height:14px;stroke:currentColor;"></i> Falta Uno</a>
-      @if(auth()->user()->role === 'user')
-        <a href="{{ route('planes') }}">Hacete socio</a>
-      @endif
       <div class="app-mobile-divider"></div>
       <a href="{{ route('profile.edit') }}">Perfil</a>
       <a href="{{ route('my_reservations') }}">Mi actividad</a>
@@ -1131,6 +1124,18 @@
 
     @yield('content')
   </main>
+
+  <footer style="border-top:1px solid #e5e7eb; padding:24px 0; margin-top:48px; text-align:center; font-size:13px; color:#9ca3af;">
+    <div style="max-width:1200px; margin:0 auto; padding:0 20px; display:flex; justify-content:center; align-items:center; gap:16px; flex-wrap:wrap;">
+      <span>&copy; {{ date('Y') }} TuCancha</span>
+      <span style="color:#d1d5db;">|</span>
+      <a href="{{ url('/como-funciona') }}" style="color:#6b7280; text-decoration:none; transition:color .2s;" onmouseover="this.style.color='#16a34a'" onmouseout="this.style.color='#6b7280'">Como funciona</a>
+      <span style="color:#d1d5db;">|</span>
+      <a href="{{ url('/nosotros') }}" style="color:#6b7280; text-decoration:none; transition:color .2s;" onmouseover="this.style.color='#16a34a'" onmouseout="this.style.color='#6b7280'">Nosotros</a>
+      <span style="color:#d1d5db;">|</span>
+      <a href="{{ route('planes') }}" style="color:#6b7280; text-decoration:none; transition:color .2s;" onmouseover="this.style.color='#16a34a'" onmouseout="this.style.color='#6b7280'">Sos dueno de un complejo? Registralo aca</a>
+    </div>
+  </footer>
 
   <script>
     function toggleAppMobileNav() {

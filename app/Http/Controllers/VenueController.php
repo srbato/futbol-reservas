@@ -52,6 +52,7 @@ class VenueController extends Controller
         $venuesQuery = Venue::query()
             ->where('is_active', true)
             ->withActiveOwner()
+            ->with(['owner.venueAdminSubscriptions'])
 
             ->when($q, function ($query) use ($q) {
                 $query->where(function ($qq) use ($q) {
@@ -108,7 +109,8 @@ class VenueController extends Controller
             'address',
             'zone',
             'lat',
-            'lng'
+            'lng',
+            'owner_user_id'
         ]);
 
         $shouldFilterByEffectivePrice = $date && (
@@ -192,6 +194,12 @@ class VenueController extends Controller
                 }
                 return $this->haversine($userLat, $userLng, (float) $venue->lat, (float) $venue->lng);
             })->values();
+        } else {
+            // Posicionamiento prioritario por plan: Full > Pro > Starter, luego por nombre
+            $venues = $venues->sortBy([
+                fn ($a, $b) => $b->owner_plan_sort_order <=> $a->owner_plan_sort_order,
+                fn ($a, $b) => strcmp($a->name, $b->name),
+            ])->values();
         }
 
         $favoriteVenueIds = Auth::check()
@@ -204,6 +212,7 @@ class VenueController extends Controller
         $topReservedVenues = Venue::query()
             ->where('is_active', true)
             ->withActiveOwner()
+            ->with(['owner.venueAdminSubscriptions'])
             ->withAvg('reviews', 'rating')
             ->withCount('reviews')
             ->withCount([
@@ -221,6 +230,7 @@ class VenueController extends Controller
         $discountedVenues = Venue::query()
             ->where('is_active', true)
             ->withActiveOwner()
+            ->with(['owner.venueAdminSubscriptions'])
             ->whereHas('fields.discounts', function ($q) {
                 $q->where('is_active', true);
             })
@@ -235,6 +245,7 @@ class VenueController extends Controller
         $bestRatedVenues = Venue::query()
             ->where('is_active', true)
             ->withActiveOwner()
+            ->with(['owner.venueAdminSubscriptions'])
             ->withAvg('reviews', 'rating')
             ->withCount('reviews')
             ->orderByDesc('reviews_avg_rating')
@@ -252,21 +263,34 @@ class VenueController extends Controller
         $allVenues = Venue::query()
             ->where('is_active', true)
             ->withActiveOwner()
+            ->with(['owner.venueAdminSubscriptions'])
             ->withAvg('reviews', 'rating')
             ->withCount('reviews')
             ->when(!$sortByDistance, fn ($q) => $q->orderBy('name'))
-            ->get(['id', 'name', 'description', 'cover_image_path', 'address', 'zone', 'lat', 'lng']);
+            ->get(['id', 'name', 'description', 'cover_image_path', 'address', 'zone', 'lat', 'lng', 'owner_user_id']);
 
         if ($sortByDistance) {
             $allVenues = $allVenues->sortBy(function ($venue) use ($userLat, $userLng) {
                 if (!$venue->lat || !$venue->lng) return PHP_INT_MAX;
                 return $this->haversine($userLat, $userLng, (float) $venue->lat, (float) $venue->lng);
             })->values();
+        } else {
+            // Posicionamiento prioritario por plan: Full > Pro > Starter, luego por nombre
+            $allVenues = $allVenues->sortBy([
+                fn ($a, $b) => $b->owner_plan_sort_order <=> $a->owner_plan_sort_order,
+                fn ($a, $b) => strcmp($a->name, $b->name),
+            ])->values();
         }
+
+        // Complejos Premium: venues con plan Pro o Full (para carousel premium)
+        $premiumVenues = $allVenues->filter(function ($venue) {
+            return in_array($venue->owner_plan_slug, ['pro', 'full']);
+        })->take(8)->values();
 
         return view('venues.index', compact(
             'venues',
             'allVenues',
+            'premiumVenues',
             'hasFilters',
             'zones',
             'q',

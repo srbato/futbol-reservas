@@ -287,7 +287,8 @@
   }
   .fui-chip-sport  { background: rgba(29,78,216,.1);  border: 1px solid rgba(29,78,216,.2);  color: #1d4ed8; }
   .fui-chip-date   { background: rgba(85,85,85,.07);  border: 1px solid rgba(85,85,85,.12);  color: #555; }
-  .fui-chip-gender { background: rgba(219,39,119,.08); border: 1px solid rgba(219,39,119,.15); color: #db2777; }
+  .fui-chip-gender-male   { background: rgba(37,99,235,.08);  border: 1px solid rgba(37,99,235,.15);  color: #2563eb; }
+  .fui-chip-gender-female { background: rgba(219,39,119,.08); border: 1px solid rgba(219,39,119,.15); color: #db2777; }
   .fui-chip-cat    { background: rgba(21,128,61,.08);  border: 1px solid rgba(21,128,61,.15);  color: #15803d; }
 
   /* Avatares apilados */
@@ -421,7 +422,7 @@
       <p class="fui-hero-sub" data-aos="fade-up" data-aos-delay="180">Partidos armándose. Anotate y jugá.</p>
     </div>
     <div data-aos="fade-up" data-aos-delay="260">
-      <a href="{{ route('venues.index', ['falta_uno' => '1']) }}" class="fui-hero-cta">+ Crear partido</a>
+      <button onclick="document.getElementById('fuiFieldModal').style.display='flex'" class="fui-hero-cta" style="border:none;cursor:pointer;">+ Crear partido</button>
     </div>
   </div>
 </div>
@@ -443,17 +444,26 @@
   @endif
 @endauth
 
+{{-- Link a mis partidos --}}
+@auth
+  <div style="display:flex; justify-content:flex-end; margin-bottom:12px;" data-aos="fade-left">
+    <a href="{{ route('my_reservations', ['tab' => 'faltauno']) }}" style="display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:700; color:#16a34a; text-decoration:none; padding:6px 14px; border:1.5px solid #dcfce7; border-radius:999px; background:#f0fdf4; transition:all .15s;" onmouseover="this.style.background='#dcfce7'" onmouseout="this.style.background='#f0fdf4'">
+      <i data-lucide="user" style="width:14px;height:14px;stroke:currentColor;"></i> Mis partidos
+    </a>
+  </div>
+@endauth
+
 {{-- Filtros --}}
 <div class="fui-filters-wrap">
   {{-- Fila 1: deporte --}}
   <div class="fui-filter-row">
-    <a href="{{ route('falta-uno.index', array_filter(['gender' => $gender ?? null])) }}"
+    <a href="{{ route('falta-uno.index', array_filter(['gender' => $gender ?? null, 'category' => $category ?? null, 'zone' => $zone ?? null])) }}"
        class="fui-pill {{ !$sport ? 'active' : '' }}"
        data-aos="fade-up" data-aos-delay="0">Todos</a>
     @php $sportPills = ['football'=>'Fútbol','padel'=>'Pádel','tennis'=>'Tenis','basketball'=>'Básquet','volleyball'=>'Vóley']; $pi = 0; @endphp
     @foreach($sportPills as $val => $label)
       @php $pi++ @endphp
-      <a href="{{ route('falta-uno.index', array_filter(['sport' => $val, 'gender' => $gender ?? null])) }}"
+      <a href="{{ route('falta-uno.index', array_filter(['sport' => $val, 'gender' => $gender ?? null, 'category' => $category ?? null, 'zone' => $zone ?? null])) }}"
          class="fui-pill {{ $sport === $val ? 'active' : '' }}"
          data-aos="fade-up" data-aos-delay="{{ $pi * 50 }}">{{ $label }}</a>
     @endforeach
@@ -476,22 +486,38 @@
     <span class="fui-filter-label">Género:</span>
     @foreach([''=>'Cualquier género','male'=>'Masculino','female'=>'Femenino'] as $val => $label)
       @php $gi++ @endphp
-      <a href="{{ route('falta-uno.index', array_filter(['sport'=>$sport,'gender'=>$val ?: null,'category'=>$category ?? null])) }}"
+      <a href="{{ route('falta-uno.index', array_filter(['sport'=>$sport,'gender'=>$val ?: null,'category'=>$category ?? null,'zone'=>$zone ?? null])) }}"
          class="fui-pill fui-pill-sm {{ ($gender ?? '') === $val ? 'active' : '' }}"
          data-aos="fade-up" data-aos-delay="{{ $gi * 50 }}">{{ $label }}</a>
     @endforeach
     <span class="fui-filter-sep">|</span>
     <span class="fui-filter-label">Categoría:</span>
-    <a href="{{ route('falta-uno.index', array_filter(['sport'=>$sport,'gender'=>$gender ?? null])) }}"
+    <a href="{{ route('falta-uno.index', array_filter(['sport'=>$sport,'gender'=>$gender ?? null,'zone'=>$zone ?? null])) }}"
        class="fui-pill fui-pill-sm {{ ($category ?? '') === '' ? 'active' : '' }}"
        data-aos="fade-up" data-aos-delay="{{ ++$gi * 50 }}">Cualquier cat.</a>
     @foreach($visibleCategories as $val => $label)
       @php $gi++ @endphp
-      <a href="{{ route('falta-uno.index', array_filter(['sport'=>$sport,'gender'=>$gender ?? null,'category'=>$val])) }}"
+      <a href="{{ route('falta-uno.index', array_filter(['sport'=>$sport,'gender'=>$gender ?? null,'category'=>$val,'zone'=>$zone ?? null])) }}"
          class="fui-pill fui-pill-sm {{ ($category ?? '') === $val ? 'active' : '' }}"
          data-aos="fade-up" data-aos-delay="{{ min($gi * 50, 400) }}">{{ $label }}</a>
     @endforeach
   </div>
+
+  {{-- Fila 3: zona (solo si hay zonas disponibles) --}}
+  @if($zones->isNotEmpty())
+  <hr class="fui-filter-divider">
+  <div class="fui-filter-row">
+    <span class="fui-filter-label">Zona:</span>
+    <a href="{{ route('falta-uno.index', array_filter(['sport'=>$sport,'gender'=>$gender ?? null,'category'=>$category ?? null])) }}"
+       class="fui-pill fui-pill-sm {{ !$zone ? 'active' : '' }}"
+       data-aos="fade-up" data-aos-delay="0">Todas las zonas</a>
+    @foreach($zones as $zi => $z)
+      <a href="{{ route('falta-uno.index', array_filter(['sport'=>$sport,'gender'=>$gender ?? null,'category'=>$category ?? null,'zone'=>$z])) }}"
+         class="fui-pill fui-pill-sm {{ ($zone ?? '') === $z ? 'active' : '' }}"
+         data-aos="fade-up" data-aos-delay="{{ min(($zi + 1) * 50, 400) }}">{{ $z }}</a>
+    @endforeach
+  </div>
+  @endif
 </div>
 
 {{-- Listado de partidos --}}
@@ -502,7 +528,7 @@
     <h3>No hay partidos disponibles</h3>
     <p>¿Por qué no iniciás uno vos? Elegí una cancha con Falta Uno habilitado.</p>
     <div class="fui-empty-actions">
-      <a href="{{ route('venues.index', ['falta_uno' => '1']) }}" class="btn btn-primary">Crear partido</a>
+      <button onclick="document.getElementById('fuiFieldModal').style.display='flex'" class="btn btn-primary" style="border:none;cursor:pointer;">Crear partido</button>
       <a href="{{ route('venues.index') }}" class="btn">Ver complejos</a>
     </div>
   </div>
@@ -571,7 +597,11 @@
               {{-- Info --}}
               <div class="fui-card-info">
                 <a href="{{ route('venues.show', $game->field->venue) }}" class="fui-venue-link">
-                  <i data-lucide="map-pin" style="width:13px;height:13px;stroke:currentColor;vertical-align:middle;"></i> {{ $game->field->venue->name }}
+                  <i data-lucide="map-pin" style="width:13px;height:13px;stroke:currentColor;vertical-align:middle;"></i>
+                  {{ $game->field->venue->name }}
+                  @if($game->field->venue->zone)
+                    <span style="color:#aaa; font-weight:500;">&middot; {{ $game->field->venue->zone }}</span>
+                  @endif
                 </a>
                 <a href="{{ route('falta-uno.show', $game) }}" class="fui-field-name">
                   {{ $game->field->name }}
@@ -582,7 +612,7 @@
                   <span class="fui-chip fui-chip-date"><i data-lucide="calendar" style="width:12px;height:12px;stroke:currentColor;vertical-align:middle;margin-right:3px;"></i>{{ \Carbon\Carbon::parse($game->start_at)->format('d/m/Y') }}</span>
                   <span class="fui-chip fui-chip-date"><i data-lucide="clock" style="width:12px;height:12px;stroke:currentColor;vertical-align:middle;margin-right:3px;"></i>{{ \Carbon\Carbon::parse($game->start_at)->format('H:i') }} hs</span>
                   @if($game->gender_filter !== 'mixed')
-                    <span class="fui-chip fui-chip-gender">
+                    <span class="fui-chip fui-chip-gender-{{ $game->gender_filter }}">
                       {{ $game->gender_filter === 'male' ? 'Masculino' : 'Femenino' }}
                     </span>
                   @endif
@@ -744,6 +774,62 @@
     const max = document.body.scrollHeight - window.innerHeight;
     el.style.width = (max > 0 ? (window.scrollY / max) * 100 : 0) + '%';
   });
+</script>
+@endpush
+
+{{-- Modal selector de cancha para crear partido --}}
+<div id="fuiFieldModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,.5); align-items:center; justify-content:center; padding:20px;" onclick="if(event.target===this)this.style.display='none'">
+  <div style="background:#fff; border-radius:18px; max-width:520px; width:100%; max-height:80vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,.2);">
+    <div style="padding:20px 24px 0; display:flex; justify-content:space-between; align-items:center;">
+      <h3 style="margin:0; font-size:20px; font-weight:800;">Elegir cancha</h3>
+      <button onclick="document.getElementById('fuiFieldModal').style.display='none'" style="background:none; border:none; cursor:pointer; padding:4px;">
+        <i data-lucide="x" style="width:20px;height:20px;stroke:#999;"></i>
+      </button>
+    </div>
+    <p style="padding:0 24px; margin:8px 0 16px; font-size:14px; color:#666;">Selecciona una cancha con Falta Uno habilitado para crear tu partido.</p>
+
+    <div id="fuiFieldSearch" style="padding:0 24px 12px;">
+      <input type="text" id="fuiFieldSearchInput" placeholder="Buscar por cancha o complejo..." oninput="filterFuiFields()" style="width:100%; padding:10px 14px; border:1.5px solid #e5e7eb; border-radius:10px; font-size:14px; outline:none; box-sizing:border-box;" onfocus="this.style.borderColor='#16a34a'" onblur="this.style.borderColor='#e5e7eb'">
+    </div>
+
+    <div id="fuiFieldList" style="padding:0 24px 20px; display:grid; gap:8px;">
+      @foreach($faltaUnoFields as $f)
+        <a href="{{ route('falta-uno.create', $f) }}" class="fui-field-option" data-search="{{ strtolower($f->name . ' ' . $f->venue->name) }}" style="display:flex; align-items:center; gap:12px; padding:12px 14px; border:1.5px solid #f0f0f0; border-radius:12px; text-decoration:none; color:inherit; transition:all .15s;" onmouseover="this.style.borderColor='#16a34a';this.style.background='#f0fdf4'" onmouseout="this.style.borderColor='#f0f0f0';this.style.background='transparent'">
+          <div style="width:40px; height:40px; border-radius:10px; background:#f1f5f9; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            @php
+              $sportIcon = match($f->sport) {
+                'football' => 'circle-dot', 'padel' => 'table-tennis-paddle',
+                'tennis' => 'circle', 'basketball' => 'dribbble',
+                default => 'map-pin',
+              };
+            @endphp
+            <i data-lucide="{{ $sportIcon }}" style="width:18px;height:18px;stroke:#16a34a;stroke-width:2;"></i>
+          </div>
+          <div style="flex:1; min-width:0;">
+            <div style="font-weight:700; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ $f->name }}</div>
+            <div style="font-size:12px; color:#888; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ $f->venue->name }} · {{ ucfirst($f->sport) }}</div>
+          </div>
+          <i data-lucide="chevron-right" style="width:16px;height:16px;stroke:#ccc;flex-shrink:0;"></i>
+        </a>
+      @endforeach
+
+      @if($faltaUnoFields->isEmpty())
+        <div style="text-align:center; padding:20px; color:#999; font-size:14px;">
+          No hay canchas con Falta Uno habilitado por el momento.
+        </div>
+      @endif
+    </div>
+  </div>
+</div>
+
+@push('scripts')
+<script>
+  function filterFuiFields() {
+    const q = document.getElementById('fuiFieldSearchInput').value.toLowerCase();
+    document.querySelectorAll('.fui-field-option').forEach(function(el) {
+      el.style.display = el.dataset.search.includes(q) ? 'flex' : 'none';
+    });
+  }
 </script>
 @endpush
 
