@@ -690,7 +690,7 @@
     wsPort:            {{ config('broadcasting.connections.reverb.client_port') }},
     wssPort:           {{ config('broadcasting.connections.reverb.client_port') }},
     forceTLS:          true,
-    enabledTransports: ['ws'],
+    enabledTransports: ['ws', 'wss'],
     authEndpoint:      '/broadcasting/auth',
   });
 

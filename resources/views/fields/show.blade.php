@@ -1428,7 +1428,7 @@
     wsPort:       {{ config('broadcasting.connections.reverb.client_port') }},
     wssPort:      {{ config('broadcasting.connections.reverb.client_port') }},
     forceTLS:     true,
-    enabledTransports: ['ws'],
+    enabledTransports: ['ws', 'wss'],
   });
 
   echoClient.channel('field.{{ $field->id }}')

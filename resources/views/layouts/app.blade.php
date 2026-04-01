@@ -1188,7 +1188,7 @@
         wsPort: wsPort,
         wssPort: wsPort,
         forceTLS: true,
-        enabledTransports: ['ws'],
+        enabledTransports: ['ws', 'wss'],
         authEndpoint: '/broadcasting/auth',
         auth: {
           headers: {

@@ -6,6 +6,9 @@ set -e
 
 PHP=php84
 
+echo "==> Activando modo mantenimiento..."
+$PHP artisan down
+
 echo "==> Pulling latest code..."
 git pull origin main
 
@@ -37,7 +40,11 @@ $PHP artisan event:cache
 echo "==> Restarting queue workers..."
 $PHP artisan queue:restart
 
-echo "==> Restarting Supervisor worker..."
+echo "==> Restarting Supervisor workers..."
 sudo supervisorctl restart tucancha-queue-worker:*
+sudo supervisorctl restart tucancha-reverb:*
+
+echo "==> Desactivando modo mantenimiento..."
+$PHP artisan up
 
 echo "==> Deploy completado."
