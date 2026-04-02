@@ -2666,3 +2666,47 @@ IMAGEN RAQUETA:
     - HTML de court lines reestructurado para efecto perspectiva
     - Partículas con colores actualizados
     - Referencia de imagen corregida
+
+[2026-04-01] — REESTRUCTURACIÓN HERO PÁDEL + RAQUETA DECORATIVA
+=================================================================
+
+HERO — IMAGEN DE FONDO:
+  - Background image cambiado a hero-padel-bg.webp (pista futurista sin raqueta)
+  - Overlay: rgba(13, 11, 30, 0.5) semitransparente (antes gradiente opaco al 92%)
+  - Hero sin border-radius ni margin-bottom para transición fluida al fondo #0d0b1e
+
+RAQUETA PRINCIPAL (hero):
+  - Imagen: raquetapadelfondo.webp (fondo transparente)
+  - height: 130% del hero con overflow: visible — desborda arriba y abajo (efecto 3D)
+  - Centrada verticalmente: top: 50% + translateY(-50%)
+  - Glow neón: drop-shadow(0 0 40px #7c3aed) drop-shadow(0 0 80px #ff2d9b)
+  - z-index: 2 (debajo del contenido z-index 4, encima del overlay)
+
+SEGUNDA RAQUETA DECORATIVA (sección resultados de búsqueda):
+  - Imagen: raqueta-padel-2.webp en vi-search-results-panel
+  - position: absolute, right: -4%, top: 80%, height: 85%
+  - transform: translateY(-50%) rotate(25deg) scaleX(-1) — espejada para composición diagonal
+  - Glow intenso: triple drop-shadow (60px/100px/140px) + brightness(1.4)
+  - opacity: 0.25, z-index: 1 (detrás del contenido de cards)
+  - Animación propia vi-racket-glow-2 (5s, independiente de la principal)
+  - Contenedor con overflow: visible para efecto 3D
+  - Tablet (1024px): height 65%, opacity 0.2
+  - Mobile (768px): display: none
+
+MAPA — FILTRO CSS CORREGIDO:
+  - Cambiado de brightness(0.7) hue-rotate(240deg) saturate(0.8) (causaba negativo)
+  - A grayscale(30%) brightness(0.7) — oscuro pero colores naturales
+
+Z-INDEX STACK FINAL DEL HERO:
+  - Navbar: z-index 50
+  - Contenido hero (texto, search, filtros): z-index 4
+  - Raqueta principal: z-index 2
+  - Overlay/glow/partículas: z-index 1
+  - Fondo: z-index 0
+
+  resources/views/venues/index.blade.php:
+    - Hero reestructurado con background-image + overlay semitransparente
+    - Raqueta principal con desborde 3D
+    - Segunda raqueta decorativa en sección resultados
+    - Filtro del mapa corregido
+    - z-index reorganizado para stack correcto

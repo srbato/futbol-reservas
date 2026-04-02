@@ -3,13 +3,26 @@
 @section('title','Encontrá tu cancha — TuCancha')
 @section('meta_description', 'Explorá todos los complejos deportivos disponibles en TuCancha. Filtrá por deporte, zona y horario. Reservá tu cancha online en segundos.')
 
+@push('head')
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@800&display=swap" rel="stylesheet">
+@endpush
+
 @push('styles')
-<style>
+
   /* ── AOS override ─────────────────────────────── */
   [data-aos] { pointer-events: auto !important; }
 
   /* ── Reset / base ─────────────────────────────── */
   .vi-wrap { display: flex; flex-direction: column; gap: 0; }
+
+  /* Prevent horizontal overflow from 3D decorative elements (racket, tennis ball, neon sphere) */
+  body:has(.theme-padel) .vi-wrap,
+  body:has(.theme-tenis) .vi-wrap {
+    overflow-x: clip;
+  }
 
   /* ── Scroll progress bar ──────────────────────── */
   .vi-scroll-progress {
@@ -106,7 +119,7 @@
 
   .vi-hero-content {
     position: relative;
-    z-index: 2;
+    z-index: 4;
   }
 
   /* Badge pulsante */
@@ -141,7 +154,7 @@
   /* H1 con efecto de aparición por palabras */
   .vi-hero-text h1 {
     margin: 0 0 14px 0;
-    font-size: 60px;
+    font-size: clamp(30px, 5vw + 10px, 60px);
     font-weight: 900;
     letter-spacing: -0.04em;
     line-height: 1.02;
@@ -429,6 +442,13 @@
     margin-bottom: 20px;
   }
 
+  @media (max-width: 640px) {
+    .vi-active-filters {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+    }
+  }
+
   .vi-active-filter-tag {
     display: inline-flex;
     align-items: center;
@@ -449,6 +469,14 @@
     border-radius: 20px;
     padding: 28px 28px 32px;
     margin-bottom: 28px;
+    position: relative;
+    overflow: visible;
+  }
+
+  @media (max-width: 640px) {
+    .vi-search-results-panel {
+      padding: 16px 14px 20px;
+    }
   }
 
   .vi-search-results-header {
@@ -488,6 +516,12 @@
     position: relative;
     overflow: hidden;
     box-shadow: 0 2px 16px rgba(0,0,0,.06);
+  }
+
+  @media (max-width: 640px) {
+    .vi-featured {
+      padding: 18px 14px;
+    }
   }
 
   /* Número decorativo grande en el fondo */
@@ -640,6 +674,12 @@
     border: none;
     box-shadow: 0 4px 20px rgba(0,0,0,.25);
     transition: transform .3s ease, box-shadow .3s ease, opacity .3s ease;
+  }
+
+  @media (max-width: 640px) {
+    .featured-card {
+      flex: 0 0 85vw;
+    }
   }
 
   .featured-card:hover {
@@ -888,7 +928,7 @@
   /* ── Venue cards grid ─────────────────────────── */
   .vi-venues-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 18px;
     margin-bottom: 32px;
   }
@@ -977,8 +1017,8 @@
     position: absolute;
     top: 12px;
     right: 12px;
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     background: rgba(255,255,255,.92);
     backdrop-filter: blur(4px);
@@ -1041,7 +1081,7 @@
     display: flex;
     align-items: center;
     gap: 5px;
-    z-index: 3;
+    z-index: 5;
   }
 
   .vi-faltauno-dot {
@@ -1560,16 +1600,23 @@
   /* ── Hero ─────────────────────────────────────────── */
   .theme-padel .vi-hero {
     min-height: 500px;
+    border-radius: 0;
+    margin-bottom: 0;
+    overflow: visible;
+    position: relative;
+    z-index: 51;
   }
 
   .theme-padel .vi-hero-bg {
-    background-image: url('/images/padelneon.webp');
-    opacity: 0.35;
+    background-image: url('/images/hero-padel-bg.webp');
+    background-size: cover;
+    background-position: center;
+    opacity: 1;
   }
 
   .theme-padel .vi-hero-overlay {
-    background: linear-gradient(90deg, #1a1a2e 0%, #2d1b4e 100%);
-    opacity: 0.92;
+    background: rgba(13, 11, 30, 0.5);
+    opacity: 1;
   }
 
   /* Irradiación de luz desde la raqueta */
@@ -1632,48 +1679,75 @@
 
   .theme-padel .vi-hero-racket-deco {
     position: absolute;
-    right: 2%;
-    top: -5%;
-    width: 540px;
-    height: auto;
-    opacity: 0.9;
-    z-index: 3;
+    right: -2%;
+    top: 50%;
+    transform: translateY(-50%) rotate(-12deg);
+    width: auto;
+    height: 130%;
+    opacity: 0.92;
+    z-index: 51;
     pointer-events: none;
-    transform: rotate(-12deg);
-    filter: drop-shadow(0 0 60px rgba(124,58,237,.8)) drop-shadow(0 0 120px rgba(255,45,155,.5)) drop-shadow(0 0 200px rgba(124,58,237,.3)) brightness(1.25);
+    filter: drop-shadow(0 0 40px #7c3aed) drop-shadow(0 0 80px #ff2d9b) brightness(1.15);
     user-select: none;
     -webkit-user-drag: none;
-    animation: vi-racket-glow 4s ease-in-out infinite alternate;
   }
 
-  @keyframes vi-racket-glow {
-    0%   { filter: drop-shadow(0 0 60px rgba(124,58,237,.8)) drop-shadow(0 0 120px rgba(255,45,155,.5)) drop-shadow(0 0 200px rgba(124,58,237,.3)) brightness(1.25); }
-    100% { filter: drop-shadow(0 0 80px rgba(124,58,237,1)) drop-shadow(0 0 160px rgba(255,45,155,.7)) drop-shadow(0 0 250px rgba(124,58,237,.4)) brightness(1.4); }
+  .theme-padel .vi-hero-racket-deco-2 {
+    position: absolute;
+    right: -4%;
+    top: 110%;
+    width: auto;
+    height: 80%;
+    opacity: 0.25;
+    z-index: 1;
+    pointer-events: none;
+    transform: translateY(-50%) rotate(25deg) scaleX(-1);
+    filter: drop-shadow(0 0 60px #7c3aed) drop-shadow(0 0 100px #ff2d9b) drop-shadow(0 0 140px #7c3aed) brightness(1.4);
+    user-select: none;
+    -webkit-user-drag: none;
   }
 
   @media (max-width: 1024px) {
     .theme-padel .vi-hero-racket-deco {
-      width: 420px;
+      height: 120%;
       opacity: 0.8;
-      right: -2%;
+      right: -3%;
+    }
+    .theme-padel .vi-hero-racket-deco-2 {
+      height: 65%;
+      opacity: 0.2;
+      right: -5%;
+      top: 80%;
+      transform: translateY(-50%) rotate(25deg) scaleX(-1);
     }
   }
 
   @media (max-width: 768px) {
     .theme-padel .vi-hero-racket-deco {
-      width: 280px;
-      opacity: 0.35;
+      height: 90%;
+      opacity: 0.3;
       right: auto;
       left: 50%;
-      transform: translateX(-50%) rotate(-12deg);
-      top: auto;
-      bottom: -10%;
+      top: 50%;
+      bottom: auto;
+      transform: translate(-50%, -50%) rotate(-12deg);
+    }
+    .theme-padel .vi-hero-racket-deco-2 {
+      display: none;
     }
   }
 
   /* ── Search bar ──────────────────────────────────── */
   .theme-padel .vi-search-bar {
     border-color: #4a2d6e;
+    max-width: 55%;
+    transition: border-color .2s, background .2s, max-width .4s ease;
+  }
+
+  @media (max-width: 1024px) {
+    .theme-padel .vi-search-bar {
+      max-width: 100%;
+    }
   }
 
   .theme-padel .vi-search-bar:focus-within {
@@ -1923,7 +1997,7 @@
 
   .theme-padel .vi-map-wrap #map,
   .theme-padel .vi-map-wrap .vi-map-skeleton {
-    filter: brightness(0.7) hue-rotate(240deg) saturate(0.8);
+    filter: grayscale(30%) brightness(0.7);
   }
 
   .theme-padel .vi-map-label {
@@ -2075,36 +2149,41 @@
 
 @if(($sport ?? '') === 'football')
   /* ═══════════════════════════════════════════════════
-     THEME: Fútbol — Arrabal Dorado
+     THEME: Fútbol — Potrero Porteño
      Condicional — solo activo cuando sport=football
+     Paleta: crema cálido + rojo terracota + fileteado
      ═══════════════════════════════════════════════════ */
 
-  /* ── Fondo global dorado ────────────────────────────── */
+  /* ── Fondo global crema cálido ──────────────────── */
   .theme-futbol {
-    background: #0d0a06;
-    color: #f5edd6;
+    background: #f5ead0;
+    color: #2c1810;
     animation: vi-futbol-fadein 0.6s ease forwards;
   }
 
   body:has(.theme-futbol) {
-    background:
-      radial-gradient(ellipse 600px 400px at 10% 35%, rgba(212,160,23,.07) 0%, transparent 70%),
-      radial-gradient(ellipse 500px 350px at 88% 75%, rgba(139,105,20,.06) 0%, transparent 70%),
-      radial-gradient(ellipse 400px 300px at 50% 55%, rgba(180,130,30,.04) 0%, transparent 70%),
-      radial-gradient(ellipse 300px 250px at 75% 25%, rgba(240,192,64,.05) 0%, transparent 70%),
-      #0d0a06 !important;
-    background-attachment: fixed !important;
+    background: #f5ead0 !important;
   }
   body:has(.theme-futbol) .site-header {
-    background: #0d0a06 !important;
-    border-bottom-color: rgba(212,160,23,.15) !important;
+    background: #faf4e8 !important;
+    border-bottom-color: rgba(180,80,40,.12) !important;
   }
-  body:has(.theme-futbol) .brand-light { display: none !important; }
-  body:has(.theme-futbol) .brand-dark { display: block !important; }
+  body:has(.theme-futbol) .site-header .site-nav a,
+  body:has(.theme-futbol) .site-header .site-nav button,
+  body:has(.theme-futbol) .site-header .user-menu-button,
+  body:has(.theme-futbol) .site-header .notif-bell {
+    color: #2c1810 !important;
+    border-color: #2c1810 !important;
+  }
+  body:has(.theme-futbol) .site-header .site-nav a.primary {
+    background: #c43e2a !important;
+    color: #fff !important;
+    border-color: #c43e2a !important;
+  }
   body:has(.theme-futbol) footer {
-    background: #0d0a06 !important;
-    border-top-color: rgba(212,160,23,.15) !important;
-    color: #a0937a !important;
+    background: #2c1810 !important;
+    border-top-color: rgba(180,80,40,.2) !important;
+    color: #d4c4a8 !important;
   }
 
   @keyframes vi-futbol-fadein {
@@ -2114,125 +2193,243 @@
 
   /* ── Scroll progress bar ─────────────────────────── */
   .vi-scroll-progress.vi-scroll-futbol {
-    background: linear-gradient(90deg, #d4a017, #f0c040);
-    box-shadow: 0 0 12px rgba(212,160,23,.6);
+    background: linear-gradient(90deg, #c43e2a, #d4a017);
+    box-shadow: 0 0 12px rgba(196,62,42,.6);
   }
 
   /* ── Hero ─────────────────────────────────────────── */
+  .theme-futbol .vi-hero {
+    min-height: 480px;
+    border-radius: 18px;
+    margin-bottom: 0;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 8px 40px rgba(44,24,16,.2), 0 2px 8px rgba(44,24,16,.1);
+  }
+
   .theme-futbol .vi-hero-bg {
-    background-image: url('/images/futboltematica.webp');
-    opacity: 0.35;
+    background-image: url('/images/hero-futbol-bg.webp');
+    background-size: 100% 100%;
+    background-position: center;
+    opacity: 1;
+    border-radius: 0;
   }
 
   .theme-futbol .vi-hero-overlay {
-    background: linear-gradient(135deg, rgba(13,10,6,.92) 0%, rgba(40,30,10,.75) 60%, rgba(25,18,5,.65) 100%);
+    background: linear-gradient(135deg, rgba(44,24,16,.75) 0%, rgba(44,24,16,.45) 50%, rgba(44,24,16,.30) 100%);
+    opacity: 1;
+    border-radius: 0;
   }
 
-  /* Líneas decorativas del campo — color dorado */
-  @media (min-width: 769px) {
-    .theme-futbol .vi-hero::before {
-      border-left-color: rgba(212,160,23,.06);
-    }
-    .theme-futbol .vi-hero-field-circle {
-      border-color: rgba(212,160,23,.06);
+
+  /* Pelota decorativa */
+  .theme-futbol .vi-futbol-pelota {
+    position: absolute;
+    right: 5%;
+    top: 50%;
+    transform: translateY(-55%);
+    z-index: 7;
+    pointer-events: none;
+    user-select: none;
+    width: 360px;
+    height: 360px;
+    filter: drop-shadow(0 8px 40px rgba(180,120,40,.5)) drop-shadow(0 0 80px rgba(212,160,23,.25));
+  }
+
+  @media (max-width: 1024px) {
+    .theme-futbol .vi-futbol-pelota {
+      width: 180px;
+      height: 180px;
+      right: 3%;
+      opacity: 0.8;
     }
   }
 
+  @media (max-width: 768px) {
+    .theme-futbol .vi-futbol-pelota {
+      display: none;
+    }
+  }
+
+  /* Ocultar líneas de cancha genéricas */
+  .theme-futbol .vi-hero-field-circle { display: none; }
+  .theme-futbol .vi-hero::before { display: none !important; }
+
+  /* ── Badge ──────────────────────────────────────── */
   .theme-futbol .vi-hero-badge {
-    background: rgba(212,160,23,.14);
-    border-color: rgba(212,160,23,.35);
-    color: #f0c040;
+    background: rgba(196,62,42,.2);
+    border-color: rgba(196,62,42,.4);
+    color: #fff;
   }
 
   .theme-futbol .vi-hero-badge-dot {
-    background: #d4a017;
+    background: #c43e2a;
     animation-name: vi-pulse-futbol;
   }
 
   @keyframes vi-pulse-futbol {
-    0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(212,160,23,.5); }
-    50% { opacity: .8; transform: scale(1.1); box-shadow: 0 0 0 6px rgba(212,160,23,.0); }
+    0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(196,62,42,.5); }
+    50% { opacity: .8; transform: scale(1.1); box-shadow: 0 0 0 6px rgba(196,62,42,.0); }
+  }
+
+  /* ── Hero text ──────────────────────────────────── */
+  .theme-futbol .vi-hero-text h1 {
+    font-family: "Lobster", sans-serif !important;
+    font-weight: 400 !important;
+    font-style: normal;
+    color: #fff;
+    text-shadow: 0 2px 12px rgba(0,0,0,.3);
   }
 
   .theme-futbol .vi-hero-text h1 em {
-    color: #f0c040;
-    -webkit-text-fill-color: #f0c040;
-    text-shadow: none;
+    color: #c43e2a;
+    -webkit-text-fill-color: #c43e2a;
+    text-shadow: 0 2px 8px rgba(196,62,42,.3);
+    font-style: normal;
+    padding: 0 4px;
+  }
+
+  .theme-futbol .vi-hero-text h1 {
+    line-height: 1.15;
+    letter-spacing: 0;
+  }
+
+  @media (max-width: 768px) {
+    .theme-futbol .vi-hero-text h1 {
+      line-height: 1.25;
+    }
+  }
+
+  .theme-futbol .vi-hero-text h1 .vi-word-reveal {
+    clip-path: inset(-10px -4px -10px -4px) !important;
+  }
+
+  .theme-futbol .vi-hero-text p {
+    color: rgba(255,255,255,.75);
   }
 
   .theme-futbol .vi-hero-microstat-val {
     color: #f0c040;
+    text-shadow: 0 1px 4px rgba(0,0,0,.2);
+  }
+
+  .theme-futbol .vi-hero-microstat-label {
+    color: rgba(255,255,255,.6);
   }
 
   .theme-futbol .vi-hero-microstat-sep {
-    background: rgba(212,160,23,.2);
+    background: rgba(255,255,255,.2);
   }
 
   /* ── Search bar ──────────────────────────────────── */
+  .theme-futbol .vi-search-bar {
+    background: #fff;
+    border-color: #e0d4b8;
+    max-width: 55%;
+    transition: border-color .2s, background .2s, max-width .4s ease;
+  }
+
+  @media (max-width: 1024px) {
+    .theme-futbol .vi-search-bar {
+      max-width: 100%;
+    }
+  }
+
+  .theme-futbol .vi-search-bar input {
+    color: #2c1810;
+  }
+
+  .theme-futbol .vi-search-bar input::placeholder {
+    color: rgba(44,24,16,.4);
+  }
+
   .theme-futbol .vi-search-bar:focus-within {
-    border-color: rgba(212,160,23,.55);
-    box-shadow: 0 0 0 3px rgba(212,160,23,.12);
+    border-color: rgba(196,62,42,.4);
+    box-shadow: 0 0 0 3px rgba(196,62,42,.08);
   }
 
   .theme-futbol .vi-search-btn {
-    background: linear-gradient(135deg, #d4a017 0%, #8b6914 100%);
+    background: #c43e2a;
     color: #fff;
   }
 
   .theme-futbol .vi-search-btn:hover {
-    background: linear-gradient(135deg, #b8860b 0%, #7a5c10 100%);
-    box-shadow: 0 4px 16px rgba(212,160,23,.4);
+    background: #a83220;
+    box-shadow: 0 4px 16px rgba(196,62,42,.35);
   }
 
   /* ── Filter chips ────────────────────────────────── */
+  .theme-futbol .vi-filter-chip {
+    background: #fff;
+    border-color: #e0d4b8;
+    color: #5a4030;
+  }
+
   .theme-futbol .vi-filter-chip.active {
-    background: rgba(212,160,23,.15);
-    border-color: rgba(212,160,23,.4);
-    color: #f0c040;
+    background: #c43e2a;
+    border-color: #c43e2a;
+    color: #fff;
   }
 
   .theme-futbol .vi-filter-chip:hover,
   .theme-futbol .vi-filter-chip:focus-within {
-    border-color: rgba(212,160,23,.3);
+    border-color: rgba(196,62,42,.3);
+  }
+
+  .theme-futbol .vi-clear-btn {
+    color: #c43e2a;
+  }
+
+  .theme-futbol .vi-clear-btn:hover {
+    color: #a83220;
   }
 
   /* ── Advanced filters panel ──────────────────────── */
   .theme-futbol .vi-adv-panel-inner {
-    background: rgba(13,10,6,.8);
-    border-color: rgba(212,160,23,.2);
+    background: #faf4e8;
+    border-color: #e0d4b8;
+  }
+
+  .theme-futbol .vi-adv-field input,
+  .theme-futbol .vi-adv-field select {
+    background: #fff;
+    border-color: #e0d4b8;
+    color: #2c1810;
   }
 
   .theme-futbol .vi-adv-field input:focus,
   .theme-futbol .vi-adv-field select:focus {
-    border-color: rgba(212,160,23,.5);
+    border-color: rgba(196,62,42,.4);
   }
 
   /* ── Active filter tags ──────────────────────────── */
   .theme-futbol .vi-active-filters span[style] {
-    color: #a0937a !important;
+    color: #8a7460 !important;
   }
 
   .theme-futbol .vi-active-filter-tag {
-    background: rgba(212,160,23,.12);
-    color: #f0c040;
-    border-color: rgba(212,160,23,.35);
+    background: rgba(196,62,42,.08);
+    color: #c43e2a;
+    border-color: rgba(196,62,42,.2);
   }
 
-  /* ── Textos generales sobre fondo oscuro ─────────── */
+  /* ── Textos generales ──────────────────────────────── */
   .theme-futbol .vi-venue-meta,
   .theme-futbol .vi-venue-address {
-    color: #a0937a;
+    color: #8a7460;
   }
 
   .theme-futbol .vi-no-reviews {
-    color: #706050;
+    color: #8a7460;
   }
 
   /* ── Cards de venues ─────────────────────────────── */
   .theme-futbol .vi-venue-card {
-    background: #130f08;
-    border-color: rgba(212,160,23,.15);
+    background: #fff;
+    border: 1px solid #e0d4b8;
+    border-radius: 12px;
     position: relative;
+    box-shadow: 0 2px 12px rgba(44,24,16,.06);
   }
 
   .theme-futbol .vi-venue-card::after {
@@ -2242,236 +2439,260 @@
     left: 0;
     right: 0;
     height: 3px;
-    background: linear-gradient(90deg, #d4a017, #f0c040, #8b6914);
-    border-radius: 22px 22px 0 0;
+    background: linear-gradient(90deg, #c43e2a, #d4a017, #c43e2a);
+    border-radius: 12px 12px 0 0;
     z-index: 5;
-    opacity: 0.7;
+    opacity: 0.8;
   }
 
   .theme-futbol .vi-venue-card:hover {
-    border-color: rgba(212,160,23,.4);
-    box-shadow: 0 8px 32px rgba(212,160,23,.18), 0 0 0 1px rgba(212,160,23,.08);
+    border-color: rgba(196,62,42,.3);
+    box-shadow: 0 8px 32px rgba(44,24,16,.12), 0 0 0 1px rgba(196,62,42,.08);
   }
 
   .theme-futbol .vi-venue-card:hover::after {
     opacity: 1;
   }
 
+  /* Fileteado frame overlay en las imágenes de las cards */
+  .theme-futbol .vi-venue-img-wrap {
+    position: relative;
+  }
+
+  .theme-futbol .vi-venue-img-wrap::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    background-image: url('/images/fileteado-frame.webp');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    z-index: 3;
+    pointer-events: none;
+    opacity: 0.7;
+  }
+
+  .theme-futbol .vi-venue-card:hover .vi-venue-img-wrap::after {
+    opacity: 0.9;
+  }
+
   .theme-futbol .vi-venue-name {
-    color: #f5edd6;
+    color: #2c1810;
   }
 
   .theme-futbol .vi-venue-desc {
-    color: #a0937a;
+    color: #8a7460;
   }
 
   .theme-futbol .vi-venue-rating-text {
-    color: #f5edd6;
+    color: #2c1810;
   }
 
   .theme-futbol .vi-venue-rating-count {
-    color: #706050;
+    color: #8a7460;
   }
 
   .theme-futbol .vi-venue-img-placeholder {
-    background: linear-gradient(135deg, #130f08 0%, #1a1408 100%);
+    background: linear-gradient(135deg, #f5ead0 0%, #e8dcc0 100%);
   }
 
   .theme-futbol .vi-venue-zone-badge {
-    background: rgba(212,160,23,.15);
-    color: #f0c040;
-    border-color: rgba(212,160,23,.3);
+    background: rgba(196,62,42,.08);
+    color: #c43e2a;
+    border-color: rgba(196,62,42,.2);
   }
 
   .theme-futbol .vi-btn-primary {
-    background: linear-gradient(135deg, #d4a017 0%, #8b6914 100%);
+    background: #c43e2a;
     color: #fff;
   }
 
   .theme-futbol .vi-btn-primary:hover {
-    background: linear-gradient(135deg, #b8860b 0%, #7a5c10 100%);
-    box-shadow: 0 4px 18px rgba(212,160,23,.4);
+    background: #a83220;
+    box-shadow: 0 4px 18px rgba(196,62,42,.35);
     color: #fff;
   }
 
   .theme-futbol .vi-card-shine {
-    background: radial-gradient(circle at 50% 50%, rgba(212,160,23,.12) 0%, transparent 60%);
+    background: radial-gradient(circle at 50% 50%, rgba(212,160,23,.06) 0%, transparent 60%);
   }
 
   /* ── Search results panel ────────────────────────── */
   .theme-futbol .vi-search-results-panel {
-    background: #0f0c07;
-    border-color: rgba(212,160,23,.15);
+    background: #faf4e8;
+    border-color: #e0d4b8;
   }
 
   .theme-futbol .vi-search-results-header h2 {
-    color: #f5edd6;
+    color: #2c1810;
+    font-style: italic;
   }
 
   .theme-futbol .vi-search-results-count {
-    color: #f0c040;
-    background: rgba(212,160,23,.1);
-    border-color: rgba(212,160,23,.2);
+    color: #c43e2a;
+    background: rgba(196,62,42,.08);
+    border-color: rgba(196,62,42,.15);
   }
 
   /* ── Featured section ────────────────────────────── */
   .theme-futbol .vi-featured {
-    background: #0f0c07;
-    border-color: rgba(212,160,23,.15);
+    background: #faf4e8;
+    border-color: #e0d4b8;
   }
 
   .theme-futbol .vi-featured-header h2 {
-    color: #f5edd6;
+    color: #2c1810;
+    font-style: italic;
   }
 
   .theme-futbol .carousel-subtitle {
-    color: #706050 !important;
+    color: #8a7460 !important;
   }
 
   .theme-futbol .vi-featured-bg-num {
-    color: rgba(212,160,23,.06);
+    color: rgba(196,62,42,.06);
   }
 
   .theme-futbol .feature-tabs {
-    background: rgba(212,160,23,.08);
-    border-color: rgba(212,160,23,.15);
+    background: rgba(196,62,42,.06);
+    border-color: rgba(196,62,42,.12);
   }
 
   .theme-futbol .feature-tab {
-    color: #a0937a;
+    color: #8a7460;
   }
 
   .theme-futbol .feature-tab.active {
-    background: linear-gradient(135deg, #d4a017, #8b6914);
+    background: #c43e2a;
     color: #fff;
   }
 
   .theme-futbol .vi-featured-progress-bar {
-    background: linear-gradient(90deg, #d4a017, #f0c040);
-    box-shadow: 0 0 6px rgba(212,160,23,.5);
+    background: linear-gradient(90deg, #c43e2a, #d4a017);
+    box-shadow: 0 0 6px rgba(196,62,42,.4);
   }
 
   .theme-futbol .featured-nav-arrow {
-    background: rgba(212,160,23,.1);
-    border-color: rgba(212,160,23,.2);
-    color: #f0c040;
+    background: #fff;
+    border-color: #e0d4b8;
+    color: #c43e2a;
   }
 
   .theme-futbol .featured-nav-arrow:hover {
-    background: #d4a017;
-    border-color: #d4a017;
+    background: #c43e2a;
+    border-color: #c43e2a;
     color: #fff;
   }
 
   .theme-futbol .featured-card:hover {
-    box-shadow: 0 8px 32px rgba(212,160,23,.25);
+    box-shadow: 0 8px 32px rgba(44,24,16,.12);
   }
 
   .theme-futbol .featured-card-btn {
-    background: linear-gradient(135deg, #d4a017, #8b6914);
+    background: #c43e2a;
     color: #fff;
   }
 
   .theme-futbol .featured-card-btn:hover {
-    background: linear-gradient(135deg, #b8860b, #7a5c10);
-    box-shadow: 0 4px 14px rgba(212,160,23,.4);
+    background: #a83220;
+    box-shadow: 0 4px 14px rgba(196,62,42,.35);
   }
 
   /* ── Favorites ───────────────────────────────────── */
   .theme-futbol .vi-favorites {
-    background: rgba(212,160,23,.06);
-    border-left-color: #d4a017;
-    border-top-color: rgba(212,160,23,.2);
-    border-right-color: rgba(212,160,23,.2);
-    border-bottom-color: rgba(212,160,23,.2);
+    background: rgba(196,62,42,.04);
+    border-left-color: #c43e2a;
+    border-top-color: rgba(196,62,42,.12);
+    border-right-color: rgba(196,62,42,.12);
+    border-bottom-color: rgba(196,62,42,.12);
   }
 
   .theme-futbol .vi-favorites h2 {
-    color: #f0c040;
+    color: #c43e2a;
   }
 
   .theme-futbol .vi-fav-chip {
-    background: rgba(212,160,23,.08);
-    border-color: rgba(212,160,23,.2);
-    color: #f0c040;
+    background: #fff;
+    border-color: #e0d4b8;
+    color: #5a4030;
   }
 
   .theme-futbol .vi-fav-chip:hover {
-    background: #d4a017;
+    background: #c43e2a;
     color: #fff;
-    border-color: #d4a017;
+    border-color: #c43e2a;
   }
 
   /* ── Map ──────────────────────────────────────────── */
   .theme-futbol .vi-map-wrap {
-    border-color: rgba(212,160,23,.2);
+    border-color: #e0d4b8;
   }
 
   .theme-futbol .vi-map-label {
-    color: #f5edd6;
+    color: #2c1810;
   }
 
   /* ── Results header ──────────────────────────────── */
   .theme-futbol .vi-results-header h2 {
-    color: #f5edd6;
+    color: #2c1810;
+    font-style: italic;
   }
 
   .theme-futbol .vi-section-title::after {
-    background: linear-gradient(90deg, #d4a017, #f0c040);
-    box-shadow: 0 0 8px rgba(212,160,23,.4);
+    background: linear-gradient(90deg, #c43e2a, #d4a017);
+    box-shadow: 0 0 8px rgba(196,62,42,.3);
   }
 
   .theme-futbol .vi-count-pill {
-    background: linear-gradient(135deg, #d4a017, #8b6914);
+    background: #c43e2a;
     color: #fff;
   }
 
   /* ── Empty state ─────────────────────────────────── */
   .theme-futbol .vi-empty {
-    background: #0f0c07;
-    border-color: rgba(212,160,23,.15);
-    color: #f5edd6;
+    background: #faf4e8;
+    border-color: #e0d4b8;
+    color: #2c1810;
   }
 
   .theme-futbol .vi-empty h3 {
-    color: #f5edd6;
+    color: #2c1810;
   }
 
   .theme-futbol .vi-empty p {
-    color: #a0937a;
+    color: #8a7460;
   }
 
   .theme-futbol .vi-empty-clear-btn {
-    background: linear-gradient(135deg, #d4a017, #8b6914);
+    background: #c43e2a;
     color: #fff;
   }
 
   .theme-futbol .vi-empty-clear-btn:hover {
-    background: linear-gradient(135deg, #b8860b, #7a5c10);
-    box-shadow: 0 4px 18px rgba(212,160,23,.4);
+    background: #a83220;
+    box-shadow: 0 4px 18px rgba(196,62,42,.35);
   }
 
   /* ── Cursor dot ──────────────────────────────────── */
   .vi-cursor-dot.vi-cursor-futbol {
-    background: #d4a017;
-    box-shadow: 0 0 12px rgba(212,160,23,.6);
+    background: #c43e2a;
+    box-shadow: 0 0 12px rgba(196,62,42,.6);
   }
 
   /* ── FAB ──────────────────────────────────────────── */
   .vi-fab.vi-fab-futbol {
-    background: linear-gradient(135deg, #d4a017, #8b6914);
-    box-shadow: 0 8px 32px rgba(212,160,23,.4);
+    background: #c43e2a;
+    box-shadow: 0 8px 32px rgba(196,62,42,.4);
     color: #fff;
   }
 
   .vi-fab.vi-fab-futbol:hover {
-    background: linear-gradient(135deg, #b8860b, #7a5c10);
-    box-shadow: 0 12px 40px rgba(212,160,23,.55);
+    background: #a83220;
+    box-shadow: 0 12px 40px rgba(196,62,42,.55);
   }
 
-  /* ── Falta Uno badge dorado ──────────────────────── */
+  /* ── Falta Uno badge ────────────────────────────── */
   .theme-futbol .vi-venue-faltauno-badge {
-    background: #d4a017;
+    background: #c43e2a;
     color: #fff;
   }
 
@@ -2479,24 +2700,581 @@
     background: #fff;
   }
 @endif
-</style>
+
+@if(($sport ?? '') === 'tennis')
+  /* ═══════════════════════════════════════════════════
+     THEME: Tenis — Club Clásico
+     Condicional — solo activo cuando sport=tennis
+     Paleta: verde bosque #2d5016, dorado crema #d4b896, crema #faf8f0
+     ═══════════════════════════════════════════════════ */
+
+  /* ── Fondo global crema verdoso ──────────────────── */
+  .theme-tenis {
+    background: #faf8f0;
+    color: #1a2e0a;
+    animation: vi-tenis-fadein 0.6s ease forwards;
+  }
+
+  body:has(.theme-tenis) {
+    background: #faf8f0 !important;
+  }
+  body:has(.theme-tenis) .site-header {
+    background: #f5f3e8 !important;
+    border-bottom-color: rgba(45,80,22,.12) !important;
+  }
+  body:has(.theme-tenis) .site-header .site-nav a,
+  body:has(.theme-tenis) .site-header .site-nav button,
+  body:has(.theme-tenis) .site-header .user-menu-button,
+  body:has(.theme-tenis) .site-header .notif-bell {
+    color: #1a2e0a !important;
+    border-color: #1a2e0a !important;
+  }
+  body:has(.theme-tenis) .site-header .site-nav a.primary {
+    background: #d4b896 !important;
+    color: #1a2e0a !important;
+    border-color: #d4b896 !important;
+  }
+  body:has(.theme-tenis) .brand-full.brand-light { display: block !important; }
+  body:has(.theme-tenis) .brand-icon.brand-light { display: none !important; }
+  body:has(.theme-tenis) .brand-dark { display: none !important; }
+  @media (max-width: 639px) {
+    body:has(.theme-tenis) .brand-full.brand-light { display: none !important; }
+    body:has(.theme-tenis) .brand-icon.brand-light { display: block !important; }
+  }
+  body:has(.theme-tenis) footer {
+    background: #1a2e0a !important;
+    border-top-color: rgba(45,80,22,.2) !important;
+    color: #b8c4a8 !important;
+  }
+
+  @keyframes vi-tenis-fadein {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Scroll progress bar ─────────────────────────── */
+  .vi-scroll-progress.vi-scroll-tenis {
+    background: linear-gradient(90deg, #2d5016, #d4b896);
+    box-shadow: 0 0 12px rgba(45,80,22,.6);
+  }
+
+  /* ── Hero ─────────────────────────────────────────── */
+  .theme-tenis .vi-hero {
+    min-height: 480px;
+    border-radius: 18px;
+    margin-bottom: 0;
+    overflow: visible;
+    position: relative;
+    z-index: 51;
+    box-shadow: 0 8px 40px rgba(45,80,22,.15), 0 2px 8px rgba(45,80,22,.08);
+  }
+
+  .theme-tenis .vi-hero-bg,
+  .theme-tenis .vi-hero-overlay {
+    border-radius: 18px;
+  }
+
+  .theme-tenis .vi-hero-bg {
+    background-image: url('/images/hero-tenis-bg.webp');
+    background-size: 100% 100%;
+    background-position: center;
+    opacity: 1;
+    filter: brightness(1.1) saturate(1.1);
+  }
+
+  /* Overlay horizontal: zona oscura verde a la izquierda para legibilidad */
+  .theme-tenis .vi-hero-overlay {
+    background: linear-gradient(to right, rgba(26,46,10,.92) 0%, rgba(26,46,10,.88) 30%, rgba(26,46,10,.65) 50%, rgba(45,80,22,.20) 65%, transparent 80%);
+    opacity: 1;
+  }
+
+  /* Imagen decorativa elementos-tenis — desborda el hero */
+  .theme-tenis .vi-tenis-elementos {
+    position: absolute;
+    right: -15%;
+    top: 60%;
+    transform: translateY(-50%);
+    width: 55%;
+    height: 115%;
+    opacity: 0.88;
+    z-index: 3;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    filter: drop-shadow(0px 25px 10px rgba(0,0,0,0.4)) drop-shadow(0px 60px 30px rgba(0,0,0,0.25));
+  }
+
+  @media (max-width: 1024px) {
+    .theme-tenis .vi-tenis-elementos {
+      height: 110%;
+      opacity: 0.7;
+      right: -4%;
+    }
+    .theme-tenis .vi-hero-bg {
+      background-size: cover;
+      background-position: center 40%;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .theme-tenis .vi-tenis-elementos {
+      display: none;
+    }
+    .theme-tenis .vi-hero-bg {
+      background-size: cover;
+      background-position: center 30%;
+    }
+  }
+
+  /* Ocultar líneas de cancha genéricas */
+  .theme-tenis .vi-hero-field-circle { display: none; }
+  .theme-tenis .vi-hero::before { display: none !important; }
+
+  /* ── Badge ──────────────────────────────────────── */
+  .theme-tenis .vi-hero-badge {
+    background: rgba(212,184,150,.15);
+    border-color: rgba(212,184,150,.4);
+    color: #f0e0c8;
+  }
+
+  .theme-tenis .vi-hero-badge-dot {
+    background: #d4b896;
+    box-shadow: 0 0 6px rgba(212,184,150,.6);
+    animation: vi-pulse 1.8s ease-in-out infinite;
+  }
+
+  /* ── Typography ───────────────────────────────────── */
+  .theme-tenis .vi-hero-text h1 {
+    color: #fff;
+    font-family: "EB Garamond", serif !important;
+    font-weight: 800 !important;
+    line-height: 1.15;
+  }
+
+  @media (max-width: 768px) {
+    .theme-tenis .vi-hero-text h1 {
+      font-size: 34px;
+    }
+  }
+
+  .theme-tenis .vi-hero-text h1 .vi-word-reveal {
+    clip-path: inset(-10px -4px -10px -4px) !important;
+  }
+
+  .theme-tenis .vi-hero-text h1 em {
+    color: #d4b896;
+    font-style: normal;
+    text-shadow: 0 0 30px rgba(212,184,150,.3);
+  }
+
+  .theme-tenis .vi-hero-text p {
+    color: rgba(255,255,255,.75);
+  }
+
+  .theme-tenis .vi-hero-microstat-val {
+    color: #d4b896;
+    text-shadow: 0 0 12px rgba(212,184,150,.25);
+  }
+
+  .theme-tenis .vi-hero-microstat-label {
+    color: rgba(255,255,255,.55);
+  }
+
+  .theme-tenis .vi-hero-microstat-sep {
+    background: rgba(255,255,255,.12);
+  }
+
+  /* ── Search bar ──────────────────────────────────── */
+  .theme-tenis .vi-search-bar {
+    background: #fff;
+    border-color: rgba(212,184,150,.25);
+    backdrop-filter: blur(12px);
+    max-width: 55%;
+  }
+
+  @media (max-width: 1024px) {
+    .theme-tenis .vi-search-bar {
+      max-width: 100%;
+    }
+  }
+
+  .theme-tenis .vi-search-bar input {
+    color: #1a2e0a;
+  }
+
+  .theme-tenis .vi-search-bar input::placeholder {
+    color: rgba(26,46,10,.4);
+  }
+
+  .theme-tenis .vi-search-bar:focus-within {
+    border-color: rgba(45,80,22,.4);
+    box-shadow: 0 0 0 3px rgba(45,80,22,.1);
+  }
+
+  .theme-tenis .vi-search-btn {
+    background: #2d5016;
+    color: #fff;
+    font-weight: 800;
+  }
+
+  .theme-tenis .vi-search-btn:hover {
+    background: #234010;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(45,80,22,.4);
+  }
+
+  /* ── Filter chips ────────────────────────────────── */
+  .theme-tenis .vi-filter-chip {
+    background: rgba(255,255,255,.06);
+    border-color: rgba(255,255,255,.15);
+    color: rgba(255,255,255,.75);
+  }
+
+  .theme-tenis .vi-filter-chip.active {
+    background: rgba(45,80,22,.25);
+    border: 1px solid rgba(212,184,150,.5);
+    color: #d4b896;
+  }
+
+  .theme-tenis .vi-filter-chip:hover,
+  .theme-tenis .vi-filter-chip:focus-within {
+    background: rgba(255,255,255,.12);
+    border-color: rgba(212,184,150,.3);
+  }
+
+  .theme-tenis .vi-clear-btn {
+    color: rgba(255,255,255,.5);
+  }
+
+  .theme-tenis .vi-clear-btn:hover {
+    color: #d4b896;
+  }
+
+  /* ── Advanced panel ───────────────────────────────── */
+  .theme-tenis .vi-adv-panel-inner {
+    background: rgba(26,46,10,.7);
+    border-color: rgba(212,184,150,.2);
+    backdrop-filter: blur(20px);
+  }
+
+  .theme-tenis .vi-adv-field input,
+  .theme-tenis .vi-adv-field select {
+    background: rgba(255,255,255,.08);
+    border-color: rgba(255,255,255,.15);
+    color: #fff;
+  }
+
+  .theme-tenis .vi-adv-field input:focus,
+  .theme-tenis .vi-adv-field select:focus {
+    border-color: rgba(212,184,150,.5);
+  }
+
+  /* ── Active filter tags ───────────────────────────── */
+  .theme-tenis .vi-active-filters span[style] {
+    color: #1a2e0a !important;
+  }
+
+  .theme-tenis .vi-active-filter-tag {
+    background: rgba(45,80,22,.12);
+    color: #2d5016;
+    border-color: rgba(45,80,22,.3);
+  }
+
+  /* ── Venue cards ──────────────────────────────────── */
+  .theme-tenis .vi-venue-meta,
+  .theme-tenis .vi-venue-address {
+    color: #5a6e48;
+  }
+
+  .theme-tenis .vi-no-reviews {
+    color: #8a9a78;
+  }
+
+  .theme-tenis .vi-venue-card {
+    background: #fff;
+    border: 1px solid rgba(45,80,22,.1);
+    box-shadow: 0 2px 12px rgba(45,80,22,.06);
+    transition: transform .3s ease, box-shadow .3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .theme-tenis .vi-venue-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #2d5016, #d4b896);
+    opacity: 0;
+    transition: opacity .3s ease;
+  }
+
+  .theme-tenis .vi-venue-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 32px rgba(45,80,22,.12);
+  }
+
+  .theme-tenis .vi-venue-card:hover::after {
+    opacity: 1;
+  }
+
+  .theme-tenis .vi-venue-name {
+    color: #1a2e0a;
+  }
+
+  .theme-tenis .vi-venue-desc {
+    color: #5a6e48;
+  }
+
+  .theme-tenis .vi-venue-rating-text {
+    color: #d4b896;
+  }
+
+  .theme-tenis .vi-venue-rating-count {
+    color: #8a9a78;
+  }
+
+  .theme-tenis .vi-venue-img-placeholder {
+    background: linear-gradient(135deg, #e8f0dc, #d4e4c0);
+  }
+
+  .theme-tenis .vi-venue-zone-badge {
+    background: rgba(45,80,22,.1);
+    color: #2d5016;
+    border: 1px solid rgba(45,80,22,.2);
+  }
+
+  .theme-tenis .vi-btn-primary {
+    background: #2d5016;
+    color: #fff;
+  }
+
+  .theme-tenis .vi-btn-primary:hover {
+    background: #234010;
+    box-shadow: 0 4px 16px rgba(45,80,22,.25);
+  }
+
+  .theme-tenis .vi-card-shine {
+    background: linear-gradient(105deg, transparent 30%, rgba(212,184,150,.08) 50%, transparent 70%);
+  }
+
+  /* ── Search results panel ────────────────────────── */
+  .theme-tenis .vi-search-results-panel {
+    background: #f5f3e8;
+    border-color: rgba(45,80,22,.12);
+  }
+
+  .theme-tenis .vi-search-results-header h2 {
+    color: #1a2e0a;
+  }
+
+  .theme-tenis .vi-search-results-count {
+    color: #2d5016;
+    background: rgba(45,80,22,.08);
+    border-color: rgba(45,80,22,.15);
+  }
+
+  /* ── Featured section ────────────────────────────── */
+  .theme-tenis .vi-featured {
+    background: #fff;
+    border-color: rgba(45,80,22,.1);
+  }
+
+  .theme-tenis .vi-featured-header h2 {
+    color: #1a2e0a;
+  }
+
+  .theme-tenis .carousel-subtitle {
+    color: #8a9a78;
+  }
+
+  .theme-tenis .vi-featured-bg-num {
+    color: rgba(45,80,22,.04);
+  }
+
+  .theme-tenis .feature-tabs {
+    background: #f0eedE;
+    border-color: rgba(45,80,22,.1);
+  }
+
+  .theme-tenis .feature-tab {
+    color: #5a6e48;
+  }
+
+  .theme-tenis .feature-tab.active {
+    background: #2d5016;
+    color: #fff;
+  }
+
+  .theme-tenis .vi-featured-progress-bar {
+    background: linear-gradient(90deg, #2d5016, #d4b896);
+    box-shadow: 0 0 6px rgba(45,80,22,.4);
+  }
+
+  .theme-tenis .featured-nav-arrow {
+    border-color: rgba(45,80,22,.15);
+    background: #f5f3e8;
+    color: #2d5016;
+  }
+
+  .theme-tenis .featured-nav-arrow:hover {
+    background: #2d5016;
+    border-color: #2d5016;
+    color: #fff;
+  }
+
+  .theme-tenis .featured-card:hover {
+    box-shadow: 0 8px 32px rgba(45,80,22,.2);
+  }
+
+  .theme-tenis .featured-card-btn {
+    background: #d4b896;
+    color: #1a2e0a;
+  }
+
+  .theme-tenis .featured-card-btn:hover {
+    background: #c4a580;
+    box-shadow: 0 4px 16px rgba(212,184,150,.35);
+  }
+
+  /* ── Favorites section ───────────────────────────── */
+  .theme-tenis .vi-favorites {
+    background: #f5f3e8;
+    border: 1px solid rgba(45,80,22,.1);
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 28px;
+  }
+
+  .theme-tenis .vi-favorites h2 {
+    color: #1a2e0a;
+  }
+
+  .theme-tenis .vi-fav-chip {
+    background: #fff;
+    border-color: rgba(45,80,22,.12);
+    color: #2d5016;
+  }
+
+  .theme-tenis .vi-fav-chip:hover {
+    border-color: #d4b896;
+    box-shadow: 0 2px 12px rgba(212,184,150,.15);
+  }
+
+  /* ── Map ──────────────────────────────────────────── */
+  .theme-tenis .vi-map-wrap {
+    border-color: rgba(45,80,22,.12);
+  }
+
+  .theme-tenis .vi-map-label {
+    background: transparent;
+    color: #1a2e0a;
+  }
+
+  /* ── Results header ──────────────────────────────── */
+  .theme-tenis .vi-results-header h2 {
+    color: #1a2e0a;
+  }
+
+  .theme-tenis .vi-section-title::after {
+    background: linear-gradient(90deg, #2d5016, #d4b896);
+  }
+
+  .theme-tenis .vi-count-pill {
+    background: #2d5a27;
+    color: #fff;
+    border-color: #2d5a27;
+  }
+
+  /* ── Empty state ─────────────────────────────────── */
+  .theme-tenis .vi-empty {
+    background: #f5f3e8;
+    border-color: rgba(45,80,22,.12);
+  }
+
+  .theme-tenis .vi-empty h3 {
+    color: #1a2e0a;
+  }
+
+  .theme-tenis .vi-empty p {
+    color: #5a6e48;
+  }
+
+  .theme-tenis .vi-empty-clear-btn {
+    background: #2d5016;
+    color: #fff;
+  }
+
+  .theme-tenis .vi-empty-clear-btn:hover {
+    background: #234010;
+    box-shadow: 0 4px 18px rgba(45,80,22,.3);
+  }
+
+  /* ── Cursor dot ──────────────────────────────────── */
+  .vi-cursor-dot.vi-cursor-tenis {
+    background: #2d5016;
+    box-shadow: 0 0 12px rgba(45,80,22,.6);
+  }
+
+  /* ── FAB ──────────────────────────────────────────── */
+  .vi-fab.vi-fab-tenis {
+    background: #2d5016;
+    box-shadow: 0 8px 32px rgba(45,80,22,.4);
+    color: #fff;
+  }
+
+  .vi-fab.vi-fab-tenis:hover {
+    background: #234010;
+    box-shadow: 0 12px 40px rgba(45,80,22,.55);
+  }
+
+  /* ── Falta Uno badge ────────────────────────────── */
+  .theme-tenis .vi-venue-faltauno-badge {
+    background: #2d5016;
+    color: #fff;
+  }
+
+  .theme-tenis .vi-faltauno-dot {
+    background: #fff;
+  }
+
+  /* ── Venue image wrap accent ─────────────────────── */
+  .theme-tenis .vi-venue-img-wrap::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #2d5016 60%, #d4b896 100%);
+    opacity: 0;
+    transition: opacity .3s ease;
+  }
+
+  .theme-tenis .vi-venue-card:hover .vi-venue-img-wrap::after {
+    opacity: 1;
+  }
+@endif
+
 @endpush
 
 @section('content')
 
 {{-- Scroll progress bar --}}
-<div class="vi-scroll-progress {{ ($sport ?? '') === 'padel' ? 'vi-scroll-padel' : (($sport ?? '') === 'football' ? 'vi-scroll-futbol' : '') }}" id="viScrollProgress"></div>
+<div class="vi-scroll-progress {{ ($sport ?? '') === 'padel' ? 'vi-scroll-padel' : (($sport ?? '') === 'football' ? 'vi-scroll-futbol' : (($sport ?? '') === 'tennis' ? 'vi-scroll-tenis' : '')) }}" id="viScrollProgress"></div>
 
 {{-- Custom cursor dot --}}
-<div class="vi-cursor-dot {{ ($sport ?? '') === 'padel' ? 'vi-cursor-padel' : (($sport ?? '') === 'football' ? 'vi-cursor-futbol' : '') }}" id="viCursorDot"></div>
+<div class="vi-cursor-dot {{ ($sport ?? '') === 'padel' ? 'vi-cursor-padel' : (($sport ?? '') === 'football' ? 'vi-cursor-futbol' : (($sport ?? '') === 'tennis' ? 'vi-cursor-tenis' : '')) }}" id="viCursorDot"></div>
 
 {{-- Floating Action Button --}}
-<button class="vi-fab {{ ($sport ?? '') === 'padel' ? 'vi-fab-padel' : (($sport ?? '') === 'football' ? 'vi-fab-futbol' : '') }}" id="viFab" onclick="document.querySelector('.vi-hero').scrollIntoView({behavior:'smooth'})" title="Buscar cancha">
+<button class="vi-fab {{ ($sport ?? '') === 'padel' ? 'vi-fab-padel' : (($sport ?? '') === 'football' ? 'vi-fab-futbol' : (($sport ?? '') === 'tennis' ? 'vi-fab-tenis' : '')) }}" id="viFab" onclick="document.querySelector('.vi-hero').scrollIntoView({behavior:'smooth'})" title="Buscar cancha">
   <span class="vi-fab-tooltip">Buscar cancha</span>
   <i data-lucide="search" style="width:20px;height:20px;stroke:currentColor;"></i>
 </button>
 
-<div class="vi-wrap {{ ($sport ?? '') === 'padel' ? 'theme-padel' : (($sport ?? '') === 'football' ? 'theme-futbol' : '') }}">
+<div class="vi-wrap {{ ($sport ?? '') === 'padel' ? 'theme-padel' : (($sport ?? '') === 'football' ? 'theme-futbol' : (($sport ?? '') === 'tennis' ? 'theme-tenis' : '')) }}">
 
   {{-- ── HERO + SEARCH ─────────────────────────────────────────────────── --}}
   <form method="GET" action="{{ route('venues.index') }}" id="venueSearchForm">
@@ -2537,6 +3315,19 @@
         <div class="vi-particle" style="width:4px;height:4px;background:rgba(240,192,64,.5);left:32%;bottom:55%;animation-duration:9s;animation-delay:5.5s;box-shadow:0 0 6px rgba(240,192,64,.3);"></div>
         <div class="vi-particle" style="width:11px;height:11px;background:rgba(139,105,20,.3);left:48%;bottom:62%;animation-duration:11s;animation-delay:3.8s;box-shadow:0 0 8px rgba(139,105,20,.25);"></div>
         <div class="vi-particle" style="width:6px;height:6px;background:rgba(212,160,23,.45);left:92%;bottom:38%;animation-duration:8s;animation-delay:1.0s;box-shadow:0 0 6px rgba(212,160,23,.3);"></div>
+      @elseif(($sport ?? '') === 'tennis')
+        <div class="vi-particle" style="width:8px;height:8px;background:rgba(45,80,22,.4);left:8%;bottom:20%;animation-duration:9s;animation-delay:0s;box-shadow:0 0 6px rgba(45,80,22,.25);"></div>
+        <div class="vi-particle" style="width:5px;height:5px;background:rgba(212,184,150,.5);left:15%;bottom:35%;animation-duration:12s;animation-delay:1.2s;box-shadow:0 0 6px rgba(212,184,150,.3);"></div>
+        <div class="vi-particle" style="width:10px;height:10px;background:rgba(45,80,22,.3);left:25%;bottom:15%;animation-duration:7s;animation-delay:2.5s;box-shadow:0 0 6px rgba(45,80,22,.2);"></div>
+        <div class="vi-particle" style="width:6px;height:6px;background:rgba(212,184,150,.45);left:40%;bottom:28%;animation-duration:11s;animation-delay:0.8s;box-shadow:0 0 6px rgba(212,184,150,.3);"></div>
+        <div class="vi-particle" style="width:4px;height:4px;background:rgba(45,80,22,.45);left:55%;bottom:10%;animation-duration:8s;animation-delay:3.1s;box-shadow:0 0 6px rgba(45,80,22,.25);"></div>
+        <div class="vi-particle" style="width:12px;height:12px;background:rgba(212,184,150,.3);left:62%;bottom:40%;animation-duration:14s;animation-delay:1.7s;box-shadow:0 0 8px rgba(212,184,150,.2);"></div>
+        <div class="vi-particle" style="width:7px;height:7px;background:rgba(45,80,22,.35);left:72%;bottom:22%;animation-duration:10s;animation-delay:4.0s;box-shadow:0 0 6px rgba(45,80,22,.25);"></div>
+        <div class="vi-particle" style="width:5px;height:5px;background:rgba(212,184,150,.5);left:80%;bottom:48%;animation-duration:6s;animation-delay:0.4s;box-shadow:0 0 6px rgba(212,184,150,.3);"></div>
+        <div class="vi-particle" style="width:9px;height:9px;background:rgba(45,80,22,.3);left:88%;bottom:18%;animation-duration:13s;animation-delay:2.2s;box-shadow:0 0 6px rgba(45,80,22,.2);"></div>
+        <div class="vi-particle" style="width:4px;height:4px;background:rgba(212,184,150,.55);left:32%;bottom:55%;animation-duration:9s;animation-delay:5.5s;box-shadow:0 0 6px rgba(212,184,150,.3);"></div>
+        <div class="vi-particle" style="width:11px;height:11px;background:rgba(45,80,22,.25);left:48%;bottom:62%;animation-duration:11s;animation-delay:3.8s;box-shadow:0 0 8px rgba(45,80,22,.2);"></div>
+        <div class="vi-particle" style="width:6px;height:6px;background:rgba(212,184,150,.4);left:92%;bottom:38%;animation-duration:8s;animation-delay:1.0s;box-shadow:0 0 6px rgba(212,184,150,.25);"></div>
       @else
         <div class="vi-particle" style="width:8px;height:8px;background:rgba(34,197,94,.4);left:8%;bottom:20%;animation-duration:9s;animation-delay:0s;"></div>
         <div class="vi-particle" style="width:5px;height:5px;background:rgba(110,234,160,.5);left:15%;bottom:35%;animation-duration:12s;animation-delay:1.2s;"></div>
@@ -2553,7 +3344,13 @@
       @endif
 
       @if(($sport ?? '') === 'padel')
-        <img src="/images/raquetapadelfondo.png" alt="" aria-hidden="true" class="vi-hero-racket-deco">
+        <img src="/images/raquetapadelfondo.webp" alt="" aria-hidden="true" class="vi-hero-racket-deco" loading="lazy">
+      @elseif(($sport ?? '') === 'football')
+        {{-- Pelota decorativa --}}
+        <img src="/images/futbol-pelota.webp" alt="" aria-hidden="true" class="vi-futbol-pelota" loading="lazy">
+      @elseif(($sport ?? '') === 'tennis')
+        {{-- Elementos decorativos de tenis --}}
+        <img src="/images/elementos-tenis.webp" alt="" aria-hidden="true" class="vi-tenis-elementos" loading="lazy">
       @endif
 
       @if(($sport ?? '') === 'padel')
@@ -2571,6 +3368,7 @@
           <div class="vi-court-line-vert vi-court-line-vert-5"></div>
         </div>
       </div>
+      @elseif(($sport ?? '') === 'tennis')
       @endif
 
       <div class="vi-hero-content">
@@ -2757,6 +3555,9 @@
       </div>
     @endif
     <div class="vi-search-results-panel">
+      @if(($sport ?? '') === 'padel')
+        <img src="/images/raqueta-padel-2.webp" alt="" aria-hidden="true" class="vi-hero-racket-deco-2" loading="lazy">
+      @endif
       <div class="vi-search-results-header">
         <h2 style="display:inline-flex;align-items:center;gap:8px;"><i data-lucide="search" style="width:18px;height:18px;stroke:currentColor;"></i> Resultados de búsqueda</h2>
         <span class="vi-search-results-count">{{ $venues->count() }} resultado{{ $venues->count() !== 1 ? 's' : '' }}</span>

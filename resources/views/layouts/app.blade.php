@@ -25,6 +25,7 @@
   <meta name="twitter:title" content="{{ $ogTitle }}">
   <meta name="twitter:description" content="{{ $ogDesc }}">
   <meta name="twitter:image" content="{{ $ogImage }}">
+@stack('head')
 <style>
   [x-cloak] { display: none !important; }
   * { box-sizing: border-box; }
@@ -894,8 +895,8 @@
       gap: 10px;
     }
 
-    /* Ocultar nav completa en mobile cuando el usuario está autenticado */
-    .site-nav.auth-nav {
+    /* Ocultar nav completa en mobile */
+    .site-nav {
       display: none;
     }
 
@@ -1087,11 +1088,16 @@
           <a href="{{ route('login') }}">Ingresar</a>
           <a href="{{ route('register') }}" class="primary">Crear cuenta</a>
       </nav>
+
+      {{-- Botón hamburguesa para mobile (invitados) --}}
+      <button class="app-hamburger" id="guestHamburgerBtn" onclick="toggleGuestMobileNav()" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
       @endauth
     </div>
 
     @auth
-    {{-- Menú mobile desplegable --}}
+    {{-- Menú mobile desplegable (autenticados) --}}
     <nav class="app-mobile-nav" id="appMobileNav">
       <a href="{{ route('home') }}">Inicio</a>
       <a href="{{ route('venues.index') }}">Complejos</a>
@@ -1109,6 +1115,16 @@
         @csrf
         <button type="submit">Salir</button>
       </form>
+    </nav>
+    @else
+    {{-- Menú mobile desplegable (invitados) --}}
+    <nav class="app-mobile-nav" id="guestMobileNav">
+      <a href="{{ route('home') }}">Inicio</a>
+      <a href="{{ route('venues.index') }}">Complejos</a>
+      <a href="{{ route('falta-uno.index') }}" style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="zap" style="width:14px;height:14px;stroke:currentColor;"></i> Falta Uno</a>
+      <div class="app-mobile-divider"></div>
+      <a href="{{ route('login') }}">Ingresar</a>
+      <a href="{{ route('register') }}" class="app-mobile-cta">Crear cuenta</a>
     </nav>
     @endauth
 
@@ -1141,6 +1157,12 @@
   <script>
     function toggleAppMobileNav() {
       const nav = document.getElementById('appMobileNav');
+      if (!nav) return;
+      nav.classList.toggle('open');
+    }
+
+    function toggleGuestMobileNav() {
+      const nav = document.getElementById('guestMobileNav');
       if (!nav) return;
       nav.classList.toggle('open');
     }

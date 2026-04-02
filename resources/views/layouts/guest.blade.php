@@ -7,6 +7,7 @@
 
 <title>{{ config('app.name', 'TuCancha') }}</title>
 <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
+<link rel="canonical" href="{{ url()->current() }}">
 
 <style>
 * { box-sizing:border-box; margin:0; padding:0; }

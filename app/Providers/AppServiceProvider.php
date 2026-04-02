@@ -38,6 +38,13 @@ class AppServiceProvider extends ServiceProvider
             $url->forceScheme('https');
         }
 
+        // Redirigir www → sin www
+        if (app()->runningInConsole() === false && str_starts_with(request()->getHost(), 'www.')) {
+            $newUrl = 'https://' . substr(request()->getHost(), 4) . request()->getRequestUri();
+            redirect()->to($newUrl, 301)->send();
+            exit;
+        }
+
         Venue::observe(VenueObserver::class);
 
         \Illuminate\Notifications\DatabaseNotification::created(function ($notification) {
