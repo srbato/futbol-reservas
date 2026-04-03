@@ -943,12 +943,15 @@
     flex-direction: column;
     position: relative;
     transform-style: preserve-3d;
-    will-change: transform;
+    cursor: pointer;
+  }
+
+  .vi-custom-cursor-active .vi-venue-card {
     cursor: none;
   }
 
   @media (max-width: 768px) {
-    .vi-venue-card {
+    .vi-venue-card, .vi-custom-cursor-active .vi-venue-card {
       cursor: auto;
     }
   }
@@ -1604,7 +1607,7 @@
     margin-bottom: 0;
     overflow: visible;
     position: relative;
-    z-index: 51;
+    z-index: 1;
   }
 
   .theme-padel .vi-hero-bg {
@@ -1692,10 +1695,10 @@
     -webkit-user-drag: none;
   }
 
-  .theme-padel .vi-hero-racket-deco-2 {
+  .theme-padel .vi-search-results-panel .vi-hero-racket-deco-2 {
     position: absolute;
     right: -4%;
-    top: 110%;
+    top: 50%;
     width: auto;
     height: 80%;
     opacity: 0.25;
@@ -1713,11 +1716,11 @@
       opacity: 0.8;
       right: -3%;
     }
-    .theme-padel .vi-hero-racket-deco-2 {
+    .theme-padel .vi-search-results-panel .vi-hero-racket-deco-2 {
       height: 65%;
       opacity: 0.2;
       right: -5%;
-      top: 80%;
+      top: 50%;
       transform: translateY(-50%) rotate(25deg) scaleX(-1);
     }
   }
@@ -1732,7 +1735,7 @@
       bottom: auto;
       transform: translate(-50%, -50%) rotate(-12deg);
     }
-    .theme-padel .vi-hero-racket-deco-2 {
+    .theme-padel .vi-search-results-panel .vi-hero-racket-deco-2 {
       display: none;
     }
   }
@@ -1826,7 +1829,7 @@
     box-shadow: 0 0 16px rgba(124,58,237,.08);
   }
 
-  .theme-padel .vi-venue-card::after {
+  .theme-padel .vi-venue-card:not(.vi-card-full)::after {
     content: '';
     position: absolute;
     top: 0;
@@ -2274,7 +2277,7 @@
 
   /* ── Hero text ──────────────────────────────────── */
   .theme-futbol .vi-hero-text h1 {
-    font-family: "Lobster", sans-serif !important;
+    font-family: "Lobster", cursive !important;
     font-weight: 400 !important;
     font-style: normal;
     color: #fff;
@@ -2341,6 +2344,10 @@
 
   .theme-futbol .vi-search-bar input::placeholder {
     color: rgba(44,24,16,.4);
+  }
+
+  .theme-futbol .vi-search-bar::after {
+    background: linear-gradient(105deg, transparent 30%, rgba(196,62,42,.12) 50%, transparent 70%);
   }
 
   .theme-futbol .vi-search-bar:focus-within {
@@ -2432,7 +2439,7 @@
     box-shadow: 0 2px 12px rgba(44,24,16,.06);
   }
 
-  .theme-futbol .vi-venue-card::after {
+  .theme-futbol .vi-venue-card:not(.vi-card-full)::after {
     content: '';
     position: absolute;
     top: 0;
@@ -2450,7 +2457,7 @@
     box-shadow: 0 8px 32px rgba(44,24,16,.12), 0 0 0 1px rgba(196,62,42,.08);
   }
 
-  .theme-futbol .vi-venue-card:hover::after {
+  .theme-futbol .vi-venue-card:not(.vi-card-full):hover::after {
     opacity: 1;
   }
 
@@ -2462,7 +2469,7 @@
   .theme-futbol .vi-venue-img-wrap::after {
     content: '';
     position: absolute;
-    inset: -8px;
+    inset: 0;
     background-image: url('/images/fileteado-frame.webp');
     background-size: 100% 100%;
     background-repeat: no-repeat;
@@ -2765,7 +2772,7 @@
     margin-bottom: 0;
     overflow: visible;
     position: relative;
-    z-index: 51;
+    z-index: 1;
     box-shadow: 0 8px 40px rgba(45,80,22,.15), 0 2px 8px rgba(45,80,22,.08);
   }
 
@@ -2999,7 +3006,7 @@
     overflow: hidden;
   }
 
-  .theme-tenis .vi-venue-card::after {
+  .theme-tenis .vi-venue-card:not(.vi-card-full)::after {
     content: '';
     position: absolute;
     bottom: 0;
@@ -3016,7 +3023,7 @@
     box-shadow: 0 8px 32px rgba(45,80,22,.12);
   }
 
-  .theme-tenis .vi-venue-card:hover::after {
+  .theme-tenis .vi-venue-card:not(.vi-card-full):hover::after {
     opacity: 1;
   }
 
@@ -3095,7 +3102,7 @@
   }
 
   .theme-tenis .feature-tabs {
-    background: #f0eedE;
+    background: #f0eede;
     border-color: rgba(45,80,22,.1);
   }
 
@@ -3258,6 +3265,23 @@
   }
 @endif
 
+  /* ── Reduced motion ────────────────────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    .vi-particle,
+    .vi-hero-racket-deco,
+    .vi-hero-racket-deco-2,
+    .vi-tenis-elementos,
+    .vi-futbol-pelota,
+    .vi-scroll-progress,
+    .vi-cursor-dot,
+    [data-aos] {
+      animation: none !important;
+      transition: none !important;
+    }
+    .vi-venue-card { transition: none !important; }
+    @keyframes vi-shimmer { 0%, 100% { opacity: 0; } }
+  }
+
 @endpush
 
 @section('content')
@@ -3368,7 +3392,6 @@
           <div class="vi-court-line-vert vi-court-line-vert-5"></div>
         </div>
       </div>
-      @elseif(($sport ?? '') === 'tennis')
       @endif
 
       <div class="vi-hero-content">
@@ -3396,7 +3419,8 @@
           </div>
           <div class="vi-hero-microstat-sep"></div>
           <div class="vi-hero-microstat">
-            <span class="vi-hero-microstat-val vi-count-anim" data-target="5">5</span>
+            @php $sportCount = \App\Models\Field::where('is_active', true)->distinct('sport')->count('sport'); @endphp
+            <span class="vi-hero-microstat-val vi-count-anim" data-target="{{ $sportCount }}">{{ $sportCount }}</span>
             <span class="vi-hero-microstat-label">Deportes</span>
           </div>
           <div class="vi-hero-microstat-sep"></div>
@@ -3689,7 +3713,7 @@
           @forelse($topReservedVenues as $venue)
             <article class="featured-card">
               @if($venue->cover_image_path)
-                <img src="{{ \Illuminate\Support\Facades\Storage::url($venue->cover_image_path) }}" alt="{{ $venue->name }}">
+                <img src="{{ \Illuminate\Support\Facades\Storage::url($venue->cover_image_path) }}" alt="{{ $venue->name }}" loading="lazy">
               @else
                 <div class="featured-card-placeholder"><i data-lucide="building-2" style="width:28px;height:28px;stroke:#aaa;stroke-width:1.5;"></i></div>
               @endif
@@ -3719,7 +3743,7 @@
           @forelse($discountedVenues as $venue)
             <article class="featured-card">
               @if($venue->cover_image_path)
-                <img src="{{ \Illuminate\Support\Facades\Storage::url($venue->cover_image_path) }}" alt="{{ $venue->name }}">
+                <img src="{{ \Illuminate\Support\Facades\Storage::url($venue->cover_image_path) }}" alt="{{ $venue->name }}" loading="lazy">
               @else
                 <div class="featured-card-placeholder"><i data-lucide="tag" style="width:28px;height:28px;stroke:#aaa;stroke-width:1.5;"></i></div>
               @endif
@@ -3749,7 +3773,7 @@
           @forelse($bestRatedVenues as $venue)
             <article class="featured-card">
               @if($venue->cover_image_path)
-                <img src="{{ \Illuminate\Support\Facades\Storage::url($venue->cover_image_path) }}" alt="{{ $venue->name }}">
+                <img src="{{ \Illuminate\Support\Facades\Storage::url($venue->cover_image_path) }}" alt="{{ $venue->name }}" loading="lazy">
               @else
                 <div class="featured-card-placeholder"><i data-lucide="star" style="width:28px;height:28px;stroke:#aaa;stroke-width:1.5;"></i></div>
               @endif
@@ -3820,7 +3844,7 @@
             @php $planSlug = $venue->owner_plan_slug ?? 'starter'; @endphp
             <article class="featured-card" style="{{ $planSlug === 'full' ? 'border:2px solid #22c55e;' : 'border-top:3px solid #22c55e;' }}">
               @if($venue->cover_image_path)
-                <img src="{{ \Illuminate\Support\Facades\Storage::url($venue->cover_image_path) }}" alt="{{ $venue->name }}">
+                <img src="{{ \Illuminate\Support\Facades\Storage::url($venue->cover_image_path) }}" alt="{{ $venue->name }}" loading="lazy">
               @else
                 <div class="featured-card-placeholder"><i data-lucide="crown" style="width:28px;height:28px;stroke:#fbbf24;stroke-width:1.5;"></i></div>
               @endif
@@ -4109,10 +4133,11 @@
       zoom: first ? 13 : 12,
       center: first ? { lat: Number(first.lat), lng: Number(first.lng) } : DEFAULT_CENTER,
     });
+    function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
     VENUES.forEach(v => {
       if (v.lat === null || v.lng === null) return;
       const marker = new google.maps.Marker({ map, position: { lat: Number(v.lat), lng: Number(v.lng) }, title: v.name });
-      const info = new google.maps.InfoWindow({ content: `<div style="font-family:system-ui;"><strong>${v.name}</strong><br><a href="${v.url}" style="color:#166534;font-weight:700;">Ver complejo →</a></div>` });
+      const info = new google.maps.InfoWindow({ content: `<div style="font-family:system-ui;"><strong>${escHtml(v.name)}</strong><br><a href="${escHtml(v.url)}" style="color:#166534;font-weight:700;">Ver complejo →</a></div>` });
       marker.addListener('click', () => info.open({ map, anchor: marker }));
     });
 
@@ -4141,33 +4166,35 @@
 
 @push('scripts')
   {{-- AOS --}}
-  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
-  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
   <script>
-    AOS.init({
+    if (typeof AOS === 'undefined') { document.querySelectorAll('[data-aos]').forEach(el => { el.removeAttribute('data-aos'); el.style.opacity = '1'; }); }
+    else AOS.init({
       duration: 520,
       easing: 'ease-out-quad',
       once: true,
       offset: 40,
     });
 
-    // ── 1. Scroll progress bar ──────────────────────
+    // ── 1+2. Scroll progress bar + FAB (unified, rAF-throttled) ──
     const viScrollProgressBar = document.getElementById('viScrollProgress');
-    window.addEventListener('scroll', () => {
-      const scrollTop = window.scrollY || document.documentElement.scrollTop;
-      const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-      const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-      if (viScrollProgressBar) viScrollProgressBar.style.width = pct + '%';
-    }, { passive: true });
-
-    // ── 2. FAB — aparece después de 200px de scroll ─
     const viFab = document.getElementById('viFab');
+    let scrollTicking = false;
     window.addEventListener('scroll', () => {
-      if (!viFab) return;
-      if (window.scrollY > 200) {
-        viFab.classList.add('vi-fab-visible');
-      } else {
-        viFab.classList.remove('vi-fab-visible');
+      if (!scrollTicking) {
+        scrollTicking = true;
+        requestAnimationFrame(() => {
+          const scrollTop = window.scrollY || document.documentElement.scrollTop;
+          const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+          const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+          if (viScrollProgressBar) viScrollProgressBar.style.width = pct + '%';
+          if (viFab) {
+            if (scrollTop > 200) viFab.classList.add('vi-fab-visible');
+            else viFab.classList.remove('vi-fab-visible');
+          }
+          scrollTicking = false;
+        });
       }
     }, { passive: true });
 
@@ -4258,11 +4285,15 @@
       const cursorDot = document.getElementById('viCursorDot');
       let cursorX = 0, cursorY = 0;
       let dotX = 0, dotY = 0;
-      let isOnCard = false;
+      let cursorMoving = false;
+      let cursorRafId = null;
+
+      if (cursorDot) document.body.classList.add('vi-custom-cursor-active');
 
       document.addEventListener('mousemove', (e) => {
         cursorX = e.clientX;
         cursorY = e.clientY;
+        if (!cursorMoving) { cursorMoving = true; animateCursor(); }
       });
 
       function animateCursor() {
@@ -4272,9 +4303,12 @@
           cursorDot.style.left = dotX + 'px';
           cursorDot.style.top  = dotY + 'px';
         }
-        requestAnimationFrame(animateCursor);
+        if (Math.abs(cursorX - dotX) > 0.5 || Math.abs(cursorY - dotY) > 0.5) {
+          cursorRafId = requestAnimationFrame(animateCursor);
+        } else {
+          cursorMoving = false;
+        }
       }
-      animateCursor();
 
       document.querySelectorAll('.vi-venue-card').forEach(card => {
         card.addEventListener('mouseenter', () => {

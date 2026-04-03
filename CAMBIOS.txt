@@ -2710,3 +2710,190 @@ Z-INDEX STACK FINAL DEL HERO:
     - Segunda raqueta decorativa en sección resultados
     - Filtro del mapa corregido
     - z-index reorganizado para stack correcto
+
+[2026-04-02] — REDISEÑO TEMAS VISUALES + TEMA TENIS + RESPONSIVE + HAMBURGER MOBILE
+======================================================================================
+
+TEMA FÚTBOL — "POTRERO PORTEÑO" (rediseño completo)
+-----------------------------------------------------
+Cambio de concepto: "Arrabal Dorado" (oscuro) → "Potrero Porteño" (claro).
+
+  Paleta nueva:
+    - Fondo: #0d0a06 (oscuro) → #f5ead0 (crema cálido)
+    - Acento: #d4a017 (dorado) → #c43e2a (rojo terracota)
+    - Textos: #f5edd6 → #2c1810 (marrón oscuro)
+    - Secundarios: #8a7460, bordes: #e0d4b8
+    - Footer oscuro: #2c1810 (contraste con body claro)
+
+  Hero:
+    - Imagen: futboltematica.webp → hero-futbol-bg.webp
+    - background-size: 100% 100% para mostrar fileteado integrado en la imagen
+    - Overlay semi-transparente marrón cálido (gradiente 135deg)
+    - border-radius: 18px + overflow: hidden + box-shadow
+    - Pelota decorativa (futbol-pelota.webp) con drop-shadow, z-index: 7
+    - Fileteados HTML eliminados (la imagen hero ya los trae integrados)
+
+  Tipografía:
+    - Google Fonts Lobster importada via @push('head') / @stack('head')
+    - .theme-futbol .vi-hero-text h1: font-family: "Lobster", sans-serif
+    - clip-path: inset(-10px -4px) en .vi-word-reveal para evitar recorte
+    - line-height: 1.15, letter-spacing: 0
+
+  Cards:
+    - Fondo blanco #fff con borde #e0d4b8
+    - Línea top gradiente rojo-dorado-rojo
+    - Fileteado frame overlay (fileteado-frame.webp) con inset: -8px en imágenes
+    - Hover: borde terracota + sombra suave
+
+  Navbar clara (#faf4e8):
+    - Textos e iconos oscuros (#2c1810)
+    - Botón primario rojo terracota (#c43e2a)
+
+  Elementos tematizados:
+    - Search bar blanca, placeholder marrón suave
+    - Chips activos: fondo terracota, texto blanco
+    - Botones: terracota sólido
+    - Badges, FAB, cursor, favoritos: todos en terracota
+    - Headings con font-style: italic
+
+  Responsive:
+    - Pelota: display: none en mobile (768px)
+    - background-size: cover en mobile (opción 4 anti-deformación)
+
+TEMA PÁDEL — AJUSTES
+----------------------
+  Hero:
+    - Imagen de fondo: padelneon.webp → hero-padel-bg.webp
+    - Overlay semi-transparente rgba(13,11,30,.5)
+    - Raqueta principal: height 130%, desborde 3D por arriba y abajo del hero
+    - z-index: 51 en hero para que raqueta pase por encima del header (z-50)
+    - Segunda raqueta decorativa en sección resultados de búsqueda
+    - Animaciones de glow eliminadas (estáticas)
+
+  Filtro mapa:
+    - filter: grayscale(30%) brightness(0.7) (antes hue-rotate causaba negativo)
+
+  Responsive:
+    - Raqueta principal se mantiene en mobile (opacity 0.3, centrada)
+
+TEMA TENIS — NUEVO
+--------------------
+  Sistema completo de tema visual activado con sport=tennis y clase .theme-tenis.
+
+  Paleta:
+    - Verde bosque: #2d5a27 (primario)
+    - Dorado pastel: #d4b896 (acento, CTAs)
+    - Crema frío: #fafaf5 (fondo)
+    - Verde pastel: #c8d8b0 (secundario)
+    - Verde oscuro: #1a3a18 (textos)
+
+  Hero:
+    - Imagen: hero-tenis-bg.webp con background-size: 100% 100%
+    - Overlay horizontal (90deg): zona oscura verde a la izquierda (0-30%),
+      se desvanece a transparente (80%+) — texto legible, imagen visible a la derecha
+    - border-radius: 18px + overflow: visible + box-shadow
+    - z-index: 51 (por encima del header)
+    - filter: brightness(1.1) saturate(1.1) en la imagen de fondo
+
+  Elemento decorativo:
+    - elementos-tenis.webp posicionado absolute, right: -10%, height: 130%
+    - drop-shadow doble: (0px 25px 10px rgba(0,0,0,.4)) + (0px 60px 30px rgba(0,0,0,.25))
+    - z-index: 3 (detrás del contenido, delante del fondo)
+    - display: none en mobile (768px)
+
+  Tipografía:
+    - Google Fonts EB Garamond (wght@800) importada via @push('head')
+    - .theme-tenis .vi-hero-text h1: font-family: "EB Garamond", serif
+    - clip-path: inset(-10px -4px) en .vi-word-reveal
+    - line-height: 1.15, font-size: 34px en mobile
+
+  Cards:
+    - Fondo blanco #fff con borde #e8e8d8
+    - Línea top gradiente verde-dorado-verde
+    - Hover: borde verde + sombra suave
+
+  Navbar:
+    - Header blanco #fff con bordes verdes suaves
+    - Textos oscuros (#1a3a18)
+    - Botón "Crear cuenta" en dorado (#d4b896)
+
+  Elementos tematizados:
+    - Search bar blanca, placeholder verde suave
+    - Chips activos: fondo verde bosque + borde dorado
+    - Botones CTA: dorado pastel (#d4b896)
+    - Scroll progress: gradiente verde → dorado
+    - Cursor, FAB: verde bosque
+    - Falta Uno badge: verde bosque
+
+  Footer:
+    - Fondo verde oscuro #1a3a18, texto verde pastel #c8d8b0
+
+SEARCH BAR — REDUCIDA CON FILTRO DE DEPORTE
+---------------------------------------------
+  resources/views/venues/index.blade.php:
+    - .theme-padel/.theme-futbol/.theme-tenis .vi-search-bar: max-width: 55%
+    - Responsive: max-width: 100% en max-width: 1024px
+
+GOOGLE FONTS — CARGA VÍA LAYOUT
+---------------------------------
+  resources/views/layouts/app.blade.php:
+    - Agregado @stack('head') antes del <style> en el <head>
+
+  resources/views/venues/index.blade.php:
+    - @push('head') con <link> de Lobster y EB Garamond
+    - Eliminado <style>/@import que no funcionaba (estaba anidado dentro del
+      <style> del layout via @stack('styles'))
+
+RESPONSIVE — AUDITORÍA Y CORRECCIONES
+---------------------------------------
+  Críticos:
+    - overflow-x: clip en .vi-wrap para theme-padel y theme-tenis (evita scroll horizontal
+      por elementos decorativos que desbordan)
+    - Search results panel: padding reducido a 16px 14px 20px en mobile (640px)
+    - Featured section: padding reducido a 18px 14px en mobile (640px)
+
+  Importantes:
+    - H1 hero: font-size cambiado a clamp(30px, 5vw + 10px, 60px) para escalado fluido
+    - Featured cards: flex 0 0 85vw en mobile (640px) en vez de 300px fijo
+    - Botón favorito: 36x36px → 44x44px (accesibilidad táctil)
+    - Filter tags: flex-wrap nowrap + overflow-x auto en mobile (scroll horizontal)
+    - Grid venues: minmax(300px) → minmax(280px)
+    - Lobster (fútbol): line-height 1.25 en mobile
+    - EB Garamond (tenis): font-size 34px en mobile
+    - Imágenes decorativas: display none en mobile (pelota fútbol, elementos tenis)
+    - Raqueta pádel: se mantiene en mobile (opacity 0.3)
+    - background-size: cover en tablet/mobile para tenis (anti-deformación)
+
+  Animaciones eliminadas:
+    - Pelota fútbol: vi-pelota-float removida
+    - Raqueta pádel: vi-racket-glow y vi-racket-glow-2 removidas
+    - Elementos tenis: vi-elementos-tenis-float removida
+
+HAMBURGER MOBILE PARA INVITADOS
+---------------------------------
+  resources/views/layouts/app.blade.php:
+    - .site-nav (sin .auth-nav): ahora también se oculta en mobile (600px)
+    - Nuevo botón hamburguesa #guestHamburgerBtn para invitados
+    - Nuevo menú mobile #guestMobileNav con: Inicio, Complejos, Falta Uno,
+      Ingresar, Crear cuenta
+    - Función JS toggleGuestMobileNav()
+    - Antes: solo usuarios autenticados tenían hamburger, invitados veían
+      todos los botones sueltos en mobile
+
+BADGE FALTA UNO — Z-INDEX
+---------------------------
+  resources/views/venues/index.blade.php:
+    - .vi-venue-faltauno-badge: z-index 3 → 5 (por encima del fileteado frame)
+
+IMÁGENES NUEVAS:
+  public/images/hero-futbol-bg.webp (hero fútbol con fileteado integrado)
+  public/images/hero-padel-bg.webp (hero pádel, pista futurista)
+  public/images/hero-tenis-bg.webp (hero tenis)
+  public/images/futbol-pelota.webp (pelota decorativa 3D)
+  public/images/fileteado-frame.webp (marco fileteado para cards)
+  public/images/elementos-tenis.webp (raqueta+pelota tenis decorativa)
+  public/images/raqueta-padel-2.webp (segunda raqueta para resultados)
+
+IMÁGENES ELIMINADAS:
+  public/images/futboltematica.webp (reemplazada por hero-futbol-bg.webp)
+  public/images/padelneon.webp (reemplazada por hero-padel-bg.webp)
