@@ -262,9 +262,10 @@
   .fs-date-input-native {
     opacity: 0;
     position: absolute;
-    width: 0;
-    height: 0;
-    pointer-events: none;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
   }
 
   /* Legend */
@@ -1052,7 +1053,7 @@
     </div>
     <div>
       <label class="fs-modal-label" style="margin-bottom:6px;">Fecha</label>
-      <div class="fs-date-display" id="fsDateDisplay" onclick="document.getElementById('datePicker').showPicker ? document.getElementById('datePicker').showPicker() : document.getElementById('datePicker').click()">
+      <div class="fs-date-display" id="fsDateDisplay">
         <svg width="16" height="16" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         <span id="fsDateLabel">Hoy</span>
         <input type="date" id="datePicker" class="fs-date-input-native"
