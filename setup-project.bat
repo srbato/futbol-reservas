@@ -19,28 +19,17 @@ echo.
 
 :: Habilitar extensiones PHP necesarias
 echo ============================================
-echo   Habilitando extensiones PHP...
+echo   Extensiones PHP requeridas
 echo ============================================
-set PHP_INI=
-for /f "tokens=*" %%i in ('php -r "echo php_ini_loaded_file();"') do set PHP_INI=%%i
-
-if "%PHP_INI%"=="" (
-    echo WARNING: No se encontro php.ini
-    echo Copia php.ini-development a php.ini en tu carpeta de PHP
-    echo y habilita: curl, fileinfo, gd, mbstring, openssl, pdo_mysql, zip
-    echo.
-) else (
-    echo php.ini encontrado en: %PHP_INI%
-    echo Verifica que estas extensiones esten habilitadas (sin ; al inicio):
-    echo   extension=curl
-    echo   extension=fileinfo
-    echo   extension=gd
-    echo   extension=mbstring
-    echo   extension=openssl
-    echo   extension=pdo_mysql
-    echo   extension=zip
-    echo.
-)
+echo Asegurate de que estas extensiones esten habilitadas en php.ini:
+echo   extension=curl
+echo   extension=fileinfo
+echo   extension=gd
+echo   extension=mbstring
+echo   extension=openssl
+echo   extension=pdo_mysql
+echo   extension=zip
+echo.
 
 :: Instalar dependencias
 echo ============================================
