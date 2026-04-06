@@ -12,7 +12,7 @@
   .dash-tabs {
     display: flex;
     gap: 4px;
-    background: #f3f3f3;
+    background: var(--color-bg-hover);
     border-radius: 14px;
     padding: 4px;
     margin-bottom: 24px;
@@ -27,15 +27,15 @@
     background: none;
     font-size: 13px;
     font-weight: 700;
-    color: #888;
+    color: var(--color-text-muted);
     cursor: pointer;
     font-family: inherit;
     transition: background .15s, color .15s;
     white-space: nowrap;
   }
 
-  .dash-tab:hover { background: rgba(0,0,0,.06); color: #333; }
-  .dash-tab.active { background: #111; color: #fff; }
+  .dash-tab:hover { background: rgba(0,0,0,.06); color: var(--color-text); }
+  .dash-tab.active { background: var(--color-bg-dark); color: var(--color-text-inverse); }
 
   .tab-pane { display: none; }
   .tab-pane.active { display: block; }
@@ -49,11 +49,11 @@
   }
 
   .kpi-card {
-    background: #fff;
-    border: 1px solid #ececec;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
     border-radius: 18px;
     padding: 20px 22px;
-    box-shadow: 0 2px 10px rgba(0,0,0,.03);
+    box-shadow: var(--shadow-sm);
     position: relative;
     overflow: hidden;
   }
@@ -63,7 +63,7 @@
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 3px;
-    background: #111;
+    background: var(--color-bg-dark);
     border-radius: 18px 18px 0 0;
   }
 
@@ -83,7 +83,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .06em;
-    color: #999;
+    color: var(--color-text-muted);
     margin-bottom: 6px;
   }
 
@@ -92,30 +92,30 @@
     font-weight: 800;
     letter-spacing: -0.03em;
     line-height: 1;
-    color: #111;
+    color: var(--color-text);
   }
 
   .kpi-sub {
     font-size: 12px;
-    color: #aaa;
+    color: var(--color-text-muted);
     margin-top: 5px;
     font-weight: 600;
   }
 
   /* ── Content cards ─────────────────────────────── */
   .dash-card {
-    background: #fff;
-    border: 1px solid #ececec;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
     border-radius: 18px;
     padding: 22px 24px;
-    box-shadow: 0 2px 10px rgba(0,0,0,.03);
+    box-shadow: var(--shadow-sm);
   }
 
   .dash-card-title {
     margin: 0 0 16px 0;
     font-size: 15px;
     font-weight: 800;
-    color: #111;
+    color: var(--color-text);
     display: flex;
     align-items: center;
     gap: 8px;
@@ -138,7 +138,7 @@
     align-items: flex-start;
     gap: 12px;
     padding: 14px 16px;
-    border: 1px solid #f0f0f0;
+    border: 1px solid var(--color-border-light);
     border-radius: 14px;
     background: #fafafa;
     margin-bottom: 10px;
@@ -146,7 +146,7 @@
   }
 
   .res-row:last-child { margin-bottom: 0; }
-  .res-row:hover { border-color: #ddd; background: #fff; }
+  .res-row:hover { border-color: var(--color-border); background: var(--color-bg-card); }
 
   .res-row-main { flex: 1; min-width: 0; }
 
@@ -160,14 +160,14 @@
 
   .res-meta {
     font-size: 12px;
-    color: #888;
+    color: var(--color-text-muted);
     margin-top: 3px;
   }
 
   .res-time {
     font-size: 14px;
     font-weight: 800;
-    color: #111;
+    color: var(--color-text);
     white-space: nowrap;
   }
 
@@ -175,18 +175,18 @@
   .status-pill {
     display: inline-block;
     padding: 3px 10px;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     font-size: 11px;
     font-weight: 700;
   }
 
   /* ── Venue block ────────────────────────────────── */
   .venue-block {
-    border: 1px solid #ececec;
+    border: 1px solid var(--color-border);
     border-radius: 18px;
     overflow: hidden;
     margin-bottom: 16px;
-    background: #fff;
+    background: var(--color-bg-card);
   }
 
   .venue-block:last-child { margin-bottom: 0; }
@@ -198,14 +198,14 @@
     align-items: center;
     gap: 14px;
     flex-wrap: wrap;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--color-border-light);
     background: #fafafa;
   }
 
   .venue-block-name {
     font-size: 16px;
     font-weight: 800;
-    color: #111;
+    color: var(--color-text);
   }
 
   .venue-block-actions {
@@ -222,12 +222,12 @@
     text-decoration: none;
     padding: 6px 12px;
     border-radius: 8px;
-    border: 1px solid #ddd;
-    background: #fff;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-card);
     transition: background .15s, border-color .15s;
   }
 
-  .vba-link:hover { background: #f3f3f3; border-color: #bbb; }
+  .vba-link:hover { background: var(--color-bg-hover); border-color: #bbb; }
 
   .vba-mp-connected {
     font-size: 12px;
@@ -242,7 +242,7 @@
   .vba-mp-btn {
     font-size: 12px;
     font-weight: 700;
-    color: #fff;
+    color: var(--color-text-inverse);
     background: #009ee3;
     border: none;
     padding: 6px 12px;
@@ -256,9 +256,9 @@
   .vba-disconnect-btn {
     font-size: 12px;
     font-weight: 600;
-    color: #666;
-    background: #fff;
-    border: 1px solid #ddd;
+    color: var(--color-text-secondary);
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
     padding: 6px 12px;
     border-radius: 8px;
     cursor: pointer;
@@ -280,11 +280,11 @@
     flex-wrap: wrap;
     padding: 10px 14px;
     border-radius: 12px;
-    border: 1px solid #f0f0f0;
+    border: 1px solid var(--color-border-light);
     background: #fafafa;
   }
 
-  .field-row:hover { border-color: #ddd; background: #fff; }
+  .field-row:hover { border-color: var(--color-border); background: var(--color-bg-card); }
 
   .field-name {
     font-weight: 700;
@@ -295,7 +295,7 @@
 
   .field-price {
     font-size: 12px;
-    color: #888;
+    color: var(--color-text-muted);
     font-weight: 600;
   }
 
@@ -306,7 +306,7 @@
     background: #f8d7da;
     border: 1px solid #f1b9c0;
     padding: 2px 8px;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
   }
 
   .field-link {
@@ -316,12 +316,12 @@
     text-decoration: none;
     padding: 4px 10px;
     border-radius: 7px;
-    border: 1px solid #e0e0e0;
-    background: #fff;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-card);
     transition: background .15s;
   }
 
-  .field-link:hover { background: #f3f3f3; }
+  .field-link:hover { background: var(--color-bg-hover); }
 
   .toggle-active-btn {
     font-size: 12px;
@@ -350,26 +350,26 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .06em;
-    color: #999;
-    border-bottom: 1px solid #f0f0f0;
+    color: var(--color-text-muted);
+    border-bottom: 1px solid var(--color-border-light);
     white-space: nowrap;
   }
 
   .dash-table td {
     padding: 12px 14px;
-    border-bottom: 1px solid #f7f7f8;
+    border-bottom: 1px solid var(--color-bg-page);
     vertical-align: middle;
   }
 
   .dash-table tr:last-child td { border-bottom: none; }
-  .dash-table tr:hover td { background: #fafafa; }
+  .dash-table tr:hover td { background: var(--color-bg-page); }
 
   /* ── Top field highlight ────────────────────────── */
   .top-field-card {
     background: linear-gradient(135deg, #111 0%, #1f1f1f 100%);
     border-radius: 16px;
     padding: 22px 24px;
-    color: #fff;
+    color: var(--color-text-inverse);
     margin-bottom: 16px;
   }
 
@@ -643,6 +643,81 @@
         </div>
 
       </div>
+    </div>
+
+    {{-- ── Métricas adicionales ──────────────────────────────────────── --}}
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px; margin-top:18px;">
+
+      {{-- Revenue proyectado --}}
+      <div class="dash-card">
+        <h3 class="dash-card-title"><span><i data-lucide="trending-up" style="width:16px;height:16px;stroke:currentColor;vertical-align:middle;"></i></span> Revenue proyectado (mes)</h3>
+        <div style="font-size:32px; font-weight:900; color:var(--color-text); letter-spacing:-0.02em;">
+          ${{ number_format($projectedRevenue, 0, ',', '.') }}
+        </div>
+        <div style="font-size:12px; color:var(--color-text-muted); margin-top:4px;">
+          Basado en reservas confirmadas restantes del mes + lo cobrado hoy
+        </div>
+      </div>
+
+      {{-- Tasa de cancelación --}}
+      <div class="dash-card">
+        <h3 class="dash-card-title"><span><i data-lucide="x-circle" style="width:16px;height:16px;stroke:currentColor;vertical-align:middle;"></i></span> Tasa de cancelación (mes)</h3>
+        <div style="font-size:32px; font-weight:900; letter-spacing:-0.02em; color:{{ $cancellationRate > 20 ? 'var(--color-error)' : ($cancellationRate > 10 ? '#f59e0b' : 'var(--color-primary)') }};">
+          {{ $cancellationRate }}%
+        </div>
+        <div style="font-size:12px; color:var(--color-text-muted); margin-top:4px;">
+          {{ $totalCancelledMonth }} cancelada{{ $totalCancelledMonth !== 1 ? 's' : '' }} de {{ $totalCreatedMonth }} reserva{{ $totalCreatedMonth !== 1 ? 's' : '' }} creadas
+        </div>
+      </div>
+
+      {{-- Horarios muertos --}}
+      <div class="dash-card">
+        <h3 class="dash-card-title"><span><i data-lucide="clock" style="width:16px;height:16px;stroke:currentColor;vertical-align:middle;"></i></span> Horarios muertos</h3>
+        @if(empty($deadHours))
+          <div style="color:var(--color-primary); font-weight:700; font-size:14px;">
+            <i data-lucide="check-circle" style="width:14px;height:14px;stroke:currentColor;vertical-align:middle;margin-right:4px;"></i>
+            Todas las franjas tuvieron reservas (últimas 4 semanas)
+          </div>
+        @else
+          <div style="display:flex; flex-wrap:wrap; gap:6px;">
+            @foreach($deadHours as $hour)
+              <span style="padding:4px 10px; border-radius:var(--radius-full); background:#fff4db; color:#9a6700; font-size:12px; font-weight:700;">
+                {{ $hour }}
+              </span>
+            @endforeach
+          </div>
+          <div style="font-size:12px; color:var(--color-text-muted); margin-top:8px;">
+            Franjas sin reservas en las últimas 4 semanas — ideales para promociones
+          </div>
+        @endif
+      </div>
+
+      {{-- Top clientes --}}
+      <div class="dash-card">
+        <h3 class="dash-card-title"><span><i data-lucide="users" style="width:16px;height:16px;stroke:currentColor;vertical-align:middle;"></i></span> Clientes frecuentes (3 meses)</h3>
+        @if($topClients->isEmpty())
+          <div style="color:var(--color-text-muted); font-size:14px;">Todavía no hay datos suficientes.</div>
+        @else
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            @foreach($topClients as $i => $client)
+              <div style="display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:10px; background:{{ $i === 0 ? 'rgba(34,197,94,.06)' : 'transparent' }};">
+                <span style="width:22px; height:22px; border-radius:var(--radius-full); background:{{ $i === 0 ? 'var(--color-primary)' : 'var(--color-border)' }}; color:{{ $i === 0 ? '#fff' : 'var(--color-text-secondary)' }}; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center;">
+                  {{ $i + 1 }}
+                </span>
+                <div style="flex:1; min-width:0;">
+                  <div style="font-weight:700; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                    {{ $client['user']->name ?? 'Usuario eliminado' }}
+                  </div>
+                  <div style="font-size:11px; color:var(--color-text-muted);">
+                    {{ $client['total_reservations'] }} reserva{{ $client['total_reservations'] > 1 ? 's' : '' }} · ${{ number_format($client['total_spent'], 0, ',', '.') }}
+                  </div>
+                </div>
+              </div>
+            @endforeach
+          </div>
+        @endif
+      </div>
+
     </div>
   </div>
 

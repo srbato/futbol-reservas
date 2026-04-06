@@ -86,12 +86,12 @@ html { scroll-behavior: smooth; }
   align-items: center;
   gap: 8px;
   padding: 6px 16px 6px 8px;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   background: rgba(110, 234, 160, .12);
   border: 1px solid rgba(110, 234, 160, .25);
   font-size: 13px;
   font-weight: 700;
-  color: #6eeaa0;
+  color: var(--color-primary-light);
   margin-bottom: 28px;
   letter-spacing: .02em;
 }
@@ -100,7 +100,7 @@ html { scroll-behavior: smooth; }
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #6eeaa0;
+  background: var(--color-primary-light);
   animation: pulse-dot 1.8s ease-in-out infinite;
 }
 
@@ -114,13 +114,13 @@ html { scroll-behavior: smooth; }
   font-size: 68px;
   line-height: 1.0;
   letter-spacing: -0.035em;
-  color: #fff;
+  color: var(--color-text-inverse);
   font-weight: 900;
 }
 
 .hero-copy h1 em {
   font-style: normal;
-  color: #6eeaa0;
+  color: var(--color-primary-light);
 }
 
 .hero-copy > p {
@@ -154,7 +154,7 @@ html { scroll-behavior: smooth; }
 .hero-stat-num {
   font-size: 28px;
   font-weight: 900;
-  color: #fff;
+  color: var(--color-text-inverse);
   letter-spacing: -0.03em;
   line-height: 1;
 }
@@ -178,7 +178,7 @@ html { scroll-behavior: smooth; }
 .search-card-title {
   font-size: 15px;
   font-weight: 800;
-  color: #111;
+  color: var(--color-text);
   margin: 0 0 20px 0;
   letter-spacing: -0.01em;
 }
@@ -201,12 +201,12 @@ html { scroll-behavior: smooth; }
 .search-field select,
 .search-field input {
   padding: 12px 14px;
-  border: 1.5px solid #e8e8e8;
+  border: 1.5px solid var(--color-border);
   border-radius: 12px;
   font: inherit;
   font-size: 14px;
   background: #fafafa;
-  color: #111;
+  color: var(--color-text);
   outline: none;
   transition: border-color .15s, background .15s;
   width: 100%;
@@ -214,8 +214,8 @@ html { scroll-behavior: smooth; }
 
 .search-field select:focus,
 .search-field input:focus {
-  border-color: #22c55e;
-  background: #fff;
+  border-color: var(--color-primary);
+  background: var(--color-bg);
 }
 
 .search-btn-full {
@@ -223,8 +223,8 @@ html { scroll-behavior: smooth; }
   width: 100%;
   padding: 14px;
   border-radius: 14px;
-  background: #111;
-  color: #fff;
+  background: var(--color-bg-dark);
+  color: var(--color-text-inverse);
   font-size: 15px;
   font-weight: 800;
   border: none;
@@ -239,9 +239,9 @@ html { scroll-behavior: smooth; }
 
 /* ── Sports strip ────────────────────────────────── */
 .sports-strip {
-  background: #fff;
-  border-top: 1px solid #ececec;
-  border-bottom: 1px solid #ececec;
+  background: var(--color-bg);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
   padding: 28px 0;
 }
 
@@ -258,18 +258,18 @@ html { scroll-behavior: smooth; }
   align-items: center;
   gap: 8px;
   padding: 10px 20px;
-  border-radius: 999px;
-  border: 1.5px solid #e8e8e8;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--color-border);
   font-size: 14px;
   font-weight: 700;
   color: #333;
-  background: #fff;
+  background: var(--color-bg);
   transition: border-color .15s, color .15s, background .15s, transform .15s;
   text-decoration: none;
 }
 
 .sport-pill:hover {
-  border-color: #22c55e;
+  border-color: var(--color-primary);
   color: #15803d;
   background: #f0fdf4;
   transform: translateY(-2px);
@@ -286,7 +286,7 @@ html { scroll-behavior: smooth; }
 /* ── Why TuCancha ────────────────────────────────── */
 .why-section {
   padding: 80px 0;
-  background: #f7f7f8;
+  background: var(--color-bg-page);
 }
 
 .why-grid {
@@ -296,12 +296,12 @@ html { scroll-behavior: smooth; }
 }
 
 .why-card {
-  background: #fff;
-  border: 1px solid #ececec;
-  border-left: 4px solid #22c55e;
+  background: var(--color-bg-card);
+  border: 1px solid #d9d9d9;
+  border-left: 4px solid var(--color-primary);
   border-radius: 20px;
   padding: 28px 26px;
-  box-shadow: 0 2px 12px rgba(0,0,0,.03);
+  box-shadow: 0 2px 12px rgba(0,0,0,.05);
   transition: transform .2s, box-shadow .2s, border-left-color .2s;
   position: relative;
   overflow: hidden;
@@ -310,7 +310,7 @@ html { scroll-behavior: smooth; }
 .why-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 12px 36px rgba(34,197,94,.1), 0 4px 16px rgba(0,0,0,.06);
-  border-left-color: #16a34a;
+  border-left-color: var(--color-primary-hover);
 }
 
 .why-card-num {
@@ -337,7 +337,7 @@ html { scroll-behavior: smooth; }
 .why-icon [data-lucide] {
   width: 28px;
   height: 28px;
-  stroke: #22c55e;
+  stroke: var(--color-primary);
   stroke-width: 2;
   fill: none;
 }
@@ -351,7 +351,7 @@ html { scroll-behavior: smooth; }
 
 .why-card p {
   margin: 0;
-  color: #666;
+  color: var(--color-text-secondary);
   font-size: 14px;
   line-height: 1.65;
 }
@@ -359,7 +359,7 @@ html { scroll-behavior: smooth; }
 /* ── Split section (50/50) ───────────────────────── */
 .split-section {
   padding: 80px 0;
-  background: #fff;
+  background: var(--color-bg);
 }
 
 .split-grid {
@@ -393,7 +393,7 @@ html { scroll-behavior: smooth; }
 .split-copy-label {
   display: inline-block;
   padding: 4px 12px;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   background: #dcfce7;
   font-size: 12px;
   font-weight: 700;
@@ -409,12 +409,12 @@ html { scroll-behavior: smooth; }
   letter-spacing: -0.03em;
   line-height: 1.05;
   margin: 0 0 18px 0;
-  color: #111;
+  color: var(--color-text);
 }
 
 .split-copy h2 em {
   font-style: normal;
-  color: #16a34a;
+  color: var(--color-primary-hover);
 }
 
 .split-copy > p {
@@ -451,7 +451,7 @@ html { scroll-behavior: smooth; }
 .split-feature-icon [data-lucide] {
   width: 16px;
   height: 16px;
-  stroke: #16a34a;
+  stroke: var(--color-primary-hover);
   stroke-width: 2.2;
   fill: none;
 }
@@ -502,12 +502,12 @@ html { scroll-behavior: smooth; }
 .owner-tag {
   display: inline-block;
   padding: 5px 14px;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   background: rgba(110, 234, 160, .15);
   border: 1px solid rgba(110, 234, 160, .25);
   font-size: 12px;
   font-weight: 700;
-  color: #6eeaa0;
+  color: var(--color-primary-light);
   text-transform: uppercase;
   letter-spacing: .07em;
   margin-bottom: 18px;
@@ -518,14 +518,14 @@ html { scroll-behavior: smooth; }
   font-weight: 900;
   letter-spacing: -0.03em;
   line-height: 1.05;
-  color: #fff;
+  color: var(--color-text-inverse);
   margin: 0 0 16px 0;
   max-width: 620px;
 }
 
 .owner-content h2 em {
   font-style: normal;
-  color: #6eeaa0;
+  color: var(--color-primary-light);
 }
 
 .owner-copy p {
@@ -552,7 +552,7 @@ html { scroll-behavior: smooth; }
 .owner-stat-num {
   font-size: 30px;
   font-weight: 900;
-  color: #6eeaa0;
+  color: var(--color-primary-light);
   letter-spacing: -0.03em;
   line-height: 1;
 }
@@ -573,7 +573,7 @@ html { scroll-behavior: smooth; }
 
 .btn-owner-primary {
   padding: 14px 32px;
-  background: #6eeaa0;
+  background: var(--color-primary-light);
   color: #0a3d1f;
   border-radius: 14px;
   font-size: 15px;
@@ -623,7 +623,7 @@ html { scroll-behavior: smooth; }
 .owner-visual-icon [data-lucide] {
   width: 40px;
   height: 40px;
-  stroke: #22c55e;
+  stroke: var(--color-primary);
   stroke-width: 1.8;
   fill: none;
 }
@@ -639,7 +639,7 @@ html { scroll-behavior: smooth; }
 /* ── FAQ ─────────────────────────────────────────── */
 .faq-section {
   padding: 100px 0;
-  background: #fff;
+  background: var(--color-bg);
 }
 
 .faq-layout {
@@ -684,8 +684,8 @@ html { scroll-behavior: smooth; }
   position: absolute;
   bottom: 28px;
   left: 28px;
-  background: #22c55e;
-  color: #fff;
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
   font-size: 13px;
   font-weight: 700;
   padding: 10px 18px;
@@ -721,7 +721,7 @@ html { scroll-behavior: smooth; }
 .faq-visual-accent [data-lucide] {
   width: 28px;
   height: 28px;
-  stroke: #22c55e;
+  stroke: var(--color-primary);
   stroke-width: 2;
   fill: none;
 }
@@ -754,8 +754,8 @@ html { scroll-behavior: smooth; }
 .faq-list { display: flex; flex-direction: column; gap: 8px; }
 
 .faq-item {
-  background: #fff;
-  border: 1.5px solid #e5e7eb;
+  background: var(--color-bg-card);
+  border: 1.5px solid var(--color-border);
   border-radius: 16px;
   overflow: hidden;
   transition: box-shadow .25s, border-color .25s, transform .25s;
@@ -789,19 +789,19 @@ html { scroll-behavior: smooth; }
 .faq-trigger-text {
   font-size: 15px;
   font-weight: 700;
-  color: #111;
+  color: var(--color-text);
   line-height: 1.4;
 }
 
 .faq-item.open .faq-trigger-text {
-  color: #16a34a;
+  color: var(--color-primary-hover);
 }
 
 .faq-icon {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: #f3f4f6;
+  background: var(--color-bg-page);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -818,11 +818,11 @@ html { scroll-behavior: smooth; }
 
 .faq-item.open .faq-icon {
   transform: rotate(45deg);
-  background: #22c55e;
+  background: var(--color-primary);
 }
 
 .faq-item.open .faq-icon svg {
-  stroke: #fff;
+  stroke: var(--color-text-inverse);
 }
 
 .faq-body {
@@ -850,7 +850,7 @@ html { scroll-behavior: smooth; }
   height: 22px;
   border-radius: 6px;
   background: #f0fdf4;
-  color: #16a34a;
+  color: var(--color-primary-hover);
   font-size: 11px;
   font-weight: 800;
   flex-shrink: 0;
@@ -936,12 +936,12 @@ html { scroll-behavior: smooth; }
 .faltauno-tag {
   display: inline-block;
   padding: 5px 14px;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   background: rgba(110, 234, 160, .15);
   border: 1px solid rgba(110, 234, 160, .25);
   font-size: 12px;
   font-weight: 700;
-  color: #6eeaa0;
+  color: var(--color-primary-light);
   text-transform: uppercase;
   letter-spacing: .07em;
   margin-bottom: 18px;
@@ -952,13 +952,13 @@ html { scroll-behavior: smooth; }
   font-weight: 900;
   letter-spacing: -0.035em;
   line-height: 1.06;
-  color: #fff;
+  color: var(--color-text-inverse);
   margin: 0 0 16px 0;
 }
 
 .faltauno-head h2 em {
   font-style: normal;
-  color: #6eeaa0;
+  color: var(--color-primary-light);
 }
 
 .faltauno-head p {
@@ -1004,7 +1004,7 @@ html { scroll-behavior: smooth; }
 .faltauno-card-icon [data-lucide] {
   width: 32px;
   height: 32px;
-  stroke: #6eeaa0;
+  stroke: var(--color-primary-light);
   stroke-width: 1.8;
   fill: none;
 }
@@ -1012,7 +1012,7 @@ html { scroll-behavior: smooth; }
 .faltauno-card h3 {
   font-size: 22px;
   font-weight: 900;
-  color: #fff;
+  color: var(--color-text-inverse);
   letter-spacing: -0.02em;
   margin: 0 0 12px 0;
 }
@@ -1044,7 +1044,7 @@ html { scroll-behavior: smooth; }
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #6eeaa0;
+  background: var(--color-primary-light);
   flex-shrink: 0;
 }
 
@@ -1057,7 +1057,7 @@ html { scroll-behavior: smooth; }
   align-items: center;
   gap: 10px;
   padding: 16px 40px;
-  background: #6eeaa0;
+  background: var(--color-primary-light);
   color: #0a3d1f;
   border-radius: 16px;
   font-size: 16px;

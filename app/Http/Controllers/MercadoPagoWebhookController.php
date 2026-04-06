@@ -352,6 +352,15 @@ class MercadoPagoWebhookController extends Controller
         }
 
         $reservation->loadMissing('field.venue');
+
+        if (!$reservation->field || !$reservation->field->venue) {
+            Log::error('Webhook reserva: field o venue eliminado', [
+                'reservation_id' => $reservation->id,
+                'field_id' => $reservation->field_id,
+            ]);
+            return response()->json(['ok' => true]);
+        }
+
         $accessToken = $reservation->field->venue->mp_access_token
             ?? config('services.mercadopago.access_token');
 
@@ -435,6 +444,14 @@ class MercadoPagoWebhookController extends Controller
 
         if (!$batch) {
             Log::warning('Batch no encontrado para webhook MP', ['batch_id' => $batchId]);
+            return response()->json(['ok' => true]);
+        }
+
+        if (!$batch->field || !$batch->field->venue) {
+            Log::error('Webhook batch: field o venue eliminado', [
+                'batch_id' => $batch->id,
+                'field_id' => $batch->field_id ?? null,
+            ]);
             return response()->json(['ok' => true]);
         }
 
@@ -571,6 +588,14 @@ class MercadoPagoWebhookController extends Controller
             }
 
             $newField->loadMissing('venue');
+
+            if (!$newField->venue) {
+                Log::error('handleModifyPayment: venue del campo no encontrado', [
+                    'reservation_id' => $fresh->id,
+                    'field_id' => $newField->id,
+                ]);
+                return null;
+            }
 
             $accessToken = $newField->venue->mp_access_token ?? config('services.mercadopago.access_token');
             $newStart    = Carbon::parse($fresh->modify_start_at);

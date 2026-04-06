@@ -5,7 +5,10 @@
   <title>@yield('title', 'Panel admin') · TuCancha</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
   @vite(['resources/css/app.css', 'resources/js/app.js'])
+  <link rel="stylesheet" href="/css/design-tokens.css">
   @stack('styles')
   <style>
     /* ── Admin layout estructural (no depende de Tailwind responsive) ── */

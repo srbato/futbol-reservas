@@ -162,19 +162,19 @@ class User extends Authenticatable
         return $record?->venue_id;
     }
 
-    public function hasStaffPermission(string $permission, int $venueId): bool
+    public function hasStaffPermission(string $permission, ?int $venueId): bool
     {
         if (in_array($this->role, ['super_admin', 'venue_admin'])) {
             return true;
         }
 
-        $staff = $this->venueStaffRecord($venueId);
-
-        if (!$staff) {
+        if ($venueId === null) {
             return false;
         }
 
-        if (empty($staff->permissions)) {
+        $staff = $this->venueStaffRecord($venueId);
+
+        if (!$staff || empty($staff->permissions) || !is_array($staff->permissions)) {
             return false;
         }
 

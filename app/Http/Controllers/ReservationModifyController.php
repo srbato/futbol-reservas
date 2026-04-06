@@ -35,6 +35,10 @@ class ReservationModifyController extends Controller
         $selectedFieldId = (int) $request->query('field_id', $reservation->field_id);
         $selectedField   = $fields->firstWhere('id', $selectedFieldId) ?? $fields->first();
 
+        if (!$selectedField) {
+            return back()->with('error', 'No hay canchas disponibles para modificar en este complejo.');
+        }
+
         $selectedDate = $request->query('date')
             ? Carbon::parse($request->query('date'))
             : $reservation->start_at->copy();

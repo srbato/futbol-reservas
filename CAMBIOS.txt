@@ -2897,3 +2897,210 @@ IMÁGENES NUEVAS:
 IMÁGENES ELIMINADAS:
   public/images/futboltematica.webp (reemplazada por hero-futbol-bg.webp)
   public/images/padelneon.webp (reemplazada por hero-padel-bg.webp)
+
+[2026-04-03] — AUDITORÍA DE SEGURIDAD + DESIGN TOKENS + FEATURES UX
+=====================================================================
+
+AUDITORÍA DE SEGURIDAD — 8 FIXES
+----------------------------------
+
+  1. FieldException model — mass assignment protection
+     app/Models/FieldException.php:
+       - Agregado $fillable con field_id, date, is_closed, open_time, close_time, note
+       - Agregado $casts (date, is_closed)
+       - Agregado relación field()
+
+  2. Null pointer en webhook MercadoPago
+     app/Http/Controllers/MercadoPagoWebhookController.php:
+       - handleReservationPayment: null check para field/venue eliminados (línea ~354)
+       - handleBatchPayment: null check para field/venue eliminados (línea ~441)
+       - handleModifyPayment: null check para venue del nuevo field (línea ~590)
+       - Antes: si se borraba un field/venue con pago pendiente, el webhook crasheaba
+       - Ahora: loguea error y responde 200 (idempotente)
+
+  3. CheckoutController — bloquea reservas CANCELLED/EXPIRED
+     app/Http/Controllers/CheckoutController.php:
+       - Agregado check para status CANCELLED y EXPIRED después del check de PAID
+       - Redirige a reservations.show con mensaje de error
+       - Antes: un usuario podía llegar al checkout de una reserva cancelada
+
+  4. ReservationViewController — venue staff puede ver reservas
+     app/Http/Controllers/ReservationViewController.php:
+       - Agregado $isVenueStaff = $user->isStaffOf($reservation->field->venue->id)
+       - Staff del complejo ahora puede ver reservas de su venue
+       - Antes: staff recibía 403 al intentar ver reservas de su propio complejo
+
+  5. Null checks en FaltaUnoRatingController y ReservationModifyController
+     app/Http/Controllers/FaltaUnoRatingController.php:
+       - Null check si $game->field fue eliminado antes de acceder a ->sport
+     app/Http/Controllers/ReservationModifyController.php:
+       - Null check si $fields->first() es null (venue sin canchas activas)
+       - Retorna back() con error en vez de crashear
+
+  6. VenueStaff table name
+     app/Models/VenueStaff.php:
+       - Agregado protected $table = 'venue_staff'
+       - Eloquent buscaba 'venue_staffs' por convención, causando error
+
+  7. User::hasStaffPermission null safety
+     app/Models/User.php:
+       - Tipo del parámetro $venueId cambiado de int a ?int
+       - Agregado early return false si $venueId === null
+       - Agregado is_array() check en permissions antes de in_array()
+       - Antes: si activeStaffVenueId() retornaba null, type mismatch
+
+  8. Rate limiting en endpoints sensibles
+     routes/web.php:
+       - /falta-uno/{game}/kick/{user}: throttle:10,1
+       - /membership/cancel-subscription: throttle:5,1
+       - /staff/invite: throttle:10,1
+
+DESIGN TOKENS — SISTEMA CENTRALIZADO DE CSS
+---------------------------------------------
+
+  Nuevo archivo: public/css/design-tokens.css
+    - 90+ CSS custom properties organizadas por categoría
+    - Colores: primary, text, bg, border, semánticos (error, warning, success, info)
+    - Spacing: escala base 8px (xs 4px → 3xl 64px)
+    - Border radius: sm 8px, md 12px, lg 16px, xl 24px, full 999px
+    - Typography: text-xs 12px → text-3xl 48px + font weights + line heights
+    - Shadows: sm, md, lg, xl
+    - Transitions: fast 150ms, normal 250ms, slow 400ms
+    - Layout: max-width, header-height
+    - Z-index scale: dropdown 10 → tooltip 60
+
+  Importado en 4 layouts:
+    - resources/views/layouts/app.blade.php
+    - resources/views/layouts/admin.blade.php
+    - resources/views/layouts/guest.blade.php
+    - resources/views/layouts/marketing.blade.php
+
+  Migración de valores hardcodeados (~300 reemplazos) en:
+    - layouts/app.blade.php (~40): body, header, nav, dropdowns, buttons, cards,
+      notifications, carousels, mobile nav, toolbar, flash messages
+    - welcome.blade.php (~52): hero badge, h1, stats, search card, cards why,
+      sección owner, FAQ, CTA
+    - venues/index.blade.php (~67): scroll progress, hero, search bar, filter chips,
+      featured section, venue cards, FAB, cursor, badges (SIN tocar temas deportivos)
+    - fields/show.blade.php (~35): booking UI, slots, pricing, calendar
+    - falta-uno/index.blade.php (~25): hero, cards, filters, badges
+    - profile/edit.blade.php (~40): sections, forms, sport profiles
+    - reservations/my.blade.php (~16): tabs, batch cards, slots
+    - checkout/show.blade.php (~1): spinner
+    - va/dashboard.blade.php (~27): KPI cards, tables, occupancy bars
+
+  NO se tocaron:
+    - Temas deportivos (padel/futbol/tenis) — paletas propias
+    - Valores dentro de rgba(), linear-gradient()
+    - Inline style="" del HTML (pendiente fase 3)
+    - Colores semánticos específicos (flash success/error, MP azul)
+
+FIX — TEXTOS NEGROS SOBRE FONDO NEGRO EN LANDING
+---------------------------------------------------
+  resources/views/layouts/marketing.blade.php:
+    - Faltaba importar design-tokens.css
+    - Los var(--color-text-inverse) se resolvían vacíos → texto negro sobre hero negro
+    - Agregado <link> a design-tokens.css
+    - Migrados body background/color y header border a tokens
+
+FEATURE — BÚSQUEDA POR DISPONIBILIDAD (UX MEJORADA)
+------------------------------------------------------
+  El backend ya soportaba filtrar por fecha+hora (available_at), pero el filtro
+  de hora estaba escondido en el panel "Más filtros" (colapsado por defecto).
+
+  resources/views/venues/index.blade.php:
+    - Nuevo chip "Horario" visible en la fila de filtros del hero (junto a Fecha)
+    - Ícono de reloj (lucide clock), muestra hora seleccionada o "Horario"
+    - Se deshabilita (opaco, no clickeable) si no hay fecha seleccionada
+    - Al elegir hora → auto-submit del formulario
+    - Estado .active verde cuando tiene valor
+    - CSS: clase .vi-chip-disabled con opacity .35 y pointer-events none
+    - JS: función onDateFilterChange() habilita/deshabilita el chip al cambiar fecha
+    - Banner verde "Mostrando solo canchas disponibles el [fecha] a las [hora]hs"
+      cuando ambos filtros están activos (.vi-availability-banner)
+    - Campo available_at removido del panel "Más filtros" (ya no está duplicado)
+    - Indicador del botón "Más filtros" ya no cuenta available_at
+
+FEATURE — COMPARTIR RESERVA POR WHATSAPP
+-------------------------------------------
+  resources/views/reservations/show.blade.php:
+    - Botón "Compartir por WhatsApp" en la sección Acciones (solo cuando PAID)
+    - Color verde WhatsApp (#25D366) con ícono SVG
+    - Abre wa.me/?text= con mensaje pre-armado:
+      "Reservé en [complejo] / [dirección] / [cancha] / [fecha] de [hora] a [hora]
+       Sumate! Reservá en [url]"
+    - Se abre en nueva pestaña (target=_blank)
+
+FEATURE — ANIMACIÓN DE CONFIRMACIÓN DE PAGO
+----------------------------------------------
+  resources/views/reservations/success.blade.php:
+    - Reemplazado emoji ✅ por animación SVG de check
+    - Círculo verde que se dibuja (stroke-dashoffset animation, .6s)
+    - Tick que aparece dentro del círculo (.3s delay)
+    - Confetti: 120 partículas de colores que explotan desde el centro
+    - Colores: verde, dorado, azul, rosa, violeta (palette de la app)
+    - Gravedad, rotación y desvanecimiento progresivo
+    - Se auto-limpia (canvas se remueve al terminar)
+    - Se dispara 600ms después del load (sincronizado con el check)
+
+FEATURE — MÉTRICAS ADICIONALES PARA DUEÑO DE COMPLEJO
+--------------------------------------------------------
+  app/Http/Controllers/VenueAdmin/DashboardController.php:
+    - Revenue proyectado del mes: reservas PAID futuras + cobrado hoy
+    - Horarios muertos: franjas sin reservas en últimas 4 semanas
+      (consulta por hora con strftime, compara contra schedules del venue)
+    - Top 5 clientes frecuentes: últimos 3 meses, count + sum de total_amount
+    - Tasa de cancelación del mes: canceladas / creadas * 100
+
+  resources/views/va/dashboard.blade.php:
+    - 4 cards nuevas en grid responsive debajo del contenido existente:
+    - Revenue proyectado: número grande + explicación
+    - Tasa de cancelación: color dinámico (verde <10%, amarillo 10-20%, rojo >20%)
+    - Horarios muertos: chips amarillos con franjas vacías + sugerencia de promos
+    - Clientes frecuentes: ranking 1-5 con nombre, reservas y gasto total
+
+UX — PLURAL CONDICIONAL
+--------------------------
+  resources/views/venues/index.blade.php:
+    - "1 complejos disponibles" → "1 complejo disponible" / "3 complejos disponibles"
+
+UX — EMPTY STATES MEJORADOS (7 PUNTOS)
+-----------------------------------------
+  Patrón consistente: ícono gris + título bold + subtexto explicativo + CTA
+
+  resources/views/venues/index.blade.php:
+    - Destacados semana vacío: ícono calendar-off + "No hay datos esta semana todavía"
+    - Descuentos vacío: ícono tag + "No hay descuentos activos"
+    - Reseñas vacío: ícono star + "Todavía no hay reseñas" + motivacional
+
+  resources/views/venues/show.blade.php:
+    - Sin canchas: ícono + título + subtexto + botón "Ver otros complejos"
+    - Sin reseñas: ícono message-circle + "Sé el primero en dejar tu opinión"
+
+  resources/views/reservations/show.blade.php:
+    - Sin jugadores: ícono users + título + instrucción contextual para el owner
+
+  resources/views/falta-uno/index.blade.php:
+    - Sin canchas Falta Uno: ícono map-pin-off + título + subtexto explicativo
+
+CONFIGURACIÓN DEL ENTORNO DE DESARROLLO (PC nueva)
+-----------------------------------------------------
+  Vite:
+    - vite.config.js: server.allowedHosts: true (fix 503 en Vite 7)
+    - npm run build genera public/build/ para el admin layout (@vite)
+
+  CSP:
+    - app/Http/Middleware/SecurityHeaders.php:
+      - Variable $viteDev agrega localhost:5173 / 127.0.0.1:5173 al CSP en local
+      - Afecta script-src, style-src, connect-src
+      - Solo se aplica cuando app()->isLocal() es true
+
+  Seeders:
+    - database/seeders/DatabaseSeeder.php:
+      - Santiago (super_admin), Usuario1 (venue_admin), Usuario2 (staff),
+        Usuario3-5 (users)
+      - Venue "Complejo de Usuario1" con MP conectado
+      - Usuario2 como staff con permisos
+    - 3 canchas: Fútbol 5, Pádel, Tenis
+      - Schedules, precios ($10 test), descuentos, bloqueos, excepciones
+      - Falta Uno habilitado en fútbol y pádel

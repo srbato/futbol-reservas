@@ -16,7 +16,7 @@
     left: 0;
     width: 0%;
     height: 3px;
-    background: #22c55e;
+    background: var(--color-primary);
     z-index: 9999;
     transition: width .1s linear;
   }
@@ -26,10 +26,16 @@
     position: relative;
     height: 360px;
     border-radius: 28px;
-    overflow: hidden;
-    margin-bottom: 24px;
+    overflow: visible;
+    margin-bottom: 40px;
     display: flex;
-    align-items: flex-end;
+    align-items: center;
+    justify-content: center;
+  }
+  .fui-hero-bg,
+  .fui-hero-overlay,
+  .fui-hero-gradient {
+    border-radius: 28px;
   }
   .fui-hero-bg {
     position: absolute;
@@ -54,10 +60,10 @@
     padding: 32px 36px;
     width: 100%;
     display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 20px;
-    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 16px;
   }
 
   /* ── Badge pulsante ────────────────────────────── */
@@ -73,13 +79,13 @@
     letter-spacing: .1em;
     text-transform: uppercase;
     padding: 5px 12px;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     margin-bottom: 12px;
   }
   .fui-badge-dot {
     width: 7px;
     height: 7px;
-    background: #22c55e;
+    background: var(--color-primary);
     border-radius: 50%;
     animation: fui-dot-pulse 1.6s ease-in-out infinite;
   }
@@ -93,7 +99,7 @@
     margin: 0 0 8px;
     font-size: 48px;
     font-weight: 900;
-    color: #fff;
+    color: var(--color-text-inverse);
     letter-spacing: -.03em;
     line-height: 1.05;
   }
@@ -102,22 +108,27 @@
     font-size: 16px;
     color: rgba(255,255,255,.7);
   }
+  .fui-hero-cta-wrap {
+    position: relative;
+    z-index: 3;
+    text-align: center;
+    margin-top: -56px;
+    margin-bottom: 18px;
+  }
   .fui-hero-cta {
     display: inline-block;
-    background: #22c55e;
+    background: var(--color-primary);
     color: #052e16;
-    border-radius: 12px;
-    padding: 12px 24px;
-    font-size: 14px;
+    border-radius: 14px;
+    padding: 14px 32px;
+    font-size: 15px;
     font-weight: 800;
     text-decoration: none;
     white-space: nowrap;
-    flex-shrink: 0;
-    transition: background .15s, transform .15s;
-    align-self: center;
-    margin-bottom: 4px;
+    transition: background .15s, transform .15s, box-shadow .15s;
+    box-shadow: 0 6px 20px rgba(34,197,94,.35);
   }
-  .fui-hero-cta:hover { background: #16a34a; transform: translateY(-1px); }
+  .fui-hero-cta:hover { background: var(--color-primary-hover); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(34,197,94,.45); }
 
   /* ── Banner perfil ─────────────────────────────── */
   .fui-profile-banner {
@@ -134,14 +145,17 @@
 
   /* ── Filtros ───────────────────────────────────── */
   .fui-filters-wrap {
-    background: #f8f8f8;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
     border-radius: 16px;
-    padding: 16px 20px;
+    padding: 20px 24px;
     margin-bottom: 24px;
+    box-shadow: var(--shadow-sm);
+    text-align: center;
   }
   .fui-filter-divider {
     border: none;
-    border-top: 1px solid #e5e5e5;
+    border-top: 1px solid var(--color-border);
     margin: 12px 0;
   }
   .fui-filter-row {
@@ -149,6 +163,7 @@
     gap: 8px;
     flex-wrap: nowrap;
     align-items: center;
+    justify-content: center;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
@@ -157,9 +172,9 @@
   .fui-filter-row::-webkit-scrollbar { display: none; }
   .fui-pill {
     padding: 7px 16px;
-    border: 1.5px solid #e0e0e0;
-    background: #fff;
-    border-radius: 999px;
+    border: 1.5px solid var(--color-border);
+    background: var(--color-bg);
+    border-radius: var(--radius-full);
     cursor: pointer;
     font-weight: 600;
     font-size: 13px;
@@ -170,172 +185,174 @@
     flex-shrink: 0;
     white-space: nowrap;
   }
-  .fui-pill:hover { border-color: #111; color: #111; }
-  .fui-pill.active { background: #111; color: #fff; border-color: #111; }
+  .fui-pill:hover { border-color: var(--color-primary); color: var(--color-primary-hover); }
+  .fui-pill.active { background: var(--color-primary); color: var(--color-text-inverse); border-color: var(--color-primary); }
   .fui-pill-sm { font-size: 12px; padding: 5px 13px; }
   .fui-filter-label {
     font-size: 12px;
-    color: #888;
+    color: var(--color-text-muted);
     font-weight: 700;
     flex-shrink: 0;
   }
   .fui-filter-sep {
-    color: #ddd;
+    color: var(--color-border);
     font-size: 16px;
     line-height: 1;
     flex-shrink: 0;
   }
 
-  /* ── Cards ─────────────────────────────────────── */
-  .fui-card {
-    background: #fff;
-    border: 1px solid #ececec;
-    border-radius: 20px;
+  /* ── Card avatars ──────────────────────────────── */
+  .fui-card-avatars {
+    display: flex;
+    align-items: center;
+  }
+  .fui-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #e8e8e8;
+    border: 2px solid var(--color-bg-card);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-text-secondary);
     overflow: hidden;
-    transition: transform .2s, box-shadow .2s;
+    margin-left: -8px;
+    flex-shrink: 0;
+  }
+  .fui-avatar:first-child { margin-left: 0; }
+  .fui-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .fui-avatar-initiator {
+    border-color: var(--color-primary);
+    z-index: 1;
+    background: rgba(34,197,94,.15);
+    color: var(--color-primary-hover);
+  }
+  .fui-avatar-extra {
+    background: var(--color-bg-hover);
+    font-size: 10px;
+    color: var(--color-text-muted);
+  }
+
+  /* ── Card logo ───────────────────────────────── */
+  .fui-card-logo {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+    opacity: 1;
+    pointer-events: none;
+  }
+
+  /* ── Games section ─────────────────────────────── */
+  .fui-games-section {
+    position: relative;
+    background: #f9fafb;
+    border-radius: 24px;
+    padding: 28px 24px;
+    overflow: hidden;
+  }
+  .fui-games-deco {
+    position: absolute;
+    top: -80px;
+    right: -60px;
+    width: 300px;
+    height: 300px;
+    background: linear-gradient(135deg, rgba(34,197,94,.06) 0%, rgba(34,197,94,.02) 100%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .fui-games-section::after {
+    content: '';
+    position: absolute;
+    bottom: -40px;
+    left: -30px;
+    width: 200px;
+    height: 200px;
+    background: linear-gradient(135deg, rgba(34,197,94,.04) 0%, transparent 100%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  /* ── Cards ─────────────────────────────────────── */
+  .fui-games-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  @media (max-width: 1024px) { .fui-games-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px) { .fui-games-grid { grid-template-columns: 1fr; } }
+
+  .fui-card {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
+    gap: 14px;
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    position: relative;
+    box-shadow: var(--shadow-sm);
   }
   .fui-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(0,0,0,.08);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0,0,0,.10);
+    border-color: var(--color-primary);
   }
-  .fui-card-stripe {
-    width: 5px;
-    flex-shrink: 0;
-    align-self: stretch;
+  .fui-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    border-radius: 16px 16px 0 0;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-primary-light));
+    opacity: 0;
+    transition: opacity .18s ease;
   }
-  .fui-card-stripe.open   { background: #22c55e; }
-  .fui-card-stripe.full   { background: #111; }
-  .fui-card-stripe.cancel { background: #dc2626; }
-
-  .fui-card-body {
-    display: flex;
-    gap: 20px;
-    padding: 20px 20px 0 20px;
-    flex-wrap: wrap;
-  }
-  .fui-card-inner {
-    display: flex;
-    gap: 20px;
-    flex: 1;
-    min-width: 0;
+  .fui-card:hover::before {
+    opacity: 1;
   }
 
   /* Círculo SVG */
   .fui-progress-wrap {
     flex-shrink: 0;
     text-align: center;
-    width: 100px;
+    width: 52px;
   }
   .fui-progress-circle {
     transform: rotate(-90deg);
     display: block;
   }
   @keyframes fui-stroke-draw {
-    from { stroke-dashoffset: 283; }
+    from { stroke-dashoffset: 138; }
   }
   .fui-arc-animated {
     animation: fui-stroke-draw .8s ease-out both;
   }
   .fui-progress-label {
-    margin-top: -8px;
-    font-size: 13px;
+    margin-top: 4px;
+    font-size: 12px;
     font-weight: 700;
   }
   .fui-progress-sub {
     font-size: 11px;
-    color: #aaa;
+    color: var(--color-text-muted);
     margin-top: 2px;
-  }
-
-  /* Info derecha */
-  .fui-card-info { flex: 1; min-width: 0; }
-  .fui-venue-link {
-    font-size: 12px;
-    color: #888;
-    text-decoration: none;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-  .fui-venue-link:hover { color: #111; }
-  .fui-field-name {
-    font-size: 18px;
-    font-weight: 800;
-    color: #111;
-    text-decoration: none;
-    display: block;
-    margin: 4px 0 10px;
-    line-height: 1.2;
-  }
-  .fui-field-name:hover { color: #333; }
-
-  /* Chips */
-  .fui-chips {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    margin-bottom: 10px;
-  }
-  .fui-chip {
-    font-size: 11px;
-    padding: 3px 10px;
-    border-radius: 999px;
-    font-weight: 700;
-  }
-  .fui-chip-sport  { background: rgba(29,78,216,.1);  border: 1px solid rgba(29,78,216,.2);  color: #1d4ed8; }
-  .fui-chip-date   { background: rgba(85,85,85,.07);  border: 1px solid rgba(85,85,85,.12);  color: #555; }
-  .fui-chip-gender-male   { background: rgba(37,99,235,.08);  border: 1px solid rgba(37,99,235,.15);  color: #2563eb; }
-  .fui-chip-gender-female { background: rgba(219,39,119,.08); border: 1px solid rgba(219,39,119,.15); color: #db2777; }
-  .fui-chip-cat    { background: rgba(21,128,61,.08);  border: 1px solid rgba(21,128,61,.15);  color: #15803d; }
-
-  /* Avatares apilados */
-  .fui-avatars {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-  }
-  .fui-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    border: 2px solid #fff;
-    object-fit: cover;
-    margin-left: -8px;
-    background: #f1f1f1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: 700;
-    color: #555;
-    flex-shrink: 0;
-  }
-  .fui-avatar:first-child { margin-left: 0; }
-  .fui-avatar-more {
-    background: #f1f1f1;
-    color: #888;
-    font-size: 11px;
-    font-weight: 700;
-    margin-left: -8px;
-  }
-  .fui-counter {
-    font-size: 13px;
-    color: #666;
-    margin-bottom: 2px;
   }
 
   /* Zona de acciones */
   .fui-card-actions {
-    border-top: 1px solid #f0f0f0;
-    padding: 14px 20px;
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
     align-items: center;
-    margin-top: 14px;
+    margin-top: auto;
   }
   .fui-btn {
     display: inline-flex;
@@ -352,26 +369,26 @@
     transition: transform .15s, box-shadow .15s, background .15s;
   }
   .fui-btn:hover { transform: translateY(-1px); box-shadow: 0 3px 10px rgba(0,0,0,.1); }
-  .fui-btn-black   { background: #111; color: #fff; }
-  .fui-btn-black:hover { background: #22c55e; color: #052e16; }
-  .fui-btn-ghost   { background: transparent; border: 1.5px solid #e0e0e0; color: #333; }
+  .fui-btn-black   { background: var(--color-bg-dark); color: var(--color-text-inverse); }
+  .fui-btn-black:hover { background: var(--color-primary); color: #052e16; }
+  .fui-btn-ghost   { background: transparent; border: 1.5px solid var(--color-border); color: #333; }
   .fui-btn-cancel  { background: transparent; border: 1.5px solid #fecaca; color: #dc2626; }
   .fui-btn-outline { background: transparent; border: 1.5px solid #d1d5db; color: #555; }
-  .fui-btn-stats   { background: #f4f4f4; color: #333; }
+  .fui-btn-stats   { background: var(--color-bg-hover); color: #333; }
   .fui-btn-rate    { background: #fef3c7; color: #92400e; }
   .fui-badge-joined {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     font-size: 13px;
-    color: #22c55e;
+    color: var(--color-primary);
     font-weight: 700;
   }
 
   /* ── Estado vacío ──────────────────────────────── */
   .fui-empty {
-    background: #fff;
-    border: 1px solid #ececec;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
     border-radius: 20px;
     padding: 64px 24px;
     text-align: center;
@@ -386,7 +403,7 @@
     font-size: 20px;
     font-weight: 800;
   }
-  .fui-empty p { color: #888; font-size: 14px; margin: 0 0 24px; }
+  .fui-empty p { color: var(--color-text-muted); font-size: 14px; margin: 0 0 24px; }
   .fui-empty-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
 
   /* ── Mobile ────────────────────────────────────── */
@@ -394,8 +411,6 @@
     .fui-hero { height: 280px; }
     .fui-hero-h1 { font-size: 32px; }
     .fui-hero-content { padding: 20px; }
-    .fui-card-inner { flex-direction: column; gap: 12px; }
-    .fui-progress-wrap { width: 100%; display: flex; align-items: center; gap: 12px; }
   }
 </style>
 @endpush
@@ -411,20 +426,12 @@
   <div class="fui-hero-overlay"></div>
   <div class="fui-hero-gradient"></div>
   <div class="fui-hero-content">
-    <div>
-      <div data-aos="fade-up" data-aos-delay="0">
-        <span class="fui-badge">
-          <span class="fui-badge-dot"></span>
-          Falta Uno
-        </span>
-      </div>
-      <h1 class="fui-hero-h1" data-aos="fade-up" data-aos-delay="100">Encontrá tu partido</h1>
-      <p class="fui-hero-sub" data-aos="fade-up" data-aos-delay="180">Partidos armándose. Anotate y jugá.</p>
-    </div>
-    <div data-aos="fade-up" data-aos-delay="260">
-      <button onclick="document.getElementById('fuiFieldModal').style.display='flex'" class="fui-hero-cta" style="border:none;cursor:pointer;">+ Crear partido</button>
-    </div>
+    <h1 class="fui-hero-h1" data-aos="fade-up" data-aos-delay="100">Encontrá tu partido</h1>
+    <p class="fui-hero-sub" data-aos="fade-up" data-aos-delay="180">Partidos armándose. Anotate y jugá.</p>
   </div>
+</div>
+<div class="fui-hero-cta-wrap" data-aos="fade-up" data-aos-delay="260">
+  <button onclick="document.getElementById('fuiFieldModal').style.display='flex'" class="fui-hero-cta" style="border:none;cursor:pointer;">+ Crear partido</button>
 </div>
 
 {{-- Banner sin perfil deportivo --}}
@@ -521,6 +528,8 @@
 </div>
 
 {{-- Listado de partidos --}}
+<div class="fui-games-section">
+  <div class="fui-games-deco" aria-hidden="true"></div>
 @if($games->isEmpty())
   <div class="fui-empty" data-aos="zoom-in">
     <img class="fui-empty-icon" src="/images/silueta-jugador-vacia.webp" alt="" width="80" height="80"
@@ -533,13 +542,13 @@
     </div>
   </div>
 @else
-  <div style="display:grid; gap:16px;">
+  <div class="fui-games-grid">
     @foreach($games as $idx => $game)
     @php
       $joined  = $game->activeParticipants->count();
       $needed  = $game->players_needed;
       $pct     = $needed > 0 ? min(100, round(($joined / $needed) * 100)) : 100;
-      $dash    = 283;
+      $dash    = 138;
       $filled  = round($dash * $pct / 100);
       $empty   = $dash - $filled;
       $isAuthJoined = auth()->check() && $game->activeParticipants->contains('user_id', auth()->id());
@@ -552,146 +561,152 @@
         'volleyball' => 'Vóley',
         default      => ucfirst($game->field->sport ?? 'Cancha'),
       };
-      $stripeClass = match($game->status) {
-        'full'      => 'full',
-        'cancelled' => 'cancel',
-        default     => 'open',
-      };
       $cardDelay = min($idx * 80, 400);
     @endphp
 
     <div class="fui-card" data-game-id="{{ $game->id }}"
          data-aos="fade-up" data-aos-delay="{{ $cardDelay }}">
 
-      {{-- Franja de color izquierda --}}
-      <div style="display:flex;">
-        <div class="fui-card-stripe {{ $stripeClass }}"></div>
-        <div style="flex:1; display:flex; flex-direction:column;">
-
-          {{-- Cuerpo --}}
-          <div class="fui-card-body">
-            <div class="fui-card-inner">
-
-              {{-- Círculo de progreso --}}
-              <div class="fui-progress-wrap">
-                <svg class="fui-progress-circle" width="90" height="90" viewBox="0 0 100 100">
-                  <circle cx="50" cy="50" r="45" fill="none" stroke="#f0f0f0" stroke-width="8"/>
-                  <circle cx="50" cy="50" r="45" fill="none"
-                          stroke="{{ $game->status === 'full' ? '#22c55e' : '#111' }}" stroke-width="8"
-                          stroke-dasharray="{{ $filled }} {{ $empty }}"
-                          stroke-linecap="round"
-                          stroke-dashoffset="0"
-                          class="game-arc fui-arc-animated">
-                  </circle>
-                </svg>
-                <div class="fui-progress-label game-status-text">
-                  @if($game->status === 'full')
-                    <span style="color:#22c55e;">¡Completo!</span>
-                  @else
-                    <span style="color:#111;">Faltan {{ $needed - $joined }}</span>
-                  @endif
-                </div>
-                <div class="fui-progress-sub game-counter-text">{{ $joined }}/{{ $needed }} anotados</div>
-              </div>
-
-              {{-- Info --}}
-              <div class="fui-card-info">
-                <a href="{{ route('venues.show', $game->field->venue) }}" class="fui-venue-link">
-                  <i data-lucide="map-pin" style="width:13px;height:13px;stroke:currentColor;vertical-align:middle;"></i>
-                  {{ $game->field->venue->name }}
-                  @if($game->field->venue->zone)
-                    <span style="color:#aaa; font-weight:500;">&middot; {{ $game->field->venue->zone }}</span>
-                  @endif
-                </a>
-                <a href="{{ route('falta-uno.show', $game) }}" class="fui-field-name">
-                  {{ $game->field->name }}
-                </a>
-
-                <div class="fui-chips">
-                  <span class="fui-chip fui-chip-sport">{{ $sportLabel }}</span>
-                  <span class="fui-chip fui-chip-date"><i data-lucide="calendar" style="width:12px;height:12px;stroke:currentColor;vertical-align:middle;margin-right:3px;"></i>{{ \Carbon\Carbon::parse($game->start_at)->format('d/m/Y') }}</span>
-                  <span class="fui-chip fui-chip-date"><i data-lucide="clock" style="width:12px;height:12px;stroke:currentColor;vertical-align:middle;margin-right:3px;"></i>{{ \Carbon\Carbon::parse($game->start_at)->format('H:i') }} hs</span>
-                  @if($game->gender_filter !== 'mixed')
-                    <span class="fui-chip fui-chip-gender-{{ $game->gender_filter }}">
-                      {{ $game->gender_filter === 'male' ? 'Masculino' : 'Femenino' }}
-                    </span>
-                  @endif
-                  @if($game->category_min || $game->category_max)
-                    <span class="fui-chip fui-chip-cat">
-                      @if($game->category_min && $game->category_max && $game->category_min === $game->category_max)
-                        {{ ucfirst($game->category_min) }}
-                      @elseif($game->category_min && $game->category_max)
-                        {{ ucfirst($game->category_min) }} – {{ ucfirst($game->category_max) }}
-                      @elseif($game->category_min)
-                        Desde {{ ucfirst($game->category_min) }}
-                      @else
-                        Hasta {{ ucfirst($game->category_max) }}
-                      @endif
-                    </span>
-                  @endif
-                </div>
-
-                {{-- Avatares apilados --}}
-                @if($game->activeParticipants->isNotEmpty())
-                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:6px;">
-                  <div class="fui-avatars">
-                    @foreach($game->activeParticipants->take(5) as $p)
-                      @if($p->user->avatar_path)
-                        <img src="{{ \Illuminate\Support\Facades\Storage::url($p->user->avatar_path) }}"
-                             class="fui-avatar" title="{{ $p->user->name }}" alt="{{ $p->user->name }}">
-                      @else
-                        <div class="fui-avatar" title="{{ $p->user->name }}">
-                          {{ mb_strtoupper(mb_substr($p->user->name, 0, 1)) }}
-                        </div>
-                      @endif
-                    @endforeach
-                    @if($game->activeParticipants->count() > 5)
-                      <div class="fui-avatar fui-avatar-more">+{{ $game->activeParticipants->count() - 5 }}</div>
-                    @endif
-                  </div>
-                  <span class="fui-counter">{{ $game->activeParticipants->count() }} confirmados de {{ $game->players_needed }}</span>
-                </div>
-                @endif
-              </div>
-
-            </div>{{-- /.fui-card-inner --}}
-          </div>{{-- /.fui-card-body --}}
-
-          {{-- Zona de acciones --}}
-          <div class="fui-card-actions">
-            @auth
-              @if($isInitiator)
-                <a href="{{ route('falta-uno.chat', $game) }}" class="fui-btn fui-btn-black" style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="message-circle" style="width:14px;height:14px;stroke:currentColor;"></i> Chat</a>
-                <form method="POST" action="{{ route('falta-uno.cancel', $game) }}"
-                      onsubmit="return confirm('¿Cancelar el partido? {{ $game->canRefund() ? 'Recibirás un reembolso.' : 'No se devuelve el dinero.' }}')">
-                  @csrf
-                  <button type="submit" class="fui-btn fui-btn-cancel">Cancelar partido</button>
-                </form>
-              @elseif($isAuthJoined)
-                <span class="fui-badge-joined" style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="check-circle" style="width:13px;height:13px;stroke:currentColor;"></i> Ya estás anotado</span>
-                <a href="{{ route('falta-uno.chat', $game) }}" class="fui-btn fui-btn-black" style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="message-circle" style="width:14px;height:14px;stroke:currentColor;"></i> Chat</a>
-                @if($game->isFinished())
-                  <a href="{{ route('falta-uno.stats', $game) }}" class="fui-btn fui-btn-stats" style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="bar-chart-2" style="width:14px;height:14px;stroke:currentColor;"></i> Mis stats</a>
-                  <a href="{{ route('falta-uno.rate', $game) }}" class="fui-btn fui-btn-rate" style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="star" style="width:13px;height:13px;stroke:currentColor;"></i> Calificar</a>
-                @endif
-              @elseif($game->status !== 'full')
-                <form method="POST" action="{{ route('falta-uno.join', $game) }}">
-                  @csrf
-                  <button type="submit" class="fui-btn fui-btn-black">Unirme al partido</button>
-                </form>
-              @endif
+      {{-- Top: Progress circle + venue thumbnail --}}
+      <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+        <div class="fui-progress-wrap">
+          <svg class="fui-progress-circle" width="52" height="52" viewBox="0 0 52 52">
+            <circle cx="26" cy="26" r="22" fill="none" stroke="rgba(34,197,94,.12)" stroke-width="5"/>
+            <circle cx="26" cy="26" r="22" fill="none"
+                    stroke="{{ $game->status === 'full' ? '#22c55e' : '#111' }}" stroke-width="5"
+                    stroke-dasharray="{{ $filled }} {{ $empty }}"
+                    stroke-linecap="round"
+                    stroke-dashoffset="0"
+                    class="game-arc fui-arc-animated">
+            </circle>
+          </svg>
+          <div class="fui-progress-label game-status-text">
+            @if($game->status === 'full')
+              <span style="color:#22c55e;">¡Completo!</span>
             @else
-              <a href="{{ route('login') }}" class="fui-btn fui-btn-outline">Iniciá sesión para unirte</a>
-            @endauth
+              <span style="color:#111;">Faltan {{ $needed - $joined }}</span>
+            @endif
           </div>
+          <div class="fui-progress-sub game-counter-text">{{ $joined }}/{{ $needed }} anotados</div>
+        </div>
 
-        </div>{{-- /.flex:1 --}}
-      </div>{{-- /.flex row (stripe + content) --}}
+        <div style="width:72px; height:72px; border-radius:12px; overflow:hidden; flex-shrink:0; background:var(--color-bg-page); border:1px solid var(--color-border); display:flex; align-items:center; justify-content:center;">
+          @if($game->field->venue->cover_image_path)
+            <img src="{{ Storage::url($game->field->venue->cover_image_path) }}" style="width:100%; height:100%; object-fit:cover;" alt="{{ $game->field->venue->name }}">
+          @else
+            <i data-lucide="map-pin" style="width:24px; height:24px; stroke:var(--color-text-muted);"></i>
+          @endif
+        </div>
+      </div>
+
+      {{-- Middle: Game info --}}
+      <div>
+        <div style="margin-bottom:8px;">
+          <span style="font-weight:800; font-size:16px; color:var(--color-primary-hover);">{{ $sportLabel }}</span>
+          <span style="font-size:13px; color:var(--color-text-muted);"> &middot; {{ $game->field->venue->name }}</span>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:5px; font-size:13px; color:var(--color-text-secondary);">
+          <span style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="calendar" style="width:13px;height:13px;stroke:currentColor;flex-shrink:0;"></i> {{ \Carbon\Carbon::parse($game->start_at)->format('d/m/Y') }}</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="clock" style="width:13px;height:13px;stroke:currentColor;flex-shrink:0;"></i> {{ \Carbon\Carbon::parse($game->start_at)->format('H:i') }} hs</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="users" style="width:13px;height:13px;stroke:currentColor;flex-shrink:0;"></i> {{ $game->gender_filter === 'male' ? 'Masculino' : ($game->gender_filter === 'female' ? 'Femenino' : 'Mixto') }}</span>
+          @if($game->category_min || $game->category_max)
+            <span style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="trophy" style="width:13px;height:13px;stroke:currentColor;flex-shrink:0;"></i>
+              @if($game->category_min && $game->category_max && $game->category_min === $game->category_max)
+                {{ ucfirst($game->category_min) }}
+              @elseif($game->category_min && $game->category_max)
+                {{ ucfirst($game->category_min) }} – {{ ucfirst($game->category_max) }}
+              @elseif($game->category_min)
+                Desde {{ ucfirst($game->category_min) }}
+              @else
+                Hasta {{ ucfirst($game->category_max) }}
+              @endif
+            </span>
+          @endif
+        </div>
+      </div>
+
+      {{-- Participants avatars --}}
+      <div class="fui-card-avatars">
+        @php
+          $initiator = $game->activeParticipants->firstWhere('user_id', $game->initiator_user_id);
+          $others = $game->activeParticipants->where('user_id', '!=', $game->initiator_user_id)->take(3);
+          $extraCount = max(0, $joined - 4);
+        @endphp
+        @if($initiator && $initiator->user)
+          <div class="fui-avatar fui-avatar-initiator" title="{{ $initiator->user->name }} (organizador)">
+            @if($initiator->user->avatar_path)
+              <img src="{{ Storage::url($initiator->user->avatar_path) }}" alt="">
+            @else
+              <i data-lucide="user" style="width:14px;height:14px;stroke:currentColor;stroke-width:2;"></i>
+            @endif
+          </div>
+        @endif
+        @foreach($others as $p)
+          @if($p->user)
+            <div class="fui-avatar" title="{{ $p->user->name }}">
+              @if($p->user->avatar_path)
+                <img src="{{ Storage::url($p->user->avatar_path) }}" alt="">
+              @else
+                <i data-lucide="user" style="width:14px;height:14px;stroke:currentColor;stroke-width:2;"></i>
+              @endif
+            </div>
+          @endif
+        @endforeach
+        @if($extraCount > 0)
+          <div class="fui-avatar fui-avatar-extra">+{{ $extraCount }}</div>
+        @endif
+      </div>
+
+      {{-- Mini logo --}}
+      <img src="/images/logo-multicolor-responsive.svg" alt="" class="fui-card-logo">
+
+      {{-- Bottom: Action buttons --}}
+      <div class="fui-card-actions">
+        @auth
+          @if($isInitiator)
+            <a href="{{ route('falta-uno.chat', $game) }}" class="fui-btn fui-btn-black" style="display:inline-flex;align-items:center;gap:5px;font-size:12px;"><i data-lucide="message-circle" style="width:12px;height:12px;stroke:currentColor;"></i> Chat</a>
+            <form method="POST" action="{{ route('falta-uno.cancel', $game) }}"
+                  onsubmit="return confirm('¿Cancelar el partido? {{ $game->canRefund() ? 'Recibirás un reembolso.' : 'No se devuelve el dinero.' }}')">
+              @csrf
+              <button type="submit" class="fui-btn fui-btn-cancel" style="font-size:12px;">Cancelar</button>
+            </form>
+          @elseif($isAuthJoined)
+            <span class="fui-badge-joined" style="display:inline-flex;align-items:center;gap:5px;font-size:12px;"><i data-lucide="check-circle" style="width:12px;height:12px;stroke:currentColor;"></i> Anotado</span>
+            <a href="{{ route('falta-uno.chat', $game) }}" class="fui-btn fui-btn-black" style="display:inline-flex;align-items:center;gap:5px;font-size:12px;"><i data-lucide="message-circle" style="width:12px;height:12px;stroke:currentColor;"></i> Chat</a>
+            @if($game->isFinished())
+              <a href="{{ route('falta-uno.stats', $game) }}" class="fui-btn fui-btn-stats" style="display:inline-flex;align-items:center;gap:5px;font-size:12px;"><i data-lucide="bar-chart-2" style="width:12px;height:12px;stroke:currentColor;"></i> Stats</a>
+              <a href="{{ route('falta-uno.rate', $game) }}" class="fui-btn fui-btn-rate" style="display:inline-flex;align-items:center;gap:5px;font-size:12px;"><i data-lucide="star" style="width:12px;height:12px;stroke:currentColor;"></i> Calificar</a>
+            @endif
+          @elseif($game->status !== 'full')
+            <form method="POST" action="{{ route('falta-uno.join', $game) }}">
+              @csrf
+              <button type="submit" class="fui-btn fui-btn-black" style="font-size:12px;">Unirme</button>
+            </form>
+          @endif
+        @else
+          <a href="{{ route('login') }}" class="fui-btn fui-btn-outline" style="font-size:12px;">Iniciá sesión</a>
+        @endauth
+
+      </div>
+
+      {{-- Invite friends button (only for open games) --}}
+      @if($game->status === 'open')
+        @php
+          $remaining = $game->players_needed - $joined;
+          $sportName = match($game->field->sport) { 'football'=>'Fútbol','padel'=>'Pádel','tennis'=>'Tenis','basketball'=>'Básquet','volleyball'=>'Vóley',default=>$game->field->sport };
+          $inviteMsg = "Sumate al partido de {$sportName} el " . $game->start_at->format('d/m') . " a las " . $game->start_at->format('H:i') . " en " . $game->field->venue->name . ". Faltan {$remaining} jugadores!\n" . url('/falta-uno');
+        @endphp
+        <a href="https://wa.me/?text={{ urlencode($inviteMsg) }}" target="_blank" rel="noopener"
+           class="fui-btn" style="background:transparent; border:1px solid var(--color-border); color:var(--color-text-secondary); font-size:12px; display:inline-flex; align-items:center; gap:5px; width:fit-content;">
+          <i data-lucide="share-2" style="width:12px; height:12px; stroke:currentColor;"></i> Invitar amigos
+        </a>
+      @endif
 
     </div>{{-- /.fui-card --}}
     @endforeach
   </div>
 @endif
+</div>{{-- /.fui-games-section --}}
 
 @auth
 <div id="fuToast" style="display:none; position:fixed; bottom:24px; left:50%; transform:translateX(-50%); z-index:9999; min-width:300px; max-width:420px; padding:14px 20px; border-radius:14px; font-size:14px; font-weight:600; box-shadow:0 8px 24px rgba(0,0,0,.15); text-align:center; transition:opacity .3s;"></div>
@@ -738,7 +753,7 @@
     .listen('.participant.joined', (e) => {
       const card = document.querySelector(`.fui-card[data-game-id="${e.game_id}"]`);
       if (!card) return;
-      const dash   = 283;
+      const dash   = 138;
       const pct    = e.needed > 0 ? Math.min(100, Math.round((e.joined / e.needed) * 100)) : 100;
       const filled = Math.round(dash * pct / 100);
       const empty  = dash - filled;
@@ -814,8 +829,10 @@
       @endforeach
 
       @if($faltaUnoFields->isEmpty())
-        <div style="text-align:center; padding:20px; color:#999; font-size:14px;">
-          No hay canchas con Falta Uno habilitado por el momento.
+        <div style="text-align:center; padding:28px 16px;">
+          <i data-lucide="map-pin-off" style="width:32px;height:32px;stroke:#ccc;stroke-width:1.5;margin-bottom:8px;"></i>
+          <div style="font-weight:700; font-size:14px; color:#888;">No hay canchas con Falta Uno habilitado</div>
+          <div style="font-size:13px; color:#aaa; margin-top:4px;">Cuando un complejo active esta función, sus canchas aparecerán acá</div>
         </div>
       @endif
     </div>

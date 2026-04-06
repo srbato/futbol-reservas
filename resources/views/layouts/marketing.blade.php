@@ -5,7 +5,10 @@
   <title>@yield('title', 'TuCancha')</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
   <meta name="description" content="@yield('meta_description', 'TuCancha — Reservá canchas de fútbol, tenis y más deportes online. Encontrá el complejo más cercano y confirmá tu turno al instante.')">
+  <meta name="keywords" content="reservar cancha, alquilar cancha, cancha de fútbol, cancha de pádel, cancha de tenis, turnos online, reservas deportivas, complejos deportivos, Argentina">
   <link rel="canonical" href="{{ url()->current() }}">
   {{-- Open Graph --}}
   @php
@@ -25,6 +28,7 @@
   <meta name="twitter:description" content="{{ $ogDesc }}">
   <meta name="twitter:image" content="{{ $ogImage }}">
   <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
+  <link rel="stylesheet" href="/css/design-tokens.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
@@ -32,8 +36,8 @@
     body {
       margin: 0;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: #f7f7f8;
-      color: #111;
+      background: var(--color-bg-page);
+      color: var(--color-text);
     }
 
     a { color: inherit; text-decoration: none; }
@@ -45,7 +49,7 @@
       z-index: 50;
       background: rgba(255,255,255,.95);
       backdrop-filter: blur(8px);
-      border-bottom: 1px solid #ececec;
+      border-bottom: 1px solid var(--color-border);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 

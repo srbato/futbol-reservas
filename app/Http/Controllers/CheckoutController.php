@@ -23,6 +23,12 @@ class CheckoutController extends Controller
                 ->with('success', 'Esta reserva ya fue pagada.');
         }
 
+        if (in_array($reservation->status, ['CANCELLED', 'EXPIRED'])) {
+            return redirect()
+                ->route('reservations.show', $reservation)
+                ->with('error', 'Esta reserva fue cancelada o expiró y no puede pagarse.');
+        }
+
         if ($reservation->expires_at && $reservation->expires_at->isPast()) {
             return redirect()
                 ->route('reservations.failure', $reservation)
