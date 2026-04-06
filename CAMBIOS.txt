@@ -3104,3 +3104,88 @@ CONFIGURACIÓN DEL ENTORNO DE DESARROLLO (PC nueva)
     - 3 canchas: Fútbol 5, Pádel, Tenis
       - Schedules, precios ($10 test), descuentos, bloqueos, excepciones
       - Falta Uno habilitado en fútbol y pádel
+
+REDISEÑO VISTA FALTA UNO
+---------------------------
+  resources/views/falta-uno/index.blade.php:
+
+  Navbar centrada (global):
+    resources/views/layouts/app.blade.php:
+      - Links de navegación (Inicio, Complejos, Falta Uno) centrados con
+        position absolute + left 50% + translateX(-50%)
+      - Nueva clase .site-nav-center para centrar los links
+      - Nueva clase .site-nav-right para notificaciones + user menu a la derecha
+      - Nav autenticada y no autenticada separadas en nav + div
+      - Mobile: ambos se ocultan y hamburger toma el control
+
+  Hero centrado:
+    - H1 "Encontrá tu partido" centrado (text-align center)
+    - Subtítulo centrado
+    - Badge "Falta Uno" eliminado (redundante)
+    - Botón "+ Crear partido" sobresale del borde inferior del hero:
+      * Sacado del hero container, posicionado con margin-top: -56px
+      * Sombra verde (box-shadow rgba(34,197,94,.35))
+      * Hover: sube + sombra más intensa
+    - Hero overflow: visible para permitir el desborde del botón
+
+  Cards en grid:
+    - Grid responsive: 4 columnas desktop, 2 tablet (1024px), 1 mobile (600px)
+    - Cada card con:
+      * Progress circle (52x52, r=22, circumference=138)
+      * Anillo de fondo verde claro rgba(34,197,94,.12)
+      * Thumbnail del venue (72x72, border-radius 12px)
+      * Nombre del deporte en verde (--color-primary-hover)
+      * Venue name en gris
+      * Íconos Lucide (calendar, clock, users, trophy) en vez de emojis
+      * Avatares de participantes (32px, iniciador con borde verde)
+      * Mini logo TuCancha (40px, esquina inferior derecha)
+      * Botón "Invitar amigos" (WhatsApp) en su propia fila
+    - Cards con sombra base + hover: translateY(-4px), borde verde,
+      línea gradiente verde en el top (::before)
+
+  Filtros centrados:
+    - Pills con justify-content: center
+    - Filtros activos en verde (antes negro)
+    - Contenedor con border, shadow y text-align center
+
+  Sección de cards:
+    - Fondo gris sutil (#f9fafb)
+    - Orbes decorativos verdes en diagonal (esquina sup-derecha e inf-izquierda)
+    - border-radius 24px + padding 28px
+
+  Real-time (Echo/Reverb):
+    - Circumference actualizada a 138 (era 283 original, luego 176)
+    - Keyframe fui-stroke-draw actualizado
+
+SEO Y ASSETS
+--------------
+  Imagen Open Graph:
+    - Nuevo: public/images/og-default.png (1200x630, logo TuCancha con tagline)
+    - Antes: no existía, todas las páginas tenían OG image 404
+
+  Favicons:
+    - public/favicon.ico actualizado (RealFaviconGenerator)
+    - public/images/favicon.svg restaurado al original de producción
+    - Nuevos: favicon-96x96.png, apple-touch-icon.png,
+      web-app-manifest-192x192.png, web-app-manifest-512x512.png
+    - Links en layouts: solo SVG + apple-touch-icon + manifest
+      (sin PNG 96x96 ni ICO en link tags — browser usaba PNG chico)
+
+  PWA Manifest:
+    - Nuevo: public/site.webmanifest
+    - name: TuCancha, short_name: TuCancha
+    - start_url: /
+    - theme_color: #22c55e, background_color: #f7f7f8
+    - Íconos 192x192 y 512x512 maskable
+    - Importado con <link rel="manifest"> en los 4 layouts
+
+  Sitemap:
+    - resources/views/sitemap.blade.php:
+      - Agregada /falta-uno (changefreq: daily, priority: 0.8)
+      - Agregada /planes (changefreq: monthly, priority: 0.7)
+
+  Meta keywords:
+    - layouts/app.blade.php + layouts/marketing.blade.php:
+      - Agregado <meta name="keywords"> con: reservar cancha, alquilar cancha,
+        cancha de fútbol, cancha de pádel, cancha de tenis, turnos online,
+        reservas deportivas, complejos deportivos, Argentina
