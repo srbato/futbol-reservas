@@ -32,13 +32,15 @@ class SecurityHeaders
         //   - fonts.googleapis.com / fonts.gstatic.com      → Google Fonts
         //   - maps.googleapis.com / maps.gstatic.com        → Google Maps
         //   - *.mercadopago.com / *.mercadolibre.com        → Mercado Pago Checkout Pro
+        $viteDev = app()->isLocal() ? ' http://localhost:5173 http://127.0.0.1:5173 ws://localhost:5173 ws://127.0.0.1:5173' : '';
+
         $csp = implode('; ', [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' https://js.pusher.com https://cdn.jsdelivr.net https://unpkg.com https://maps.googleapis.com https://sdk.mercadopago.com",
-            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdn.jsdelivr.net",
+            "script-src 'self' 'unsafe-inline' https://js.pusher.com https://cdn.jsdelivr.net https://unpkg.com https://maps.googleapis.com https://sdk.mercadopago.com" . $viteDev,
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdn.jsdelivr.net" . $viteDev,
             "font-src 'self' https://fonts.gstatic.com data:",
             "img-src 'self' data: blob: https://maps.googleapis.com https://maps.gstatic.com https://lh3.googleusercontent.com",
-            "connect-src 'self' wss: https://maps.googleapis.com https://api.mercadopago.com",
+            "connect-src 'self' wss: https://maps.googleapis.com https://api.mercadopago.com" . $viteDev,
             "frame-src https://*.mercadopago.com https://*.mercadolibre.com https://www.google.com https://maps.google.com",
             "object-src 'none'",
             "base-uri 'self'",

@@ -1225,7 +1225,9 @@
   @if($activeFields->isEmpty())
     <div style="text-align:center; padding:40px 0;">
       <div style="margin-bottom:10px;"><i data-lucide="building-2" style="width:36px;height:36px;stroke:#ccc;stroke-width:1.5;"></i></div>
-      <p style="margin:0; color:#9ca3af; font-size:15px;">Este complejo todavía no tiene canchas cargadas.</p>
+      <div style="font-weight:700; font-size:15px; color:#888;">Este complejo todavía no tiene canchas cargadas</div>
+      <div style="font-size:13px; color:#aaa; margin-top:6px;">Volvé más tarde o explorá otros complejos</div>
+      <a href="{{ route('venues.index') }}" class="btn" style="margin-top:14px;">Ver otros complejos</a>
     </div>
   @else
     @if($sports->count() > 1)
@@ -1385,9 +1387,10 @@
         @endif
       </div>
     @empty
-      <div style="text-align:center; padding:32px 0; color:#9ca3af;" data-aos="fade-up">
-        <div style="margin-bottom:8px;"><i data-lucide="message-circle" style="width:36px;height:36px;stroke:#d1d5db;stroke-width:1.5;"></i></div>
-        <p style="margin:0; font-size:14px;">Todavia no hay reseñas.</p>
+      <div style="text-align:center; padding:32px 0;" data-aos="fade-up">
+        <div style="margin-bottom:10px;"><i data-lucide="message-circle" style="width:36px;height:36px;stroke:#ccc;stroke-width:1.5;"></i></div>
+        <div style="font-weight:700; font-size:14px; color:#888;">Todavía no hay reseñas</div>
+        <div style="font-size:13px; color:#aaa; margin-top:4px;">Sé el primero en dejar tu opinión sobre este complejo</div>
       </div>
     @endforelse
   </div>

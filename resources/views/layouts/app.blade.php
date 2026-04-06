@@ -6,7 +6,10 @@
   <title>@yield('title', 'Reservas de canchas')</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
   <meta name="description" content="@yield('meta_description', 'TuCancha — Reservá canchas de fútbol, tenis y más deportes online. Encontrá el complejo más cercano y confirmá tu turno al instante.')">
+  <meta name="keywords" content="reservar cancha, alquilar cancha, cancha de fútbol, cancha de pádel, cancha de tenis, turnos online, reservas deportivas, complejos deportivos, Argentina">
   <link rel="canonical" href="{{ url()->current() }}">
   {{-- Open Graph --}}
   @php
@@ -26,6 +29,7 @@
   <meta name="twitter:description" content="{{ $ogDesc }}">
   <meta name="twitter:image" content="{{ $ogImage }}">
 @stack('head')
+<link rel="stylesheet" href="/css/design-tokens.css">
 <style>
   [x-cloak] { display: none !important; }
   * { box-sizing: border-box; }
@@ -33,8 +37,8 @@
   body {
     margin: 0;
     font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-    background: #f7f7f8;
-    color: #111;
+    background: var(--color-bg-page);
+    color: var(--color-text);
   }
 
   a {
@@ -47,7 +51,7 @@
     z-index: 50;
     background: rgba(255,255,255,.95);
     backdrop-filter: blur(8px);
-    border-bottom: 1px solid #ececec;
+    border-bottom: 1px solid var(--color-border);
   }
 
   .site-header-inner {
@@ -89,21 +93,33 @@
     flex-wrap: wrap;
   }
 
+  .site-nav-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .site-nav-right {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
   .site-nav a,
   .site-nav button {
     text-decoration: none;
-    border: 1px solid #ddd;
-    background: #fff;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg);
     padding: 9px 14px;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     cursor: pointer;
-    font-size: 14px;
+    font-size: var(--text-sm);
   }
 
   .site-nav a.primary {
-    background: #111;
-    color: #fff;
-    border-color: #111;
+    background: var(--color-bg-dark);
+    color: var(--color-text-inverse);
+    border-color: var(--color-bg-dark);
   }
 
   .user-menu-wrap {
@@ -112,12 +128,12 @@
 
   .user-menu-button {
     text-decoration: none;
-    border: 1px solid #ddd;
-    background: #fff;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg);
     padding: 9px 14px;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     cursor: pointer;
-    font-size: 14px;
+    font-size: var(--text-sm);
     font-weight: 600;
   }
 
@@ -126,11 +142,11 @@
     top: calc(100% + 10px);
     right: 0;
     min-width: 210px;
-    background: #fff;
-    border: 1px solid #ececec;
-    border-radius: 16px;
-    box-shadow: 0 10px 28px rgba(0,0,0,.10);
-    padding: 8px;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: var(--space-sm);
     display: none;
     z-index: 100;
   }
@@ -151,17 +167,17 @@
     border-radius: 10px;
     cursor: pointer;
     font-size: 14px;
-    color: #111;
+    color: var(--color-text);
   }
 
   .user-dropdown a:hover,
   .user-dropdown-logout:hover {
-    background: #f5f5f5;
+    background: var(--color-bg-hover);
   }
 
   .user-dropdown-admin {
-    background: #111 !important;
-    color: #fff !important;
+    background: var(--color-bg-dark) !important;
+    color: var(--color-text-inverse) !important;
     font-weight: 600 !important;
     margin-bottom: 4px;
   }
@@ -176,9 +192,9 @@
   }
 
   .notif-bell {
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 999px;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
     padding: 9px 12px;
     cursor: pointer;
     font-size: 16px;
@@ -193,7 +209,7 @@
     position: absolute;
     top: -4px;
     right: -4px;
-    background: #e53935;
+    background: var(--color-error);
     color: #fff;
     font-size: 10px;
     font-weight: 700;
@@ -214,10 +230,10 @@
     right: 0;
     width: 340px;
     max-width: calc(100vw - 16px);
-    background: #fff;
-    border: 1px solid #ececec;
-    border-radius: 16px;
-    box-shadow: 0 10px 28px rgba(0,0,0,.10);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
     display: none;
     z-index: 200;
     overflow: hidden;
@@ -232,7 +248,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 12px 14px 8px 14px;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--color-border-light);
   }
 
   .notif-dropdown-header span {
@@ -308,7 +324,7 @@
 
   .notif-body {
     font-size: 12px;
-    color: #666;
+    color: var(--color-text-secondary);
     line-height: 1.4;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -336,11 +352,11 @@
   }
 
   .page-card {
-    background: #fff;
-    border: 1px solid #ececec;
-    border-radius: 18px;
-    padding: 18px;
-    box-shadow: 0 2px 12px rgba(0,0,0,.03);
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
   }
 
   .hero {
@@ -398,7 +414,7 @@
     gap: 2px;
     font-size: 16px;
     line-height: 1;
-    color: #f5b301;
+    color: var(--color-warning);
     font-weight: 700;
   }
 
@@ -410,7 +426,7 @@
   }
 
   .muted {
-    color: #666;
+    color: var(--color-text-secondary);
   }
 
   .grid {
@@ -423,14 +439,14 @@
   }
 
   .venue-card {
-    background: #fff;
-    border: 1px solid #ececec;
-    border-radius: 20px;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
     overflow: hidden;
-    box-shadow: 0 2px 12px rgba(0,0,0,.03);
+    box-shadow: var(--shadow-sm);
     display: flex;
     flex-direction: column;
-    transition: all .18s ease;
+    transition: all var(--transition-fast);
   }
 
   .venue-card:hover {
@@ -470,7 +486,7 @@
     gap: 6px;
     padding: 7px 11px;
     border-radius: 999px;
-    background: #f4f4f4;
+    background: var(--color-bg-hover);
     font-size: 12px;
     color: #555;
     font-weight: 700;
@@ -479,15 +495,15 @@
   .btn {
     display: inline-block;
     text-decoration: none;
-    border: 1px solid #ddd;
-    background: #fff;
-    color: #111;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg);
+    color: var(--color-text);
     padding: 10px 16px;
-    border-radius: 10px;
+    border-radius: var(--radius-md);
     font-weight: 700;
-    font-size: 14px;
+    font-size: var(--text-sm);
     font-family: inherit;
-    transition: all .15s ease;
+    transition: all var(--transition-fast);
     width: auto;
     cursor: pointer;
     line-height: 1.4;
@@ -500,9 +516,9 @@
   }
 
   .btn-primary {
-    background: #111;
-    color: #fff;
-    border-color: #111;
+    background: var(--color-bg-dark);
+    color: var(--color-text-inverse);
+    border-color: var(--color-bg-dark);
   }
 
   .toolbar {
@@ -510,12 +526,12 @@
     gap: 14px;
     flex-wrap: wrap;
     align-items: end;
-    background: #fff;
-    border: 1px solid #ececec;
-    border-radius: 22px;
-    padding: 18px;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: var(--radius-lg);
     margin-bottom: 20px;
-    box-shadow: 0 4px 18px rgba(0,0,0,.04);
+    box-shadow: var(--shadow-md);
   }
 
   .toolbar input,
@@ -595,7 +611,7 @@
   }
 
   .review-stars-picker button.active {
-    color: #f5b301;
+    color: var(--color-warning);
   }
 
   .review-stars-picker button:hover {
@@ -604,7 +620,7 @@
 
   .review-rating-text {
     font-size: 14px;
-    color: #666;
+    color: var(--color-text-secondary);
     margin-top: 6px;
   }
 
@@ -622,7 +638,7 @@
   }
 
   .carousel-subtitle {
-    color: #666;
+    color: var(--color-text-secondary);
     font-size: 14px;
     max-width: 760px;
     line-height: 1.5;
@@ -645,12 +661,12 @@
 
   .feature-tab {
     padding: 8px 14px;
-    border-radius: 999px;
-    border: 1px solid #ddd;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-border);
     cursor: pointer;
     font-weight: 600;
-    background: #fff;
-    transition: all .15s ease;
+    background: var(--color-bg);
+    transition: all var(--transition-fast);
     user-select: none;
   }
 
@@ -659,9 +675,9 @@
   }
 
   .feature-tab.active {
-    background: #111;
-    color: #fff;
-    border-color: #111;
+    background: var(--color-bg-dark);
+    color: var(--color-text-inverse);
+    border-color: var(--color-bg-dark);
   }
 
   .feature-carousel {
@@ -723,10 +739,10 @@
   .featured-nav-arrow {
     width: 42px;
     height: 42px;
-    border-radius: 999px;
-    border: 1px solid #d9d9d9;
-    background: #fff;
-    color: #111;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-border);
+    background: var(--color-bg);
+    color: var(--color-text);
     font-size: 24px;
     line-height: 1;
     cursor: pointer;
@@ -745,11 +761,11 @@
   .carousel-card {
     min-width: calc((100% - 36px) / 3);
     max-width: calc((100% - 36px) / 3);
-    background: #fff;
-    border: 1px solid #ececec;
-    border-radius: 20px;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
     overflow: hidden;
-    box-shadow: 0 4px 18px rgba(0,0,0,.04);
+    box-shadow: var(--shadow-md);
     scroll-snap-align: start;
     display: flex;
     flex-direction: column;
@@ -822,9 +838,9 @@
   /* ── Hamburger (authed mobile nav) ─────────────── */
   .app-hamburger {
     display: none;
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 10px;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
     cursor: pointer;
     padding: 8px 10px;
     flex-direction: column;
@@ -837,7 +853,7 @@
     display: block;
     width: 20px;
     height: 2px;
-    background: #111;
+    background: var(--color-text);
     border-radius: 2px;
     transition: transform .2s, opacity .2s;
   }
@@ -850,11 +866,11 @@
     top: 100%;
     left: 0;
     right: 0;
-    background: #fff;
-    border-bottom: 1px solid #ececec;
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
     padding: 12px 16px 16px;
     z-index: 200;
-    box-shadow: 0 8px 24px rgba(0,0,0,.08);
+    box-shadow: var(--shadow-lg);
   }
 
   .app-mobile-nav.open { display: flex; }
@@ -877,16 +893,16 @@
   }
 
   .app-mobile-nav a:hover,
-  .app-mobile-nav button:hover { background: #f5f5f5; }
+  .app-mobile-nav button:hover { background: var(--color-bg-hover); }
 
   .app-mobile-nav .app-mobile-cta {
-    background: #111;
-    color: #fff !important;
+    background: var(--color-bg-dark);
+    color: var(--color-text-inverse) !important;
     text-align: center;
     margin-top: 4px;
   }
 
-  .app-mobile-divider { border-top: 1px solid #ececec; margin: 8px 0; }
+  .app-mobile-divider { border-top: 1px solid var(--color-border); margin: 8px 0; }
 
   /* ── Mobile ────────────────────────────────────── */
   @media (max-width: 600px) {
@@ -896,7 +912,8 @@
     }
 
     /* Ocultar nav completa en mobile */
-    .site-nav {
+    .site-nav,
+    .site-nav-right {
       display: none;
     }
 
@@ -978,15 +995,18 @@
       </a>
 
       @auth
-      {{-- Nav autenticada: oculta en mobile (manejada por hamburguesa) --}}
-      <nav class="site-nav auth-nav">
+      {{-- Nav centrada --}}
+      <nav class="site-nav site-nav-center auth-nav">
         <a href="{{ route('home') }}"
-           @if(request()->routeIs('home')) style="background:#f4f4f4; font-weight:700;" @endif>Inicio</a>
+           @if(request()->routeIs('home')) style="background:var(--color-bg-hover); font-weight:700;" @endif>Inicio</a>
         <a href="{{ route('venues.index') }}"
-           @if(request()->routeIs('venues.*')) style="background:#f4f4f4; font-weight:700;" @endif>Complejos</a>
+           @if(request()->routeIs('venues.*')) style="background:var(--color-bg-hover); font-weight:700;" @endif>Complejos</a>
         <a href="{{ route('falta-uno.index') }}"
-           @if(request()->routeIs('falta-uno.*')) style="background:#111; color:#fff; border-color:#111; font-weight:700;" @endif><i data-lucide="zap" style="width:14px;height:14px;stroke:currentColor;vertical-align:middle;margin-right:4px;"></i> Falta Uno</a>
+           @if(request()->routeIs('falta-uno.*')) style="background:var(--color-bg-dark); color:var(--color-text-inverse); border-color:var(--color-bg-dark); font-weight:700;" @endif><i data-lucide="zap" style="width:14px;height:14px;stroke:currentColor;vertical-align:middle;margin-right:4px;"></i> Falta Uno</a>
+      </nav>
 
+      {{-- Acciones derecha: notificaciones + user --}}
+      <div class="site-nav-right auth-nav">
         @php $unreadCount = auth()->user()->unreadNotifications()->count(); @endphp
         <div class="notif-wrap">
             <button type="button" class="notif-bell" id="notifBellBtn" onclick="toggleNotifDropdown()" aria-label="Notificaciones">
@@ -1069,7 +1089,7 @@
               </form>
             </div>
           </div>
-      </nav>
+      </div>
 
       {{-- Botón hamburguesa para mobile (solo autenticados) --}}
       <button class="app-hamburger" id="appHamburgerBtn" onclick="toggleAppMobileNav()" aria-label="Menú">
@@ -1077,17 +1097,19 @@
       </button>
 
       @else
-      {{-- Nav no autenticada --}}
-      <nav class="site-nav">
+      {{-- Nav centrada (no autenticada) --}}
+      <nav class="site-nav site-nav-center">
         <a href="{{ route('home') }}"
-           @if(request()->routeIs('home')) style="background:#f4f4f4; font-weight:700;" @endif>Inicio</a>
+           @if(request()->routeIs('home')) style="background:var(--color-bg-hover); font-weight:700;" @endif>Inicio</a>
         <a href="{{ route('venues.index') }}"
-           @if(request()->routeIs('venues.*')) style="background:#f4f4f4; font-weight:700;" @endif>Complejos</a>
+           @if(request()->routeIs('venues.*')) style="background:var(--color-bg-hover); font-weight:700;" @endif>Complejos</a>
         <a href="{{ route('falta-uno.index') }}"
-           @if(request()->routeIs('falta-uno.*')) style="background:#111; color:#fff; border-color:#111; font-weight:700;" @endif><i data-lucide="zap" style="width:14px;height:14px;stroke:currentColor;vertical-align:middle;margin-right:4px;"></i> Falta Uno</a>
-          <a href="{{ route('login') }}">Ingresar</a>
-          <a href="{{ route('register') }}" class="primary">Crear cuenta</a>
+           @if(request()->routeIs('falta-uno.*')) style="background:var(--color-bg-dark); color:var(--color-text-inverse); border-color:var(--color-bg-dark); font-weight:700;" @endif><i data-lucide="zap" style="width:14px;height:14px;stroke:currentColor;vertical-align:middle;margin-right:4px;"></i> Falta Uno</a>
       </nav>
+      <div class="site-nav-right">
+          <a href="{{ route('login') }}" class="btn" style="font-size:14px;">Ingresar</a>
+          <a href="{{ route('register') }}" class="btn btn-primary" style="font-size:14px;">Crear cuenta</a>
+      </div>
 
       {{-- Botón hamburguesa para mobile (invitados) --}}
       <button class="app-hamburger" id="guestHamburgerBtn" onclick="toggleGuestMobileNav()" aria-label="Menú">

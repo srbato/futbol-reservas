@@ -80,6 +80,11 @@ class FaltaUnoRatingController extends Controller
         ]);
 
         $game->loadMissing(['field', 'activeParticipants']);
+
+        if (!$game->field) {
+            return back()->with('error', 'La cancha de este partido ya no existe.');
+        }
+
         $sport = $game->field->sport;
 
         // IDs validos para calificar: iniciador + participantes confirmados

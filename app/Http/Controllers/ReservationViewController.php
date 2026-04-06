@@ -18,8 +18,9 @@ class ReservationViewController extends Controller
         $isVenueAdmin = $user->role === 'venue_admin'
             && $reservation->field->venue->owner_user_id === $user->id;
         $isTaggedPlayer = $reservation->players->contains('user_id', $user->id);
+        $isVenueStaff = $user->isStaffOf($reservation->field->venue->id);
 
-        if (!$isOwner && !$isSuperAdmin && !$isVenueAdmin && !$isTaggedPlayer) {
+        if (!$isOwner && !$isSuperAdmin && !$isVenueAdmin && !$isTaggedPlayer && !$isVenueStaff) {
             abort(403, 'No tenés permiso para ver esta reserva.');
         }
 

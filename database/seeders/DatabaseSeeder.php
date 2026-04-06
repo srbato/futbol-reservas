@@ -3,8 +3,11 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\Venue;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,11 +18,88 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        if (app()->isProduction()) {
+            $this->command->warn('Seeder deshabilitado en producción.');
+            return;
+        }
 
-        // User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+        // Super admin
+        User::create([
+            'name' => 'Santiago',
+            'email' => 'srbattini@gmail.com',
+            'password' => Hash::make('santi032005'),
+            'role' => 'super_admin',
+            'is_active' => true,
+            'email_verified_at' => now(),
+        ]);
+
+        // Usuario1 - venue_admin
+        $usuario1 = User::create([
+            'name' => 'Usuario1',
+            'email' => 'usuario1@test.com',
+            'password' => Hash::make('usuario1123'),
+            'role' => 'venue_admin',
+            'is_active' => true,
+            'email_verified_at' => now(),
+            'onboarding_completed_at' => now(),
+        ]);
+
+        // Usuario2 - empleado de usuario1
+        $usuario2 = User::create([
+            'name' => 'Usuario2',
+            'email' => 'usuario2@test.com',
+            'password' => Hash::make('usuario2123'),
+            'role' => 'user',
+            'is_active' => true,
+            'email_verified_at' => now(),
+        ]);
+
+        // Usuario3
+        User::create([
+            'name' => 'Usuario3',
+            'email' => 'usuario3@test.com',
+            'password' => Hash::make('usuario3123'),
+            'role' => 'user',
+            'is_active' => true,
+            'email_verified_at' => now(),
+        ]);
+
+        // Usuario4
+        User::create([
+            'name' => 'Usuario4',
+            'email' => 'usuario4@test.com',
+            'password' => Hash::make('usuario4123'),
+            'role' => 'user',
+            'is_active' => true,
+            'email_verified_at' => now(),
+        ]);
+
+        // Usuario5
+        User::create([
+            'name' => 'Usuario5',
+            'email' => 'usuario5@test.com',
+            'password' => Hash::make('usuario5123'),
+            'role' => 'user',
+            'is_active' => true,
+            'email_verified_at' => now(),
+        ]);
+
+        // Venue de usuario1 para que usuario2 sea su empleado
+        $venue = Venue::create([
+            'owner_user_id' => $usuario1->id,
+            'name' => 'Complejo de Usuario1',
+            'address' => 'Av. Ejemplo 1234, Buenos Aires',
+            'phone' => '1155551234',
+            'is_active' => true,
+        ]);
+
+        // Usuario2 como staff del venue de usuario1
+        DB::table('venue_staff')->insert([
+            'venue_id' => $venue->id,
+            'user_id' => $usuario2->id,
+            'permissions' => json_encode(['manage_reservations', 'view_fields', 'manage_fields']),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 }

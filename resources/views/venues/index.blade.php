@@ -31,7 +31,7 @@
     left: 0;
     height: 3px;
     width: 0%;
-    background: #22c55e;
+    background: var(--color-primary);
     z-index: 9999;
     transition: width 0.1s linear;
     box-shadow: 0 0 8px rgba(34,197,94,.6);
@@ -128,12 +128,12 @@
     align-items: center;
     gap: 8px;
     padding: 6px 14px;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     background: rgba(110,234,160,.12);
     border: 1px solid rgba(110,234,160,.3);
     font-size: 13px;
     font-weight: 700;
-    color: #6eeaa0;
+    color: var(--color-primary-light);
     margin-bottom: 20px;
   }
 
@@ -141,7 +141,7 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #22c55e;
+    background: var(--color-primary);
     flex-shrink: 0;
     animation: vi-pulse 1.8s ease-in-out infinite;
   }
@@ -162,7 +162,7 @@
 
   .vi-hero-text h1 em {
     font-style: normal;
-    color: #6eeaa0;
+    color: var(--color-primary-light);
   }
 
   .vi-word-reveal {
@@ -203,7 +203,7 @@
   .vi-hero-microstat-val {
     font-size: 22px;
     font-weight: 800;
-    color: #6eeaa0;
+    color: var(--color-primary-light);
     letter-spacing: -0.03em;
     line-height: 1;
   }
@@ -278,7 +278,7 @@
   .vi-search-bar input::placeholder { color: rgba(255,255,255,.45); }
 
   .vi-search-btn {
-    background: #22c55e;
+    background: var(--color-primary);
     color: #052e16;
     border: none;
     border-radius: 12px;
@@ -294,7 +294,7 @@
   }
 
   .vi-search-btn:hover {
-    background: #16a34a;
+    background: var(--color-primary-hover);
     transform: translateY(-1px);
     box-shadow: 0 4px 16px rgba(34,197,94,.35);
   }
@@ -314,7 +314,7 @@
     align-items: center;
     gap: 6px;
     padding: 7px 14px;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     background: rgba(255,255,255,.07);
     border: 1px solid rgba(255,255,255,.14);
     color: rgba(255,255,255,.8);
@@ -344,8 +344,30 @@
   .vi-filter-chip.active {
     background: rgba(110,234,160,.15);
     border: 1px solid rgba(110,234,160,.4);
-    color: #6eeaa0;
+    color: var(--color-primary-light);
   }
+
+  .vi-chip-disabled {
+    opacity: .35;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+  .vi-chip-disabled input { pointer-events: none; }
+
+  .vi-availability-banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
+    background: rgba(34,197,94,.08);
+    border: 1px solid rgba(34,197,94,.25);
+    color: var(--color-primary-hover);
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+  .vi-availability-banner strong { color: var(--color-primary-hover); }
 
   .vi-filter-sep {
     width: 1px;
@@ -361,7 +383,7 @@
     cursor: pointer;
     font-family: inherit;
     padding: 7px 10px;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     transition: color .15s;
     text-decoration: none;
   }
@@ -425,7 +447,7 @@
   .vi-adv-field input:focus,
   .vi-adv-field select:focus { border-color: rgba(110,234,160,.5); }
 
-  .vi-adv-field select option { background: #111; color: #fff; }
+  .vi-adv-field select option { background: var(--color-bg-dark); color: var(--color-text-inverse); }
 
   .vi-adv-actions {
     display: flex;
@@ -454,12 +476,12 @@
     align-items: center;
     gap: 6px;
     padding: 5px 12px;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     background: #052e16;
     color: #4ade80;
     font-size: 12px;
     font-weight: 700;
-    border: 1px solid #16a34a;
+    border: 1px solid var(--color-primary-hover);
   }
 
   /* ── Search results panel ─────────────────────── */
@@ -493,7 +515,7 @@
     font-size: 20px;
     font-weight: 800;
     letter-spacing: -0.02em;
-    color: #111;
+    color: var(--color-text);
   }
 
   .vi-search-results-count {
@@ -503,19 +525,19 @@
     background: rgba(74,222,128,.1);
     border: 1px solid rgba(74,222,128,.2);
     padding: 4px 14px;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
   }
 
   /* ── Featured section ─────────────────────────── */
   .vi-featured {
-    background: #ffffff;
+    background: var(--color-bg);
     border: 1px solid #e2e8f0;
     border-radius: 24px;
     padding: 32px 32px 28px;
     margin-bottom: 28px;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 2px 16px rgba(0,0,0,.06);
+    box-shadow: var(--shadow-md);
   }
 
   @media (max-width: 640px) {
@@ -556,12 +578,12 @@
     font-size: 20px;
     font-weight: 800;
     letter-spacing: -0.02em;
-    color: #111;
+    color: var(--color-text);
   }
 
   .vi-featured-header .carousel-subtitle {
     font-size: 13px;
-    color: #888;
+    color: var(--color-text-muted);
     margin-top: 3px;
   }
 
@@ -569,17 +591,17 @@
     display: flex;
     background: #f1f5f9;
     border: 1px solid #e2e8f0;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     padding: 3px;
     gap: 2px;
   }
 
   .feature-tab {
     padding: 7px 18px;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     font-size: 13px;
     font-weight: 700;
-    color: #666;
+    color: var(--color-text-secondary);
     cursor: pointer;
     transition: background .15s, color .15s;
     white-space: nowrap;
@@ -587,7 +609,7 @@
   }
 
   .feature-tab.active {
-    background: #22c55e;
+    background: var(--color-primary);
     color: #052e16;
   }
 
@@ -612,16 +634,16 @@
   }
 
   .featured-nav-arrow:hover {
-    background: #22c55e;
-    border-color: #22c55e;
+    background: var(--color-primary);
+    border-color: var(--color-primary);
     color: #052e16;
   }
 
   /* Barra de progreso del autoplay */
   .vi-featured-progress {
     height: 3px;
-    background: #e5e7eb;
-    border-radius: 999px;
+    background: var(--color-border);
+    border-radius: var(--radius-full);
     margin-bottom: 16px;
     overflow: hidden;
     position: relative;
@@ -630,8 +652,8 @@
 
   .vi-featured-progress-bar {
     height: 100%;
-    background: #22c55e;
-    border-radius: 999px;
+    background: var(--color-primary);
+    border-radius: var(--radius-full);
     width: 0%;
     animation: vi-progress 3.5s linear forwards;
     box-shadow: 0 0 6px rgba(34,197,94,.5);
@@ -741,7 +763,7 @@
   .featured-card-badge {
     display: inline-block;
     padding: 2px 8px;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     background: rgba(255,255,255,.15);
     border: 1px solid rgba(255,255,255,.2);
     font-size: 11px;
@@ -752,7 +774,7 @@
     display: inline-block;
     padding: 7px 14px;
     border-radius: 10px;
-    background: #22c55e;
+    background: var(--color-primary);
     color: #052e16;
     font-size: 12px;
     font-weight: 800;
@@ -761,14 +783,14 @@
   }
 
   .featured-card-btn:hover {
-    background: #16a34a;
+    background: var(--color-primary-hover);
     box-shadow: 0 4px 14px rgba(34,197,94,.4);
   }
 
   /* ── Favorites ────────────────────────────────── */
   .vi-favorites {
     background: #f0fdf4;
-    border-left: 4px solid #22c55e;
+    border-left: 4px solid var(--color-primary);
     border-top: 1px solid #bbf7d0;
     border-right: 1px solid #bbf7d0;
     border-bottom: 1px solid #bbf7d0;
@@ -800,8 +822,8 @@
     align-items: center;
     gap: 7px;
     padding: 8px 16px;
-    border-radius: 999px;
-    background: #fff;
+    border-radius: var(--radius-full);
+    background: var(--color-bg);
     border: 1px solid #bbf7d0;
     font-size: 13px;
     font-weight: 700;
@@ -811,9 +833,9 @@
   }
 
   .vi-fav-chip:hover {
-    background: #22c55e;
+    background: var(--color-primary);
     color: #052e16;
-    border-color: #22c55e;
+    border-color: var(--color-primary);
   }
 
   /* ── Map ──────────────────────────────────────── */
@@ -832,7 +854,7 @@
     margin-bottom: 10px;
     font-size: 13px;
     font-weight: 700;
-    color: #111;
+    color: var(--color-text);
   }
 
   /* Mapa skeleton antes de carga */
@@ -885,7 +907,7 @@
 
   .vi-results-count {
     font-size: 14px;
-    color: #888;
+    color: var(--color-text-muted);
     font-weight: 600;
   }
 
@@ -902,8 +924,8 @@
     left: 0;
     height: 3px;
     width: 0;
-    background: #22c55e;
-    border-radius: 999px;
+    background: var(--color-primary);
+    border-radius: var(--radius-full);
     transition: width 0.5s cubic-bezier(0.22,1,0.36,1);
     box-shadow: 0 0 8px rgba(34,197,94,.4);
   }
@@ -916,10 +938,10 @@
   .vi-count-pill {
     font-size: 13px;
     font-weight: 800;
-    background: #22c55e;
+    background: var(--color-primary);
     color: #052e16;
     padding: 4px 14px;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     display: inline-flex;
     align-items: center;
     gap: 4px;
@@ -934,7 +956,7 @@
   }
 
   .vi-venue-card {
-    background: #fff;
+    background: var(--color-bg-card);
     border: 1px solid #e2e8f0;
     border-radius: 22px;
     overflow: hidden;
@@ -1059,7 +1081,7 @@
     bottom: 12px;
     left: 12px;
     padding: 4px 10px;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     background: #052e16;
     color: #4ade80;
     font-size: 11px;
@@ -1075,12 +1097,12 @@
     position: absolute;
     top: 10px;
     left: 10px;
-    background: #22c55e;
+    background: var(--color-primary);
     color: #052e16;
     font-size: 11px;
     font-weight: 800;
     padding: 3px 10px 3px 8px;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     display: flex;
     align-items: center;
     gap: 5px;
@@ -1152,12 +1174,12 @@
   .vi-venue-rating-text {
     font-size: 13px;
     font-weight: 700;
-    color: #111;
+    color: var(--color-text);
   }
 
   .vi-venue-rating-count {
     font-size: 12px;
-    color: #999;
+    color: var(--color-text-muted);
   }
 
   .vi-venue-meta {
@@ -1172,7 +1194,7 @@
     align-items: center;
     gap: 4px;
     padding: 3px 10px;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     font-size: 12px;
     font-weight: 600;
   }
@@ -1210,7 +1232,7 @@
 
   .vi-venue-desc {
     font-size: 13px;
-    color: #666;
+    color: var(--color-text-secondary);
     line-height: 1.55;
     flex: 1;
     display: -webkit-box;
@@ -1231,8 +1253,8 @@
     flex: 1;
     padding: 10px 16px;
     border-radius: 12px;
-    background: #111;
-    color: #fff;
+    background: var(--color-bg-dark);
+    color: var(--color-text-inverse);
     font-size: 13px;
     font-weight: 700;
     text-align: center;
@@ -1245,7 +1267,7 @@
   }
 
   .vi-btn-primary:hover {
-    background: #22c55e;
+    background: var(--color-primary);
     color: #052e16;
     box-shadow: 0 4px 18px rgba(34,197,94,.35);
     transform: translateY(-1px);
@@ -1257,7 +1279,7 @@
     top: 10px;
     left: 10px;
     padding: 4px 10px;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     font-size: 11px;
     font-weight: 800;
     text-transform: uppercase;
@@ -1286,7 +1308,7 @@
 
   /* Card diferenciada por plan */
   .vi-venue-card.vi-card-pro {
-    border-top: 3px solid #22c55e;
+    border-top: 3px solid var(--color-primary);
     box-shadow: 0 4px 20px rgba(34,197,94,.12);
   }
 
@@ -1397,7 +1419,7 @@
     border-radius: 24px;
     padding: 56px 32px;
     text-align: center;
-    color: #111;
+    color: var(--color-text);
   }
 
   .vi-empty-svg {
@@ -1408,12 +1430,12 @@
     margin: 0 0 8px 0;
     font-size: 20px;
     font-weight: 800;
-    color: #111;
+    color: var(--color-text);
   }
 
   .vi-empty p {
     margin: 0 0 24px 0;
-    color: #666;
+    color: var(--color-text-secondary);
     font-size: 15px;
   }
 
@@ -1421,7 +1443,7 @@
     display: inline-block;
     padding: 11px 24px;
     border-radius: 12px;
-    background: #22c55e;
+    background: var(--color-primary);
     color: #052e16;
     font-size: 14px;
     font-weight: 800;
@@ -1430,7 +1452,7 @@
   }
 
   .vi-empty-clear-btn:hover {
-    background: #16a34a;
+    background: var(--color-primary-hover);
     box-shadow: 0 4px 18px rgba(34,197,94,.35);
   }
 
@@ -1440,7 +1462,7 @@
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: #22c55e;
+    background: var(--color-primary);
     pointer-events: none;
     z-index: 99999;
     transform: translate(-50%, -50%) scale(0);
@@ -1467,7 +1489,7 @@
     width: 56px;
     height: 56px;
     border-radius: 50%;
-    background: #22c55e;
+    background: var(--color-primary);
     color: #052e16;
     border: none;
     cursor: pointer;
@@ -1488,7 +1510,7 @@
   }
 
   .vi-fab:hover {
-    background: #16a34a;
+    background: var(--color-primary-hover);
     box-shadow: 0 12px 40px rgba(34,197,94,.55);
     transform: scale(1.1);
   }
@@ -1498,8 +1520,8 @@
     right: calc(100% + 10px);
     top: 50%;
     transform: translateY(-50%);
-    background: #111;
-    color: #fff;
+    background: var(--color-bg-dark);
+    color: var(--color-text-inverse);
     font-size: 12px;
     font-weight: 700;
     padding: 6px 12px;
@@ -3399,7 +3421,7 @@
         {{-- Badge pulsante --}}
         <div class="vi-hero-badge" data-aos="fade-up" data-aos-delay="0">
           <span class="vi-hero-badge-dot"></span>
-          {{ $allVenues->count() }} complejos disponibles
+          {{ $allVenues->count() }} {{ $allVenues->count() === 1 ? 'complejo disponible' : 'complejos disponibles' }}
         </div>
 
         {{-- H1 con efecto de aparición por palabras --}}
@@ -3480,7 +3502,20 @@
                 name="date"
                 value="{{ $date ?? '' }}"
                 min="{{ date('Y-m-d') }}"
+                onchange="onDateFilterChange(this)"
+              >
+            </label>
+
+            {{-- Horario (requiere fecha) --}}
+            <label class="vi-filter-chip {{ ($availableAt ?? '') ? 'active' : '' }} {{ !($date ?? '') ? 'vi-chip-disabled' : '' }}" id="timeChip" onclick="event.preventDefault(); if(document.getElementById('dateFilterInput').value) document.getElementById('timeFilterInput').showPicker();">
+              <i data-lucide="clock" style="width:13px;height:13px;stroke:currentColor;vertical-align:middle;margin-right:3px;"></i> {{ ($availableAt ?? '') ?: 'Horario' }}
+              <input
+                id="timeFilterInput"
+                type="time"
+                name="available_at"
+                value="{{ $availableAt ?? '' }}"
                 onchange="document.getElementById('venueSearchForm').submit()"
+                {{ !($date ?? '') ? 'disabled' : '' }}
               >
             </label>
 
@@ -3489,8 +3524,8 @@
             {{-- Más filtros --}}
             <button type="button" class="vi-filter-chip" id="advToggleBtn" onclick="toggleAdv()">
               <i data-lucide="sliders-horizontal" style="width:13px;height:13px;stroke:currentColor;vertical-align:middle;margin-right:3px;"></i> Más filtros
-              @if(($minPrice ?? '') || ($maxPrice ?? '') || ($availableAt ?? ''))
-                <span style="background:#22c55e; color:#052e16; border-radius:999px; width:18px; height:18px; display:inline-flex; align-items:center; justify-content:center; font-size:10px;">●</span>
+              @if(($minPrice ?? '') || ($maxPrice ?? ''))
+                <span style="background:var(--color-primary); color:#052e16; border-radius:var(--radius-full); width:18px; height:18px; display:inline-flex; align-items:center; justify-content:center; font-size:10px;">●</span>
               @endif
             </button>
 
@@ -3500,7 +3535,7 @@
           </div>
 
           {{-- Advanced filter panel — glass effect --}}
-          <div class="vi-adv-panel {{ (($minPrice ?? '') || ($maxPrice ?? '') || ($availableAt ?? '')) ? 'open' : '' }}" id="advPanel">
+          <div class="vi-adv-panel {{ (($minPrice ?? '') || ($maxPrice ?? '')) ? 'open' : '' }}" id="advPanel">
             <div class="vi-adv-panel-inner">
               <div class="vi-adv-grid">
                 <div class="vi-adv-field">
@@ -3510,10 +3545,6 @@
                 <div class="vi-adv-field">
                   <label>Precio máximo (ARS)</label>
                   <input type="number" name="max_price" min="0" step="1" value="{{ $maxPrice ?? '' }}" placeholder="Ej: 20000">
-                </div>
-                <div class="vi-adv-field">
-                  <label>Horario disponible</label>
-                  <input type="time" name="available_at" value="{{ $availableAt ?? '' }}">
                 </div>
               </div>
               <div class="vi-adv-actions" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
@@ -3563,6 +3594,14 @@
       @if($availableAt ?? '')
         <span class="vi-active-filter-tag" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="clock" style="width:12px;height:12px;stroke:currentColor;"></i> {{ $availableAt }}</span>
       @endif
+    </div>
+  @endif
+
+  {{-- Indicador de filtro por disponibilidad --}}
+  @if(($date ?? '') && ($availableAt ?? ''))
+    <div class="vi-availability-banner">
+      <i data-lucide="check-circle" style="width:16px;height:16px;stroke:currentColor;flex-shrink:0;"></i>
+      <span>Mostrando solo canchas disponibles el <strong>{{ \Carbon\Carbon::parse($date)->format('d/m') }}</strong> a las <strong>{{ $availableAt }}hs</strong></span>
     </div>
   @endif
 
@@ -3730,7 +3769,11 @@
               </div>
             </article>
           @empty
-            <div style="padding:24px; color:#888; font-size:14px;">No hay datos esta semana todavía.</div>
+            <div style="padding:32px; text-align:center;">
+              <i data-lucide="calendar-off" style="width:36px;height:36px;stroke:#ccc;stroke-width:1.5;margin-bottom:10px;"></i>
+              <div style="font-weight:700; font-size:14px; color:#888;">No hay datos esta semana todavía</div>
+              <div style="font-size:13px; color:#aaa; margin-top:4px;">Las reservas de la semana aparecerán acá</div>
+            </div>
           @endforelse
         </div>
       </div>
@@ -3760,7 +3803,11 @@
               </div>
             </article>
           @empty
-            <div style="padding:24px; color:#888; font-size:14px;">No hay complejos con descuentos activos.</div>
+            <div style="padding:32px; text-align:center;">
+              <i data-lucide="tag" style="width:36px;height:36px;stroke:#ccc;stroke-width:1.5;margin-bottom:10px;"></i>
+              <div style="font-weight:700; font-size:14px; color:#888;">No hay descuentos activos</div>
+              <div style="font-size:13px; color:#aaa; margin-top:4px;">Cuando un complejo tenga promociones, aparecerán acá</div>
+            </div>
           @endforelse
         </div>
       </div>
@@ -3790,7 +3837,11 @@
               </div>
             </article>
           @empty
-            <div style="padding:24px; color:#888; font-size:14px;">Todavía no hay reseñas.</div>
+            <div style="padding:32px; text-align:center;">
+              <i data-lucide="star" style="width:36px;height:36px;stroke:#ccc;stroke-width:1.5;margin-bottom:10px;"></i>
+              <div style="font-weight:700; font-size:14px; color:#888;">Todavía no hay reseñas</div>
+              <div style="font-size:13px; color:#aaa; margin-top:4px;">Reservá y dejá tu opinión para ayudar a otros jugadores</div>
+            </div>
           @endforelse
         </div>
       </div>
@@ -4006,6 +4057,20 @@
   function toggleAdv() {
     const panel = document.getElementById('advPanel');
     panel.classList.toggle('open');
+  }
+
+  function onDateFilterChange(dateInput) {
+    const timeChip = document.getElementById('timeChip');
+    const timeInput = document.getElementById('timeFilterInput');
+    if (dateInput.value) {
+      timeChip.classList.remove('vi-chip-disabled');
+      timeInput.disabled = false;
+    } else {
+      timeChip.classList.add('vi-chip-disabled');
+      timeInput.disabled = true;
+      timeInput.value = '';
+    }
+    document.getElementById('venueSearchForm').submit();
   }
 
   // ── Carousel + tabs ─────────────────────────────

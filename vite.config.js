@@ -3,7 +3,10 @@ import laravel from 'laravel-vite-plugin';
 
 export default defineConfig({
     server: {
-        host: '127.0.0.1',
+        host: 'localhost',
+        cors: {
+            origin: /^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?$/,
+        },
     },
     plugins: [
         laravel({

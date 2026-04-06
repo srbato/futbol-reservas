@@ -140,6 +140,7 @@ Route::middleware(['auth', 'active.user'])->group(function () {
         ->name('membership.cancel_pending');
 
     Route::post('/membership/cancel-subscription', [VenueAdminMembershipController::class, 'cancelSubscription'])
+        ->middleware('throttle:5,1')
         ->name('membership.cancel_subscription');
 
     Route::post('/membership/start-trial', [VenueAdminMembershipController::class, 'startTrial'])
@@ -242,7 +243,9 @@ Route::middleware(['auth', 'active.user'])->group(function () {
     Route::post('/falta-uno/{game}/join', [FaltaUnoController::class, 'join'])->name('falta-uno.join');
     Route::post('/falta-uno/{game}/leave', [FaltaUnoController::class, 'leave'])->name('falta-uno.leave');
     Route::post('/falta-uno/{game}/cancel', [FaltaUnoController::class, 'cancel'])->name('falta-uno.cancel');
-    Route::post('/falta-uno/{game}/kick/{user}', [FaltaUnoController::class, 'kick'])->name('falta-uno.kick');
+    Route::post('/falta-uno/{game}/kick/{user}', [FaltaUnoController::class, 'kick'])
+        ->middleware('throttle:10,1')
+        ->name('falta-uno.kick');
 
     // Perfil deportivo propio
     Route::get('/mi-perfil-deportivo', [FaltaUnoSportProfileController::class, 'index'])->name('sport-profile.index');
@@ -625,7 +628,9 @@ Route::middleware(['auth', 'active.user', 'role:venue_admin,super_admin', 'venue
 
         // Staff
         Route::get('/staff', [VaVenueStaffController::class, 'index'])->name('va.staff.index');
-        Route::post('/staff/invite', [VaVenueStaffController::class, 'invite'])->name('va.staff.invite');
+        Route::post('/staff/invite', [VaVenueStaffController::class, 'invite'])
+            ->middleware('throttle:10,1')
+            ->name('va.staff.invite');
         Route::post('/staff/remove', [VaVenueStaffController::class, 'remove'])->name('va.staff.remove');
         Route::post('/staff/cancel-invitation', [VaVenueStaffController::class, 'cancelInvitation'])->name('va.staff.cancel_invitation');
         Route::post('/staff/{staff}/permissions', [VaVenueStaffController::class, 'updatePermissions'])->name('va.staff.update_permissions');

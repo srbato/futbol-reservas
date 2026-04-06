@@ -7,7 +7,10 @@
 
 <title>{{ config('app.name', 'TuCancha') }}</title>
 <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
 <link rel="canonical" href="{{ url()->current() }}">
+<link rel="stylesheet" href="/css/design-tokens.css">
 
 <style>
 * { box-sizing:border-box; margin:0; padding:0; }

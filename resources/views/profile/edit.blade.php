@@ -12,7 +12,7 @@
     top: 0; left: 0;
     height: 3px;
     width: 0%;
-    background: #22c55e;
+    background: var(--color-primary);
     z-index: 9999;
     transition: width .1s linear;
   }
@@ -24,7 +24,7 @@
     border-radius: 28px;
     overflow: hidden;
     margin-bottom: 28px;
-    background: #111;
+    background: var(--color-bg-dark);
   }
 
   .pf-hero-bg {
@@ -65,14 +65,14 @@
     height: 100px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid #22c55e;
+    border: 3px solid var(--color-primary);
     box-shadow: 0 0 0 6px rgba(34,197,94,.2);
-    background: #111;
+    background: var(--color-bg-dark);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 40px;
-    color: #fff;
+    color: var(--color-text-inverse);
     font-weight: 900;
     flex-shrink: 0;
   }
@@ -80,7 +80,7 @@
   .pf-hero-name {
     font-size: 32px;
     font-weight: 900;
-    color: #fff;
+    color: var(--color-text-inverse);
     margin: 0;
     line-height: 1.1;
     letter-spacing: -.02em;
@@ -98,7 +98,7 @@
     align-items: center;
     gap: 5px;
     padding: 4px 12px;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     background: rgba(255,255,255,.13);
     border: 1px solid rgba(255,255,255,.22);
     color: rgba(255,255,255,.9);
@@ -129,8 +129,8 @@
 
   /* ── Sidebar ── */
   .pf-sidebar {
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
+    background: var(--color-bg-page);
+    border: 1px solid var(--color-border);
     border-radius: 24px;
     padding: 20px;
     position: sticky;
@@ -157,13 +157,13 @@
   }
 
   .pf-nav-item.pf-nav-active {
-    background: #111;
-    color: #fff;
-    border-color: #111;
+    background: var(--color-bg-dark);
+    color: var(--color-text-inverse);
+    border-color: var(--color-bg-dark);
   }
 
   .pf-nav-item.pf-nav-active svg {
-    stroke: #fff;
+    stroke: var(--color-text-inverse);
   }
 
   .pf-nav-item.pf-nav-danger {
@@ -187,7 +187,7 @@
 
   .pf-sidebar-divider {
     height: 1px;
-    background: #e5e7eb;
+    background: var(--color-border);
     margin: 16px 0;
   }
 
@@ -200,22 +200,22 @@
   .pf-stat-box {
     text-align: center;
     padding: 10px 6px;
-    background: #fff;
+    background: var(--color-bg-card);
     border-radius: 14px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--color-border);
   }
 
   .pf-stat-number {
     font-size: 20px;
     font-weight: 900;
-    color: #22c55e;
+    color: var(--color-primary);
     line-height: 1.1;
   }
 
   .pf-stat-label {
     font-size: 10px;
     font-weight: 600;
-    color: #9ca3af;
+    color: var(--color-text-muted);
     text-transform: uppercase;
     letter-spacing: .05em;
     margin-top: 3px;
@@ -228,8 +228,8 @@
 
   /* ── Cards ── */
   .pf-card {
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
+    background: var(--color-bg-page);
+    border: 1px solid var(--color-border);
     border-radius: 24px;
     padding: 32px;
   }
@@ -244,7 +244,7 @@
     align-items: flex-start;
     gap: 14px;
     padding-bottom: 20px;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--color-border);
     margin-bottom: 24px;
   }
 
@@ -262,7 +262,7 @@
   .pf-card-title {
     font-size: 18px;
     font-weight: 800;
-    color: #111;
+    color: var(--color-text);
     margin: 0 0 3px 0;
   }
 
@@ -286,12 +286,12 @@
   .pf-input {
     width: 100%;
     padding: 12px 16px;
-    border: 1.5px solid #e5e7eb;
+    border: 1.5px solid var(--color-border);
     border-radius: 14px;
-    background: #fff;
+    background: var(--color-bg);
     font-size: 14px;
     font-family: inherit;
-    color: #111;
+    color: var(--color-text);
     transition: border-color .2s ease, box-shadow .2s ease;
     outline: none;
     -webkit-appearance: none;
@@ -299,7 +299,7 @@
   }
 
   .pf-input:focus {
-    border-color: #22c55e;
+    border-color: var(--color-primary);
     box-shadow: 0 0 0 3px rgba(34,197,94,.1);
   }
 
@@ -310,7 +310,7 @@
     gap: 8px;
     padding: 12px 28px;
     background: #111827;
-    color: #fff;
+    color: var(--color-text-inverse);
     border: none;
     border-radius: 12px;
     font-size: 14px;
@@ -321,7 +321,7 @@
   }
 
   .pf-btn-save:hover {
-    background: #22c55e;
+    background: var(--color-primary);
     color: #052e16;
     transform: translateY(-1px);
     box-shadow: 0 4px 16px rgba(34,197,94,.3);
@@ -346,7 +346,7 @@
 
   .pf-btn-danger:hover {
     background: #dc2626;
-    color: #fff;
+    color: var(--color-text-inverse);
     transform: scale(1.02);
   }
 
@@ -379,7 +379,7 @@
     height: 96px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid #22c55e;
+    border: 3px solid var(--color-primary);
     display: block;
   }
 
@@ -387,14 +387,14 @@
     width: 96px;
     height: 96px;
     border-radius: 50%;
-    background: #111;
-    border: 3px solid #22c55e;
+    background: var(--color-bg-dark);
+    border: 3px solid var(--color-primary);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 36px;
     font-weight: 900;
-    color: #fff;
+    color: var(--color-text-inverse);
   }
 
   .pf-avatar-overlay {
@@ -418,7 +418,7 @@
   .pf-avatar-overlay span {
     font-size: 12px;
     font-weight: 600;
-    color: #fff;
+    color: var(--color-text-inverse);
     line-height: 1;
   }
 
@@ -473,7 +473,7 @@
     flex: 1;
     height: 4px;
     border-radius: 2px;
-    background: #e5e7eb;
+    background: var(--color-border);
     transition: background .25s ease;
   }
 
@@ -482,7 +482,7 @@
     font-weight: 600;
     margin-top: 5px;
     min-height: 16px;
-    color: #9ca3af;
+    color: var(--color-text-muted);
     transition: color .25s ease;
   }
 
@@ -503,7 +503,7 @@
   }
 
   .pf-modal-card {
-    background: #fff;
+    background: var(--color-bg);
     border-radius: 24px;
     padding: 0;
     max-width: 480px;
@@ -526,7 +526,7 @@
   .pf-modal-title {
     font-size: 22px;
     font-weight: 900;
-    color: #111;
+    color: var(--color-text);
     margin: 12px 0 6px 0;
   }
 
@@ -563,7 +563,7 @@
     gap: 8px;
     padding: 12px 24px;
     background: #dc2626;
-    color: #fff;
+    color: var(--color-text-inverse);
     border: none;
     border-radius: 12px;
     font-size: 14px;
@@ -588,9 +588,9 @@
 
   .pf-tab {
     padding: 7px 18px;
-    border-radius: 999px;
-    border: 1.5px solid #e5e7eb;
-    background: #fff;
+    border-radius: var(--radius-full);
+    border: 1.5px solid var(--color-border);
+    background: var(--color-bg);
     font-size: 13px;
     font-weight: 700;
     color: #374151;
@@ -600,13 +600,13 @@
   }
 
   .pf-tab:hover {
-    border-color: #111;
+    border-color: var(--color-text);
   }
 
   .pf-tab.pf-tab-active {
-    background: #111;
-    color: #fff;
-    border-color: #111;
+    background: var(--color-bg-dark);
+    color: var(--color-text-inverse);
+    border-color: var(--color-bg-dark);
   }
 
   /* ── Partido card ── */
@@ -615,8 +615,8 @@
     align-items: center;
     gap: 14px;
     padding: 16px 20px;
-    background: #fff;
-    border: 1px solid #e5e7eb;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
     border-radius: 16px;
     flex-wrap: wrap;
     transition: transform .18s ease, box-shadow .18s ease;
@@ -647,13 +647,13 @@
   .pf-game-name {
     font-weight: 700;
     font-size: 14px;
-    color: #111;
+    color: var(--color-text);
     margin: 0 0 3px 0;
   }
 
   .pf-game-meta {
     font-size: 12px;
-    color: #9ca3af;
+    color: var(--color-text-muted);
     margin: 0;
   }
 
@@ -668,19 +668,19 @@
   .pf-game-btn {
     font-size: 12px;
     padding: 6px 14px;
-    border: 1.5px solid #e5e7eb;
+    border: 1.5px solid var(--color-border);
     border-radius: 8px;
     color: #374151;
     text-decoration: none;
     font-weight: 600;
     transition: all .15s ease;
     white-space: nowrap;
-    background: #fff;
+    background: var(--color-bg);
   }
 
   .pf-game-btn:hover {
-    border-color: #111;
-    background: #f9fafb;
+    border-color: var(--color-text);
+    background: var(--color-bg-page);
   }
 
   .pf-game-btn-rate {
@@ -702,8 +702,8 @@
 
   .pf-sport-card {
     padding: 20px;
-    background: #fff;
-    border: 1px solid #e5e7eb;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
     border-radius: 18px;
     transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
   }
@@ -711,7 +711,7 @@
   .pf-sport-card:hover {
     transform: translateY(-3px);
     box-shadow: 0 8px 20px rgba(0,0,0,.07);
-    border-color: #111;
+    border-color: var(--color-text);
   }
 
   .pf-sport-emoji-circle {
@@ -729,7 +729,7 @@
   .pf-sport-name {
     font-size: 16px;
     font-weight: 800;
-    color: #111;
+    color: var(--color-text);
     margin: 0 0 6px 0;
   }
 
@@ -742,7 +742,7 @@
 
   .pf-sport-badge {
     padding: 3px 10px;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     background: #f3f4f6;
     font-size: 11px;
     font-weight: 600;
@@ -766,7 +766,7 @@
   }
 
   .pf-sport-games {
-    color: #22c55e;
+    color: var(--color-primary);
     font-weight: 600;
     font-size: 12px;
   }
@@ -776,7 +776,7 @@
     align-items: center;
     gap: 6px;
     padding: 7px 16px;
-    border: 1.5px solid #e5e7eb;
+    border: 1.5px solid var(--color-border);
     border-radius: 10px;
     color: #374151;
     font-size: 12px;
@@ -786,9 +786,9 @@
   }
 
   .pf-sport-edit-btn:hover {
-    background: #111;
-    color: #fff;
-    border-color: #111;
+    background: var(--color-bg-dark);
+    color: var(--color-text-inverse);
+    border-color: var(--color-bg-dark);
   }
 
   /* ── Empty state ── */
@@ -813,7 +813,7 @@
 
   .pf-empty-sub {
     font-size: 14px;
-    color: #9ca3af;
+    color: var(--color-text-muted);
     margin: 0 0 20px 0;
   }
 
@@ -822,7 +822,7 @@
     align-items: center;
     gap: 8px;
     padding: 11px 24px;
-    background: #22c55e;
+    background: var(--color-primary);
     color: #052e16;
     border: none;
     border-radius: 12px;
@@ -835,7 +835,7 @@
   }
 
   .pf-btn-cta:hover {
-    background: #16a34a;
+    background: var(--color-primary-hover);
     transform: translateY(-1px);
   }
 

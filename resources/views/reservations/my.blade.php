@@ -22,9 +22,9 @@
 
   .my-tab {
     padding: 10px 22px;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     border: 1px solid #e0e0e0;
-    background: #fff;
+    background: var(--color-bg);
     font-size: 14px;
     font-weight: 700;
     color: #555;
@@ -36,16 +36,16 @@
   }
 
   .my-tab.active {
-    background: #111;
-    color: #fff;
-    border-color: #111;
+    background: var(--color-bg-dark);
+    color: var(--color-text-inverse);
+    border-color: var(--color-bg-dark);
   }
 
   .my-tab-count {
     display: inline-block;
     margin-left: 6px;
     background: rgba(0,0,0,.12);
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     padding: 1px 7px;
     font-size: 12px;
     font-weight: 800;
@@ -60,17 +60,17 @@
 
   /* ── Batch card ───────────────────────────────────── */
   .batch-card {
-    background: #fff;
-    border: 1px solid #ececec;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
     border-radius: 18px;
     overflow: hidden;
     margin-bottom: 16px;
-    box-shadow: 0 2px 12px rgba(0,0,0,.03);
+    box-shadow: var(--shadow-sm);
   }
 
   .batch-card-header {
     padding: 20px 22px 16px 22px;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--color-border-light);
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
@@ -87,13 +87,13 @@
 
   .batch-card-meta {
     font-size: 13px;
-    color: #666;
+    color: var(--color-text-secondary);
   }
 
   .batch-discount-badge {
     display: inline-block;
     padding: 4px 10px;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     background: #e8f7ee;
     color: #157347;
     font-size: 12px;
@@ -110,7 +110,7 @@
     align-items: center;
     gap: 12px;
     padding: 12px 0;
-    border-bottom: 1px solid #f5f5f5;
+    border-bottom: 1px solid var(--color-bg-hover);
     flex-wrap: wrap;
   }
 
@@ -126,7 +126,7 @@
 
   .batch-slot-time {
     font-size: 13px;
-    color: #666;
+    color: var(--color-text-secondary);
     min-width: 100px;
   }
 
@@ -134,17 +134,17 @@
     font-size: 15px;
     font-weight: 800;
     letter-spacing: 0.06em;
-    background: #f7f7f8;
+    background: var(--color-bg-page);
     border: 1px solid #e8e8e8;
     border-radius: 8px;
     padding: 3px 10px;
-    color: #111;
+    color: var(--color-text);
   }
 
   .batch-card-footer {
     padding: 14px 22px;
     background: #fafafa;
-    border-top: 1px solid #f0f0f0;
+    border-top: 1px solid var(--color-border-light);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -160,15 +160,15 @@
   .batch-total strong {
     font-size: 18px;
     font-weight: 800;
-    color: #111;
+    color: var(--color-text);
   }
 
   /* ── Recurrentes sub-tabs ─────────────────────────── */
   .recur-subtab {
     padding: 7px 16px;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     border: 1px solid #e0e0e0;
-    background: #fff;
+    background: var(--color-bg);
     font-size: 13px;
     font-weight: 700;
     color: #555;
@@ -179,9 +179,9 @@
   }
 
   .recur-subtab.active {
-    background: #22c55e;
-    color: #fff;
-    border-color: #22c55e;
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+    border-color: var(--color-primary);
   }
 
   .recur-subtab.active .my-tab-count {

@@ -202,7 +202,7 @@ class DashboardController extends Controller
                 $open = Carbon::parse($today->toDateString() . ' ' . $openTime);
                 $close = Carbon::parse($today->toDateString() . ' ' . $closeTime);
 
-                $slotMinutes = (int) $field->slot_minutes;
+                $slotMinutes = (int) ($field->slot_minutes ?: 60);
 
                 for ($t = $open->copy(); $t->lt($close); $t->addMinutes($slotMinutes)) {
                     $slotEnd = $t->copy()->addMinutes($slotMinutes);
@@ -231,6 +231,78 @@ class DashboardController extends Controller
                 'occupancy_percent' => $occupancyPercent,
             ];
         }
+
+        // ── Métricas adicionales ──────────────────────────
+
+        // Revenue proyectado del mes (reservas PAID futuras dentro del mes)
+        $projectedRevenue = (float) Reservation::query()
+            ->whereIn('field_id', $fieldIds)
+            ->where('start_at', '>=', now())
+            ->where('start_at', '<=', $endOfMonth)
+            ->where('status', 'PAID')
+            ->sum('total_amount');
+        $projectedRevenue += $stats['today_revenue']; // sumar lo ya cobrado hoy
+
+        // Horarios muertos: franjas del día con 0 reservas (últimas 4 semanas)
+        $deadHours = [];
+        if ($fieldIds->isNotEmpty()) {
+            $fourWeeksAgo = now()->subWeeks(4);
+            $hourCounts = Reservation::query()
+                ->selectRaw("CAST(strftime('%H', start_at) AS INTEGER) as hour, COUNT(*) as cnt")
+                ->whereIn('field_id', $fieldIds)
+                ->where('start_at', '>=', $fourWeeksAgo)
+                ->whereIn('status', ['PAID', 'PENDING_PAYMENT'])
+                ->groupBy('hour')
+                ->pluck('cnt', 'hour')
+                ->toArray();
+
+            // Encontrar el rango de operación (primera y última hora con schedule)
+            $allOpenHours = $fields->flatMap(function ($f) {
+                return $f->schedules->map(fn ($s) => [
+                    'open' => (int) Carbon::parse($s->open_time)->format('H'),
+                    'close' => (int) Carbon::parse($s->close_time)->format('H'),
+                ]);
+            });
+            $minHour = $allOpenHours->min('open') ?? 8;
+            $maxHour = $allOpenHours->max('close') ?? 23;
+
+            for ($h = $minHour; $h < $maxHour; $h++) {
+                if (!isset($hourCounts[$h]) || $hourCounts[$h] === 0) {
+                    $deadHours[] = sprintf('%02d:00 - %02d:00', $h, $h + 1);
+                }
+            }
+        }
+
+        // Top 5 clientes frecuentes (últimos 3 meses)
+        $topClients = Reservation::query()
+            ->select('user_id', DB::raw('COUNT(*) as total_reservations'), DB::raw('SUM(total_amount) as total_spent'))
+            ->whereIn('field_id', $fieldIds)
+            ->where('status', 'PAID')
+            ->where('start_at', '>=', now()->subMonths(3))
+            ->groupBy('user_id')
+            ->orderByDesc('total_reservations')
+            ->take(5)
+            ->with('user')
+            ->get()
+            ->map(fn ($r) => [
+                'user' => $r->user,
+                'total_reservations' => $r->total_reservations,
+                'total_spent' => $r->total_spent,
+            ]);
+
+        // Tasa de cancelación (último mes)
+        $totalCreatedMonth = Reservation::query()
+            ->whereIn('field_id', $fieldIds)
+            ->where('created_at', '>=', $startOfMonth)
+            ->count();
+        $totalCancelledMonth = Reservation::query()
+            ->whereIn('field_id', $fieldIds)
+            ->where('created_at', '>=', $startOfMonth)
+            ->where('status', 'CANCELLED')
+            ->count();
+        $cancellationRate = $totalCreatedMonth > 0
+            ? round(($totalCancelledMonth / $totalCreatedMonth) * 100, 1)
+            : 0;
 
         $superStats = null;
         $recentUsers = collect();
@@ -299,7 +371,13 @@ class DashboardController extends Controller
             'superStats',
             'recentUsers',
             'venueAdmins',
-            'membershipAlert'
+            'membershipAlert',
+            'projectedRevenue',
+            'deadHours',
+            'topClients',
+            'cancellationRate',
+            'totalCancelledMonth',
+            'totalCreatedMonth'
         ));
     }
 }

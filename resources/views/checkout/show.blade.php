@@ -151,7 +151,7 @@
       width: 14px;
       height: 14px;
       border: 2.5px solid rgba(255,255,255,.35);
-      border-top-color: #fff;
+      border-top-color: var(--color-text-inverse);
       border-radius: 50%;
       animation: mp-spin .7s linear infinite;
       vertical-align: middle;
