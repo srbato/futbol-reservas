@@ -110,8 +110,8 @@ class ReservationModifyController extends Controller
         $blocked = $newField->blocks()
             ->whereDate('date', $newStart->toDateString())
             ->where(function ($q) use ($newStart, $newEnd) {
-                $q->whereRaw("(date || ' ' || start_time) < ?", [$newEnd->toDateTimeString()])
-                  ->whereRaw("(date || ' ' || end_time) > ?", [$newStart->toDateTimeString()]);
+                $q->whereRaw("CONCAT(date, ' ', start_time) < ?", [$newEnd->toDateTimeString()])
+                  ->whereRaw("CONCAT(date, ' ', end_time) > ?", [$newStart->toDateTimeString()]);
             })
             ->exists();
 

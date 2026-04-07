@@ -125,7 +125,7 @@ class ReportsController extends Controller
         // Hora pico: reservas agrupadas por hora de inicio
         $peakHoursRaw = (clone $baseQuery)
             ->whereBetween('start_at', [$from, $to])
-            ->selectRaw("CAST(strftime('%H', start_at) AS INTEGER) as hour, COUNT(*) as count")
+            ->selectRaw("EXTRACT(HOUR FROM start_at)::integer as hour, COUNT(*) as count")
             ->groupBy('hour')
             ->orderBy('hour')
             ->pluck('count', 'hour')
@@ -143,7 +143,7 @@ class ReportsController extends Controller
         // Ingresos por franja horaria
         $revenuePerHourRaw = (clone $baseQuery)
             ->whereBetween('start_at', [$from, $to])
-            ->selectRaw("CAST(strftime('%H', start_at) AS INTEGER) as hour, SUM(total_amount) as revenue")
+            ->selectRaw("EXTRACT(HOUR FROM start_at)::integer as hour, SUM(total_amount) as revenue")
             ->groupBy('hour')
             ->orderBy('hour')
             ->pluck('revenue', 'hour')

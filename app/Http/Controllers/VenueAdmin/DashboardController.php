@@ -248,7 +248,7 @@ class DashboardController extends Controller
         if ($fieldIds->isNotEmpty()) {
             $fourWeeksAgo = now()->subWeeks(4);
             $hourCounts = Reservation::query()
-                ->selectRaw("CAST(strftime('%H', start_at) AS INTEGER) as hour, COUNT(*) as cnt")
+                ->selectRaw("EXTRACT(HOUR FROM start_at)::integer as hour, COUNT(*) as cnt")
                 ->whereIn('field_id', $fieldIds)
                 ->where('start_at', '>=', $fourWeeksAgo)
                 ->whereIn('status', ['PAID', 'PENDING_PAYMENT'])
