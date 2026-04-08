@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Falta Uno — Partidos buscando jugadores')
+@section('meta_description', 'Encontrá partidos de fútbol, pádel y tenis que buscan jugadores cerca tuyo. Unite a un equipo, jugá hoy mismo. Sin grupos de WhatsApp, sin complicaciones.')
 
 @push('head')
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>

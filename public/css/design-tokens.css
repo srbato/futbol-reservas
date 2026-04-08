@@ -83,11 +83,18 @@
   --shadow-lg:  0 8px 24px rgba(0,0,0,.08);
   --shadow-xl:  0 12px 32px rgba(0,0,0,.12);
 
+  /* ── Easings ──────────────────────────────────────── */
+
+  --ease-out-expo:    cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart:   cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-in-out-expo: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer:      cubic-bezier(0.32, 0.72, 0, 1);
+
   /* ── Transitions ─────────────────────────────────── */
 
-  --transition-fast:   150ms ease;
-  --transition-normal: 250ms ease;
-  --transition-slow:   400ms ease;
+  --transition-fast:   150ms var(--ease-out-expo);
+  --transition-normal: 250ms var(--ease-out-expo);
+  --transition-slow:   400ms var(--ease-out-expo);
 
   /* ── Layout ──────────────────────────────────────── */
 

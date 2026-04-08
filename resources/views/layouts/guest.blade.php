@@ -1,9 +1,18 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="es-AR">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="csrf-token" content="{{ csrf_token() }}">
+<meta name="description" content="Ingresa a TuCancha — Reserva canchas de futbol, padel y tenis online en Argentina.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="alternate" hreflang="es-AR" href="{{ url()->current() }}">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="TuCancha">
+<meta property="og:title" content="TuCancha — Ingresa a tu cuenta">
+<meta property="og:description" content="Reserva canchas de futbol, padel y tenis online en Argentina.">
+<meta property="og:image" content="{{ asset('images/og-default.png') }}">
 
 <title>{{ config('app.name', 'TuCancha') }}</title>
 <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">

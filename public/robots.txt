@@ -4,5 +4,11 @@ Disallow: /sa/
 Disallow: /profile/
 Disallow: /reservations/
 Disallow: /checkout/
+Disallow: /dashboard
+Disallow: /mi-perfil-deportivo/
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
 
 Sitemap: https://tucancha.com.ar/sitemap.xml

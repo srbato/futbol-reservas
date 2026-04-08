@@ -32,6 +32,16 @@
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+  <url>
+    <loc>{{ route('por-que-tucancha') }}</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>{{ route('faq') }}</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
 
   {{-- Complejos --}}
   @foreach($venues as $venue)
@@ -40,6 +50,21 @@
     <lastmod>{{ $venue->updated_at->toAtomString() }}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+  </url>
+  @endforeach
+
+  {{-- Blog --}}
+  <url>
+    <loc>{{ route('blog.index') }}</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  @foreach($blogPosts as $post)
+  <url>
+    <loc>{{ route('blog.show', $post->slug) }}</loc>
+    <lastmod>{{ $post->updated_at->toAtomString() }}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
   </url>
   @endforeach
 

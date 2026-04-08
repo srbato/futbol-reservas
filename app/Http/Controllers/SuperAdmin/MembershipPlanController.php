@@ -27,7 +27,7 @@ class MembershipPlanController extends Controller
             'monthly_price'              => ['required', 'numeric', 'min:1'],
             'annual_discount_percentage' => ['required', 'numeric', 'min:0', 'max:100'],
             'long_term_months'           => ['required', 'in:6,12'],
-            'trial_days'                 => ['required', 'integer', 'min:0', 'max:30'],
+            'trial_days'                 => ['required', 'integer', 'min:0', 'max:365'],
             'is_active'                  => ['boolean'],
             'is_featured'                => ['boolean'],
             'sort_order'                 => ['required', 'integer', 'min:0'],

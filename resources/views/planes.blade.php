@@ -1,6 +1,22 @@
 @extends('layouts.marketing')
 
 @section('title', 'Planes para tu complejo — TuCancha')
+@section('meta_description', 'Planes de suscripción para complejos deportivos. Gestión de reservas online, cobros automáticos con MercadoPago, agenda y reportes. Sin comisiones sobre tus ingresos.')
+
+@push('jsonld')
+<script type="application/ld+json">
+@php
+echo json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'BreadcrumbList',
+    'itemListElement' => [
+        ['@type' => 'ListItem', 'position' => 1, 'name' => 'Inicio', 'item' => url('/')],
+        ['@type' => 'ListItem', 'position' => 2, 'name' => 'Planes', 'item' => url('/planes')],
+    ],
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+@endphp
+</script>
+@endpush
 
 @push('styles')
   /* ── Hero ────────────────────────────────────────── */

@@ -1,14 +1,15 @@
 <!doctype html>
-<html lang="es">
+<html lang="es-AR">
 <head>
   <meta charset="utf-8">
   <title>@yield('title', 'TuCancha')</title>
+  <link rel="alternate" hreflang="es-AR" href="{{ url()->current() }}">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
   <meta name="description" content="@yield('meta_description', 'TuCancha — Reservá canchas de fútbol, tenis y más deportes online. Encontrá el complejo más cercano y confirmá tu turno al instante.')">
-  <meta name="keywords" content="reservar cancha, alquilar cancha, cancha de fútbol, cancha de pádel, cancha de tenis, turnos online, reservas deportivas, complejos deportivos, Argentina">
+
   <link rel="canonical" href="{{ url()->current() }}">
   {{-- Open Graph --}}
   @php
@@ -27,6 +28,43 @@
   <meta name="twitter:title" content="{{ $ogTitle }}">
   <meta name="twitter:description" content="{{ $ogDesc }}">
   <meta name="twitter:image" content="{{ $ogImage }}">
+  {{-- JSON-LD Structured Data --}}
+  <script type="application/ld+json">
+  @php
+  echo json_encode([
+      '@context' => 'https://schema.org',
+      '@type' => 'Organization',
+      'name' => 'TuCancha',
+      'url' => url('/'),
+      'logo' => asset('images/logo-multicolor.svg'),
+      'description' => 'Plataforma argentina de reservas de canchas deportivas online.',
+      'contactPoint' => [
+          '@type' => 'ContactPoint',
+          'email' => 'tucancha10@gmail.com',
+          'contactType' => 'customer service',
+          'availableLanguage' => 'Spanish',
+      ],
+      'areaServed' => ['@type' => 'Country', 'name' => 'Argentina'],
+  ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+  @endphp
+  </script>
+  <script type="application/ld+json">
+  @php
+  echo json_encode([
+      '@context' => 'https://schema.org',
+      '@type' => 'WebSite',
+      'name' => 'TuCancha',
+      'url' => url('/'),
+      'potentialAction' => [
+          '@type' => 'SearchAction',
+          'target' => url('/venues') . '?search={search_term_string}',
+          'query-input' => 'required name=search_term_string',
+      ],
+  ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+  @endphp
+  </script>
+  @stack('jsonld')
+
   <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
   <link rel="stylesheet" href="/css/design-tokens.css">
   <style>
@@ -102,17 +140,17 @@
       border-radius: 999px;
       font-weight: 600;
       font-size: 14px;
-      color: #444;
+      color: var(--color-text-secondary);
       transition: background .15s;
     }
 
-    .nav a:hover { background: #f3f3f3; }
-    .nav a.active { background: #111; color: #fff; }
+    .nav a:hover { background: var(--color-bg-hover); }
+    .nav a.active { background: var(--color-bg-dark); color: var(--color-text-inverse); }
 
     .nav-divider {
       width: 1px;
       height: 18px;
-      background: #e0e0e0;
+      background: var(--color-border);
       margin: 0 4px;
     }
 
@@ -123,8 +161,8 @@
       border-radius: 999px;
       font-weight: 700;
       font-size: 14px;
-      border: 1px solid #ddd;
-      background: #fff;
+      border: 1px solid var(--color-border);
+      background: var(--color-bg);
       cursor: pointer;
       transition: transform .15s, box-shadow .15s;
       font-family: inherit;
@@ -133,9 +171,9 @@
     .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,.08); }
 
     .btn-primary {
-      background: #111;
-      color: #fff !important;
-      border-color: #111;
+      background: var(--color-bg-dark);
+      color: var(--color-text-inverse) !important;
+      border-color: var(--color-bg-dark);
     }
 
     .btn-primary:hover { background: #222; }
@@ -157,10 +195,10 @@
       display: inline-block;
       padding: 4px 12px;
       border-radius: 999px;
-      background: #f0f0f0;
+      background: var(--color-border-light);
       font-size: 12px;
       font-weight: 700;
-      color: #555;
+      color: var(--color-text-secondary);
       text-transform: uppercase;
       letter-spacing: .07em;
       margin-bottom: 12px;
@@ -174,7 +212,7 @@
     }
 
     .section-subtitle {
-      color: #666;
+      color: var(--color-text-secondary);
       font-size: 16px;
       line-height: 1.6;
       max-width: 680px;
@@ -183,8 +221,8 @@
 
     /* ── Footer ──────────────────────────────────────── */
     .footer {
-      background: #fff;
-      border-top: 1px solid #ececec;
+      background: var(--color-bg);
+      border-top: 1px solid var(--color-border);
       padding: 32px 0;
     }
 
@@ -211,20 +249,20 @@
     }
 
     .footer-links a {
-      color: #444;
+      color: var(--color-text-secondary);
       font-weight: 600;
       transition: color .15s;
     }
 
-    .footer-links a:hover { color: #111; }
+    .footer-links a:hover { color: var(--color-text); }
 
-    .footer-copy { font-size: 13px; color: #aaa; }
+    .footer-copy { font-size: 13px; color: var(--color-text-muted); }
 
     /* ── Hamburger ───────────────────────────────────── */
     .hamburger {
       display: none;
       background: none;
-      border: 1px solid #e0e0e0;
+      border: 1px solid var(--color-border);
       border-radius: 10px;
       cursor: pointer;
       padding: 8px 10px;
@@ -238,7 +276,7 @@
       display: block;
       width: 20px;
       height: 2px;
-      background: #111;
+      background: var(--color-text);
       border-radius: 2px;
       transition: transform .2s, opacity .2s;
     }
@@ -251,8 +289,8 @@
       top: 100%;
       left: 0;
       right: 0;
-      background: #fff;
-      border-bottom: 1px solid #ececec;
+      background: var(--color-bg);
+      border-bottom: 1px solid var(--color-border);
       padding: 12px 16px 16px;
       z-index: 200;
       box-shadow: 0 8px 24px rgba(0,0,0,.08);
@@ -265,21 +303,21 @@
       border-radius: 12px;
       font-size: 15px;
       font-weight: 600;
-      color: #333;
+      color: var(--color-text-secondary);
       display: block;
     }
 
-    .mobile-nav a:hover { background: #f5f5f5; }
-    .mobile-nav a.active { background: #111; color: #fff; }
+    .mobile-nav a:hover { background: var(--color-bg-hover); }
+    .mobile-nav a.active { background: var(--color-bg-dark); color: var(--color-text-inverse); }
 
-    .mobile-nav-divider { border-top: 1px solid #ececec; margin: 8px 0; }
+    .mobile-nav-divider { border-top: 1px solid var(--color-border); margin: 8px 0; }
 
     .mobile-nav .mobile-cta {
       display: block;
       padding: 13px 14px;
       border-radius: 12px;
-      background: #111;
-      color: #fff !important;
+      background: var(--color-bg-dark);
+      color: var(--color-text-inverse) !important;
       font-size: 15px;
       font-weight: 700;
       text-align: center;
@@ -328,6 +366,7 @@
         <a href="{{ url('/planes') }}" class="{{ request()->routeIs('planes') ? 'active' : '' }}">Planes</a>
         <a href="{{ route('venues.index') }}" class="{{ request()->routeIs('venues.index') ? 'active' : '' }}">Complejos</a>
         <a href="{{ route('nosotros') }}" class="{{ request()->routeIs('nosotros') ? 'active' : '' }}">Nosotros</a>
+        <a href="{{ route('blog.index') }}" class="{{ request()->routeIs('blog.*') ? 'active' : '' }}">Blog</a>
         <div class="nav-divider"></div>
         @auth
           <a href="{{ route('venues.index') }}" class="btn btn-primary" style="margin-left:4px;">Ver complejos</a>
@@ -347,11 +386,12 @@
       <a href="{{ url('/planes') }}" class="{{ request()->routeIs('planes') ? 'active' : '' }}">Planes</a>
       <a href="{{ route('venues.index') }}" class="{{ request()->routeIs('venues.index') ? 'active' : '' }}">Complejos</a>
       <a href="{{ route('nosotros') }}" class="{{ request()->routeIs('nosotros') ? 'active' : '' }}">Nosotros</a>
+      <a href="{{ route('blog.index') }}" class="{{ request()->routeIs('blog.*') ? 'active' : '' }}">Blog</a>
       <div class="mobile-nav-divider"></div>
       @auth
         <a href="{{ route('venues.index') }}" class="mobile-cta">Ver complejos</a>
       @else
-        <a href="{{ route('login') }}" style="padding:12px 14px; border-radius:12px; font-weight:600; color:#333;">Ingresar</a>
+        <a href="{{ route('login') }}" style="padding:12px 14px; border-radius:12px; font-weight:600; color:var(--color-text-secondary);">Ingresar</a>
         <a href="{{ route('register') }}" class="mobile-cta">Crear cuenta</a>
       @endauth
     </nav>
@@ -371,14 +411,17 @@
           <a href="{{ url('/planes') }}">Planes</a>
           <a href="{{ route('venues.index') }}">Complejos</a>
           <a href="{{ route('nosotros') }}">Nosotros</a>
+          <a href="{{ route('blog.index') }}">Blog</a>
+          <a href="{{ route('por-que-tucancha') }}">Por qué TuCancha</a>
+          <a href="{{ route('faq') }}">FAQ</a>
           <a href="mailto:tucancha10@gmail.com">tucancha10@gmail.com</a>
         </div>
         <span class="footer-copy">© {{ date('Y') }} TuCancha</span>
       </div>
 
       {{-- Bloque de feedback público --}}
-      <div style="margin-top: 28px; padding-top: 24px; border-top: 1px solid #ececec;">
-        <p style="font-size:14px; color:#555; margin:0 0 14px 0; font-weight:600;">
+      <div id="feedback-section" style="margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--color-border);">
+        <p style="font-size:14px; color:var(--color-text-secondary); margin:0 0 14px 0; font-weight:600;">
           ¿Tenés alguna sugerencia o comentario?
         </p>
 
@@ -391,7 +434,7 @@
             @csrf
             <div style="display:flex; flex-direction:column; gap:10px;">
               @auth
-                <p style="font-size:13px; color:#888; margin:0;">
+                <p style="font-size:13px; color:var(--color-text-muted); margin:0;">
                   Se enviará desde tu cuenta: <strong>{{ auth()->user()->email }}</strong>
                 </p>
               @else
@@ -399,7 +442,7 @@
                   type="email"
                   name="feedback_email"
                   placeholder="Tu email (opcional)"
-                  style="padding:10px 14px; border:1px solid #ddd; border-radius:10px; font-size:14px; font-family:inherit; background:#fff; color:#111; outline:none;"
+                  style="padding:10px 14px; border:1px solid var(--color-border); border-radius:10px; font-size:14px; font-family:inherit; background:var(--color-bg); color:var(--color-text); outline:none;"
                 >
               @endauth
               <textarea
@@ -408,7 +451,7 @@
                 placeholder="Escribí tu sugerencia, error o comentario..."
                 required
                 minlength="10"
-                style="padding:10px 14px; border:1px solid #ddd; border-radius:10px; font-size:14px; font-family:inherit; resize:vertical; background:#fff; color:#111; outline:none;"
+                style="padding:10px 14px; border:1px solid var(--color-border); border-radius:10px; font-size:14px; font-family:inherit; resize:vertical; background:var(--color-bg); color:var(--color-text); outline:none;"
               ></textarea>
               @error('feedback_message')
                 <span style="font-size:13px; color:#b91c1c;">{{ $message }}</span>
@@ -416,12 +459,12 @@
               <div>
                 <button
                   type="submit"
-                  style="padding:10px 20px; background:#111; color:#fff; border:none; border-radius:10px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; transition:background .15s;"
-                  onmouseover="this.style.background='#222'"
-                  onmouseout="this.style.background='#111'"
+                  style="padding:10px 20px; background:var(--color-bg-dark); color:var(--color-text-inverse); border:none; border-radius:10px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; transition:background var(--transition-fast);"
+                  class="feedback-submit-btn"
                 >
                   Enviar feedback
                 </button>
+                <style>.feedback-submit-btn:hover{background:#222 !important;}</style>
               </div>
             </div>
           </form>

@@ -3,6 +3,21 @@
 @section('title', 'Cómo funciona — TuCancha')
 @section('meta_description', 'Aprendé cómo reservar canchas en TuCancha. Elegí el deporte, seleccioná el horario disponible y pagá online. Simple, rápido y sin llamadas.')
 
+@push('jsonld')
+<script type="application/ld+json">
+@php
+echo json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'BreadcrumbList',
+    'itemListElement' => [
+        ['@type' => 'ListItem', 'position' => 1, 'name' => 'Inicio', 'item' => url('/')],
+        ['@type' => 'ListItem', 'position' => 2, 'name' => 'Cómo funciona', 'item' => url('/como-funciona')],
+    ],
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+@endphp
+</script>
+@endpush
+
 @push('styles')
   /* ── Hero ────────────────────────────────────────── */
   .cf-hero {

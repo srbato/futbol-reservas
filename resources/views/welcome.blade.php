@@ -1,6 +1,6 @@
 @extends('layouts.marketing')
 
-@section('title', 'TuCancha — Reservá tu cancha al instante')
+@section('title', 'TuCancha — Reservá, jugá, encontrá jugadores')
 @section('meta_description', 'Reservá canchas de fútbol, tenis, pádel y más en Argentina. Encontrá el complejo más cercano, elegí el horario y confirmá tu turno online al instante.')
 
 @push('styles')
@@ -20,11 +20,17 @@ html { scroll-behavior: smooth; }
 .hero-bg {
   position: absolute;
   inset: 0;
-  background-image: url('/images/hero-cancha.webp');
+  background-image: url('/images/hero-cancha-800w.webp');
   background-size: cover;
   background-position: center 30%;
   background-attachment: fixed;
   opacity: .55;
+}
+@media (min-width: 801px) {
+  .hero-bg { background-image: url('/images/hero-cancha-1200w.webp'); }
+}
+@media (min-width: 1201px) {
+  .hero-bg { background-image: url('/images/hero-cancha.webp'); }
 }
 
 /* ── Parallax floating blobs ─────────────────────── */
@@ -1116,11 +1122,11 @@ html { scroll-behavior: smooth; }
             Plataforma de reservas deportivas
           </div>
 
-          <h1>Reservá tu cancha<br><em>al instante.</em></h1>
+          <h1>Reservá, jugá,<br><em>encontrá jugadores.</em></h1>
 
           <p>
-            Explorá los complejos disponibles en tu ciudad y confirmá tu turno en segundos.
-            Sin llamadas, sin filas, sin complicaciones.
+            Canchas al instante, jugadores que se suman solos, y cero comisiones.
+            Tu vida deportiva en un solo lugar.
           </p>
 
           <div class="hero-actions">

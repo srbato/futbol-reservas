@@ -1,15 +1,16 @@
 <!doctype html>
-<html lang="es">
+<html lang="es-AR">
 <head>
   <meta charset="utf-8">
   <meta name="csrf-token" content="{{ csrf_token() }}">
+  <link rel="alternate" hreflang="es-AR" href="{{ url()->current() }}">
   <title>@yield('title', 'Reservas de canchas')</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
   <meta name="description" content="@yield('meta_description', 'TuCancha — Reservá canchas de fútbol, tenis y más deportes online. Encontrá el complejo más cercano y confirmá tu turno al instante.')">
-  <meta name="keywords" content="reservar cancha, alquilar cancha, cancha de fútbol, cancha de pádel, cancha de tenis, turnos online, reservas deportivas, complejos deportivos, Argentina">
+
   <link rel="canonical" href="{{ url()->current() }}">
   {{-- Open Graph --}}
   @php
@@ -28,6 +29,18 @@
   <meta name="twitter:title" content="{{ $ogTitle }}">
   <meta name="twitter:description" content="{{ $ogDesc }}">
   <meta name="twitter:image" content="{{ $ogImage }}">
+  {{-- JSON-LD Organization (all pages) --}}
+  <script type="application/ld+json">
+  @php
+  echo json_encode([
+      '@context' => 'https://schema.org',
+      '@type' => 'Organization',
+      'name' => 'TuCancha',
+      'url' => url('/'),
+      'logo' => asset('images/logo-multicolor.svg'),
+  ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+  @endphp
+  </script>
 @stack('head')
 <link rel="stylesheet" href="/css/design-tokens.css">
 <style>
@@ -183,7 +196,7 @@
   }
 
   .user-dropdown-admin:hover {
-    background: #222 !important;
+    background: #222 !important; /* hover state for dark bg */
   }
 
   /* ── Notificaciones ────────────────────────────────── */
@@ -254,12 +267,12 @@
   .notif-dropdown-header span {
     font-size: 13px;
     font-weight: 700;
-    color: #111;
+    color: var(--color-text);
   }
 
   .notif-mark-all {
     font-size: 12px;
-    color: #555;
+    color: var(--color-text-secondary);
     background: none;
     border: none;
     cursor: pointer;
@@ -268,7 +281,7 @@
   }
 
   .notif-mark-all:hover {
-    color: #111;
+    color: var(--color-text);
   }
 
   .notif-list {
@@ -285,11 +298,11 @@
     border-bottom: 1px solid #f7f7f7;
     transition: background .12s;
     text-decoration: none;
-    color: #111;
+    color: var(--color-text);
   }
 
   .notif-item:hover {
-    background: #f9f9f9;
+    background: var(--color-bg-hover);
   }
 
   .notif-item.unread {
@@ -334,14 +347,14 @@
 
   .notif-time {
     font-size: 11px;
-    color: #aaa;
+    color: var(--color-text-muted);
     margin-top: 3px;
   }
 
   .notif-empty {
     padding: 24px 16px;
     text-align: center;
-    color: #aaa;
+    color: var(--color-text-muted);
     font-size: 13px;
   }
 
@@ -419,7 +432,7 @@
   }
 
   .stars-text {
-    color: #444;
+    color: var(--color-text-secondary);
     font-size: 14px;
     font-weight: 600;
     margin-left: 6px;
@@ -446,7 +459,7 @@
     box-shadow: var(--shadow-sm);
     display: flex;
     flex-direction: column;
-    transition: all var(--transition-fast);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
   }
 
   .venue-card:hover {
@@ -488,7 +501,7 @@
     border-radius: 999px;
     background: var(--color-bg-hover);
     font-size: 12px;
-    color: #555;
+    color: var(--color-text-secondary);
     font-weight: 700;
   }
 
@@ -503,7 +516,7 @@
     font-weight: 700;
     font-size: var(--text-sm);
     font-family: inherit;
-    transition: all var(--transition-fast);
+    transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
     width: auto;
     cursor: pointer;
     line-height: 1.4;
@@ -537,10 +550,10 @@
   .toolbar input,
   .toolbar select {
     padding: 11px 12px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border);
     border-radius: 14px;
     min-width: 190px;
-    background: #fff;
+    background: var(--color-bg);
   }
 
   .flash {
@@ -666,7 +679,7 @@
     cursor: pointer;
     font-weight: 600;
     background: var(--color-bg);
-    transition: all var(--transition-fast);
+    transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
     user-select: none;
   }
 
@@ -726,7 +739,7 @@
   }
 
   .carousel-track::-webkit-scrollbar-thumb {
-    background: #ddd;
+    background: var(--color-border);
     border-radius: 999px;
   }
 
@@ -749,13 +762,13 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: all .15s ease;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
     box-shadow: 0 6px 18px rgba(0,0,0,.14);
   }
 
   .featured-nav-arrow:hover {
     transform: translateY(-1px);
-    border-color: #111;
+    border-color: var(--color-text);
   }
 
   .carousel-card {
@@ -803,7 +816,7 @@
 
   .carousel-meta {
     font-size: 14px;
-    color: #444;
+    color: var(--color-text-secondary);
     font-weight: 600;
     line-height: 1.5;
   }
@@ -881,7 +894,7 @@
     border-radius: 12px;
     font-size: 15px;
     font-weight: 600;
-    color: #333;
+    color: var(--color-text-secondary);
     display: block;
     text-decoration: none;
     background: transparent;
@@ -1171,6 +1184,8 @@
       <a href="{{ url('/como-funciona') }}" style="color:#6b7280; text-decoration:none; transition:color .2s;" onmouseover="this.style.color='#16a34a'" onmouseout="this.style.color='#6b7280'">Como funciona</a>
       <span style="color:#d1d5db;">|</span>
       <a href="{{ url('/nosotros') }}" style="color:#6b7280; text-decoration:none; transition:color .2s;" onmouseover="this.style.color='#16a34a'" onmouseout="this.style.color='#6b7280'">Nosotros</a>
+      <span style="color:#d1d5db;">|</span>
+      <a href="{{ route('blog.index') }}" style="color:#6b7280; text-decoration:none; transition:color .2s;" onmouseover="this.style.color='#16a34a'" onmouseout="this.style.color='#6b7280'">Blog</a>
       <span style="color:#d1d5db;">|</span>
       <a href="{{ route('planes') }}" style="color:#6b7280; text-decoration:none; transition:color .2s;" onmouseover="this.style.color='#16a34a'" onmouseout="this.style.color='#6b7280'">Sos dueno de un complejo? Registralo aca</a>
     </div>

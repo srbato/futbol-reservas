@@ -48,6 +48,8 @@ use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\VenueStaffInvitationController;
 use App\Http\Controllers\VenueAdmin\VenueStaffController as VaVenueStaffController;
 use App\Http\Controllers\VenueAdmin\FaltaUnoSettingController as VaFaltaUnoSettingController;
+use App\Http\Controllers\BlogController;
+use App\Http\Controllers\SuperAdmin\BlogPostController;
 use App\Http\Controllers\VenueAdmin\CheckinController as VaCheckinController;
 use App\Http\Controllers\FaltaUnoController;
 use App\Http\Controllers\FaltaUnoSportProfileController;
@@ -88,6 +90,21 @@ Route::get('/como-funciona', function () {
 Route::get('/nosotros', function () {
     return view('nosotros');
 })->name('nosotros');
+
+Route::get('/por-que-tucancha', function () {
+    return view('por-que-tucancha');
+})->name('por-que-tucancha');
+
+Route::get('/preguntas-frecuentes', function () {
+    $trialDays = \App\Models\MembershipPlan::where('is_active', true)
+        ->whereNotNull('trial_days')
+        ->where('trial_days', '>', 0)
+        ->max('trial_days') ?? 7;
+    return view('faq', compact('trialDays'));
+})->name('faq');
+
+Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 
 Route::get('/planes', function () {
     $plans = MembershipPlan::where('is_active', true)->orderBy('sort_order')->get();
@@ -727,6 +744,17 @@ Route::middleware(['auth', 'active.user', 'role:super_admin'])->group(function (
             ->with('success', "El pago a {$venue->name} está pendiente de acreditación. El estado se actualizará automáticamente via webhook.");
     })->name('sa.payouts.venue_pending');
     */
+
+    // Blog posts CRUD
+    Route::resource('/sa/blog-posts', BlogPostController::class)->except(['show'])
+        ->names([
+            'index'   => 'blog-posts.index',
+            'create'  => 'blog-posts.create',
+            'store'   => 'blog-posts.store',
+            'edit'    => 'blog-posts.edit',
+            'update'  => 'blog-posts.update',
+            'destroy' => 'blog-posts.destroy',
+        ]);
 });
 
 // Ruta para salir de impersonación — protegida solo con auth (el super_admin

@@ -70,7 +70,7 @@
             <div class="flex flex-col gap-1">
               <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Días prueba gratuita</label>
               <input type="number" name="trial_days" value="{{ old('trial_days', $plan->trial_days) }}"
-                     min="0" max="30" required
+                     min="0" max="365" required
                      class="px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 focus:shadow-indigo-100 transition-all duration-200 w-full">
               <p class="text-xs mt-1
                         {{ $plan->trial_days > 0 ? 'text-emerald-600 font-semibold' : 'text-slate-400' }}">
