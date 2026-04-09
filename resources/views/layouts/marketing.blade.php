@@ -432,6 +432,7 @@
         @else
           <form method="POST" action="{{ route('feedback.store') }}" style="max-width:560px;">
             @csrf
+            <input type="text" name="website_url" style="position:absolute;left:-9999px;opacity:0;height:0;width:0;" tabindex="-1" autocomplete="off">
             <div style="display:flex; flex-direction:column; gap:10px;">
               @auth
                 <p style="font-size:13px; color:var(--color-text-muted); margin:0;">

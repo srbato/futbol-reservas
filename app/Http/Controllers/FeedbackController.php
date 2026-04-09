@@ -10,6 +10,11 @@ class FeedbackController extends Controller
 {
     public function store(Request $request)
     {
+        // Honeypot: si este campo tiene valor, es un bot
+        if ($request->filled('website_url')) {
+            return back()->with('feedback_sent', true);
+        }
+
         $validated = $request->validate([
             'feedback_message' => ['required', 'string', 'min:10', 'max:2000'],
             'feedback_email'   => ['nullable', 'email', 'max:255'],

@@ -51,3 +51,16 @@ Schedule::command('subscriptions:reconcile')
 Schedule::command('reviews:send-reminders')
     ->hourly()
     ->withoutOverlapping();
+
+Schedule::command('app:send-reengagement-emails')
+    ->dailyAt('10:00')
+    ->withoutOverlapping();
+
+Schedule::command('app:alert-inactive-venues')
+    ->weeklyOn(1, '09:00') // Lunes 9am
+    ->withoutOverlapping();
+
+Schedule::command('app:generate-instagram-post')
+    ->days([1, 3, 5]) // Lunes, Miercoles, Viernes
+    ->at('10:00')
+    ->withoutOverlapping();

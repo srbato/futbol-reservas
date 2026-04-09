@@ -7,6 +7,8 @@ use App\Models\Venue;
 use App\Observers\VenueObserver;
 use GuzzleHttp\Client as GuzzleClient;
 use Illuminate\Routing\UrlGenerator;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Minishlink\WebPush\WebPush;
 
@@ -46,6 +48,8 @@ class AppServiceProvider extends ServiceProvider
         }
 
         Venue::observe(VenueObserver::class);
+
+        Event::listen(Registered::class, \App\Listeners\SendNewUserWebhook::class);
 
         \Illuminate\Notifications\DatabaseNotification::created(function ($notification) {
             try {

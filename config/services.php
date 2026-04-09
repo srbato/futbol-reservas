@@ -49,6 +49,16 @@ return [
         'redirect'      => env('GOOGLE_REDIRECT_URI', env('APP_URL').'/auth/google/callback'),
     ],
 
+    'gemini' => [
+        'api_key' => env('GEMINI_API_KEY'),
+    ],
+
+    'n8n' => [
+        'new_user_webhook'      => env('N8N_NEW_USER_WEBHOOK'),
+        'new_venue_webhook'     => env('N8N_NEW_VENUE_WEBHOOK'),
+        'instagram_webhook'     => env('N8N_INSTAGRAM_WEBHOOK'),
+    ],
+
     'mercadopago' => [
         'access_token'   => env('MERCADOPAGO_ACCESS_TOKEN'),
         'client_id'      => env('MERCADOPAGO_CLIENT_ID'),

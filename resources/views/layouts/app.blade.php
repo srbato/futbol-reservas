@@ -1435,7 +1435,7 @@
         'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
         'Accept': 'application/json',
       },
-      body: JSON.stringify({ feedback_message: message }),
+      body: JSON.stringify({ feedback_message: message, website_url: '' }),
     })
     .then(function(r) { return r.json(); })
     .then(function(data) {
