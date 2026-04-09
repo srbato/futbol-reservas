@@ -320,7 +320,7 @@ color:#666;
 
 <!-- LEFT: Hero image (desktop) -->
 <div class="auth-hero">
-  <img src="/images/hero-cancha.webp" alt="Cancha de futbol" class="auth-hero-img">
+  <img src="/images/hero-cancha.webp" alt="Cancha de futbol" class="auth-hero-img" aria-hidden="true">
   <div class="auth-hero-overlay">
     <h2>Tu cancha favorita,<br>a un click.</h2>
     <p>Reserva, paga y juga. Sin llamadas, sin esperas.</p>
@@ -332,7 +332,7 @@ color:#666;
 
   <!-- Mobile subtle background -->
   <div class="auth-panel-bg">
-    <img src="/images/hero-cancha.webp" alt="">
+    <img src="/images/hero-cancha.webp" alt="" aria-hidden="true">
   </div>
 
   <header class="auth-header">

@@ -8,6 +8,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class FaltaUnoGame extends Model
 {
+    const STATUS_OPEN = 'open';
+    const STATUS_FULL = 'full';
+    const STATUS_CANCELLED = 'cancelled';
+    const STATUS_EXPIRED = 'expired';
+    const STATUS_FINISHED = 'finished';
+    const STATUS_PLAYED = 'played';
+    const VALID_STATUSES = ['open', 'full', 'cancelled', 'expired', 'finished', 'played'];
+
     protected $fillable = [
         'field_id',
         'reservation_id',
@@ -19,6 +27,8 @@ class FaltaUnoGame extends Model
         'gender_filter',
         'category_min',
         'category_max',
+        'age_group_min',
+        'age_group_max',
         'reminder_sent_at',
         'post_game_notified_at',
         'start_at',
@@ -88,6 +98,34 @@ class FaltaUnoGame extends Model
         $maxSearch = $this->category_max ? array_search($this->category_max, $cats) : false;
         $minIdx = $minSearch !== false ? $minSearch : 0;
         $maxIdx = $maxSearch !== false ? $maxSearch : count($cats) - 1;
+
+        return $userIdx >= $minIdx && $userIdx <= $maxIdx;
+    }
+
+    /** Orden de grupos de edad para comparar rangos */
+    public static function getAgeGroupOrder(): array
+    {
+        return ['sub10', 'sub12', 'sub14', 'sub16', 'sub18', '19a25', '26a34', 'open', 'mas35', 'mas40', 'mas45', 'mas50', 'mas55', 'mas60'];
+    }
+
+    /** Verifica si un age_group cae dentro del rango [age_group_min, age_group_max] del partido */
+    public function isInAgeGroupRange(string $ageGroup): bool
+    {
+        if (!$this->age_group_min && !$this->age_group_max) {
+            return true;
+        }
+
+        $groups  = self::getAgeGroupOrder();
+        $userIdx = array_search($ageGroup, $groups);
+
+        if ($userIdx === false) {
+            return false;
+        }
+
+        $minSearch = $this->age_group_min ? array_search($this->age_group_min, $groups) : false;
+        $maxSearch = $this->age_group_max ? array_search($this->age_group_max, $groups) : false;
+        $minIdx = $minSearch !== false ? $minSearch : 0;
+        $maxIdx = $maxSearch !== false ? $maxSearch : count($groups) - 1;
 
         return $userIdx >= $minIdx && $userIdx <= $maxIdx;
     }

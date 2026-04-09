@@ -25,13 +25,16 @@ class Venue extends Model
         'lat',
         'lng',
         'is_active',
-        'mp_access_token',
-        'mp_refresh_token',
-        'mp_user_id',
         'cancellation_hours',
         'modification_hours',
         'recurring_payment_mode',
         'amenities',
+    ];
+
+    protected $hidden = [
+        'mp_access_token',
+        'mp_refresh_token',
+        'mp_user_id',
     ];
 
     protected $casts = [

@@ -322,8 +322,16 @@
     font-weight: 600;
     cursor: pointer;
     font-family: inherit;
-    transition: background .15s, border-color .15s;
+    transition: transform .15s ease, background .15s, border-color .15s;
     position: relative;
+  }
+
+  .vi-filter-chip:hover {
+    transform: translateY(-1px) scale(1.03);
+  }
+
+  .vi-filter-chip:active {
+    transform: translateY(0) scale(0.98);
   }
 
   .vi-filter-chip select,
@@ -1266,6 +1274,10 @@
     display: inline-block;
   }
 
+  .vi-btn-primary:active {
+    transform: scale(0.96);
+  }
+
   .vi-btn-primary:hover {
     background: var(--color-primary);
     color: #052e16;
@@ -1570,12 +1582,20 @@
 
   /* ── Fondo global neón ─────────────────────────────── */
   .theme-padel {
+    --padel-primary: #7c3aed;
+    --padel-accent: #ff2d9b;
+    --padel-surface: #1e1b3a;
+    --padel-border: #2d2a4e;
+    --padel-text: #f0f0ff;
+    --padel-text-muted: #a0a0b0;
+    --padel-highlight: #c084fc;
     background: #0d0b1e;
     color: #e2e8f0;
     animation: vi-padel-fadein 0.6s ease forwards;
   }
 
-  /* Forzar fondo oscuro en body, main y footer cuando hay tema padel */
+  /* Forzar fondo oscuro en body, main y footer cuando hay tema padel
+     Note: :has() is supported in all modern browsers (Chrome 105+, Safari 15.4+, Firefox 121+) */
   body:has(.theme-padel) {
     background:
       radial-gradient(ellipse 800px 500px at 5% 40%, rgba(124,58,237,.18) 0%, transparent 70%),
@@ -1585,6 +1605,12 @@
       radial-gradient(ellipse 400px 300px at 20% 75%, rgba(59,130,246,.08) 0%, transparent 70%),
       #0d0b1e !important;
     background-attachment: fixed !important;
+  }
+  /* Fixed background-attachment causes repaint on scroll on mobile — disable it */
+  @media (max-width: 768px) {
+    body:has(.theme-padel) {
+      background-attachment: scroll !important;
+    }
   }
   body:has(.theme-padel) .site-header {
     background: #000000 !important;
@@ -1658,6 +1684,7 @@
     z-index: 1;
     pointer-events: none;
     transform: translate(15%, 10%);
+    will-change: transform, opacity; /* GPU-accelerate the 900px animated gradient */
     animation: vi-neon-radiate 5s ease-in-out infinite alternate;
     border-left: none !important;
     bottom: auto !important;
@@ -1675,7 +1702,7 @@
   .theme-padel .vi-hero-badge {
     background: rgba(124,58,237,.14);
     border-color: rgba(124,58,237,.35);
-    color: #c084fc;
+    color: #d8b4fe; /* Bumped from #c084fc for better contrast (~4.5:1) on dark bg */
   }
 
   .theme-padel .vi-hero-badge-dot {
@@ -1849,6 +1876,7 @@
     border-radius: 12px;
     position: relative;
     box-shadow: 0 0 16px rgba(124,58,237,.08);
+    transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
   }
 
   .theme-padel .vi-venue-card:not(.vi-card-full)::after {
@@ -1857,7 +1885,7 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 2px;
+    height: 3px;
     background: linear-gradient(90deg, #7c3aed, #ff2d9b, #3b82f6);
     border-radius: 12px 12px 0 0;
     z-index: 5;
@@ -1866,6 +1894,7 @@
   }
 
   .theme-padel .vi-venue-card:hover {
+    transform: translateY(-3px);
     border-color: rgba(124,58,237,.55);
     box-shadow: 0 8px 40px rgba(124,58,237,.3), 0 0 24px rgba(255,45,155,.12), 0 0 0 1px rgba(124,58,237,.15);
   }
@@ -2181,6 +2210,12 @@
 
   /* ── Fondo global crema cálido ──────────────────── */
   .theme-futbol {
+    --futbol-primary: #c43e2a;
+    --futbol-accent: #d4a017;
+    --futbol-surface: #faf4e8;
+    --futbol-border: #e0d4b8;
+    --futbol-text: #2c1810;
+    --futbol-text-muted: #8a7460;
     background: #f5ead0;
     color: #2c1810;
     animation: vi-futbol-fadein 0.6s ease forwards;
@@ -2240,6 +2275,37 @@
     border-radius: 0;
   }
 
+  @media (max-width: 1024px) {
+    .theme-futbol .vi-hero-bg {
+      background-size: cover;
+      background-position: center 40%;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .theme-futbol .vi-hero {
+      min-height: 400px;
+      overflow: visible;
+    }
+    .theme-futbol .vi-hero-bg {
+      background-size: cover;
+      background-position: center 30%;
+      border-radius: 18px;
+    }
+    .theme-futbol .vi-hero-overlay {
+      border-radius: 18px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .theme-futbol .vi-hero {
+      min-height: 360px;
+    }
+    .theme-futbol .vi-hero-bg {
+      background-position: center 25%;
+    }
+  }
+
   .theme-futbol .vi-hero-overlay {
     background: linear-gradient(135deg, rgba(44,24,16,.75) 0%, rgba(44,24,16,.45) 50%, rgba(44,24,16,.30) 100%);
     opacity: 1;
@@ -2247,12 +2313,13 @@
   }
 
 
-  /* Pelota decorativa */
+  /* Pelota decorativa — gentle float animation */
   .theme-futbol .vi-futbol-pelota {
     position: absolute;
     right: 5%;
     top: 50%;
     transform: translateY(-55%);
+    animation: vi-futbol-float 6s ease-in-out infinite;
     z-index: 7;
     pointer-events: none;
     user-select: none;
@@ -2274,6 +2341,11 @@
     .theme-futbol .vi-futbol-pelota {
       display: none;
     }
+  }
+
+  @keyframes vi-futbol-float {
+    0%, 100% { transform: translateY(-55%) rotate(0deg); }
+    50%      { transform: translateY(-60%) rotate(8deg); }
   }
 
   /* Ocultar líneas de cancha genéricas */
@@ -2304,6 +2376,8 @@
     font-style: normal;
     color: #fff;
     text-shadow: 0 2px 12px rgba(0,0,0,.3);
+    line-height: 1.15;
+    letter-spacing: 0;
   }
 
   .theme-futbol .vi-hero-text h1 em {
@@ -2312,11 +2386,6 @@
     text-shadow: 0 2px 8px rgba(196,62,42,.3);
     font-style: normal;
     padding: 0 4px;
-  }
-
-  .theme-futbol .vi-hero-text h1 {
-    line-height: 1.15;
-    letter-spacing: 0;
   }
 
   @media (max-width: 768px) {
@@ -2459,6 +2528,7 @@
     border-radius: 12px;
     position: relative;
     box-shadow: 0 2px 12px rgba(44,24,16,.06);
+    transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
   }
 
   .theme-futbol .vi-venue-card:not(.vi-card-full)::after {
@@ -2475,6 +2545,7 @@
   }
 
   .theme-futbol .vi-venue-card:hover {
+    transform: translateY(-3px);
     border-color: rgba(196,62,42,.3);
     box-shadow: 0 8px 32px rgba(44,24,16,.12), 0 0 0 1px rgba(196,62,42,.08);
   }
@@ -2483,7 +2554,8 @@
     opacity: 1;
   }
 
-  /* Fileteado frame overlay en las imágenes de las cards */
+  /* Fileteado frame overlay en las imágenes de las cards
+     Dependency: requires /images/fileteado-frame.webp — silent fail if missing */
   .theme-futbol .vi-venue-img-wrap {
     position: relative;
   }
@@ -2739,6 +2811,12 @@
 
   /* ── Fondo global crema verdoso ──────────────────── */
   .theme-tenis {
+    --tenis-primary: #2d5016;
+    --tenis-accent: #d4b896;
+    --tenis-surface: #f5f3e8;
+    --tenis-border-color: rgba(45,80,22,.12);
+    --tenis-text: #1a2e0a;
+    --tenis-text-muted: #5a6e48;
     background: #faf8f0;
     color: #1a2e0a;
     animation: vi-tenis-fadein 0.6s ease forwards;
@@ -2823,7 +2901,8 @@
     right: -15%;
     top: 60%;
     transform: translateY(-50%);
-    width: 55%;
+    animation: vi-tenis-drift 8s ease-in-out infinite alternate;
+    width: 68%;
     height: 115%;
     opacity: 0.88;
     z-index: 3;
@@ -2853,6 +2932,11 @@
       background-size: cover;
       background-position: center 30%;
     }
+  }
+
+  @keyframes vi-tenis-drift {
+    0%   { transform: translateY(-50%) rotate(0deg); }
+    100% { transform: translateY(-52%) rotate(2deg); }
   }
 
   /* Ocultar líneas de cancha genéricas */
@@ -2919,6 +3003,7 @@
     border-color: rgba(212,184,150,.25);
     backdrop-filter: blur(12px);
     max-width: 55%;
+    transition: border-color .2s, background .2s, max-width .4s ease;
   }
 
   @media (max-width: 1024px) {
@@ -2983,6 +3068,7 @@
   .theme-tenis .vi-adv-panel-inner {
     background: rgba(26,46,10,.7);
     border-color: rgba(212,184,150,.2);
+    -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
   }
 
@@ -3016,14 +3102,15 @@
   }
 
   .theme-tenis .vi-no-reviews {
-    color: #8a9a78;
+    color: #5a6e48;
   }
 
   .theme-tenis .vi-venue-card {
     background: #fff;
     border: 1px solid rgba(45,80,22,.1);
+    border-radius: 12px;
     box-shadow: 0 2px 12px rgba(45,80,22,.06);
-    transition: transform .3s ease, box-shadow .3s ease;
+    transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
     position: relative;
     overflow: hidden;
   }
@@ -3036,12 +3123,13 @@
     right: 0;
     height: 3px;
     background: linear-gradient(90deg, #2d5016, #d4b896);
+    border-radius: 0 0 12px 12px;
     opacity: 0;
     transition: opacity .3s ease;
   }
 
   .theme-tenis .vi-venue-card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-3px);
     box-shadow: 0 8px 32px rgba(45,80,22,.12);
   }
 
@@ -3058,7 +3146,7 @@
   }
 
   .theme-tenis .vi-venue-rating-text {
-    color: #d4b896;
+    color: #1a2e0a;
   }
 
   .theme-tenis .vi-venue-rating-count {
@@ -3301,7 +3389,10 @@
       transition: none !important;
     }
     .vi-venue-card { transition: none !important; }
+    .vi-filter-chip { transition: none !important; transform: none !important; }
     @keyframes vi-shimmer { 0%, 100% { opacity: 0; } }
+    @keyframes vi-futbol-float { 0%, 100% { transform: translateY(-55%); } }
+    @keyframes vi-tenis-drift { 0%, 100% { transform: translateY(-50%); } }
   }
 
 @endpush

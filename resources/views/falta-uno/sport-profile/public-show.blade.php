@@ -437,6 +437,105 @@
     margin-top: 2px;
   }
 
+  /* ── Ratings Breakdown ─────────────────────────── */
+  .fpp-ratings-shell {
+    background: rgba(0,0,0,0.02);
+    border-radius: 1.25rem;
+    padding: 4px;
+    border: 1px solid rgba(0,0,0,0.03);
+    margin-bottom: 40px;
+  }
+  .fpp-ratings-card {
+    background: #fff;
+    border-radius: calc(1.25rem - 4px);
+    padding: 24px;
+  }
+  .fpp-ratings-sport-title {
+    font-size: 15px;
+    font-weight: 800;
+    color: #111;
+    margin: 0 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .fpp-ratings-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+  .fpp-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .fpp-bar-label {
+    font-size: 12px;
+    font-weight: 700;
+    width: 90px;
+    flex-shrink: 0;
+  }
+  .fpp-bar-track {
+    flex: 1;
+    height: 8px;
+    background: #f3f4f6;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .fpp-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 600ms ease-out;
+  }
+  .fpp-bar-count {
+    font-size: 12px;
+    font-weight: 700;
+    color: #888;
+    width: 28px;
+    text-align: right;
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .fpp-comment-item {
+    padding: 12px 0;
+    border-top: 1px solid #f4f4f4;
+  }
+  .fpp-comment-item:first-child { border-top: none; }
+  .fpp-comment-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .fpp-comment-avatar {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: #111;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 800;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .fpp-comment-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .fpp-comment-name { font-size: 13px; font-weight: 700; color: #111; }
+  .fpp-comment-text {
+    font-size: 13px;
+    color: #555;
+    line-height: 1.5;
+    margin: 0;
+  }
+  .fpp-ratings-total {
+    font-size: 12px;
+    color: #888;
+    font-weight: 600;
+    margin-left: auto;
+  }
+
   /* ── Empty State ───────────────────────────────── */
   .fpp-empty-shell {
     background: rgba(0,0,0,0.02);
@@ -538,6 +637,14 @@
         @endif
         <h1 class="fpp-hero-name">{{ $user->name }}</h1>
         <p class="fpp-hero-sub">Perfil deportivo</p>
+        @auth
+        @if(auth()->id() === $user->id)
+          <a href="{{ route('profile.edit') }}" style="display:inline-flex; align-items:center; gap:6px; margin-top:16px; padding:8px 20px; background:rgba(255,255,255,0.12); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); border:1px solid rgba(255,255,255,0.2); border-radius:10px; color:#fff; font-size:13px; font-weight:700; text-decoration:none; transition:background .2s, border-color .2s;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Editar mi perfil
+          </a>
+        @endif
+        @endauth
       </div>
     </div>
   </div>
@@ -576,21 +683,22 @@
             {{ $profile->category }}
           </span>
 
+          @php $rs = $realStats[$profile->sport] ?? null; @endphp
           <div class="fpp-stats-grid">
             <div class="fpp-stat-cell" style="background:#f8f8f8;">
-              <div class="fpp-stat-num" style="color:#111;">{{ $profile->games_played }}</div>
+              <div class="fpp-stat-num" style="color:#111;">{{ $rs ? $rs['games_played'] : $profile->games_played }}</div>
               <div class="fpp-stat-label">PJ</div>
             </div>
             <div class="fpp-stat-cell" style="background:#f0fdf4;">
-              <div class="fpp-stat-num" style="color:#22c55e;">{{ $profile->wins }}</div>
+              <div class="fpp-stat-num" style="color:#22c55e;">{{ $rs ? $rs['wins'] : $profile->wins }}</div>
               <div class="fpp-stat-label">PG</div>
             </div>
             <div class="fpp-stat-cell" style="background:#fffbeb;">
-              <div class="fpp-stat-num" style="color:#f59e0b;">{{ $profile->draws }}</div>
+              <div class="fpp-stat-num" style="color:#f59e0b;">{{ $rs ? $rs['draws'] : $profile->draws }}</div>
               <div class="fpp-stat-label">PE</div>
             </div>
             <div class="fpp-stat-cell" style="background:#fef2f2;">
-              <div class="fpp-stat-num" style="color:#ef4444;">{{ $profile->losses }}</div>
+              <div class="fpp-stat-num" style="color:#ef4444;">{{ $rs ? $rs['losses'] : $profile->losses }}</div>
               <div class="fpp-stat-label">PP</div>
             </div>
           </div>
@@ -618,6 +726,80 @@
     </div>
   @endif
 
+  {{-- Calificaciones recibidas --}}
+  @if($profiles->isNotEmpty() && collect($ratingsData)->sum('total') > 0)
+    <div class="fpp-section-header">
+      <span class="fpp-section-label">Calificaciones</span>
+      <div class="fpp-section-line"></div>
+    </div>
+
+    @foreach($profiles as $profile)
+      @php $rd = $ratingsData[$profile->sport] ?? null; @endphp
+      @if($rd && $rd['total'] > 0)
+        @php
+          $pctAbove = round(($rd['above'] / $rd['total']) * 100);
+          $pctMatch = round(($rd['match'] / $rd['total']) * 100);
+          $pctBelow = round(($rd['below'] / $rd['total']) * 100);
+          $sportName = $sportNames[$profile->sport] ?? ucfirst($profile->sport);
+        @endphp
+        <div class="fpp-ratings-shell" data-aos="fade-up" data-aos-duration="600">
+          <div class="fpp-ratings-card">
+            <div class="fpp-ratings-sport-title">
+              {!! $sportSvgs[$profile->sport] ?? '' !!}
+              {{ $sportName }}
+              <span class="fpp-ratings-total">{{ $rd['total'] }} calificaci{{ $rd['total'] === 1 ? 'ón' : 'ones' }}</span>
+            </div>
+
+            <div class="fpp-ratings-bars">
+              <div class="fpp-bar-row">
+                <span class="fpp-bar-label" style="color:#15803d;">Por encima</span>
+                <div class="fpp-bar-track">
+                  <div class="fpp-bar-fill" style="width:{{ $pctAbove }}%; background:#22c55e;"></div>
+                </div>
+                <span class="fpp-bar-count">{{ $rd['above'] }}</span>
+              </div>
+              <div class="fpp-bar-row">
+                <span class="fpp-bar-label" style="color:#6b7280;">A la altura</span>
+                <div class="fpp-bar-track">
+                  <div class="fpp-bar-fill" style="width:{{ $pctMatch }}%; background:#9ca3af;"></div>
+                </div>
+                <span class="fpp-bar-count">{{ $rd['match'] }}</span>
+              </div>
+              <div class="fpp-bar-row">
+                <span class="fpp-bar-label" style="color:#dc2626;">Por debajo</span>
+                <div class="fpp-bar-track">
+                  <div class="fpp-bar-fill" style="width:{{ $pctBelow }}%; background:#ef4444;"></div>
+                </div>
+                <span class="fpp-bar-count">{{ $rd['below'] }}</span>
+              </div>
+            </div>
+
+            @if($rd['comments']->isNotEmpty())
+              <div style="margin-top:4px;">
+                <div style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#aaa; margin-bottom:8px;">Comentarios recientes</div>
+                @foreach($rd['comments'] as $comment)
+                  <div class="fpp-comment-item">
+                    <div class="fpp-comment-header">
+                      <div class="fpp-comment-avatar">
+                        @if($comment->rater->avatar_path)
+                          <img src="{{ \Illuminate\Support\Facades\Storage::url($comment->rater->avatar_path) }}" alt="{{ $comment->rater->name }}">
+                        @else
+                          {{ mb_strtoupper(mb_substr($comment->rater->name, 0, 1)) }}
+                        @endif
+                      </div>
+                      <span class="fpp-comment-name">{{ $comment->rater->name }}</span>
+                    </div>
+                    <p class="fpp-comment-text">{{ $comment->comment }}</p>
+                  </div>
+                @endforeach
+              </div>
+            @endif
+          </div>
+        </div>
+      @endif
+    @endforeach
+  @endif
+
   {{-- Recent Matches --}}
   @if($recentParticipations->isNotEmpty())
     <div class="fpp-section-header">
@@ -628,12 +810,16 @@
       <div class="fpp-matches-wrap">
         @foreach($recentParticipations as $mi => $p)
         @php
-          $resultCfg = match($p->result) {
-            'win'  => ['Victoria', 'fpp-result-win'],
-            'draw' => ['Empate',   'fpp-result-draw'],
-            'loss' => ['Derrota',  'fpp-result-loss'],
-            default=> ['—',        'fpp-result-none'],
-          };
+          if ($p->status === 'no_show') {
+            $resultCfg = ['Ausente', 'fpp-result-loss'];
+          } else {
+            $resultCfg = match($p->result) {
+              'win'  => ['Victoria', 'fpp-result-win'],
+              'draw' => ['Empate',   'fpp-result-draw'],
+              'loss' => ['Derrota',  'fpp-result-loss'],
+              default=> ['—',        'fpp-result-none'],
+            };
+          }
         @endphp
         <div class="fpp-match-row" data-aos="fade-right" data-aos-delay="{{ min($mi * 50, 300) }}" data-aos-duration="500">
           <span class="fpp-result-pill {{ $resultCfg[1] }}">{{ $resultCfg[0] }}</span>

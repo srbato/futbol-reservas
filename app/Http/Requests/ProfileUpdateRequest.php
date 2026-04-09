@@ -21,7 +21,8 @@ class ProfileUpdateRequest extends FormRequest
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
             'phone'  => ['nullable', 'string', 'max:30'],
-            'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'avatar'    => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'age_group' => ['nullable', 'string', 'in:sub10,sub12,sub14,sub16,sub18,19a25,26a34,open,mas35,mas40,mas45,mas50,mas55,mas60'],
         ];
     }
 }

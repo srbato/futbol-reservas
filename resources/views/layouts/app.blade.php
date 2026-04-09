@@ -1088,7 +1088,7 @@
             </button>
 
             <div id="userDropdown" class="user-dropdown">
-              <a href="{{ route('profile.edit') }}">Perfil</a>
+              <a href="{{ route('sport-profile.public', auth()->user()) }}">Perfil</a>
               <a href="{{ route('my_reservations') }}">Mi actividad</a>
               <a href="{{ route('venues.favorites') }}">Favoritos</a>
 
@@ -1138,7 +1138,7 @@
       <a href="{{ route('venues.index') }}">Complejos</a>
       <a href="{{ route('falta-uno.index') }}" style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="zap" style="width:14px;height:14px;stroke:currentColor;"></i> Falta Uno</a>
       <div class="app-mobile-divider"></div>
-      <a href="{{ route('profile.edit') }}">Perfil</a>
+      <a href="{{ route('sport-profile.public', auth()->user()) }}">Perfil</a>
       <a href="{{ route('my_reservations') }}">Mi actividad</a>
       <a href="{{ route('venues.favorites') }}">Favoritos</a>
       <a href="{{ route('notifications.index') }}">Notificaciones</a>

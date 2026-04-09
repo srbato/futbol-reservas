@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\FaltaUnoParticipant;
+use App\Models\FaltaUnoRating;
 use App\Models\Reservation;
 use App\Models\ReservationResult;
 use App\Models\User;
@@ -13,16 +14,18 @@ class FaltaUnoProfilePublicController extends Controller
     {
         $profiles = $user->faltaUnoSportProfiles()->get();
 
-        // Last 10 participated games with result
+        // Last 10 participated games (con resultado o no-show)
         $recentParticipations = FaltaUnoParticipant::with(['game.field.venue'])
             ->where('user_id', $user->id)
-            ->where('status', 'confirmed')
-            ->whereNotNull('result')
+            ->whereIn('status', ['confirmed', 'no_show'])
+            ->where(function ($q) {
+                $q->whereNotNull('result')->orWhere('status', 'no_show');
+            })
             ->orderByDesc('updated_at')
             ->limit(10)
             ->get();
 
-        $chartData = $recentParticipations->map(function ($p) {
+        $chartData = $recentParticipations->filter(fn($p) => $p->status !== 'no_show')->map(function ($p) {
             $resultScore = match($p->result) {
                 'win'  => 3,
                 'draw' => 1,
@@ -61,6 +64,57 @@ class FaltaUnoProfilePublicController extends Controller
             'losses' => $conventionalResults->where('match_outcome', 'L')->count(),
         ];
 
-        return view('falta-uno.sport-profile.public-show', compact('user', 'profiles', 'recentParticipations', 'chartData', 'conventionalHistory', 'conventionalStats'));
+        // Stats calculados desde participaciones reales (fuente única de verdad)
+        $allParticipations = FaltaUnoParticipant::with('game.field')
+            ->where('user_id', $user->id)
+            ->whereIn('status', ['confirmed', 'no_show'])
+            ->get();
+
+        $realStats = [];
+        foreach ($profiles as $profile) {
+            $sportParts = $allParticipations->filter(fn($p) => $p->game->field->sport === $profile->sport);
+            $confirmed = $sportParts->where('status', 'confirmed');
+
+            $realStats[$profile->sport] = [
+                'games_played' => $confirmed->count(),
+                'wins'         => $confirmed->where('result', 'win')->count(),
+                'draws'        => $confirmed->where('result', 'draw')->count(),
+                'losses'       => $confirmed->where('result', 'loss')->count(),
+                'no_shows'     => $sportParts->where('status', 'no_show')->count(),
+            ];
+        }
+
+        // Datos de calificaciones recibidas por deporte
+        $ratingsData = [];
+        foreach ($profiles as $profile) {
+            $ratings = FaltaUnoRating::where('rated_user_id', $user->id)
+                ->whereHas('game', fn($q) => $q->whereHas('field', fn($q2) => $q2->where('sport', $profile->sport)))
+                ->get();
+
+            $totalRatings = $ratings->count();
+            $aboveCount = $ratings->where('assessment', 'above')->count();
+            $matchCount = $ratings->where('assessment', 'match')->count();
+            $belowCount = $ratings->where('assessment', 'below')->count();
+
+            // Últimos 5 comentarios
+            $recentComments = FaltaUnoRating::where('rated_user_id', $user->id)
+                ->whereHas('game', fn($q) => $q->whereHas('field', fn($q2) => $q2->where('sport', $profile->sport)))
+                ->whereNotNull('comment')
+                ->where('comment', '!=', '')
+                ->with('rater:id,name,avatar_path')
+                ->latest()
+                ->limit(5)
+                ->get();
+
+            $ratingsData[$profile->sport] = [
+                'total'    => $totalRatings,
+                'above'    => $aboveCount,
+                'match'    => $matchCount,
+                'below'    => $belowCount,
+                'comments' => $recentComments,
+            ];
+        }
+
+        return view('falta-uno.sport-profile.public-show', compact('user', 'profiles', 'recentParticipations', 'chartData', 'conventionalHistory', 'conventionalStats', 'ratingsData', 'realStats'));
     }
 }

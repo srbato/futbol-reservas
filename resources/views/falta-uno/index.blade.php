@@ -444,7 +444,7 @@
         <div style="font-size:14px; font-weight:700; color:#92400e;">Para unirte a partidos necesitás completar tu perfil deportivo</div>
         <div style="font-size:12px; color:#b45309; margin-top:2px;">Tu categoría y género determinan a qué partidos podés unirte.</div>
       </div>
-      <a href="/profile#sport-profile"
+      <a href="{{ route('profile.edit') }}#sport-profile"
          style="display:inline-block; background:#111; color:#fff; border-radius:10px; padding:8px 18px; font-size:13px; font-weight:700; text-decoration:none; white-space:nowrap;">
         Completar perfil
       </a>
@@ -620,6 +620,28 @@
                 Desde {{ ucfirst($game->category_min) }}
               @else
                 Hasta {{ ucfirst($game->category_max) }}
+              @endif
+            </span>
+          @endif
+          @if($game->age_group_min || $game->age_group_max)
+            @php
+              $agLabelsIdx = [
+                'sub10' => 'Sub 10', 'sub12' => 'Sub 12', 'sub14' => 'Sub 14',
+                'sub16' => 'Sub 16', 'sub18' => 'Sub 18', '19a25' => '19 a 25',
+                '26a34' => '26 a 34', 'open'  => 'Open',   'mas35' => '+35',
+                'mas40' => '+40',     'mas45' => '+45',     'mas50' => '+50',
+                'mas55' => '+55',     'mas60' => '+60',
+              ];
+            @endphp
+            <span style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="calendar-range" style="width:13px;height:13px;stroke:currentColor;flex-shrink:0;"></i>
+              @if($game->age_group_min && $game->age_group_max && $game->age_group_min === $game->age_group_max)
+                {{ $agLabelsIdx[$game->age_group_min] ?? $game->age_group_min }}
+              @elseif($game->age_group_min && $game->age_group_max)
+                {{ $agLabelsIdx[$game->age_group_min] ?? $game->age_group_min }} – {{ $agLabelsIdx[$game->age_group_max] ?? $game->age_group_max }}
+              @elseif($game->age_group_min)
+                Desde {{ $agLabelsIdx[$game->age_group_min] ?? $game->age_group_min }}
+              @else
+                Hasta {{ $agLabelsIdx[$game->age_group_max] ?? $game->age_group_max }}
               @endif
             </span>
           @endif
@@ -805,7 +827,7 @@
     <p style="padding:0 24px; margin:8px 0 16px; font-size:14px; color:#666;">Selecciona una cancha con Falta Uno habilitado para crear tu partido.</p>
 
     <div id="fuiFieldSearch" style="padding:0 24px 12px;">
-      <input type="text" id="fuiFieldSearchInput" placeholder="Buscar por cancha o complejo..." oninput="filterFuiFields()" style="width:100%; padding:10px 14px; border:1.5px solid #e5e7eb; border-radius:10px; font-size:14px; outline:none; box-sizing:border-box;" onfocus="this.style.borderColor='#16a34a'" onblur="this.style.borderColor='#e5e7eb'">
+      <input type="text" id="fuiFieldSearchInput" placeholder="Buscar por cancha o complejo..." aria-label="Buscar por cancha o complejo" oninput="filterFuiFields()" style="width:100%; padding:10px 14px; border:1.5px solid #e5e7eb; border-radius:10px; font-size:14px; outline:none; box-sizing:border-box;" onfocus="this.style.borderColor='#16a34a'" onblur="this.style.borderColor='#e5e7eb'">
     </div>
 
     <div id="fuiFieldList" style="padding:0 24px 20px; display:grid; gap:8px;">

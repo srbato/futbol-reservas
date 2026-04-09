@@ -549,7 +549,7 @@ echo json_encode([
             <span class="faq-icon"><i data-lucide="plus" style="width:14px;height:14px;stroke:currentColor;stroke-width:2.5;"></i></span>
           </button>
           <div class="faq-body">
-            Sí. Tenés 7 días de prueba gratuita para explorar el panel, cargar tus canchas y ver cómo funciona
+            Sí. Tenés {{ $trialDays }} días de prueba gratuita para explorar el panel, cargar tus canchas y ver cómo funciona
             el sistema. No se te cobra nada hasta que decidís activar tu suscripción.
           </div>
         </div>

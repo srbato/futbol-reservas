@@ -260,12 +260,13 @@
   }
 
   .fs-date-input-native {
-    opacity: 0;
     position: absolute;
     inset: 0;
+    opacity: 0;
     width: 100%;
     height: 100%;
     cursor: pointer;
+    z-index: 2;
   }
 
   /* Legend */
@@ -1300,6 +1301,7 @@
 
   loadSlots();
   updateDateLabel(document.getElementById('datePicker').value);
+
   document.getElementById('datePicker').addEventListener('change', function () {
     updateDateLabel(this.value);
     loadSlots();

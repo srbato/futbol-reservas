@@ -63,6 +63,55 @@ class FaltaUnoPenaltyService
     }
 
     /**
+     * Registra un no-show: marca el participant, recalcula attendance, aplica cooldown/ban.
+     * Penalizacion mayor que bajada tardia: cooldown 48h * count, ban a las 3 en 60 dias.
+     */
+    public function registerNoShow(User $user, FaltaUnoGame $game): void
+    {
+        $participant = FaltaUnoParticipant::where('game_id', $game->id)
+            ->where('user_id', $user->id)
+            ->where('status', 'no_show')
+            ->latest()
+            ->first();
+
+        if (!$participant) {
+            return;
+        }
+
+        $sport = $game->field->sport;
+        $profile = $user->sportProfileFor($sport);
+
+        if ($profile) {
+            $profile->increment('late_leaves_count');
+            $this->recalculateAttendanceRate($user, $sport);
+        }
+
+        // Contar no-shows en los ultimos 60 dias
+        $recentNoShowCount = $this->countRecentNoShows($user, 60);
+
+        // Bloqueo total: 3 no-shows en 60 dias = ban de 14 dias (mas severo que bajada tardia)
+        if ($recentNoShowCount >= 3) {
+            FaltaUnoPenalty::create([
+                'user_id'    => $user->id,
+                'sport'      => $sport,
+                'type'       => 'ban',
+                'reason'     => "Bloqueado por {$recentNoShowCount} no-shows en los ultimos 60 dias.",
+                'expires_at' => now()->addDays(14),
+            ]);
+        } else {
+            // Cooldown escalonado: 48h * cantidad de no-shows recientes (el doble que bajada tardia)
+            $cooldownHours = max(1, $recentNoShowCount) * 48;
+            FaltaUnoPenalty::create([
+                'user_id'    => $user->id,
+                'sport'      => $sport,
+                'type'       => 'cooldown',
+                'reason'     => "Cooldown de {$cooldownHours}h por no-show (#{$recentNoShowCount} en 60 dias).",
+                'expires_at' => now()->addHours($cooldownHours),
+            ]);
+        }
+    }
+
+    /**
      * Verifica si el usuario puede unirse a un partido.
      * Retorna ['allowed' => bool, 'reason' => string|null, 'warnings' => []]
      */
@@ -179,6 +228,18 @@ class FaltaUnoPenaltyService
         return FaltaUnoParticipant::where('user_id', $user->id)
             ->where('is_late_leave', true)
             ->where('updated_at', '>=', now()->subDays($days))
+            ->count();
+    }
+
+    /**
+     * Cuenta no-shows en los ultimos N dias.
+     */
+    private function countRecentNoShows(User $user, int $days): int
+    {
+        return FaltaUnoParticipant::where('user_id', $user->id)
+            ->where('status', 'no_show')
+            ->whereNotNull('no_show_at')
+            ->where('no_show_at', '>=', now()->subDays($days))
             ->count();
     }
 }

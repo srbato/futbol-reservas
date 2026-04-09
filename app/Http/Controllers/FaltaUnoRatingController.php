@@ -13,40 +13,8 @@ class FaltaUnoRatingController extends Controller
 {
     public function create(FaltaUnoGame $game)
     {
-        if (!$game->isFinished()) {
-            return back()->with('error', 'Solo podés calificar cuando el partido ya terminó.');
-        }
-
-        $user = auth()->user();
-
-        $isParticipant = $game->initiator_user_id === $user->id
-            || $game->participants()->where('user_id', $user->id)->where('status', 'confirmed')->exists();
-
-        if (!$isParticipant) {
-            abort(403, 'Solo los participantes pueden calificar.');
-        }
-
-        $alreadyRated = FaltaUnoRating::where('game_id', $game->id)
-            ->where('rater_user_id', $user->id)
-            ->exists();
-
-        if ($alreadyRated) {
-            return back()->with('info', 'Ya calificaste a los participantes de este partido.');
-        }
-
-        // Collect all participants except the current user
-        $participantUserIds = $game->activeParticipants()->pluck('user_id');
-        $otherIds = collect([$game->initiator_user_id])
-            ->merge($participantUserIds)
-            ->unique()
-            ->filter(fn($id) => $id !== $user->id)
-            ->values();
-
-        $otherUsers = User::whereIn('id', $otherIds)->get();
-
-        $game->loadMissing(['field.venue']);
-
-        return view('falta-uno.rate', compact('game', 'otherUsers'));
+        // Redirigir al show del partido (la calificación ahora es inline)
+        return redirect()->route('falta-uno.show', $game)->withFragment('calificar');
     }
 
     public function store(Request $request, FaltaUnoGame $game)
@@ -146,7 +114,7 @@ class FaltaUnoRatingController extends Controller
             }
         }
 
-        return redirect()->route('falta-uno.index')
+        return redirect()->route('falta-uno.show', $game)
             ->with('success', 'Calificaciones enviadas. ¡Gracias por tu feedback!');
     }
 }

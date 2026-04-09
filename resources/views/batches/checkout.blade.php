@@ -39,6 +39,7 @@
   <div class="page-card" style="margin-bottom:20px;">
     <h2 style="margin:0 0 16px 0; font-size:20px;">Turnos incluidos</h2>
 
+    <div style="overflow-x:auto;">
     <table style="width:100%; border-collapse:collapse;">
       <thead>
         <tr>
@@ -63,6 +64,7 @@
         @endforeach
       </tbody>
     </table>
+    </div>
   </div>
 
   {{-- Resumen de precio --}}

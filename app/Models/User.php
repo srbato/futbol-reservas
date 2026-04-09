@@ -25,6 +25,7 @@ class User extends Authenticatable
         'avatar_path',
         'google_id',
         'onboarding_completed_at',
+        'age_group',
     ];
     
     protected $hidden = [

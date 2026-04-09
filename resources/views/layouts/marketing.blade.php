@@ -364,6 +364,7 @@
       <nav class="nav">
         <a href="{{ url('/como-funciona') }}" class="{{ request()->routeIs('como-funciona') ? 'active' : '' }}">Cómo funciona</a>
         <a href="{{ url('/planes') }}" class="{{ request()->routeIs('planes') ? 'active' : '' }}">Planes</a>
+        <a href="{{ route('para-complejos') }}" class="{{ request()->routeIs('para-complejos') ? 'active' : '' }}">Para complejos</a>
         <a href="{{ route('venues.index') }}" class="{{ request()->routeIs('venues.index') ? 'active' : '' }}">Complejos</a>
         <a href="{{ route('nosotros') }}" class="{{ request()->routeIs('nosotros') ? 'active' : '' }}">Nosotros</a>
         <a href="{{ route('blog.index') }}" class="{{ request()->routeIs('blog.*') ? 'active' : '' }}">Blog</a>
@@ -384,6 +385,7 @@
     <nav class="mobile-nav" id="mobileNav">
       <a href="{{ url('/como-funciona') }}" class="{{ request()->routeIs('como-funciona') ? 'active' : '' }}">Cómo funciona</a>
       <a href="{{ url('/planes') }}" class="{{ request()->routeIs('planes') ? 'active' : '' }}">Planes</a>
+      <a href="{{ route('para-complejos') }}" class="{{ request()->routeIs('para-complejos') ? 'active' : '' }}">Para complejos</a>
       <a href="{{ route('venues.index') }}" class="{{ request()->routeIs('venues.index') ? 'active' : '' }}">Complejos</a>
       <a href="{{ route('nosotros') }}" class="{{ request()->routeIs('nosotros') ? 'active' : '' }}">Nosotros</a>
       <a href="{{ route('blog.index') }}" class="{{ request()->routeIs('blog.*') ? 'active' : '' }}">Blog</a>
@@ -412,7 +414,7 @@
           <a href="{{ route('venues.index') }}">Complejos</a>
           <a href="{{ route('nosotros') }}">Nosotros</a>
           <a href="{{ route('blog.index') }}">Blog</a>
-          <a href="{{ route('por-que-tucancha') }}">Por qué TuCancha</a>
+          <a href="{{ route('para-complejos') }}">Para complejos</a>
           <a href="{{ route('faq') }}">FAQ</a>
           <a href="mailto:tucancha10@gmail.com">tucancha10@gmail.com</a>
         </div>

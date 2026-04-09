@@ -365,20 +365,6 @@
     transition: color 250ms var(--ease-out-expo);
   }
 
-  /* ── Age Group Select ───────────────────────────── */
-  .sp-age-wrap {
-    margin-bottom: 28px;
-    overflow: hidden;
-    max-height: 0;
-    opacity: 0;
-    transition: max-height 500ms var(--ease-out-expo), opacity 400ms var(--ease-out-expo), margin 400ms var(--ease-out-expo);
-  }
-
-  .sp-age-wrap.visible {
-    max-height: 120px;
-    opacity: 1;
-  }
-
   .sp-select {
     width: 100%;
     padding: 12px 16px;
@@ -878,25 +864,6 @@
                 </div>
               </div>
 
-              {{-- Grupo de edad (solo padel) --}}
-              <div class="sp-age-wrap" id="ageGroupWrap">
-                <div class="sp-section-label">Grupo de edad</div>
-                <select id="age_group" name="age_group" class="sp-select">
-                  <option value="">Seleccioná grupo...</option>
-                  @php
-                    $ageGroups = [
-                      'sub10' => 'Sub 10', 'sub12' => 'Sub 12', 'sub14' => 'Sub 14',
-                      'sub16' => 'Sub 16', 'sub18' => 'Sub 18', '19a25' => '19 a 25',
-                      '26a34' => '26 a 34', 'open'  => 'Open',   'mas35' => '+35',
-                      'mas40' => '+40',     'mas45' => '+45',     'mas50' => '+50',
-                      'mas55' => '+55',     'mas60' => '+60',
-                    ];
-                  @endphp
-                  @foreach($ageGroups as $val => $label)
-                    <option value="{{ $val }}" {{ old('age_group') === $val ? 'selected' : '' }}>{{ $label }}</option>
-                  @endforeach
-                </select>
-              </div>
 
             </div>
 
@@ -987,8 +954,6 @@
 
   const container     = document.getElementById('categoriesContainer');
   const catInput      = document.getElementById('categoryInput');
-  const ageWrap       = document.getElementById('ageGroupWrap');
-  const ageSelect     = document.getElementById('age_group');
   const previewCard   = document.getElementById('previewCard');
   const previewAvatar = document.getElementById('previewAvatar');
   const previewIcon   = document.getElementById('previewAvatarIcon');
@@ -1038,16 +1003,6 @@
       if (match) match.closest('.sp-cat-pill').classList.add('selected');
     } else {
       catInput.value = '';
-    }
-
-    // Age group visibility
-    if (sport === 'padel') {
-      ageWrap.classList.add('visible');
-      ageSelect.required = true;
-    } else {
-      ageWrap.classList.remove('visible');
-      ageSelect.required = false;
-      ageSelect.value = '';
     }
 
     updatePreview();

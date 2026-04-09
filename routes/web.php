@@ -91,9 +91,15 @@ Route::get('/nosotros', function () {
     return view('nosotros');
 })->name('nosotros');
 
-Route::get('/por-que-tucancha', function () {
-    return view('por-que-tucancha');
-})->name('por-que-tucancha');
+Route::get('/por-que-tucancha', fn() => view('por-que-tucancha'))->name('por-que-tucancha');
+
+Route::get('/para-complejos', function () {
+    $plans = \App\Models\MembershipPlan::where('is_active', true)
+        ->orderBy('sort_order')
+        ->get();
+    $trialDays = $plans->max('trial_days') ?: 7;
+    return view('para-complejos', compact('plans', 'trialDays'));
+})->name('para-complejos');
 
 Route::get('/preguntas-frecuentes', function () {
     $trialDays = \App\Models\MembershipPlan::where('is_active', true)
@@ -108,7 +114,8 @@ Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 
 Route::get('/planes', function () {
     $plans = MembershipPlan::where('is_active', true)->orderBy('sort_order')->get();
-    return view('planes', compact('plans'));
+    $trialDays = $plans->max('trial_days') ?: 7;
+    return view('planes', compact('plans', 'trialDays'));
 })->name('planes');
 
 Route::get('/dashboard', function () {
@@ -263,6 +270,8 @@ Route::middleware(['auth', 'active.user'])->group(function () {
     Route::post('/falta-uno/{game}/kick/{user}', [FaltaUnoController::class, 'kick'])
         ->middleware('throttle:10,1')
         ->name('falta-uno.kick');
+    Route::post('/falta-uno/{game}/no-shows', [FaltaUnoController::class, 'markNoShows'])
+        ->name('falta-uno.no-shows');
 
     // Perfil deportivo propio
     Route::get('/mi-perfil-deportivo', [FaltaUnoSportProfileController::class, 'index'])->name('sport-profile.index');
@@ -550,7 +559,7 @@ Route::post('/contact', function (Request $request) {
     return redirect()
         ->route('home')
         ->with('success', 'Tu consulta fue enviada correctamente.');
-})->name('contact.send');
+})->middleware('throttle:3,1')->name('contact.send');
 
 /*
 |--------------------------------------------------------------------------
@@ -759,7 +768,7 @@ Route::middleware(['auth', 'active.user', 'role:super_admin'])->group(function (
 
 // Ruta para salir de impersonación — protegida solo con auth (el super_admin
 // ya no tiene ese rol mientras impersona a otro usuario)
-Route::get('/super-admin/stop-impersonate', [UserManagementController::class, 'stopImpersonate'])
+Route::post('/super-admin/stop-impersonate', [UserManagementController::class, 'stopImpersonate'])
     ->middleware(['auth', 'active.user'])
     ->name('sa.users.stop_impersonate');
 

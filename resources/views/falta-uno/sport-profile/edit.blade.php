@@ -509,29 +509,6 @@
               </div>
             </div>
 
-            {{-- Grupo de edad (solo pádel) --}}
-            @if($profile->sport === 'padel')
-            <div class="sp-field">
-              <div class="sp-section-label">Grupo de edad</div>
-              <select id="age_group" name="age_group" class="sp-select" required>
-                <option value="">Seleccioná grupo...</option>
-                @php
-                  $ageGroups = [
-                    'sub10' => 'Sub 10', 'sub12' => 'Sub 12', 'sub14' => 'Sub 14',
-                    'sub16' => 'Sub 16', 'sub18' => 'Sub 18', '19a25' => '19 a 25',
-                    '26a34' => '26 a 34', 'open'  => 'Open',   'mas35' => '+35',
-                    'mas40' => '+40',     'mas45' => '+45',     'mas50' => '+50',
-                    'mas55' => '+55',     'mas60' => '+60',
-                  ];
-                @endphp
-                @foreach($ageGroups as $ag => $label)
-                  <option value="{{ $ag }}" {{ old('age_group', $profile->age_group) === $ag ? 'selected' : '' }}>
-                    {{ $label }}
-                  </option>
-                @endforeach
-              </select>
-            </div>
-            @endif
 
           </div>
 

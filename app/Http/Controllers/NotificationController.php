@@ -28,13 +28,13 @@ class NotificationController extends Controller
 
         $notification->markAsRead();
 
-        $actionUrl = $notification->data['action_url'] ?? null;
+        $actionUrl = $notification->data['action_url'] ?? '/';
 
-        if ($actionUrl) {
-            return redirect($actionUrl);
+        if (!str_starts_with($actionUrl, '/') && !str_starts_with($actionUrl, config('app.url'))) {
+            $actionUrl = '/';
         }
 
-        return back();
+        return redirect($actionUrl);
     }
 
     public function markAllRead(Request $request)

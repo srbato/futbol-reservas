@@ -23,10 +23,14 @@ class FaltaUnoSportProfileController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'sport'     => ['required', 'string'],
-            'category'  => ['required', 'string'],
+            'sport'     => ['required', 'string', 'in:football,padel,tennis,basketball,volleyball'],
+            'category'  => ['required', 'string', function ($attribute, $value, $fail) use ($request) {
+                $validCategories = \App\Models\FaltaUnoSportProfile::getCategoriesForSport($request->input('sport', ''));
+                if (!in_array($value, $validCategories)) {
+                    $fail('La categoria seleccionada no es valida para este deporte.');
+                }
+            }],
             'gender'    => ['required', 'in:male,female'],
-            'age_group' => ['nullable', 'string', 'required_if:sport,padel'],
         ]);
 
         // Verificar si ya existe un perfil para este deporte
@@ -66,7 +70,6 @@ class FaltaUnoSportProfileController extends Controller
         $data = $request->validate([
             'category'  => ['required', 'string'],
             'gender'    => ['required', 'in:male,female'],
-            'age_group' => ['nullable', 'string', 'required_if:sport,padel'],
         ]);
 
         // Bloquear cambio manual de categoría si el jugador ya tiene 3 o más partidos jugados

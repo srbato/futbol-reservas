@@ -482,7 +482,7 @@ echo json_encode([
 <div class="bp-article-wrap">
   <article class="bp-article">
     <div class="bp-prose">
-      {!! $post->body !!}
+      {!! strip_tags($post->body, '<p><br><h1><h2><h3><h4><h5><h6><ul><ol><li><a><strong><em><b><i><blockquote><code><pre><img><table><thead><tbody><tr><th><td><hr><span><div><figure><figcaption>') !!}
     </div>
 
     {{-- Share --}}

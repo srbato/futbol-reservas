@@ -39,6 +39,14 @@ class Reservation extends Model
         'recurring_subscription_id',
     ];
 
+    protected $hidden = [
+        'verification_code',
+        'payment_external_id',
+        'mp_preference_id',
+        'payment_mp_token_owner',
+        'modify_mp_preference_id',
+    ];
+
     protected $casts = [
         'start_at'      => 'datetime',
         'end_at'        => 'datetime',

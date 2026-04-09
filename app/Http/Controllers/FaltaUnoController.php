@@ -20,6 +20,7 @@ use App\Notifications\FaltaUnoParticipantLeftNotification;
 use App\Notifications\FaltaUnoPlayerJoinedNotification;
 use App\Mail\FaltaUnoKickedMail;
 use App\Notifications\FaltaUnoKickedNotification;
+use App\Notifications\FaltaUnoNoShowNotification;
 use App\Services\FaltaUnoPenaltyService;
 use App\Services\MercadoPagoRefundService;
 use App\Services\ReservationService;
@@ -134,9 +135,34 @@ class FaltaUnoController extends Controller
             ->where('was_kicked', true)
             ->exists();
 
+        // Verificar si fue marcado como no-show
+        $wasNoShow = $userId && FaltaUnoParticipant::where('game_id', $game->id)
+            ->where('user_id', $userId)
+            ->where('status', 'no_show')
+            ->exists();
+
+        // Cargar participantes marcados como no-show
+        $noShowParticipants = FaltaUnoParticipant::where('game_id', $game->id)
+            ->where('status', 'no_show')
+            ->with('user')
+            ->get();
+
+        // Cargar usuarios para calificar (si el partido terminó, no calificó aún, y no fue no-show)
+        $otherUsers = collect();
+        if ($userId && $game->isFinished() && !$yaCalifico && $isParticipant && !$wasNoShow) {
+            $participantUserIds = $game->activeParticipants->pluck('user_id');
+            $otherIds = collect([$game->initiator_user_id])
+                ->merge($participantUserIds)
+                ->unique()
+                ->filter(fn($id) => $id !== $userId)
+                ->values();
+            $otherUsers = User::whereIn('id', $otherIds)->get();
+        }
+
         return view('falta-uno.show', compact(
             'game', 'isInitiator', 'isJoined', 'isParticipant', 'yaCalifico',
-            'reputationData', 'wouldBeLateLeave', 'joinCheck', 'wasKicked'
+            'reputationData', 'wouldBeLateLeave', 'joinCheck', 'wasKicked',
+            'noShowParticipants', 'otherUsers', 'wasNoShow'
         ));
     }
 
@@ -172,6 +198,8 @@ class FaltaUnoController extends Controller
             'gender_filter'     => ['nullable', 'in:male,female,mixed'],
             'category_min'      => ['nullable', 'string'],
             'category_max'      => ['nullable', 'string'],
+            'age_group_min'     => ['nullable', 'string', 'in:sub10,sub12,sub14,sub16,sub18,19a25,26a34,open,mas35,mas40,mas45,mas50,mas55,mas60'],
+            'age_group_max'     => ['nullable', 'string', 'in:sub10,sub12,sub14,sub16,sub18,19a25,26a34,open,mas35,mas40,mas45,mas50,mas55,mas60'],
         ]);
 
         $totalPlayers     = (int) $data['total_players'];
@@ -197,6 +225,34 @@ class FaltaUnoController extends Controller
                         $range = ucfirst($data['category_min'] ?? 'cualquiera') . ' – ' . ucfirst($data['category_max'] ?? 'cualquiera');
                         return back()->withErrors(['category_min' => "Tu categoría ({$profile->category}) está fuera del rango que definiste ({$range}). Solo podés crear partidos en los que tu categoría esté incluida."])->withInput();
                     }
+                }
+            }
+        }
+
+        // Validar que el grupo de edad del iniciador esté dentro del rango definido
+        if ($data['age_group_min'] || $data['age_group_max']) {
+            $userAgeGroup = $request->user()->age_group;
+            if (!$userAgeGroup) {
+                return redirect('/profile#personal-info')
+                    ->with('error', 'Necesitás completar tu grupo de edad en tu perfil para crear un partido con filtro de edad.');
+            }
+            $ageOrder = FaltaUnoGame::getAgeGroupOrder();
+            $userAgeIdx = array_search($userAgeGroup, $ageOrder);
+            if ($userAgeIdx !== false) {
+                $minAgeSearch = $data['age_group_min'] ? array_search($data['age_group_min'], $ageOrder) : false;
+                $maxAgeSearch = $data['age_group_max'] ? array_search($data['age_group_max'], $ageOrder) : false;
+                $minAgeIdx = $minAgeSearch !== false ? $minAgeSearch : 0;
+                $maxAgeIdx = $maxAgeSearch !== false ? $maxAgeSearch : count($ageOrder) - 1;
+                if ($userAgeIdx < $minAgeIdx || $userAgeIdx > $maxAgeIdx) {
+                    $ageLabelMap = [
+                        'sub10' => 'Sub 10', 'sub12' => 'Sub 12', 'sub14' => 'Sub 14',
+                        'sub16' => 'Sub 16', 'sub18' => 'Sub 18', '19a25' => '19 a 25',
+                        'mas35' => '+35', 'mas40' => '+40', 'mas45' => '+45', 'mas50' => '+50',
+                        'mas55' => '+55', 'mas60' => '+60', '26a34' => '26 a 34', 'open' => 'Open',
+                    ];
+                    $range = ($ageLabelMap[$data['age_group_min']] ?? 'cualquiera') . ' – ' . ($ageLabelMap[$data['age_group_max']] ?? 'cualquiera');
+                    $userAgeLabel = $ageLabelMap[$userAgeGroup] ?? $userAgeGroup;
+                    return back()->withErrors(['age_group_min' => "Tu grupo de edad ({$userAgeLabel}) está fuera del rango que definiste ({$range}). Solo podés crear partidos en los que tu edad esté incluida."])->withInput();
                 }
             }
         }
@@ -243,6 +299,8 @@ class FaltaUnoController extends Controller
                 'gender_filter'     => $data['gender_filter'] ?? 'mixed',
                 'category_min'      => $data['category_min'] ?: null,
                 'category_max'      => $data['category_max'] ?: null,
+                'age_group_min'     => $data['age_group_min'] ?: null,
+                'age_group_max'     => $data['age_group_max'] ?: null,
             ]);
 
             DB::commit();
@@ -254,8 +312,9 @@ class FaltaUnoController extends Controller
             \Illuminate\Support\Facades\Log::error('Error al crear partido Falta Uno', [
                 'user_id'  => $user->id,
                 'field_id' => $field->id,
+                'start_at' => $data['start_at'] ?? 'N/A',
+                'parsed'   => $start->toDateTimeString(),
                 'error'    => $e->getMessage(),
-                'trace'    => $e->getTraceAsString(),
             ]);
             return back()->with('error', 'Ocurrio un error al crear el partido. Por favor intenta nuevamente.')->withInput();
         }
@@ -322,6 +381,28 @@ class FaltaUnoController extends Controller
         if (($game->category_min || $game->category_max) && !$game->isInCategoryRange($profile->category)) {
             $range = ucfirst($game->category_min ?? 'cualquiera') . ' – ' . ucfirst($game->category_max ?? 'cualquiera');
             return back()->with('error', "Este partido acepta categorías {$range}. Tu categoría es {$profile->category}.");
+        }
+
+        // Validar grupo de edad
+        if ($game->age_group_min || $game->age_group_max) {
+            if (!$user->age_group) {
+                return redirect('/profile#personal-info')
+                    ->with('error', 'Necesitás completar tu grupo de edad en tu perfil para unirte a este partido.');
+            }
+            if (!$game->isInAgeGroupRange($user->age_group)) {
+                $ageLabels = FaltaUnoGame::getAgeGroupOrder();
+                $ageLabelMap = [
+                    'sub10' => 'Sub 10', 'sub12' => 'Sub 12', 'sub14' => 'Sub 14',
+                    'sub16' => 'Sub 16', 'sub18' => 'Sub 18', '19a25' => '19 a 25',
+                    '26a34' => '26 a 34', 'open'  => 'Open',   'mas35' => '+35',
+                    'mas40' => '+40',     'mas45' => '+45',     'mas50' => '+50',
+                    'mas55' => '+55',     'mas60' => '+60',
+                ];
+                $minLabel = $ageLabelMap[$game->age_group_min] ?? 'cualquiera';
+                $maxLabel = $ageLabelMap[$game->age_group_max] ?? 'cualquiera';
+                $userLabel = $ageLabelMap[$user->age_group] ?? $user->age_group;
+                return back()->with('error', "Este partido acepta edades {$minLabel} – {$maxLabel}. Tu grupo de edad es {$userLabel}.");
+            }
         }
 
         $wasKicked = FaltaUnoParticipant::where('game_id', $game->id)
@@ -471,18 +552,14 @@ class FaltaUnoController extends Controller
             }
         }
 
-        DB::transaction(function () use ($game, $reservation) {
-            // Si había participantes, avisarles
-            $wasFullOrHadParticipants = $game->activeParticipants()->exists();
-            if ($wasFullOrHadParticipants) {
-                $game->load('activeParticipants.user', 'field.venue');
-                foreach ($game->activeParticipants as $participant) {
-                    Mail::to($participant->user->email)
-                        ->send(new FaltaUnoCancelledMail($game, $participant->user));
-                    $participant->user->notify(new FaltaUnoCancelledNotification($game));
-                }
-            }
+        // Cargar participantes antes de la transaccion para notificar despues
+        $participantsToNotify = collect();
+        if ($game->activeParticipants()->exists()) {
+            $game->load('activeParticipants.user', 'field.venue');
+            $participantsToNotify = $game->activeParticipants->map(fn($p) => $p->user)->filter();
+        }
 
+        DB::transaction(function () use ($game, $reservation) {
             $game->update([
                 'status'       => 'cancelled',
                 'cancelled_at' => now(),
@@ -493,6 +570,13 @@ class FaltaUnoController extends Controller
                 $reservation->update(['status' => 'CANCELLED']);
             }
         });
+
+        // Notificar participantes fuera de la transaccion
+        foreach ($participantsToNotify as $participantUser) {
+            Mail::to($participantUser->email)
+                ->send(new FaltaUnoCancelledMail($game, $participantUser));
+            $participantUser->notify(new FaltaUnoCancelledNotification($game));
+        }
 
         if (!$canRefund) {
             $msg = 'Partido cancelado. No corresponde reembolso según la política del complejo.';
@@ -551,5 +635,71 @@ class FaltaUnoController extends Controller
         $user->notify(new FaltaUnoKickedNotification($game));
 
         return back()->with('success', $user->name . ' fue removido del partido.');
+    }
+
+    /**
+     * El organizador marca no-shows despues de que el partido termino.
+     */
+    public function markNoShows(Request $request, FaltaUnoGame $game)
+    {
+        $authUser = $request->user();
+
+        // Solo el organizador puede marcar no-shows
+        if ($game->initiator_user_id !== $authUser->id) {
+            abort(403);
+        }
+
+        // Solo si el partido ya empezo y esta en status full o played
+        if (!in_array($game->status, ['full', 'played'])) {
+            return back()->with('error', 'No se pueden marcar no-shows en este partido.');
+        }
+
+        if ($game->start_at->gt(now())) {
+            return back()->with('error', 'El partido todavia no empezo.');
+        }
+
+        $data = $request->validate([
+            'no_show_user_ids'   => ['nullable', 'array'],
+            'no_show_user_ids.*' => ['integer', 'exists:users,id'],
+        ]);
+
+        $noShowUserIds = $data['no_show_user_ids'] ?? [];
+
+        if (empty($noShowUserIds)) {
+            return back()->with('info', 'No se selecciono ningun jugador como ausente.');
+        }
+
+        $game->loadMissing('field');
+        $markedCount = 0;
+
+        foreach ($noShowUserIds as $userId) {
+            $participant = FaltaUnoParticipant::where('game_id', $game->id)
+                ->where('user_id', $userId)
+                ->where('status', 'confirmed')
+                ->first();
+
+            if (!$participant) {
+                continue;
+            }
+
+            $participant->update([
+                'status'     => 'no_show',
+                'no_show_at' => now(),
+            ]);
+
+            // Aplicar penalizacion
+            $this->penaltyService->registerNoShow($participant->user, $game);
+
+            // Notificar al jugador
+            $participant->user->notify(new FaltaUnoNoShowNotification($game));
+
+            $markedCount++;
+        }
+
+        if ($markedCount === 0) {
+            return back()->with('info', 'Ningun jugador valido fue marcado como ausente.');
+        }
+
+        return back()->with('success', "Se marcaron {$markedCount} jugador(es) como ausente(s).");
     }
 }

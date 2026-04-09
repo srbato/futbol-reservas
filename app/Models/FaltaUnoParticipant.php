@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class FaltaUnoParticipant extends Model
 {
+    const STATUS_CONFIRMED = 'confirmed';
+    const STATUS_CANCELLED = 'cancelled';
+    const STATUS_NO_SHOW = 'no_show';
+    const VALID_STATUSES = ['confirmed', 'cancelled', 'no_show'];
+
     protected $fillable = [
         'game_id',
         'user_id',
@@ -14,6 +19,7 @@ class FaltaUnoParticipant extends Model
         'is_late_leave',
         'was_kicked',
         'left_at',
+        'no_show_at',
         'goals',
         'assists',
         'result',
@@ -24,6 +30,7 @@ class FaltaUnoParticipant extends Model
         'is_late_leave'     => 'boolean',
         'was_kicked'        => 'boolean',
         'left_at'           => 'datetime',
+        'no_show_at'        => 'datetime',
         'stats_submitted_at' => 'datetime',
     ];
 

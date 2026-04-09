@@ -455,7 +455,7 @@ echo json_encode([
 
           <form action="{{ route('blog.index') }}" method="GET" class="blog-search-form" data-aos="fade-up" data-aos-delay="240" data-aos-duration="700">
             <svg class="blog-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-            <input type="text" name="q" class="blog-search-input" placeholder="Buscar articulos..." value="{{ $search ?? '' }}" autocomplete="off">
+            <input type="text" name="q" class="blog-search-input" placeholder="Buscar articulos..." value="{{ $search ?? '' }}" autocomplete="off" aria-label="Buscar artículos">
           </form>
         </div>
       </div>

@@ -1077,7 +1077,17 @@
 
   {{-- Fav button --}}
   @auth
-    <a href="#" class="vs-fav-btn" title="Agregar a favoritos"><i data-lucide="heart" style="width:16px;height:16px;stroke:currentColor;"></i></a>
+    @if(auth()->user()->favoriteVenues()->where('venues.id', $venue->id)->exists())
+      <form method="POST" action="{{ route('venues.unfavorite', $venue) }}" style="margin:0;">
+        @csrf
+        <button type="submit" class="vs-fav-btn" title="Quitar de favoritos"><i data-lucide="heart" style="width:16px;height:16px;stroke:#ef4444;fill:#ef4444;"></i></button>
+      </form>
+    @else
+      <form method="POST" action="{{ route('venues.favorite', $venue) }}" style="margin:0;">
+        @csrf
+        <button type="submit" class="vs-fav-btn" title="Guardar en favoritos"><i data-lucide="heart" style="width:16px;height:16px;stroke:currentColor;"></i></button>
+      </form>
+    @endif
   @endauth
 
   {{-- Hero content --}}

@@ -899,9 +899,9 @@
   $misPartidos = App\Models\FaltaUnoGame::with(['field.venue', 'activeParticipants'])
     ->where(function($q) use ($userId) {
       $q->where('initiator_user_id', $userId)
-        ->orWhereHas('participants', fn($q2) => $q2->where('user_id', $userId)->where('status', 'confirmed'));
+        ->orWhereHas('participants', fn($q2) => $q2->where('user_id', $userId)->whereIn('status', ['confirmed', 'no_show']));
     })
-    ->whereIn('status', ['open', 'full', 'expired', 'cancelled'])
+    ->whereIn('status', ['open', 'full', 'expired', 'cancelled', 'finished', 'played'])
     ->orderByDesc('start_at')
     ->limit(15)
     ->get();
@@ -910,6 +910,18 @@
   $totalPartidos = $misPartidos->count();
   $totalDeportes = $sportProfiles->count();
   $avgRating = $sportProfiles->isNotEmpty() ? number_format($sportProfiles->avg('average_rating'), 1) : '0.0';
+
+  // Stats reales desde participaciones
+  $allMyParts = \App\Models\FaltaUnoParticipant::with('game.field')
+    ->where('user_id', $userId)
+    ->whereIn('status', ['confirmed', 'no_show'])
+    ->get();
+  $realSportStats = [];
+  foreach ($sportProfiles as $sp) {
+    $sportParts = $allMyParts->filter(fn($p) => $p->game->field->sport === $sp->sport);
+    $confirmed = $sportParts->where('status', 'confirmed');
+    $realSportStats[$sp->sport] = $confirmed->count();
+  }
 @endphp
 
 {{-- Hero --}}
@@ -1081,7 +1093,7 @@
                 @endfor
                 {{ number_format($sp->average_rating, 1) }}
               </span>
-              <span class="pf-sport-games">{{ $sp->games_played }} partidos</span>
+              <span class="pf-sport-games">{{ $realSportStats[$sp->sport] ?? $sp->games_played }} partidos</span>
             </div>
             <a href="{{ route('sport-profile.edit', $sp->sport) }}" class="pf-sport-edit-btn">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>

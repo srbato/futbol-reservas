@@ -12,7 +12,6 @@ class FaltaUnoSportProfile extends Model
         'sport',
         'category',
         'gender',
-        'age_group',
         'games_played',
         'wins',
         'draws',

@@ -30,6 +30,12 @@ class VenueAdminSubscription extends Model
         'referral_code_used',
     ];
 
+    protected $hidden = [
+        'payment_external_id',
+        'mp_preference_id',
+        'mp_preapproval_id',
+    ];
+
     protected $casts = [
         'monthly_price' => 'decimal:2',
         'starts_at'     => 'datetime',

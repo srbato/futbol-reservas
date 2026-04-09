@@ -477,6 +477,94 @@
     text-transform: uppercase;
   }
 
+  /* ── Rating inline ─────────────────────────────── */
+  .fus-rate-card {
+    background: #fff;
+    border: 1px solid #ececec;
+    border-top: 4px solid #f59e0b;
+    border-radius: 16px;
+    padding: 24px;
+  }
+  .fus-rate-player {
+    background: #fff;
+    border: 1px solid #ececec;
+    border-radius: 14px;
+    padding: 16px 18px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,.03);
+  }
+  .fus-rate-player-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .fus-rate-avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: #111; display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 800; color: #fff; overflow: hidden; flex-shrink: 0;
+  }
+  .fus-rate-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .fus-rate-name { font-size: 15px; font-weight: 800; color: #111; }
+  .fus-rate-cat { font-size: 12px; color: #888; font-weight: 600; }
+
+  .fus-assess-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .fus-assess-btn {
+    padding: 10px 6px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    background: #fff;
+    cursor: pointer;
+    text-align: center;
+    transition: all .15s;
+    font-family: inherit;
+  }
+  .fus-assess-btn:hover { border-color: #9ca3af; }
+  .fus-assess-btn .fus-assess-icon { font-size: 18px; line-height: 1; display: block; margin-bottom: 3px; }
+  .fus-assess-btn .fus-assess-label { font-size: 12px; font-weight: 700; color: #555; display: block; }
+  .fus-assess-btn .fus-assess-desc { font-size: 10px; color: #aaa; line-height: 1.3; display: block; }
+
+  .fus-assess-btn.sel-below  { border-color: #ef4444; background: #fef2f2; }
+  .fus-assess-btn.sel-below .fus-assess-label  { color: #dc2626; }
+  .fus-assess-btn.sel-match  { border-color: #6b7280; background: #f3f4f6; }
+  .fus-assess-btn.sel-match .fus-assess-label  { color: #374151; }
+  .fus-assess-btn.sel-above  { border-color: #22c55e; background: #f0fdf4; }
+  .fus-assess-btn.sel-above .fus-assess-label  { color: #15803d; }
+
+  .fus-rate-comment {
+    width: 100%; padding: 8px 12px;
+    border: 1.5px solid #e0e0e0; border-radius: 10px;
+    font-size: 13px; resize: vertical; min-height: 48px;
+    outline: none; transition: border-color .15s;
+    box-sizing: border-box; font-family: inherit;
+  }
+  .fus-rate-comment:focus { border-color: #111; }
+
+  .fus-rate-submit {
+    width: 100%; padding: 14px;
+    background: #111; color: #fff; border: none; border-radius: 12px;
+    font-size: 15px; font-weight: 700; cursor: pointer;
+    margin-top: 8px; transition: background .15s; font-family: inherit;
+  }
+  .fus-rate-submit:hover { background: #22c55e; color: #052e16; }
+
+  .fus-rated-done {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 14px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  @media (max-width: 480px) {
+    .fus-assess-row { grid-template-columns: 1fr; }
+  }
+
   /* ── Responsive ────────────────────────────────── */
   @media (max-width: 640px) {
     .fus-hero { height: 300px; }
@@ -572,9 +660,22 @@
     </div>
   </div>
 
-  {{-- Panel de acciones (solo participantes) --}}
+  {{-- Mensaje de no-show --}}
   @auth
-  @if($isParticipant)
+  @if($wasNoShow)
+    <div class="fus-penalty-block" data-aos="fade-up" style="background:#fef2f2; border:1px solid #fecaca; border-radius:14px; padding:20px; text-align:center;">
+      <div style="margin-bottom:8px;">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+      </div>
+      <div style="font-size:15px; font-weight:700; color:#991b1b; margin-bottom:4px;">Fuiste marcado como ausente</div>
+      <div style="font-size:13px; color:#b91c1c;">El organizador registró que no te presentaste a este partido. Se aplicó una penalización a tu cuenta.</div>
+    </div>
+  @endif
+  @endauth
+
+  {{-- Panel de acciones (solo participantes, no no-shows) --}}
+  @auth
+  @if($isParticipant && !$wasNoShow)
   <div class="fus-actions-card" data-aos="fade-up">
     <p class="fus-actions-title">Acciones</p>
     <div class="fus-actions-row">
@@ -583,10 +684,10 @@
 
       @if($game->isFinished())
         <a href="{{ route('falta-uno.stats', $game) }}" class="fus-btn fus-btn-stats" style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="bar-chart-2" style="width:14px;height:14px;stroke:currentColor;"></i> Mis estadísticas</a>
-        @if(!$yaCalifico)
-          <a href="{{ route('falta-uno.rate', $game) }}" class="fus-btn fus-btn-rate" style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="star" style="width:13px;height:13px;stroke:currentColor;"></i> Calificar compañeros</a>
-        @else
+        @if($yaCalifico)
           <span class="fus-badge-rated" style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="check-circle" style="width:13px;height:13px;stroke:currentColor;"></i> Ya calificaste</span>
+        @else
+          <a href="#calificar" class="fus-btn fus-btn-rate" style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="star" style="width:13px;height:13px;stroke:currentColor;"></i> Calificar compañeros</a>
         @endif
       @endif
 
@@ -621,7 +722,7 @@
 
   {{-- CTA unirse --}}
   @auth
-  @if(!$isParticipant && $game->status === 'open' && !$game->isFinished())
+  @if(!$isParticipant && !$wasNoShow && $game->status === 'open' && !$game->isFinished())
     @if($wasKicked)
       <div class="fus-penalty-block" data-aos="fade-up" style="background:#fef2f2; border:1px solid #fecaca; border-radius:14px; padding:20px; text-align:center;">
         <div style="margin-bottom:8px;"><i data-lucide="user-x" style="width:32px;height:32px;stroke:#dc2626;stroke-width:1.5;"></i></div>
@@ -637,7 +738,7 @@
         <div style="margin-bottom:12px;"><i data-lucide="alert-triangle" style="width:32px;height:32px;stroke:#92400e;stroke-width:1.5;"></i></div>
         <div style="font-size:15px; font-weight:700; color:#92400e; margin-bottom:6px;">Necesitas completar tu perfil deportivo</div>
         <div style="font-size:13px; color:#b45309; margin-bottom:18px;">Tu categoria y genero determinan a que partidos podes unirte.</div>
-        <a href="/profile#sport-profile" class="fus-btn fus-btn-chat" style="display:inline-flex; border-radius:12px; padding:10px 22px;">Completar perfil</a>
+        <a href="{{ route('profile.edit') }}#sport-profile" class="fus-btn fus-btn-chat" style="display:inline-flex; border-radius:12px; padding:10px 22px;">Completar perfil</a>
       </div>
     @else
       <div class="fus-join-card" data-aos="fade-up">
@@ -694,6 +795,31 @@
             Desde {{ ucfirst($game->category_min) }}
           @else
             Hasta {{ ucfirst($game->category_max) }}
+          @endif
+        </div>
+      </div>
+      @endif
+      @if($game->age_group_min || $game->age_group_max)
+      @php
+        $agLabels = [
+          'sub10' => 'Sub 10', 'sub12' => 'Sub 12', 'sub14' => 'Sub 14',
+          'sub16' => 'Sub 16', 'sub18' => 'Sub 18', '19a25' => '19 a 25',
+          '26a34' => '26 a 34', 'open'  => 'Open',   'mas35' => '+35',
+          'mas40' => '+40',     'mas45' => '+45',     'mas50' => '+50',
+          'mas55' => '+55',     'mas60' => '+60',
+        ];
+      @endphp
+      <div class="fus-detail-tile" style="border-left:3px solid #8b5cf6;">
+        <div class="fus-tile-label" style="color:#7c3aed;">Edad</div>
+        <div class="fus-tile-val">
+          @if($game->age_group_min && $game->age_group_max && $game->age_group_min === $game->age_group_max)
+            {{ $agLabels[$game->age_group_min] ?? $game->age_group_min }}
+          @elseif($game->age_group_min && $game->age_group_max)
+            {{ $agLabels[$game->age_group_min] ?? $game->age_group_min }} – {{ $agLabels[$game->age_group_max] ?? $game->age_group_max }}
+          @elseif($game->age_group_min)
+            Desde {{ $agLabels[$game->age_group_min] ?? $game->age_group_min }}
+          @else
+            Hasta {{ $agLabels[$game->age_group_max] ?? $game->age_group_max }}
           @endif
         </div>
       </div>
@@ -857,6 +983,146 @@
   </div>
   @endif
 
+  {{-- ═══ SECCIÓN POST-PARTIDO ═══ --}}
+  @auth
+  @if($game->isFinished() || ($game->start_at->lte(now()) && in_array($game->status, ['full', 'played'])))
+
+    {{-- Panel de no-shows (solo organizador) --}}
+    @if($isInitiator)
+    <div class="fus-actions-card" data-aos="fade-up" style="border-top-color:#dc2626;">
+      <p class="fus-actions-title" style="color:#dc2626;">Control de asistencia</p>
+
+      @if($noShowParticipants->isNotEmpty())
+        <div style="margin-bottom:16px;">
+          <p style="font-size:13px; font-weight:700; color:#991b1b; margin:0 0 8px;">Jugadores marcados como ausentes:</p>
+          @foreach($noShowParticipants as $ns)
+            <div style="display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid #fef2f2;">
+              @if($ns->user->avatar_path)
+                <img src="{{ \Illuminate\Support\Facades\Storage::url($ns->user->avatar_path) }}" class="fus-avatar" style="width:32px; height:32px;" alt="{{ $ns->user->name }}">
+              @else
+                <div class="fus-avatar-initial" style="width:32px; height:32px; font-size:13px;">{{ mb_strtoupper(mb_substr($ns->user->name, 0, 1)) }}</div>
+              @endif
+              <span style="font-size:13px; font-weight:600; color:#111;">{{ $ns->user->name }}</span>
+              <span style="font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px; background:#fef2f2; color:#dc2626; margin-left:auto;">Ausente</span>
+            </div>
+          @endforeach
+        </div>
+      @endif
+
+      @php
+        $confirmedParticipants = $game->activeParticipants->filter(fn($p) => $p->user_id !== auth()->id());
+      @endphp
+
+      @if($confirmedParticipants->isNotEmpty())
+        <form method="POST" action="{{ route('falta-uno.no-shows', $game) }}" onsubmit="return confirm('¿Marcar a los seleccionados como ausentes? Se les aplicará una penalización.')">
+          @csrf
+          <p style="font-size:13px; color:#666; margin:0 0 12px;">Seleccioná a quienes no vinieron al partido:</p>
+          @foreach($confirmedParticipants as $p)
+            <label style="display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid #f4f4f4; cursor:pointer;">
+              <input type="checkbox" name="no_show_user_ids[]" value="{{ $p->user_id }}" style="width:18px; height:18px; accent-color:#dc2626;">
+              @if($p->user->avatar_path)
+                <img src="{{ \Illuminate\Support\Facades\Storage::url($p->user->avatar_path) }}" class="fus-avatar" style="width:32px; height:32px;" alt="{{ $p->user->name }}">
+              @else
+                <div class="fus-avatar-initial" style="width:32px; height:32px; font-size:13px;">{{ mb_strtoupper(mb_substr($p->user->name, 0, 1)) }}</div>
+              @endif
+              <span style="font-size:14px; font-weight:600; color:#111;">{{ $p->user->name }}</span>
+            </label>
+          @endforeach
+          <button type="submit" class="fus-btn" style="margin-top:14px; background:#dc2626; color:#fff; width:100%; justify-content:center;">
+            Marcar como ausentes
+          </button>
+        </form>
+      @elseif($noShowParticipants->isEmpty())
+        <p style="font-size:13px; color:#888;">No hay participantes para marcar.</p>
+      @else
+        <p style="font-size:13px; color:#15803d; font-weight:600;">Todos los ausentes ya fueron registrados.</p>
+      @endif
+    </div>
+    @endif
+
+    {{-- Calificar compañeros (inline, no disponible para no-shows) --}}
+    @if($isParticipant && !$wasNoShow)
+    <div id="calificar" data-aos="fade-up">
+      @if($yaCalifico)
+        <div class="fus-rated-done">
+          <div style="margin-bottom:8px;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <div style="font-size:16px; font-weight:800; color:#15803d; margin-bottom:4px;">¡Ya calificaste!</div>
+          <div style="font-size:13px; color:#666;">Gracias por tu feedback. Ayuda a mejorar la experiencia para todos.</div>
+        </div>
+      @else
+        <div class="fus-rate-card">
+          <p class="fus-actions-title" style="color:#f59e0b;">Calificá a tus compañeros</p>
+          <p style="font-size:13px; color:#666; margin:0 0 18px;">¿Cómo jugaron? Tu opinión ayuda a ajustar las categorías.</p>
+
+          <form method="POST" action="{{ route('falta-uno.rate.store', $game) }}" id="fusRateForm">
+            @csrf
+
+            @foreach($otherUsers as $i => $player)
+            <div class="fus-rate-player">
+              <div class="fus-rate-player-header">
+                <div class="fus-rate-avatar">
+                  @if($player->avatar_path)
+                    <img src="{{ \Illuminate\Support\Facades\Storage::url($player->avatar_path) }}" alt="{{ $player->name }}">
+                  @else
+                    {{ mb_strtoupper(mb_substr($player->name, 0, 1)) }}
+                  @endif
+                </div>
+                <div>
+                  <div class="fus-rate-name">{{ $player->name }}</div>
+                  @php
+                    $playerProfile = $player->sportProfileFor($game->field->sport);
+                  @endphp
+                  @if($playerProfile)
+                    <div class="fus-rate-cat">Categoría: <strong style="color:#111; text-transform:capitalize;">{{ $playerProfile->category }}</strong></div>
+                  @endif
+                </div>
+              </div>
+
+              <input type="hidden" name="ratings[{{ $i }}][user_id]" value="{{ $player->id }}">
+
+              <div class="fus-assess-row" data-rate-index="{{ $i }}">
+                <button type="button" class="fus-assess-btn" data-value="below">
+                  <span class="fus-assess-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
+                  </span>
+                  <span class="fus-assess-label">Por debajo</span>
+                  <span class="fus-assess-desc">Categoría menor</span>
+                </button>
+                <button type="button" class="fus-assess-btn" data-value="match">
+                  <span class="fus-assess-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </span>
+                  <span class="fus-assess-label">A la altura</span>
+                  <span class="fus-assess-desc">Bien en su categoría</span>
+                </button>
+                <button type="button" class="fus-assess-btn" data-value="above">
+                  <span class="fus-assess-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                  </span>
+                  <span class="fus-assess-label">Por encima</span>
+                  <span class="fus-assess-desc">Categoría mayor</span>
+                </button>
+                <input type="hidden" name="ratings[{{ $i }}][assessment]" class="fus-assess-score" value="">
+              </div>
+
+              <textarea class="fus-rate-comment" name="ratings[{{ $i }}][comment]" placeholder="Comentario opcional..." maxlength="500"></textarea>
+            </div>
+            @endforeach
+
+            <button type="submit" class="fus-rate-submit">
+              Enviar calificaciones
+            </button>
+          </form>
+        </div>
+      @endif
+    </div>
+    @endif
+
+  @endif
+  @endauth
+
 </div>
 
 @push('scripts')
@@ -870,6 +1136,33 @@
     const max = document.body.scrollHeight - window.innerHeight;
     el.style.width = (max > 0 ? (window.scrollY / max) * 100 : 0) + '%';
   });
+
+  // Rating inline
+  document.querySelectorAll('.fus-assess-row').forEach(function(row) {
+    const btns   = row.querySelectorAll('.fus-assess-btn');
+    const hidden = row.querySelector('.fus-assess-score');
+    btns.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        btns.forEach(b => b.classList.remove('sel-below', 'sel-match', 'sel-above'));
+        btn.classList.add('sel-' + btn.dataset.value);
+        if (hidden) hidden.value = btn.dataset.value;
+      });
+    });
+  });
+
+  const rateForm = document.getElementById('fusRateForm');
+  if (rateForm) {
+    rateForm.addEventListener('submit', function(e) {
+      const inputs = rateForm.querySelectorAll('.fus-assess-score');
+      for (const input of inputs) {
+        if (!input.value) {
+          e.preventDefault();
+          alert('Por favor evaluá a todos los jugadores antes de enviar.');
+          return;
+        }
+      }
+    });
+  }
 </script>
 @endpush
 

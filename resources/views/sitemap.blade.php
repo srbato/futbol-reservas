@@ -33,7 +33,7 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>{{ route('por-que-tucancha') }}</loc>
+    <loc>{{ route('para-complejos') }}</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>

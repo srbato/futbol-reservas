@@ -27,7 +27,7 @@ class DatabaseSeeder extends Seeder
         User::create([
             'name' => 'Santiago',
             'email' => 'srbattini@gmail.com',
-            'password' => Hash::make('santi032005'),
+            'password' => Hash::make('password'),
             'role' => 'super_admin',
             'is_active' => true,
             'email_verified_at' => now(),
@@ -37,7 +37,7 @@ class DatabaseSeeder extends Seeder
         $usuario1 = User::create([
             'name' => 'Usuario1',
             'email' => 'usuario1@test.com',
-            'password' => Hash::make('usuario1123'),
+            'password' => Hash::make('password'),
             'role' => 'venue_admin',
             'is_active' => true,
             'email_verified_at' => now(),
@@ -48,7 +48,7 @@ class DatabaseSeeder extends Seeder
         $usuario2 = User::create([
             'name' => 'Usuario2',
             'email' => 'usuario2@test.com',
-            'password' => Hash::make('usuario2123'),
+            'password' => Hash::make('password'),
             'role' => 'user',
             'is_active' => true,
             'email_verified_at' => now(),
@@ -58,7 +58,7 @@ class DatabaseSeeder extends Seeder
         User::create([
             'name' => 'Usuario3',
             'email' => 'usuario3@test.com',
-            'password' => Hash::make('usuario3123'),
+            'password' => Hash::make('password'),
             'role' => 'user',
             'is_active' => true,
             'email_verified_at' => now(),
@@ -68,7 +68,7 @@ class DatabaseSeeder extends Seeder
         User::create([
             'name' => 'Usuario4',
             'email' => 'usuario4@test.com',
-            'password' => Hash::make('usuario4123'),
+            'password' => Hash::make('password'),
             'role' => 'user',
             'is_active' => true,
             'email_verified_at' => now(),
@@ -78,7 +78,7 @@ class DatabaseSeeder extends Seeder
         User::create([
             'name' => 'Usuario5',
             'email' => 'usuario5@test.com',
-            'password' => Hash::make('usuario5123'),
+            'password' => Hash::make('password'),
             'role' => 'user',
             'is_active' => true,
             'email_verified_at' => now(),
