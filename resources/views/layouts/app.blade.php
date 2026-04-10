@@ -1016,6 +1016,8 @@
            @if(request()->routeIs('venues.*')) style="background:var(--color-bg-hover); font-weight:700;" @endif>Complejos</a>
         <a href="{{ route('falta-uno.index') }}"
            @if(request()->routeIs('falta-uno.*')) style="background:var(--color-bg-dark); color:var(--color-text-inverse); border-color:var(--color-bg-dark); font-weight:700;" @endif><i data-lucide="zap" style="width:14px;height:14px;stroke:currentColor;vertical-align:middle;margin-right:4px;"></i> Falta Uno</a>
+        <a href="{{ route('torneos.index') }}"
+           @if(request()->routeIs('torneos.*')) style="background:var(--color-bg-hover); font-weight:700;" @endif><i data-lucide="trophy" style="width:14px;height:14px;stroke:currentColor;vertical-align:middle;margin-right:4px;"></i> Torneos</a>
       </nav>
 
       {{-- Acciones derecha: notificaciones + user --}}
@@ -1091,7 +1093,6 @@
               <a href="{{ route('sport-profile.public', auth()->user()) }}">Perfil</a>
               <a href="{{ route('my_reservations') }}">Mi actividad</a>
               <a href="{{ route('venues.favorites') }}">Favoritos</a>
-
 @if(in_array(auth()->user()->role, ['venue_admin', 'super_admin']) || auth()->user()->isVenueStaff())
                 <a href="{{ route('va.dashboard') }}" class="user-dropdown-admin" style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="zap" style="width:14px;height:14px;stroke:currentColor;"></i> Panel admin</a>
               @endif
@@ -1118,6 +1119,8 @@
            @if(request()->routeIs('venues.*')) style="background:var(--color-bg-hover); font-weight:700;" @endif>Complejos</a>
         <a href="{{ route('falta-uno.index') }}"
            @if(request()->routeIs('falta-uno.*')) style="background:var(--color-bg-dark); color:var(--color-text-inverse); border-color:var(--color-bg-dark); font-weight:700;" @endif><i data-lucide="zap" style="width:14px;height:14px;stroke:currentColor;vertical-align:middle;margin-right:4px;"></i> Falta Uno</a>
+        <a href="{{ route('torneos.index') }}"
+           @if(request()->routeIs('torneos.*')) style="background:var(--color-bg-hover); font-weight:700;" @endif><i data-lucide="trophy" style="width:14px;height:14px;stroke:currentColor;vertical-align:middle;margin-right:4px;"></i> Torneos</a>
       </nav>
       <div class="site-nav-right">
           <a href="{{ route('login') }}" class="btn" style="font-size:14px;">Ingresar</a>
@@ -1137,6 +1140,7 @@
       <a href="{{ route('home') }}">Inicio</a>
       <a href="{{ route('venues.index') }}">Complejos</a>
       <a href="{{ route('falta-uno.index') }}" style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="zap" style="width:14px;height:14px;stroke:currentColor;"></i> Falta Uno</a>
+      <a href="{{ route('torneos.index') }}" style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="trophy" style="width:14px;height:14px;stroke:currentColor;"></i> Torneos</a>
       <div class="app-mobile-divider"></div>
       <a href="{{ route('sport-profile.public', auth()->user()) }}">Perfil</a>
       <a href="{{ route('my_reservations') }}">Mi actividad</a>
@@ -1157,6 +1161,7 @@
       <a href="{{ route('home') }}">Inicio</a>
       <a href="{{ route('venues.index') }}">Complejos</a>
       <a href="{{ route('falta-uno.index') }}" style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="zap" style="width:14px;height:14px;stroke:currentColor;"></i> Falta Uno</a>
+      <a href="{{ route('torneos.index') }}" style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="trophy" style="width:14px;height:14px;stroke:currentColor;"></i> Torneos</a>
       <div class="app-mobile-divider"></div>
       <a href="{{ route('login') }}">Ingresar</a>
       <a href="{{ route('register') }}" class="app-mobile-cta">Crear cuenta</a>
@@ -1246,13 +1251,13 @@
 
       if (!reverbKey) return;
 
-      const echo = new Echo({
+      window.Echo = new Echo({
         broadcaster: 'reverb',
         key: reverbKey,
         wsHost: wsHost,
         wsPort: wsPort,
         wssPort: wsPort,
-        forceTLS: true,
+        forceTLS: wsPort === 443,
         enabledTransports: ['ws', 'wss'],
         authEndpoint: '/broadcasting/auth',
         auth: {
@@ -1262,7 +1267,7 @@
         },
       });
 
-      echo.private('user.{{ auth()->id() }}')
+      window.Echo.private('user.{{ auth()->id() }}')
         .listen('.notification.created', function (data) {
           const count = data.unread_count ?? 0;
           const badge = document.getElementById('notifBadge');

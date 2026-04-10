@@ -213,6 +213,28 @@
       </a>
       @endif
 
+      @unless($isStaff)
+      <a href="{{ route('va.tournament_settings.index') }}"
+         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
+                {{ request()->routeIs('va.tournament_settings.*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M18.75 4.236c.982.143 1.954.317 2.916.52A6.003 6.003 0 0016.27 9.728M18.75 4.236V4.5c0 2.108-.966 3.99-2.48 5.228m0 0a6.003 6.003 0 01-5.54 0"/>
+        </svg>
+        Torneos
+      </a>
+      @endunless
+
+      @unless($isStaff)
+      <a href="{{ route('va.tournament_requests.index') }}"
+         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
+                {{ request()->routeIs('va.tournament_requests.*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 012.012 1.244l.256.512a2.25 2.25 0 002.013 1.244h3.218a2.25 2.25 0 002.013-1.244l.256-.512a2.25 2.25 0 012.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 00-2.15-1.588H6.911a2.25 2.25 0 00-2.15 1.588L2.35 13.177a2.25 2.25 0 00-.1.661z"/>
+        </svg>
+        Solicitudes Torneos
+      </a>
+      @endunless
+
       @if(!$isStaff || $navUser->hasStaffPermission('view_checkin', $staffVenueId))
       <a href="{{ route('va.checkin.index') }}"
          class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
@@ -266,6 +288,15 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
           </svg>
           Planes
+        </a>
+
+        <a href="{{ route('sa.organizer_plans.index') }}"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
+                  {{ request()->routeIs('sa.organizer_plans.*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+          </svg>
+          Planes Organizadores
         </a>
 
         <a href="{{ route('blog-posts.index') }}"
@@ -464,5 +495,31 @@
     document.getElementById('sidebarOverlay').classList.remove('is-open');
   }
 </script>
+
+@auth
+<script src="https://js.pusher.com/8.4.0/pusher.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/laravel-echo@1.16.1/dist/echo.iife.js"></script>
+<script>
+  (function () {
+    const wsHost    = '{{ config("broadcasting.connections.reverb.client_host") }}';
+    const wsPort    = {{ config("broadcasting.connections.reverb.client_port") }};
+    const reverbKey = '{{ config("broadcasting.connections.reverb.key") }}';
+    if (!reverbKey) return;
+    window.Echo = new Echo({
+      broadcaster: 'reverb',
+      key: reverbKey,
+      wsHost: wsHost,
+      wsPort: wsPort,
+      wssPort: wsPort,
+      forceTLS: wsPort === 443,
+      enabledTransports: ['ws', 'wss'],
+      authEndpoint: '/broadcasting/auth',
+      auth: { headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' } },
+    });
+  })();
+</script>
+@endauth
+
+@stack('scripts')
 </body>
 </html>

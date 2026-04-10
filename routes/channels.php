@@ -18,3 +18,12 @@ Broadcast::channel('falta-uno.{gameId}', function ($user, $gameId) {
 Broadcast::channel('user.{userId}', function ($user, $userId) {
     return (int) $user->id === (int) $userId;
 });
+
+Broadcast::channel('tournament-request.{requestId}', function ($user, $requestId) {
+    $req = \App\Models\TournamentVenueRequest::find($requestId);
+    if (!$req) return false;
+    // Organizer or venue admin can listen
+    $isOrganizer = $req->tournament && $req->tournament->isOrganizer($user);
+    $isVenueAdmin = \App\Models\Venue::accessibleBy($user)->where('id', $req->venue_id)->exists();
+    return $isOrganizer || $isVenueAdmin;
+});
