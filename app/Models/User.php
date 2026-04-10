@@ -31,6 +31,9 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'mp_access_token',
+        'mp_refresh_token',
+        'mp_user_id',
     ];
 
     protected function casts(): array
@@ -40,6 +43,8 @@ class User extends Authenticatable
             'password'               => 'hashed',
             'is_active'              => 'boolean',
             'onboarding_completed_at' => 'datetime',
+            'mp_access_token'        => 'encrypted',
+            'mp_refresh_token'       => 'encrypted',
         ];
     }
 

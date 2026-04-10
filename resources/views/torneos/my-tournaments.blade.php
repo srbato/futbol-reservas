@@ -251,38 +251,65 @@
           $manageUrl = route('torneos.show', $tournament);
         @endphp
 
-        <a href="{{ $manageUrl }}" class="mt-item">
-          <div class="mt-item-cover">
-            @if($tournament->cover_image_path)
-              <img src="{{ asset('storage/' . $tournament->cover_image_path) }}" alt="{{ $tournament->name }}" loading="lazy">
-            @else
-              <div class="mt-item-cover-placeholder" style="background:{{ $coverGradient }};">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
-              </div>
-            @endif
-          </div>
-
-          <div class="mt-item-info">
-            <h3 class="mt-item-name">{{ $tournament->name }}</h3>
-            <div class="mt-item-meta">
-              <span>{{ $sportLabel }}</span>
-              <span>{{ $confirmedCount }}/{{ $tournament->max_teams }} equipos</span>
-              @if($tournament->estimated_start_date)
-                <span>{{ $tournament->estimated_start_date->translatedFormat('d M Y') }}</span>
+        <div style="border:1px solid #ececec; border-radius:16px; overflow:hidden; transition:box-shadow .15s;">
+          <a href="{{ $manageUrl }}" class="mt-item" style="border:none; border-radius:0;">
+            <div class="mt-item-cover">
+              @if($tournament->cover_image_path)
+                <img src="{{ asset('storage/' . $tournament->cover_image_path) }}" alt="{{ $tournament->name }}" loading="lazy">
+              @else
+                <div class="mt-item-cover-placeholder" style="background:{{ $coverGradient }};">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+                </div>
               @endif
             </div>
-          </div>
 
-          @if($showPending)
-            <span class="mt-badge mt-badge-pending">Pendiente</span>
-          @else
-            <span class="mt-badge {{ $statusClass }}">{{ $statusLabel }}</span>
+            <div class="mt-item-info">
+              <h3 class="mt-item-name">{{ $tournament->name }}</h3>
+              <div class="mt-item-meta">
+                <span>{{ $sportLabel }}</span>
+                <span>{{ $confirmedCount }}/{{ $tournament->max_teams }} equipos</span>
+                @if($tournament->estimated_start_date)
+                  <span>{{ $tournament->estimated_start_date->translatedFormat('d M Y') }}</span>
+                @endif
+              </div>
+            </div>
+
+            @if($showPending)
+              <span class="mt-badge mt-badge-pending">Pendiente</span>
+            @else
+              <span class="mt-badge {{ $statusClass }}">{{ $statusLabel }}</span>
+            @endif
+
+            <div class="mt-item-arrow">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </div>
+          </a>
+
+          {{-- MercadoPago connection status --}}
+          @if($tournament->inscription_price && $tournament->inscription_price > 0)
+            <div style="padding:10px 20px; border-top:1px solid #f3f4f6; display:flex; align-items:center; justify-content:space-between; gap:10px; background:#fafafa;">
+              @if(auth()->user()->mp_access_token)
+                <span style="display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:#15803d;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  MercadoPago conectado
+                </span>
+                <form action="{{ route('organizador.mp_oauth.disconnect') }}" method="POST" style="margin:0;">
+                  @csrf
+                  <button type="submit" style="background:none; border:none; font-size:12px; font-weight:600; color:#991b1b; cursor:pointer; text-decoration:underline;">Desconectar</button>
+                </form>
+              @else
+                <span style="display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:#92400e;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  Conecta MP para cobrar inscripciones
+                </span>
+                <a href="{{ route('organizador.mp_oauth.redirect') }}" style="display:inline-flex; align-items:center; gap:5px; background:#009ee3; color:#fff; border-radius:8px; padding:6px 14px; font-size:12px; font-weight:700; text-decoration:none; transition:background .15s;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                  Conectar MercadoPago
+                </a>
+              @endif
+            </div>
           @endif
-
-          <div class="mt-item-arrow">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-          </div>
-        </a>
+        </div>
       @endforeach
     </div>
   @endif

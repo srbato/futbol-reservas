@@ -1036,11 +1036,34 @@
     <div class="tt-cta-card" data-aos="fade-left" data-aos-delay="100">
       @if($canRegister)
         @auth
-          <a href="{{ route('torneos.teams.create', $tournament) }}" class="tt-btn tt-btn-primary">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
-            Inscribir equipo
-          </a>
-          <p class="tt-cta-sub">Quedan {{ $emptySlots }} {{ $emptySlots === 1 ? 'lugar' : 'lugares' }}</p>
+          @if($tournament->inscription_price && $tournament->inscription_price > 0)
+            @php
+              $userPayment = \App\Models\TournamentPayment::where('tournament_id', $tournament->id)
+                  ->where('user_id', auth()->id())
+                  ->where('status', 'approved')
+                  ->whereNull('team_id')
+                  ->first();
+            @endphp
+            @if($userPayment)
+              <a href="{{ route('torneos.teams.create', $tournament) }}" class="tt-btn tt-btn-primary">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+                Inscribir equipo
+              </a>
+              <p class="tt-cta-sub" style="color:#15803d;">Pago confirmado — completa tu inscripcion</p>
+            @else
+              <a href="{{ route('torneos.teams.checkout', $tournament) }}" class="tt-btn tt-btn-primary">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                Pagar inscripcion — ${{ number_format($tournament->inscription_price, 0, ',', '.') }}
+              </a>
+              <p class="tt-cta-sub">Quedan {{ $emptySlots }} {{ $emptySlots === 1 ? 'lugar' : 'lugares' }}</p>
+            @endif
+          @else
+            <a href="{{ route('torneos.teams.create', $tournament) }}" class="tt-btn tt-btn-primary">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+              Inscribir equipo
+            </a>
+            <p class="tt-cta-sub">Quedan {{ $emptySlots }} {{ $emptySlots === 1 ? 'lugar' : 'lugares' }}</p>
+          @endif
         @else
           <a href="{{ route('login', ['redirect' => url()->current()]) }}" class="tt-btn tt-btn-primary">
             Inicia sesion para inscribirte

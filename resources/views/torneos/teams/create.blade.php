@@ -366,7 +366,36 @@
 @endpush
 
 @section('content')
-<div class="te-create-wrap" x-data="teamForm()">
+<div class="te-create-wrap" x-data="{
+  logoPreview: null,
+  players: [],
+  maxPlayers: {{ $tournament->players_per_team ? $tournament->players_per_team : 'null' }},
+  idCounter: 0,
+  get maxReached() {
+    return this.maxPlayers !== null && (this.players.length + 1) >= this.maxPlayers;
+  },
+  previewLogo(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      alert('El archivo es demasiado grande. Maximo 2 MB.');
+      event.target.value = '';
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => { this.logoPreview = e.target.result; };
+    reader.readAsDataURL(file);
+  },
+  addPlayer() {
+    if (this.maxReached) return;
+    this.players.push({ id: ++this.idCounter, name: '', role: 'jugador', removing: false });
+    this.$nextTick(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); });
+  },
+  removePlayer(index) {
+    this.players[index].removing = true;
+    setTimeout(() => { this.players.splice(index, 1); }, 200);
+  },
+}">
 
   {{-- Back --}}
   <a href="{{ route('torneos.show', $tournament) }}" class="te-back">
@@ -561,51 +590,3 @@
   </div>
 </div>
 @endsection
-
-@push('scripts')
-<script>
-  function teamForm() {
-    const maxPlayers = {{ $tournament->players_per_team ? $tournament->players_per_team : 'null' }};
-    let idCounter = 0;
-
-    return {
-      logoPreview: null,
-      players: [],
-      get maxReached() {
-        // +1 for captain row
-        return maxPlayers !== null && (this.players.length + 1) >= maxPlayers;
-      },
-      previewLogo(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        if (file.size > 2 * 1024 * 1024) {
-          alert('El archivo es demasiado grande. Maximo 2 MB.');
-          event.target.value = '';
-          return;
-        }
-        const reader = new FileReader();
-        reader.onload = (e) => { this.logoPreview = e.target.result; };
-        reader.readAsDataURL(file);
-      },
-      addPlayer() {
-        if (this.maxReached) return;
-        this.players.push({
-          id: ++idCounter,
-          name: '',
-          role: 'jugador',
-          removing: false,
-        });
-        this.$nextTick(() => {
-          if (typeof lucide !== 'undefined') lucide.createIcons();
-        });
-      },
-      removePlayer(index) {
-        this.players[index].removing = true;
-        setTimeout(() => {
-          this.players.splice(index, 1);
-        }, 200);
-      },
-    };
-  }
-</script>
-@endpush

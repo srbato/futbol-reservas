@@ -155,6 +155,10 @@ class MercadoPagoWebhookController extends Controller
             );
         }
 
+        if (str_starts_with($externalReference, 'tournament_payment:')) {
+            return $this->handleTournamentPayment($externalReference, $paymentStatus, $paymentId);
+        }
+
         if (str_starts_with($externalReference, 'tournament_team:')) {
             return $this->handleTournamentTeamPayment($externalReference, $paymentStatus, $paymentId);
         }
@@ -840,10 +844,26 @@ class MercadoPagoWebhookController extends Controller
         return response()->json(['ok' => true]);
     }
 
+    private function handleTournamentPayment(string $externalReference, ?string $paymentStatus, $paymentId)
+    {
+        $paymentRecordId = str_replace('tournament_payment:', '', $externalReference);
+        app(\App\Services\TournamentPaymentService::class)->handlePaymentWebhook($paymentRecordId, $paymentStatus, (string) $paymentId);
+        return response()->json(['ok' => true]);
+    }
+
     private function handleTournamentTeamPayment(string $externalReference, ?string $paymentStatus, $paymentId)
     {
+        // Legacy: kept for backwards compatibility with old external references
         $teamId = str_replace('tournament_team:', '', $externalReference);
-        app(\App\Services\TournamentPaymentService::class)->handlePaymentWebhook($teamId, $paymentStatus, (string) $paymentId);
+        $team = \App\Models\TournamentTeam::find($teamId);
+        if ($team && $paymentStatus === 'approved') {
+            $team->update([
+                'payment_confirmed' => true,
+                'payment_confirmed_at' => now(),
+                'payment_method' => 'mercadopago',
+                'payment_external_id' => (string) $paymentId,
+            ]);
+        }
         return response()->json(['ok' => true]);
     }
 

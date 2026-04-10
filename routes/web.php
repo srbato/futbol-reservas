@@ -41,6 +41,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\VenueAdminMembershipController;
 use App\Http\Controllers\MercadoPagoOAuthController;
+use App\Http\Controllers\OrganizerMercadoPagoOAuthController;
 use App\Http\Controllers\SuperAdmin\MembershipPlanController;
 use App\Http\Controllers\MatchHistoryController;
 use App\Http\Controllers\ReservationPlayerController;
@@ -683,6 +684,10 @@ Route::middleware(['auth', 'active.user', 'role:venue_admin,super_admin', 'venue
     ->middleware(['auth', 'active.user'])
     ->name('va.mp_oauth.callback');
 
+    Route::get('/mp-oauth/organizer-callback', [OrganizerMercadoPagoOAuthController::class, 'callback'])
+    ->middleware(['auth', 'active.user'])
+    ->name('organizador.mp_oauth.callback');
+
 /*
 |--------------------------------------------------------------------------
 | Organizador — Suscripcion
@@ -694,6 +699,10 @@ Route::middleware(['auth', 'active.user'])->group(function () {
     Route::post('/organizador/suscribir', [OrganizerSubscriptionController::class, 'subscribe'])->name('organizador.subscribe');
     Route::post('/organizador/cancelar-suscripcion', [OrganizerSubscriptionController::class, 'cancel'])->name('organizador.cancel');
     Route::get('/organizador/suscripcion/exito', [OrganizerSubscriptionController::class, 'success'])->name('organizador.success');
+
+    // Organizer MercadoPago OAuth
+    Route::get('/organizador/conectar-mp', [OrganizerMercadoPagoOAuthController::class, 'redirect'])->name('organizador.mp_oauth.redirect');
+    Route::post('/organizador/desconectar-mp', [OrganizerMercadoPagoOAuthController::class, 'disconnect'])->name('organizador.mp_oauth.disconnect');
 });
 
 /*
@@ -734,9 +743,10 @@ Route::middleware(['auth', 'active.user'])->group(function () {
     Route::get('/torneos/{tournament}/equipos/{team}', [TournamentTeamController::class, 'show'])->name('torneos.teams.show');
     Route::post('/torneos/{tournament}/equipos/{team}/retirar', [TournamentTeamController::class, 'withdraw'])->name('torneos.teams.withdraw');
 
-    // Tournament payment routes
-    Route::get('/torneos/{tournament}/equipos/{team}/pagar', [TournamentPaymentController::class, 'checkout'])->name('torneos.teams.checkout');
-    Route::post('/torneos/{tournament}/equipos/{team}/pagar', [TournamentPaymentController::class, 'pay'])->name('torneos.teams.pay');
+    // Tournament payment routes (payment is pre-team)
+    Route::get('/torneos/{tournament}/pagar-inscripcion', [TournamentPaymentController::class, 'checkout'])->name('torneos.teams.checkout');
+    Route::post('/torneos/{tournament}/pagar-inscripcion', [TournamentPaymentController::class, 'pay'])->name('torneos.teams.pay');
+    Route::get('/torneos/{tournament}/pago-retorno', [TournamentPaymentController::class, 'paymentReturn'])->name('torneos.teams.payment-return');
     Route::post('/torneos/{tournament}/equipos/{team}/confirmar-pago', [TournamentPaymentController::class, 'confirmPayment'])->name('torneos.teams.confirm_payment');
 
     // Gestion de equipos por organizador

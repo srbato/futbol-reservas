@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\TournamentPayment;
 use App\Models\TournamentTeam;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -9,7 +10,7 @@ use Illuminate\Support\Facades\Log;
 class TournamentPaymentService
 {
     /**
-     * Organizer manually confirms payment received (free or pro tier)
+     * Organizer manually confirms payment received
      */
     public function confirmPaymentManually(TournamentTeam $team): void
     {
@@ -21,37 +22,37 @@ class TournamentPaymentService
     }
 
     /**
-     * Create MercadoPago checkout preference for team inscription (Pro tier only)
-     * The payment goes to the ORGANIZER's MercadoPago account
+     * Create MercadoPago checkout preference for tournament inscription.
+     * Payment goes to the ORGANIZER's MercadoPago account.
      */
-    public function createCheckoutPreference(TournamentTeam $team): ?string
+    public function createCheckoutPreference(TournamentPayment $payment): ?string
     {
-        $tournament = $team->tournament;
+        $tournament = $payment->tournament;
 
         if (!$tournament->inscription_price || $tournament->inscription_price <= 0) {
             return null;
         }
 
-        // Get organizer's MP access token (from their OAuth connection)
-        // For now, use platform token — in future, organizers can connect their MP via OAuth
-        $accessToken = config('services.mercadopago.access_token');
+        // Use organizer's MP token (direct payment to them), fallback to platform
+        $accessToken = $tournament->organizer->mp_access_token
+            ?? config('services.mercadopago.access_token');
 
         $baseUrl = rtrim(config('app.url'), '/');
 
         $payload = [
             'items' => [
                 [
-                    'title' => "Inscripcion: {$team->name} — {$tournament->name}",
+                    'title' => "Inscripcion torneo: {$tournament->name}",
                     'quantity' => 1,
                     'currency_id' => 'ARS',
                     'unit_price' => (float) $tournament->inscription_price,
                 ]
             ],
-            'external_reference' => 'tournament_team:' . $team->id,
+            'external_reference' => 'tournament_payment:' . $payment->id,
             'back_urls' => [
-                'success' => $baseUrl . "/torneos/{$tournament->slug}/equipos/{$team->id}?payment=success",
-                'failure' => $baseUrl . "/torneos/{$tournament->slug}/equipos/{$team->id}?payment=failure",
-                'pending' => $baseUrl . "/torneos/{$tournament->slug}/equipos/{$team->id}?payment=pending",
+                'success' => route('torneos.teams.payment-return', $tournament) . '?payment=success',
+                'failure' => route('torneos.teams.payment-return', $tournament) . '?payment=failure',
+                'pending' => route('torneos.teams.payment-return', $tournament) . '?payment=pending',
             ],
             'notification_url' => $baseUrl . '/webhooks/mercadopago',
             'auto_return' => 'approved',
@@ -63,7 +64,7 @@ class TournamentPaymentService
 
         if (!$response->successful()) {
             Log::error('Tournament Payment: error creating checkout preference', [
-                'team_id' => $team->id,
+                'payment_id' => $payment->id,
                 'tournament_id' => $tournament->id,
                 'response' => $response->body(),
             ]);
@@ -72,7 +73,7 @@ class TournamentPaymentService
 
         $data = $response->json();
 
-        $team->update([
+        $payment->update([
             'mp_preference_id' => $data['id'] ?? null,
         ]);
 
@@ -82,23 +83,22 @@ class TournamentPaymentService
     /**
      * Handle webhook payment confirmation
      */
-    public function handlePaymentWebhook(string $teamId, string $paymentStatus, string $paymentId): void
+    public function handlePaymentWebhook(string $paymentRecordId, string $paymentStatus, string $mpPaymentId): void
     {
-        $team = TournamentTeam::find($teamId);
-        if (!$team) return;
+        $payment = TournamentPayment::find($paymentRecordId);
+        if (!$payment) return;
 
         if ($paymentStatus === 'approved') {
-            $team->update([
-                'payment_confirmed' => true,
-                'payment_confirmed_at' => now(),
-                'payment_method' => 'mercadopago',
-                'payment_external_id' => $paymentId,
+            $payment->update([
+                'status' => 'approved',
+                'mp_payment_id' => $mpPaymentId,
             ]);
 
-            Log::info('Tournament team payment confirmed via webhook', [
-                'team_id' => $team->id,
-                'tournament_id' => $team->tournament_id,
-                'payment_id' => $paymentId,
+            Log::info('Tournament payment confirmed via webhook', [
+                'payment_id' => $payment->id,
+                'tournament_id' => $payment->tournament_id,
+                'user_id' => $payment->user_id,
+                'mp_payment_id' => $mpPaymentId,
             ]);
         }
     }

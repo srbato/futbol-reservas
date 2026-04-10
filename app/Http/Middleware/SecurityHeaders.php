@@ -36,11 +36,11 @@ class SecurityHeaders
 
         $csp = implode('; ', [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' https://js.pusher.com https://cdn.jsdelivr.net https://unpkg.com https://maps.googleapis.com https://sdk.mercadopago.com" . $viteDev,
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.pusher.com https://cdn.jsdelivr.net https://unpkg.com https://maps.googleapis.com https://sdk.mercadopago.com" . $viteDev,
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdn.jsdelivr.net" . $viteDev,
             "font-src 'self' https://fonts.gstatic.com data:",
             "img-src 'self' data: blob: https://maps.googleapis.com https://maps.gstatic.com https://lh3.googleusercontent.com",
-            "connect-src 'self' ws: wss: https://maps.googleapis.com https://api.mercadopago.com" . $viteDev,
+            "connect-src 'self' ws: wss: https://maps.googleapis.com https://api.mercadopago.com https://js.pusher.com https://unpkg.com https://cdn.jsdelivr.net" . $viteDev,
             "frame-src https://*.mercadopago.com https://*.mercadolibre.com https://www.google.com https://maps.google.com",
             "object-src 'none'",
             "base-uri 'self'",
