@@ -50,6 +50,7 @@ use App\Http\Controllers\VenueAdmin\VenueStaffController as VaVenueStaffControll
 use App\Http\Controllers\VenueAdmin\FaltaUnoSettingController as VaFaltaUnoSettingController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\SuperAdmin\BlogPostController;
+use App\Http\Controllers\SuperAdmin\OrganizerPlanController;
 use App\Http\Controllers\VenueAdmin\CheckinController as VaCheckinController;
 use App\Http\Controllers\FaltaUnoController;
 use App\Http\Controllers\FaltaUnoSportProfileController;
@@ -60,6 +61,12 @@ use App\Http\Controllers\FaltaUnoRatingController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\FeedbackController;
+use App\Http\Controllers\TournamentController;
+use App\Http\Controllers\TournamentOrganizerController;
+use App\Http\Controllers\TournamentTeamController;
+use App\Http\Controllers\TournamentTeamManageController;
+use App\Http\Controllers\TournamentPaymentController;
+use App\Http\Controllers\OrganizerSubscriptionController;
 use App\Models\MembershipPlan;
 
 
@@ -660,11 +667,84 @@ Route::middleware(['auth', 'active.user', 'role:venue_admin,super_admin', 'venue
         Route::post('/staff/remove', [VaVenueStaffController::class, 'remove'])->name('va.staff.remove');
         Route::post('/staff/cancel-invitation', [VaVenueStaffController::class, 'cancelInvitation'])->name('va.staff.cancel_invitation');
         Route::post('/staff/{staff}/permissions', [VaVenueStaffController::class, 'updatePermissions'])->name('va.staff.update_permissions');
+
+        // Tournament settings for venue fields
+        Route::get('/tournament-settings', [\App\Http\Controllers\VenueAdmin\TournamentSettingController::class, 'index'])->name('va.tournament_settings.index');
+        Route::post('/tournament-settings/{field}', [\App\Http\Controllers\VenueAdmin\TournamentSettingController::class, 'update'])->name('va.tournament_settings.update');
+
+        // Tournament venue requests
+        Route::get('/tournament-requests', [\App\Http\Controllers\VenueAdmin\TournamentRequestController::class, 'index'])->name('va.tournament_requests.index');
+        Route::post('/tournament-requests/{tournamentRequest}/approve', [\App\Http\Controllers\VenueAdmin\TournamentRequestController::class, 'approve'])->name('va.tournament_requests.approve');
+        Route::post('/tournament-requests/{tournamentRequest}/reject', [\App\Http\Controllers\VenueAdmin\TournamentRequestController::class, 'reject'])->name('va.tournament_requests.reject');
+        Route::post('/tournament-requests/{tournamentRequest}/mensaje', [\App\Http\Controllers\TournamentRequestChatController::class, 'storeVenueAdmin'])->name('va.tournament_requests.message');
     });
 
     Route::get('/mp-oauth/callback', [MercadoPagoOAuthController::class, 'callback'])
     ->middleware(['auth', 'active.user'])
     ->name('va.mp_oauth.callback');
+
+/*
+|--------------------------------------------------------------------------
+| Organizador — Suscripcion
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth', 'active.user'])->group(function () {
+    Route::get('/organizador/planes', [OrganizerSubscriptionController::class, 'plans'])->name('organizador.planes');
+    Route::post('/organizador/suscribir', [OrganizerSubscriptionController::class, 'subscribe'])->name('organizador.subscribe');
+    Route::post('/organizador/cancelar-suscripcion', [OrganizerSubscriptionController::class, 'cancel'])->name('organizador.cancel');
+    Route::get('/organizador/suscripcion/exito', [OrganizerSubscriptionController::class, 'success'])->name('organizador.success');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Torneos
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/torneos', [TournamentController::class, 'index'])->name('torneos.index');
+
+Route::middleware(['auth', 'active.user'])->group(function () {
+    // Mis torneos (debe ir antes de {tournament})
+    Route::get('/torneos/mis-torneos', [TournamentController::class, 'myTournaments'])->name('torneos.my');
+
+    // Organizador — crear y gestionar torneos
+    Route::get('/torneos/crear', [TournamentOrganizerController::class, 'create'])->name('torneos.create');
+    Route::post('/torneos', [TournamentOrganizerController::class, 'store'])->middleware('throttle:10,1')->name('torneos.store');
+    Route::get('/torneos/{tournament}/editar', [TournamentOrganizerController::class, 'edit'])->name('torneos.edit');
+    Route::put('/torneos/{tournament}', [TournamentOrganizerController::class, 'update'])->name('torneos.update');
+    Route::get('/torneos/{tournament}/gestionar', [TournamentOrganizerController::class, 'manage'])->name('torneos.manage');
+    Route::post('/torneos/{tournament}/publicar', [TournamentOrganizerController::class, 'publish'])->name('torneos.publish');
+    Route::post('/torneos/{tournament}/cerrar-inscripcion', [TournamentOrganizerController::class, 'closeRegistration'])->name('torneos.close_registration');
+    Route::post('/torneos/{tournament}/cancelar', [TournamentOrganizerController::class, 'cancel'])->name('torneos.cancel');
+    Route::post('/torneos/{tournament}/generar-fixture', [TournamentOrganizerController::class, 'generateFixture'])->name('torneos.generate_fixture');
+    Route::post('/torneos/{tournament}/partidos/{match}/resultado', [TournamentOrganizerController::class, 'updateMatchResult'])->name('torneos.match_result');
+
+    // Buscar y solicitar cancha de TuCancha
+    Route::get('/torneos/{tournament}/buscar-cancha', [TournamentOrganizerController::class, 'searchVenue'])->name('torneos.search_venue');
+    Route::post('/torneos/{tournament}/solicitar-cancha', [TournamentOrganizerController::class, 'requestVenue'])->name('torneos.request_venue');
+
+    // Chat de solicitud de cancha (organizador)
+    Route::post('/torneos/solicitudes/{tournamentRequest}/mensaje', [\App\Http\Controllers\TournamentRequestChatController::class, 'storeOrganizer'])->name('torneos.request_message');
+    Route::post('/torneos/solicitudes/{tournamentRequest}/leido', [\App\Http\Controllers\TournamentRequestChatController::class, 'markRead'])->name('torneos.request_chat_read');
+
+    // Equipos — inscripcion y gestion por capitan
+    Route::get('/torneos/{tournament}/inscribir', [TournamentTeamController::class, 'create'])->name('torneos.teams.create');
+    Route::post('/torneos/{tournament}/equipos', [TournamentTeamController::class, 'store'])->middleware('throttle:10,1')->name('torneos.teams.store');
+    Route::get('/torneos/{tournament}/equipos/{team}', [TournamentTeamController::class, 'show'])->name('torneos.teams.show');
+    Route::post('/torneos/{tournament}/equipos/{team}/retirar', [TournamentTeamController::class, 'withdraw'])->name('torneos.teams.withdraw');
+
+    // Tournament payment routes
+    Route::get('/torneos/{tournament}/equipos/{team}/pagar', [TournamentPaymentController::class, 'checkout'])->name('torneos.teams.checkout');
+    Route::post('/torneos/{tournament}/equipos/{team}/pagar', [TournamentPaymentController::class, 'pay'])->name('torneos.teams.pay');
+    Route::post('/torneos/{tournament}/equipos/{team}/confirmar-pago', [TournamentPaymentController::class, 'confirmPayment'])->name('torneos.teams.confirm_payment');
+
+    // Gestion de equipos por organizador
+    Route::post('/torneos/{tournament}/equipos/{team}/descalificar', [TournamentTeamManageController::class, 'disqualify'])->name('torneos.teams.disqualify');
+});
+
+// Show publico — AL FINAL para que "crear", "inscribir", etc. no se capturen como slug
+Route::get('/torneos/{tournament}', [TournamentController::class, 'show'])->name('torneos.show');
 
 /*
 |--------------------------------------------------------------------------
@@ -723,6 +803,12 @@ Route::middleware(['auth', 'active.user', 'role:super_admin'])->group(function (
 
     Route::post('/sa/plans/{plan}', [MembershipPlanController::class, 'update'])
         ->name('sa.plans.update');
+
+    Route::get('/sa/organizer-plans', [OrganizerPlanController::class, 'index'])
+        ->name('sa.organizer_plans.index');
+
+    Route::post('/sa/organizer-plans/{plan}', [OrganizerPlanController::class, 'update'])
+        ->name('sa.organizer_plans.update');
 
     // SA payouts — hidden until referral system is re-enabled
     /*

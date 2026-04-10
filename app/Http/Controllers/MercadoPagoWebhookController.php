@@ -155,6 +155,14 @@ class MercadoPagoWebhookController extends Controller
             );
         }
 
+        if (str_starts_with($externalReference, 'tournament_team:')) {
+            return $this->handleTournamentTeamPayment($externalReference, $paymentStatus, $paymentId);
+        }
+
+        if (str_starts_with($externalReference, 'organizer_subscription:')) {
+            return $this->handleOrganizerSubscriptionPayment($externalReference, $paymentStatus, $paymentId);
+        }
+
         return $this->handleReservationPayment(
             $externalReference,
             $paymentStatus,
@@ -206,6 +214,16 @@ class MercadoPagoWebhookController extends Controller
             // Intentar como RecurringSubscription antes de loguear el warning
             if (str_starts_with((string) $externalReference, 'recurring_subscription:')) {
                 return $this->handleRecurringSubscriptionPreapproval($preapprovalId, $data);
+            }
+
+            // Try as OrganizerSubscription
+            $orgSub = \App\Models\OrganizerSubscription::where('mp_preapproval_id', $preapprovalId)->first();
+            if (!$orgSub && str_starts_with((string) $externalReference, 'organizer_subscription:')) {
+                $orgSubId = (int) str_replace('organizer_subscription:', '', $externalReference);
+                $orgSub = \App\Models\OrganizerSubscription::find($orgSubId);
+            }
+            if ($orgSub) {
+                return $this->handleOrganizerSubscriptionPreapproval($orgSub, $preapprovalId, $data);
             }
 
             Log::warning('MP Subscription: suscripción no encontrada para preapproval', [
@@ -818,6 +836,66 @@ class MercadoPagoWebhookController extends Controller
                 'trace'           => $e->getTraceAsString(),
             ]);
         }
+
+        return response()->json(['ok' => true]);
+    }
+
+    private function handleTournamentTeamPayment(string $externalReference, ?string $paymentStatus, $paymentId)
+    {
+        $teamId = str_replace('tournament_team:', '', $externalReference);
+        app(\App\Services\TournamentPaymentService::class)->handlePaymentWebhook($teamId, $paymentStatus, (string) $paymentId);
+        return response()->json(['ok' => true]);
+    }
+
+    private function handleOrganizerSubscriptionPayment(string $externalReference, ?string $paymentStatus, $paymentId)
+    {
+        $subscriptionId = str_replace('organizer_subscription:', '', $externalReference);
+        $subscription = \App\Models\OrganizerSubscription::find($subscriptionId);
+
+        if (!$subscription) {
+            Log::warning('Organizer subscription not found for webhook', ['subscription_id' => $subscriptionId]);
+            return response()->json(['ok' => true]);
+        }
+
+        if ($paymentStatus === 'approved') {
+            $subscription->update([
+                'status' => 'ACTIVE',
+                'starts_at' => $subscription->starts_at ?? now(),
+                'expires_at' => now()->addMonth(),
+            ]);
+        }
+
+        return response()->json(['ok' => true]);
+    }
+
+    private function handleOrganizerSubscriptionPreapproval(\App\Models\OrganizerSubscription $subscription, string $preapprovalId, array $data)
+    {
+        $mpStatus = $data['status'] ?? null;
+
+        if (!$subscription->mp_preapproval_id) {
+            $subscription->mp_preapproval_id = $preapprovalId;
+        }
+
+        if ($mpStatus === 'authorized') {
+            $subscription->update([
+                'status' => 'ACTIVE',
+                'mp_preapproval_id' => $preapprovalId,
+                'starts_at' => $subscription->starts_at ?? now(),
+                'expires_at' => now()->addMonth(),
+            ]);
+        } elseif ($mpStatus === 'cancelled') {
+            $subscription->update([
+                'status' => 'CANCELLED',
+                'mp_preapproval_id' => $preapprovalId,
+                'cancelled_at' => now(),
+            ]);
+        }
+
+        Log::info('Organizer subscription preapproval processed', [
+            'subscription_id' => $subscription->id,
+            'preapproval_id' => $preapprovalId,
+            'mp_status' => $mpStatus,
+        ]);
 
         return response()->json(['ok' => true]);
     }
