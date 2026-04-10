@@ -8,6 +8,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Database\Seeders\OrganizerPlanSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -18,6 +19,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Organizer plans can be seeded in any environment
+        $this->call(OrganizerPlanSeeder::class);
+
         if (app()->isProduction()) {
             $this->command->warn('Seeder deshabilitado en producción.');
             return;

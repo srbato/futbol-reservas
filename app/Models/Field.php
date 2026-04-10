@@ -60,4 +60,9 @@ class Field extends Model
         return $this->hasMany(FaltaUnoGame::class);
     }
 
+    public function tournamentSetting(): HasOne
+    {
+        return $this->hasOne(TournamentSetting::class);
+    }
+
 }

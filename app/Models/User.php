@@ -163,6 +163,38 @@ class User extends Authenticatable
         return $record?->venue_id;
     }
 
+    public function organizerSubscription(): HasOne
+    {
+        return $this->hasOne(OrganizerSubscription::class)->latest();
+    }
+
+    public function activeOrganizerSubscription(): HasOne
+    {
+        return $this->hasOne(OrganizerSubscription::class)
+            ->whereIn('status', ['ACTIVE', 'TRIAL'])
+            ->where(function ($q) {
+                $q->whereNull('expires_at')
+                  ->orWhere('expires_at', '>', now());
+            })
+            ->latest();
+    }
+
+    public function organizerTier(): string
+    {
+        $sub = $this->activeOrganizerSubscription;
+        return ($sub && $sub->plan === 'pro') ? 'pro' : 'free';
+    }
+
+    public function organizedTournaments(): HasMany
+    {
+        return $this->hasMany(Tournament::class, 'organizer_user_id');
+    }
+
+    public function captainedTeams(): HasMany
+    {
+        return $this->hasMany(TournamentTeam::class, 'captain_user_id');
+    }
+
     public function hasStaffPermission(string $permission, ?int $venueId): bool
     {
         if (in_array($this->role, ['super_admin', 'venue_admin'])) {
