@@ -3189,3 +3189,166 @@ SEO Y ASSETS
       - Agregado <meta name="keywords"> con: reservar cancha, alquilar cancha,
         cancha de fútbol, cancha de pádel, cancha de tenis, turnos online,
         reservas deportivas, complejos deportivos, Argentina
+
+================================================================================
+  2026-04-10 — SISTEMA DE TORNEOS COMPLETO + CHAT INTERNO
+================================================================================
+
+  SISTEMA DE TORNEOS (feature completa):
+  ──────────────────────────────────────
+
+  Modelos nuevos:
+    - Tournament: nombre, deporte, formato (eliminacion/liga/grupos), genero,
+      equipos min/max, jugadores min por equipo, precio inscripcion, fechas,
+      cover, slug routing, estados (draft→open_registration→registration_closed→
+      in_progress→finished/cancelled), venue_approval_status computado
+    - TournamentTeam: equipo inscripto con capitan, estado confirmacion
+    - TournamentTeamPlayer: jugadores de cada equipo
+    - TournamentMatch: partidos con ronda, equipos, resultado, ganador
+    - TournamentSetting: config por cancha (habilitado, precio, dias, contacto)
+    - TournamentVenueRequest: solicitud a complejo con estado y chat
+    - TournamentRequestMessage: mensajes del chat interno
+    - OrganizerPlan: planes de organizador (free/amateur/pro)
+    - OrganizerSubscription: suscripcion activa del organizador
+
+  Multi-cancha por torneo:
+    - Pivot table tournament_fields para N canchas por torneo
+    - Multiples solicitudes (una por cancha, a complejos distintos)
+    - Cada solicitud puede tener via de contacto distinta
+    - venue_approval_status se recalcula: all approved→approved, any rejected→
+      rejected, any pending→pending
+    - Torneo solo se publica si TODAS las solicitudes estan aprobadas
+
+  Controllers:
+    - TournamentController: index, show, myTournaments
+    - TournamentOrganizerController: CRUD + manage + publish + fixture + cancel
+    - TournamentTeamController: registro equipos + jugadores
+    - TournamentTeamManageController: gestion equipos por organizador
+    - TournamentPaymentController: pagos MercadoPago para inscripcion
+    - TournamentRequestChatController: chat AJAX + mark read
+    - VenueAdmin/TournamentSettingController: config torneos por cancha
+    - VenueAdmin/TournamentRequestController: aprobar/rechazar solicitudes
+    - OrganizerSubscriptionController: planes organizador
+    - SuperAdmin/OrganizerPlanController: CRUD planes (admin)
+
+  Services:
+    - TournamentService: publicar, cerrar inscripcion, cancelar
+    - TournamentFixtureService: generar fixture automatico
+    - TournamentVenueService: enviar/aprobar/rechazar solicitudes
+    - TournamentPaymentService: crear preferencia MP
+    - OrganizerSubscriptionService: verificar tier y limites
+
+  Vistas torneos (todas con inline CSS, sin Tailwind):
+    - torneos/index.blade.php: listado publico + boton "Mis torneos"
+    - torneos/show.blade.php: detalle torneo + inscripcion equipos
+    - torneos/create.blade.php: crear torneo con picker multi-cancha modal
+    - torneos/edit.blade.php: editar torneo (sin categoria, genero correcto)
+    - torneos/manage.blade.php: gestion completa (estado, equipos, fixture, chat)
+    - torneos/my-tournaments.blade.php: listado torneos propios
+
+  Vistas venue admin:
+    - va/tournament-settings/index.blade.php: config torneos por cancha
+    - va/tournament-requests/index.blade.php: solicitudes con chat
+
+  Vistas organizador:
+    - organizador/planes.blade.php: seleccion plan
+
+  Migraciones:
+    - create_tournaments_table
+    - create_tournament_teams_table
+    - create_tournament_team_players_table
+    - create_tournament_matches_table
+    - create_organizer_subscriptions_table
+    - add_payment_fields_to_tournament_teams_table
+    - create_tournament_settings_table
+    - create_tournament_venue_requests_table
+    - add_venue_fields_to_tournaments_table
+    - create_organizer_plans_table
+    - create_tournament_fields_table (pivot multi-cancha)
+    - create_tournament_request_messages_table
+    - add_last_read_to_tournament_venue_requests
+
+  CHAT INTERNO EN TIEMPO REAL:
+  ────────────────────────────
+
+  Cuando contact_method de una cancha es "internal", el organizador y el
+  admin del complejo pueden chatear dentro de la plataforma:
+
+  Backend:
+    - TournamentRequestMessage model (venue_request_id, user_id, message)
+    - TournamentRequestChatController: storeOrganizer, storeVenueAdmin, markRead
+    - TournamentChatMessageSent event (broadcast via Reverb)
+    - Canal privado: tournament-request.{id} autorizado para organizador y admin
+    - Envio por AJAX (sin recargar pagina)
+    - Mensajes en tiempo real con WebSockets (Laravel Reverb + Echo)
+    - Sistema de no-leidos: organizer_last_read_at / admin_last_read_at
+    - Badge de no-leidos se oculta al abrir el chat + marca como leido via AJAX
+
+  Frontend (ambas vistas):
+    - Modal flotante con todo inline CSS (no depende de clases)
+    - display:none/flex para mostrar/ocultar (sin opacity ni clases CSS)
+    - Burbujas verdes (propias) y grises (del otro)
+    - Input + boton enviar en el footer del modal
+    - Escape o click afuera para cerrar
+    - Listener Echo filtra por user_id para no duplicar mensajes propios
+
+  VIAS DE CONTACTO POR SOLICITUD:
+  ───────────────────────────────
+
+  Cada cancha tiene su contact_method en TournamentSetting:
+    - whatsapp: link wa.me con mensaje pre-armado
+    - phone: link tel:
+    - email: boton copiar al portapapeles + tooltip explicativo
+    - internal: chat dentro de la plataforma (ver arriba)
+
+  Vista organizador (manage.blade.php):
+    - Muestra icono + info de contacto segun metodo por cada cancha pendiente
+    - Boton "Abrir chat" con badge de no-leidos para solicitudes internas
+
+  Vista venue admin (tournament-requests/index.blade.php):
+    - Aviso azul "El organizador se contactara por [via] al [valor]"
+    - Boton "Chat" con badge de no-leidos para solicitudes internas
+
+  OTROS CAMBIOS:
+  ──────────────
+
+  .env:
+    - APP_URL=http://localhost:8000 (sacado ngrok)
+    - GOOGLE_REDIRECT_URI apunta a localhost
+    - REVERB_CLIENT_HOST/PORT apuntan a localhost:8080
+    - VAPID_SUBJECT apunta a localhost
+    - SESSION_SECURE_COOKIE=false (para localhost HTTP)
+
+  SecurityHeaders middleware:
+    - connect-src: agregado ws: ademas de wss: (para WebSocket localhost)
+
+  Layouts:
+    - app.blade.php: Echo expuesto como window.Echo, forceTLS dinamico
+    - admin.blade.php: agregado Pusher + Echo + @stack('scripts')
+
+  Broadcasting (channels.php):
+    - Canal tournament-request.{id} autorizado para organizador y venue admin
+
+  Rutas nuevas (routes/web.php):
+    - GET /torneos: listado publico
+    - GET /torneos/mis-torneos: mis torneos
+    - GET /torneos/crear: crear torneo
+    - POST /torneos: guardar torneo
+    - GET /torneos/{tournament}: ver torneo
+    - GET /torneos/{tournament}/editar: editar
+    - PUT /torneos/{tournament}: actualizar
+    - GET /torneos/{tournament}/gestionar: panel gestion
+    - POST /torneos/{tournament}/publicar: publicar
+    - POST /torneos/{tournament}/cerrar-inscripcion
+    - POST /torneos/{tournament}/generar-fixture
+    - POST /torneos/{tournament}/cancelar
+    - POST /torneos/{tournament}/solicitar-cancha
+    - POST /torneos/solicitudes/{id}/mensaje: chat organizador
+    - POST /torneos/solicitudes/{id}/leido: marcar leido
+    - POST /torneos/{tournament}/equipos: registrar equipo
+    - GET  va/tournament-settings: config torneos
+    - POST va/tournament-settings/{field}: guardar config
+    - GET  va/tournament-requests: ver solicitudes
+    - POST va/tournament-requests/{id}/approve
+    - POST va/tournament-requests/{id}/reject
+    - POST va/tournament-requests/{id}/mensaje: chat admin

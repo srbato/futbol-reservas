@@ -40,7 +40,7 @@ class SecurityHeaders
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdn.jsdelivr.net" . $viteDev,
             "font-src 'self' https://fonts.gstatic.com data:",
             "img-src 'self' data: blob: https://maps.googleapis.com https://maps.gstatic.com https://lh3.googleusercontent.com",
-            "connect-src 'self' wss: https://maps.googleapis.com https://api.mercadopago.com" . $viteDev,
+            "connect-src 'self' ws: wss: https://maps.googleapis.com https://api.mercadopago.com" . $viteDev,
             "frame-src https://*.mercadopago.com https://*.mercadolibre.com https://www.google.com https://maps.google.com",
             "object-src 'none'",
             "base-uri 'self'",

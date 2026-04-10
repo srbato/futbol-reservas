@@ -1,110 +1,188 @@
-# PLAN TÉCNICO: Sistema de Torneos — TuCancha
-## Versión 1.0 — Draft para revisión
+# PLAN TECNICO: Sistema de Torneos — TuCancha
+## Version 2.0 — Modelo freemium con suscripcion
+
+---
+
+## MODELO DE NEGOCIO
+
+### Por que suscripcion y no comision
+
+La comision no funciona porque:
+1. El organizador y el complejo pueden arreglar el pago por fuera (efectivo, transferencia directa)
+2. No hay forma tecnica de forzar que el pago pase por la plataforma
+3. En Argentina, la cultura es "transferime directo y te hago precio"
+
+La suscripcion desacopla el ingreso de TuCancha del flujo de dinero entre organizador y complejo. TuCancha cobra por el acceso a la herramienta, no por intermediar pagos.
+
+### Tiers
+
+| | Gratis | Pro |
+|---|---|---|
+| **Precio** | $0 | $X/mes (suscripcion recurrente via MP) |
+| **Torneos activos** | 1 a la vez | Ilimitados |
+| **Equipos por torneo** | Hasta 8 | Sin limite |
+| **Formatos** | Solo eliminacion directa | Eliminacion + Liga + Grupos + Eliminacion |
+| **Bracket/fixture** | Basico | Completo con estadisticas |
+| **Resultados** | Carga manual | Carga manual + notificaciones automaticas a equipos |
+| **Estadisticas** | No | Goleadores, tarjetas, MVP, historial |
+| **Cobro de inscripcion** | Se arregla por fuera (efectivo, transferencia) | MercadoPago integrado (cobro automatico a equipos) |
+| **Marca** | "Organizado en TuCancha" en todo (header, footer, link compartible) | Logo propio del torneo, sin marca TuCancha |
+| **Pagina publica** | Si, con branding TuCancha | Si, personalizable |
+| **Compartir por WhatsApp** | Link con preview y marca TuCancha | Link con preview y marca propia |
+
+### Que gana TuCancha con los gratuitos
+
+1. **Trafico y SEO**: cada torneo es una pagina indexable con contenido unico
+2. **Usuarios nuevos**: los jugadores que se inscriben crean cuenta → potenciales clientes de reservas y Falta Uno
+3. **Conversion a Pro**: organizador que hace 1 torneo gratis y le va bien → quiere liga, stats, mas equipos → paga Pro
+4. **Datos**: deportes, zonas y formatos que se mueven mas
+
+### Flujo de dinero
+
+TuCancha NO intermedia pagos de inscripcion en el tier gratis. En el tier Pro, ofrece cobro integrado como feature de valor (no como mecanismo de comision).
+
+```
+GRATIS:
+  Organizador ←→ Equipos: arreglan por fuera (efectivo, transferencia, lo que quieran)
+  Organizador ←→ Complejo: arreglan por fuera
+  TuCancha: no toca plata, solo provee la herramienta
+
+PRO:
+  Organizador paga suscripcion mensual a TuCancha (via MP Preapproval)
+  Equipos pagan inscripcion via MP (va a cuenta del organizador, si tiene OAuth conectado)
+  Organizador ←→ Complejo: arreglan por fuera (o usan el sistema automatico si el complejo tiene MP)
+  TuCancha: cobra la suscripcion, no cobra comision sobre inscripciones
+```
 
 ---
 
 ## CONCEPTO GENERAL
 
-Cualquier usuario puede crear un torneo. El torneo se vincula a un complejo que debe aprobar la solicitud. El complejo configura previamente si acepta torneos, en qué condiciones, y cómo quiere ser contactado. Una vez aprobado, las canchas se reservan automáticamente y los equipos se inscriben pagando via MercadoPago. El pago se divide entre complejo (cancha) y organizador (margen).
+Cualquier usuario puede crear un torneo. El torneo puede o no estar vinculado a un complejo de la plataforma. Hay dos caminos para coordinar con el complejo:
+
+### Camino 1: Manual (MVP)
+- El organizador contacta al complejo por fuera (WhatsApp, telefono, mail, Instagram)
+- Arreglan precio, horarios y forma de pago directamente
+- En TuCancha, el organizador carga los datos del complejo manualmente (nombre, direccion)
+- TuCancha se usa solo para: fixture, bracket, resultados, inscripcion de equipos, pagina publica
+
+### Camino 2: Automatico (futuro)
+- El complejo tiene torneos habilitados en su panel de TuCancha
+- El organizador envia propuesta desde la plataforma
+- El complejo aprueba/rechaza
+- Las canchas se reservan automaticamente
+- El pago al complejo puede ser: por transferencia directa, "todas las canchas del mes", o via MP si ambos tienen OAuth
+
+Ambos caminos comparten los mismos modelos de datos para torneos, equipos, partidos, fixture y resultados.
 
 ---
 
 ## FLUJO COMPLETO
 
-### Fase 1: Configuración del complejo (venue admin)
-1. El dueño del complejo habilita "Acepto torneos" por cancha
+### Fase 1: Configuracion del complejo (venue admin) — solo camino automatico
+1. El dueno del complejo habilita "Acepto torneos" por cancha
 2. Configura:
    - Precio especial por partido de torneo (puede ser distinto al precio normal)
    - Horarios disponibles para torneos (ej: solo fines de semana)
-   - Método de contacto preferido (WhatsApp, teléfono, chat interno, email)
-   - Requisitos mínimos (cantidad mínima de equipos, depósito previo, etc.)
-   - Si requiere aprobación manual o acepta automáticamente
+   - Metodo de contacto preferido (WhatsApp, telefono, email, chat interno)
+   - Si requiere aprobacion manual o acepta automaticamente
+   - Notas/condiciones especiales
 
-### Fase 2: Creación del torneo (usuario organizador)
-1. El usuario va a /torneos/crear
-2. Configura el torneo:
+### Fase 2: Creacion del torneo (usuario organizador)
+1. El sistema verifica el tier del organizador:
+   - **Gratis**: puede crear si no tiene otro torneo activo, max 8 equipos, solo eliminacion directa
+   - **Pro**: sin restricciones
+2. El usuario va a /torneos/crear
+3. Configura el torneo:
    - Nombre del torneo
    - Deporte
-   - Formato: eliminación directa, liga (todos contra todos), grupos + eliminación
-   - Cantidad de equipos (4, 8, 16, 32)
+   - Formato: eliminacion directa (gratis) | liga, grupos + eliminacion (Pro)
+   - Cantidad de equipos (max 8 gratis, sin limite Pro)
    - Jugadores por equipo
-   - Género (masculino, femenino, mixto)
-   - Categoría (recreativo, intermedio, avanzado, competitivo / primera-octava en pádel)
-   - Precio de inscripción por equipo
+   - Genero (masculino, femenino, mixto)
+   - Categoria (recreativo, intermedio, avanzado, competitivo)
+   - Precio de inscripcion por equipo (informativo en gratis, cobrable en Pro)
    - Fecha de inicio estimada
-   - Reglas/descripción
-3. Busca complejos que acepten torneos para ese deporte
-4. Selecciona complejo y cancha
-5. Propone fechas/horarios para los partidos
-6. Envía solicitud al complejo
+   - Reglas/descripcion
+   - Cover image (opcional)
+4. Elige como coordinar la cancha:
+   - **"Ya tengo cancha"** (camino manual): carga nombre, direccion y contacto del complejo
+   - **"Buscar complejo en TuCancha"** (camino automatico): selecciona complejo y cancha, envia propuesta
 
-### Fase 3: Aprobación del complejo
-1. El dueño recibe notificación (push + email)
+### Fase 3: Aprobacion del complejo (solo camino automatico)
+1. El dueno recibe notificacion (push + email)
 2. Ve el detalle: organizador, torneo, fechas, cantidad de partidos
 3. Puede:
    - Aprobar → se bloquean las canchas/horarios
    - Rechazar (con motivo)
    - Proponer cambios (sugiere otros horarios)
-4. Al aprobar, el torneo pasa a estado OPEN_REGISTRATION
+4. Al aprobar, el torneo pasa a estado APPROVED
 
-### Fase 4: Inscripción de equipos
-1. El torneo se publica en /torneos (listado público)
-2. Cualquier usuario puede crear un equipo e inscribirlo
-3. Inscribir equipo:
+### Fase 4: Publicacion e inscripcion de equipos
+1. El organizador publica el torneo → estado OPEN_REGISTRATION
+2. El torneo aparece en /torneos (listado publico) con la pagina publica
+3. El organizador comparte el link por WhatsApp (con Open Graph preview)
+4. Inscripcion de equipos:
    - Nombre del equipo
    - Logo/escudo (opcional)
-   - Capitán (el que inscribe)
-   - Jugadores (invitar por email o username)
-4. Pago de inscripción via MercadoPago
-   - Split: parte para el complejo (cancha) + parte para el organizador
-5. Cuando se completan todos los equipos → se genera el fixture
+   - Capitan (el que inscribe)
+   - Jugadores (invitar por email/username o cargar nombres)
+5. Pago de inscripcion:
+   - **Gratis**: el organizador marca manualmente "Pago recibido" cuando el capitan le paga por fuera
+   - **Pro**: pago automatico via MercadoPago (va a la cuenta del organizador)
+6. Cuando se completan todos los equipos y pagos → se genera el fixture
 
 ### Fase 5: Torneo en curso
-1. El fixture se genera automáticamente según el formato
+1. El fixture se genera automaticamente segun el formato
 2. Cada partido del fixture tiene:
    - Equipos enfrentados
    - Fecha y hora
-   - Cancha asignada
+   - Cancha asignada (nombre, no necesariamente vinculada a la BD)
    - Estado: pendiente, en curso, finalizado, suspendido
 3. El organizador carga resultados de cada partido
-4. Se actualiza automáticamente:
-   - Tabla de posiciones (liga/grupos)
-   - Bracket (eliminación)
-   - Goleadores / estadísticas
-5. Notificaciones a equipos: próximo partido, resultados, cambios
+4. Se actualiza automaticamente:
+   - Bracket (eliminacion)
+   - Tabla de posiciones (liga/grupos) — solo Pro
+   - Goleadores / estadisticas — solo Pro
+5. Notificaciones a equipos (solo Pro): proximo partido, resultados, cambios
 
-### Fase 6: Finalización
-1. Se determina el campeón según el formato
-2. Se genera resumen del torneo (stats, goleadores, MVP)
-3. Se notifica a todos los participantes
+### Fase 6: Finalizacion
+1. Se determina el campeon segun el formato
+2. Se genera resumen del torneo
+3. Stats y MVP (solo Pro)
 4. El torneo pasa a estado FINISHED
-5. Queda visible como historial
+5. Queda visible como historial (pagina publica permanente)
 
 ---
 
 ## MODELOS Y MIGRACIONES
 
-### tournament_settings (config por cancha)
+### organizer_subscriptions (suscripcion del organizador)
+```
+id
+user_id (FK → users, unique)
+plan (enum: 'free', 'pro')
+status (enum: 'active', 'cancelled', 'expired', 'trial')
+mp_preapproval_id (string, nullable — ID de suscripcion en MercadoPago)
+trial_ends_at (datetime, nullable)
+current_period_start (datetime, nullable)
+current_period_end (datetime, nullable)
+cancelled_at (datetime, nullable)
+timestamps
+```
+
+### tournament_settings (config por cancha — solo camino automatico)
 ```
 id
 field_id (FK → fields, unique)
 tournament_enabled (boolean, default: false)
 tournament_price_per_match (decimal 12,2, nullable — precio especial, si null usa el normal)
-available_days (JSON, nullable — ej: [0,6] para sáb/dom, null = todos)
+available_days (JSON, nullable — ej: [0,6] para sab/dom, null = todos)
 available_start_time (time, nullable)
 available_end_time (time, nullable)
 contact_method (enum: 'whatsapp', 'phone', 'email', 'internal')
-contact_value (string, nullable — número de WA, teléfono, email)
+contact_value (string, nullable)
 auto_approve (boolean, default: false)
-min_teams (int, default: 4)
-requires_deposit (boolean, default: false)
-deposit_amount (decimal 12,2, nullable)
-payment_mode (enum: 'upfront', 'per_match', 'monthly', 'split')
-  — upfront: el organizador paga todo el costo de cancha antes de arrancar
-  — per_match: se cobra antes de cada partido
-  — monthly: se cobra mensualmente (para torneos largos tipo liga)
-  — split: se descuenta automáticamente de cada inscripción de equipo
-payment_due_days (int, default: 3 — días de anticipación para cobrar en modo per_match/monthly)
 notes (text, nullable — condiciones especiales)
 timestamps
 ```
@@ -113,36 +191,48 @@ timestamps
 ```
 id
 organizer_user_id (FK → users)
-field_id (FK → fields)
-venue_id (FK → venues)
+organizer_tier (enum: 'free', 'pro' — tier al momento de crear, para auditar)
+
+-- Cancha: camino automatico (nullable)
+field_id (FK → fields, nullable)
+venue_id (FK → venues, nullable)
+
+-- Cancha: camino manual (nullable)
+external_venue_name (string, nullable — nombre del complejo si no esta en TuCancha)
+external_venue_address (string, nullable)
+external_venue_contact (string, nullable — telefono, WA, etc)
+
+-- Config del torneo
 name (string)
 description (text, nullable)
 sport (string — football, padel, tennis, basketball, volleyball)
-format (enum: 'single_elimination', 'double_elimination', 'round_robin', 'groups_elimination')
+format (enum: 'single_elimination', 'round_robin', 'groups_elimination')
 max_teams (int)
 players_per_team (int)
 gender_filter (enum: 'male', 'female', 'mixed')
-category_min (string, nullable)
-category_max (string, nullable)
-inscription_price (decimal 12,2 — precio por equipo)
-currency (string, default: 'ARS')
-venue_price_per_match (decimal 12,2 — lo que cobra el complejo por partido)
-platform_fee_percent (decimal 5,2, default: 8.00 — comisión de TuCancha en %)
-organizer_margin_per_team (decimal 12,2 — lo que se queda el organizador por equipo, calculado automáticamente)
+category (string, nullable — recreativo, intermedio, avanzado, competitivo)
+inscription_price (decimal 12,2, nullable — informativo o cobrable segun tier)
+inscription_currency (string, default: 'ARS')
 estimated_start_date (date)
 actual_start_date (date, nullable)
 rules (text, nullable)
+cover_image_path (string, nullable)
+
+-- Estado
 status (enum: 'draft', 'pending_venue', 'venue_rejected', 'open_registration', 'registration_closed', 'in_progress', 'finished', 'cancelled')
 venue_rejection_reason (text, nullable)
 venue_approved_at (datetime, nullable)
-venue_approved_by (FK → users, nullable)
 registration_deadline (datetime, nullable)
-cover_image_path (string, nullable)
-groups_count (int, nullable — para formato grupos+eliminación)
+
+-- Formato grupos + eliminacion (solo Pro)
+groups_count (int, nullable)
 teams_per_group (int, nullable)
-advancing_per_group (int, nullable — cuántos avanzan de cada grupo)
+advancing_per_group (int, nullable)
+
+-- Cancelacion
 cancelled_at (datetime, nullable)
 cancel_reason (text, nullable)
+
 timestamps
 ```
 
@@ -155,11 +245,15 @@ logo_path (string, nullable)
 captain_user_id (FK → users)
 status (enum: 'pending_payment', 'confirmed', 'disqualified', 'withdrawn')
 seed (int, nullable — para seeding del bracket)
-group_number (int, nullable — en qué grupo está)
-inscription_paid_at (datetime, nullable)
+group_number (int, nullable — en que grupo esta)
+
+-- Pago (solo relevante en tier Pro con MP integrado)
+payment_confirmed (boolean, default: false)
+payment_confirmed_at (datetime, nullable)
+payment_method (enum: 'manual', 'mercadopago', nullable)
 payment_external_id (string, nullable)
-payment_provider (string, nullable)
 mp_preference_id (string, nullable)
+
 timestamps
 
 unique: [tournament_id, name]
@@ -192,13 +286,19 @@ group_number (int, nullable — para fase de grupos)
 match_number (int — orden dentro de la ronda)
 home_team_id (FK → tournament_teams, nullable — null si es TBD)
 away_team_id (FK → tournament_teams, nullable)
-field_id (FK → fields)
-reservation_id (FK → reservations, nullable — la reserva real de la cancha)
+
+-- Cancha (puede ser del sistema o texto libre)
+field_id (FK → fields, nullable)
+venue_name_override (string, nullable — si es camino manual, nombre de la cancha)
+
+-- Reserva real (solo camino automatico)
+reservation_id (FK → reservations, nullable)
+
 scheduled_at (datetime)
 status (enum: 'scheduled', 'in_progress', 'finished', 'suspended', 'cancelled', 'walkover')
 home_score (int, nullable)
 away_score (int, nullable)
-home_penalties (int, nullable — para definición por penales)
+home_penalties (int, nullable — para definicion por penales)
 away_penalties (int, nullable)
 winner_team_id (FK → tournament_teams, nullable)
 notes (text, nullable)
@@ -208,7 +308,7 @@ timestamps
 index: [tournament_id, round, match_number]
 ```
 
-### tournament_standings (tabla de posiciones para liga/grupos)
+### tournament_standings (tabla de posiciones — solo Pro, liga/grupos)
 ```
 id
 tournament_id (FK → tournaments)
@@ -228,7 +328,7 @@ timestamps
 unique: [tournament_id, team_id]
 ```
 
-### tournament_match_events (goles, tarjetas, etc.)
+### tournament_match_events (goles, tarjetas — solo Pro)
 ```
 id
 match_id (FK → tournament_matches)
@@ -240,7 +340,7 @@ notes (string, nullable)
 timestamps
 ```
 
-### tournament_venue_requests (solicitudes al complejo)
+### tournament_venue_requests (solicitudes al complejo — solo camino automatico)
 ```
 id
 tournament_id (FK → tournaments)
@@ -256,136 +356,59 @@ responded_by (FK → users, nullable)
 timestamps
 ```
 
-### tournament_settlements (liquidaciones por pago de inscripción)
-```
-id
-tournament_id (FK → tournaments)
-team_id (FK → tournament_teams)
-total_paid (decimal 12,2 — lo que pagó el equipo)
-venue_amount (decimal 12,2 — parte para el complejo)
-platform_amount (decimal 12,2 — parte para TuCancha)
-organizer_amount (decimal 12,2 — parte para el organizador)
-payment_external_id (string, nullable)
-venue_settled (boolean, default: false)
-organizer_settled (boolean, default: false)
-settled_at (datetime, nullable)
-timestamps
-```
-
----
-
-## ECONOMÍA DEL TORNEO
-
-### Cómo se calcula el split por equipo
-
-```
-inscription_price = lo que paga cada equipo (lo pone el organizador)
-venue_cost_per_team = (venue_price_per_match * total_matches) / max_teams
-platform_fee = inscription_price * (platform_fee_percent / 100)
-organizer_margin = inscription_price - venue_cost_per_team - platform_fee
-```
-
-### Ejemplo: Torneo de Fútbol 5, eliminación directa, 8 equipos
-```
-- Inscripción por equipo: $10.000
-- Complejo cobra $5.000 por partido
-- Total partidos: 7 (cuartos: 4, semi: 2, final: 1)
-- Costo total cancha: 7 × $5.000 = $35.000
-- Costo cancha por equipo: $35.000 / 8 = $4.375
-- Comisión TuCancha (8%): $10.000 × 0.08 = $800
-- Margen organizador: $10.000 - $4.375 - $800 = $4.825
-
-Recaudación total: 8 × $10.000 = $80.000
-  → Complejo: $35.000 (43.75%)
-  → TuCancha: $6.400 (8%)
-  → Organizador: $38.600 (48.25%)
-```
-
-### Validaciones de precio
-- El sistema calcula automáticamente si el `inscription_price` propuesto por el organizador cubre al menos el costo de cancha + comisión de TuCancha
-- Si no cubre, no permite crear el torneo (el organizador estaría perdiendo plata)
-- Se muestra un desglose transparente al organizador antes de publicar
-
-### Momento del cobro a los equipos
-- El equipo paga la inscripción al inscribirse (siempre)
-- TuCancha retiene su comisión inmediatamente
-
-### Momento del cobro al complejo (según payment_mode del complejo)
-
-**upfront (todo ya):**
-- El organizador paga el costo total de cancha al complejo antes de que arranque el torneo
-- Si no paga, el torneo no arranca
-- El complejo recibe la plata antes del primer partido
-
-**per_match (por partido):**
-- Se cobra automáticamente X días antes de cada partido (configurable con payment_due_days)
-- Se descuenta del pool de inscripciones retenido
-- Si no hay fondos suficientes, se notifica al organizador
-
-**monthly (mensual):**
-- Para torneos largos (ligas de varios meses)
-- Se genera una factura mensual al organizador con los partidos del mes
-- Se descuenta del pool o se cobra aparte
-
-**split (automático por inscripción):**
-- Cada vez que un equipo paga la inscripción, la parte del complejo se transfiere automáticamente
-- Es el modo más simple: no requiere intervención
-- El complejo va cobrando a medida que los equipos se inscriben
-
-### Liquidación al organizador
-- Se liquida cuando el torneo termina (en todos los modos)
-- O parcialmente, si el torneo es largo, se puede liquidar por fase/mes
-
-### Cancelación y reembolso
-- Si se cancela antes de arrancar: reembolso a los equipos menos comisión TuCancha
-- Si se cancela en curso: reembolso proporcional a equipos por partidos no jugados
-- Al complejo: se le paga solo los partidos que efectivamente se jugaron
+**Nota:** No hay tabla de settlements/liquidaciones. TuCancha no intermedia pagos. El unico ingreso de TuCancha es la suscripcion del organizador Pro.
 
 ---
 
 ## CONTROLADORES
 
-### Público
-- `TournamentController` — index (listar torneos), show (detalle), search
-- `TournamentTeamController` — create (inscribir equipo), join, leave
-- `TournamentBracketController` — show (ver bracket/fixture)
-- `TournamentStandingsController` — show (tabla de posiciones)
+### Publico
+- `TournamentController` — index (listar torneos), show (pagina publica), search
+- `TournamentBracketController` — show (bracket/fixture visual)
+- `TournamentStandingsController` — show (tabla de posiciones, solo Pro)
 
 ### Organizador
-- `TournamentOrganizerController` — create, store, edit, update, cancel
-- `TournamentMatchOrganizerController` — updateResult, addEvent
+- `TournamentOrganizerController` — create, store, edit, update, cancel, publish
+- `TournamentMatchOrganizerController` — updateResult, addEvent (solo Pro)
 - `TournamentFixtureController` — generate, regenerate
+- `TournamentTeamManageController` — confirmPayment (marcar pago manual), disqualify
 
-### Venue Admin
-- `VenueAdmin\TournamentSettingController` — edit, update (habilitar torneos por cancha)
+### Equipos
+- `TournamentTeamController` — create (inscribir equipo), join, leave
+- `TournamentTeamPaymentController` — checkout, pay (solo Pro con MP integrado)
+
+### Suscripcion
+- `OrganizerSubscriptionController` — plans, subscribe, cancel, webhook
+
+### Venue Admin (solo camino automatico)
+- `VenueAdmin\TournamentSettingController` — edit, update
 - `VenueAdmin\TournamentRequestController` — index, approve, reject, counterPropose
-
-### API/AJAX
-- `TournamentAvailabilityController` — check available dates for a field
 
 ---
 
 ## RUTAS
 
-### Públicas (auth)
+### Publicas
 ```
-GET    /torneos                              → index (listar torneos disponibles)
-GET    /torneos/{tournament}                 → show (detalle del torneo)
-GET    /torneos/{tournament}/bracket         → bracket (bracket visual)
-GET    /torneos/{tournament}/posiciones      → standings (tabla de posiciones)
-GET    /torneos/{tournament}/partido/{match} → matchDetail
+GET    /torneos                              → index
+GET    /torneos/{tournament}                 → show (pagina publica)
+GET    /torneos/{tournament}/bracket         → bracket
+GET    /torneos/{tournament}/posiciones      → standings (solo si Pro)
 ```
 
 ### Organizador (auth + active.user)
 ```
-GET    /torneos/crear                        → create
+GET    /torneos/crear                        → create (verifica tier)
 POST   /torneos                              → store
 GET    /torneos/{tournament}/editar          → edit
 PUT    /torneos/{tournament}                 → update
+POST   /torneos/{tournament}/publicar        → publish
 POST   /torneos/{tournament}/cancelar        → cancel
 POST   /torneos/{tournament}/generar-fixture → generateFixture
 POST   /torneos/{tournament}/partido/{match}/resultado → updateMatchResult
-POST   /torneos/{tournament}/partido/{match}/evento    → addMatchEvent
+POST   /torneos/{tournament}/partido/{match}/evento    → addMatchEvent (solo Pro)
+POST   /torneos/{tournament}/equipos/{team}/confirmar-pago → confirmPayment (manual)
+POST   /torneos/{tournament}/equipos/{team}/descalificar   → disqualify
 ```
 
 ### Equipos (auth + active.user)
@@ -395,15 +418,23 @@ POST   /torneos/{tournament}/equipos         → storeTeam
 POST   /torneos/{tournament}/equipos/{team}/unirse → joinTeam
 POST   /torneos/{tournament}/equipos/{team}/salir  → leaveTeam
 POST   /torneos/{tournament}/equipos/{team}/invitar → invitePlayer
-GET    /torneos/{tournament}/equipos/{team}/checkout → teamCheckout
-POST   /torneos/{tournament}/equipos/{team}/pagar   → teamPayment
+GET    /torneos/{tournament}/equipos/{team}/pagar   → teamCheckout (solo Pro)
+POST   /torneos/{tournament}/equipos/{team}/pagar   → teamPayment (solo Pro)
+```
+
+### Suscripcion (auth + active.user)
+```
+GET    /organizador/planes                   → plans
+POST   /organizador/suscribir               → subscribe
+POST   /organizador/cancelar-suscripcion    → cancel
+POST   /webhooks/organizer-subscription     → webhook (MP preapproval)
 ```
 
 ### Venue Admin (va/)
 ```
-GET    /va/tournament-settings               → tournamentSettings (config por cancha)
+GET    /va/tournament-settings               → tournamentSettings
 POST   /va/tournament-settings/{field}       → updateTournamentSettings
-GET    /va/tournament-requests               → tournamentRequests (solicitudes pendientes)
+GET    /va/tournament-requests               → tournamentRequests
 POST   /va/tournament-requests/{request}/approve    → approve
 POST   /va/tournament-requests/{request}/reject     → reject
 POST   /va/tournament-requests/{request}/counter    → counterPropose
@@ -414,64 +445,96 @@ POST   /va/tournament-requests/{request}/counter    → counterPropose
 ## SERVICIOS
 
 ### TournamentService
-- `createTournament(User, data)` → crea torneo en estado DRAFT
-- `submitToVenue(Tournament)` → envía solicitud al complejo, cambia a PENDING_VENUE
-- `openRegistration(Tournament)` → cambia a OPEN_REGISTRATION
+- `createTournament(User, data)` → verifica tier, crea torneo en estado DRAFT
+- `publishTournament(Tournament)` → cambia a OPEN_REGISTRATION, genera pagina publica
 - `closeRegistration(Tournament)` → cambia a REGISTRATION_CLOSED
-- `cancelTournament(Tournament, reason)` → cancela y reembolsa si aplica
+- `cancelTournament(Tournament, reason)` → cancela
 
 ### TournamentFixtureService
-- `generateSingleElimination(Tournament)` → genera bracket de eliminación directa
-- `generateRoundRobin(Tournament)` → genera todas las fechas de liga
-- `generateGroupsElimination(Tournament)` → genera grupos + bracket
+- `generateSingleElimination(Tournament)` → genera bracket de eliminacion directa
+- `generateRoundRobin(Tournament)` → genera todas las fechas de liga (solo Pro)
+- `generateGroupsElimination(Tournament)` → genera grupos + bracket (solo Pro)
 - `assignDates(Tournament, dates[])` → asigna fechas/horarios a cada partido
-- `createReservations(Tournament)` → crea las reservas reales en las canchas
 
-### TournamentStandingsService
-- `updateStandings(TournamentMatch)` → actualiza tabla después de un resultado
+### TournamentStandingsService (solo Pro)
+- `updateStandings(TournamentMatch)` → actualiza tabla despues de un resultado
 - `calculatePositions(Tournament, groupNumber?)` → ordena por puntos, diferencia, etc.
-- `determineAdvancing(Tournament)` → determina qué equipos pasan de grupos a eliminación
+- `determineAdvancing(Tournament)` → determina que equipos pasan de grupos a eliminacion
 
-### TournamentPaymentService
-- `calculateTeamPrice(Tournament)` → precio de inscripción
-- `createPaymentPreference(TournamentTeam)` → crea preference de MercadoPago
+### TournamentPaymentService (solo Pro)
+- `createPaymentPreference(TournamentTeam)` → crea preference de MP para inscripcion
 - `handlePaymentWebhook(paymentId)` → procesa pago, confirma equipo
-- `calculateSplit(Tournament)` → cuánto va al complejo, cuánto al organizador
+
+### OrganizerSubscriptionService
+- `getOrCreateSubscription(User)` → obtiene o crea registro de suscripcion
+- `getTier(User)` → retorna 'free' o 'pro'
+- `canCreateTournament(User)` → verifica limites del tier
+- `subscribe(User, plan)` → crea preapproval en MP
+- `cancel(User)` → cancela suscripcion
+- `handleWebhook(preapprovalId)` → actualiza estado de suscripcion
+
+---
+
+## MIDDLEWARE
+
+### CheckOrganizerTier
+Middleware que verifica el tier del organizador antes de acciones restringidas:
+
+```php
+// Uso en rutas:
+Route::post('/torneos/{tournament}/partido/{match}/evento', ...)->middleware('organizer.tier:pro');
+```
+
+Logica:
+1. Si la ruta requiere 'pro' y el usuario tiene tier 'free' → redirigir a /organizador/planes con mensaje
+2. Si la ruta requiere 'free' (o no especifica) → dejar pasar
+3. Cache del tier en sesion para no consultar DB en cada request
 
 ---
 
 ## NOTIFICACIONES
 
-1. `TournamentVenueRequestNotification` → al dueño del complejo cuando recibe solicitud
+### Siempre (gratis y Pro)
+1. `TournamentVenueRequestNotification` → al complejo cuando recibe solicitud (camino automatico)
 2. `TournamentApprovedNotification` → al organizador cuando el complejo aprueba
 3. `TournamentRejectedNotification` → al organizador cuando el complejo rechaza
-4. `TournamentPublishedNotification` → a usuarios del deporte cuando se abre inscripción
-5. `TournamentTeamConfirmedNotification` → al capitán cuando se confirma el pago
-6. `TournamentMatchReminderNotification` → a los equipos X horas antes del partido
-7. `TournamentMatchResultNotification` → a ambos equipos después de cargar resultado
-8. `TournamentAdvancedNotification` → al equipo que avanza de ronda/grupo
-9. `TournamentEliminatedNotification` → al equipo eliminado
-10. `TournamentFinishedNotification` → a todos los participantes con resumen final
+4. `TournamentTeamRegisteredNotification` → al organizador cuando un equipo se inscribe
+5. `TournamentFinishedNotification` → a todos los participantes con resumen
+
+### Solo Pro
+6. `TournamentPublishedNotification` → a usuarios del deporte/zona cuando se abre inscripcion
+7. `TournamentMatchReminderNotification` → a los equipos X horas antes del partido
+8. `TournamentMatchResultNotification` → a ambos equipos despues de cargar resultado
+9. `TournamentAdvancedNotification` → al equipo que avanza de ronda/grupo
+10. `TournamentEliminatedNotification` → al equipo eliminado
 
 ---
 
 ## VISTAS
 
-### Públicas
-- `torneos/index.blade.php` — listado con filtros (deporte, estado, zona)
-- `torneos/show.blade.php` — detalle: info, equipos inscriptos, fixture, posiciones
-- `torneos/bracket.blade.php` — bracket visual (eliminación) o tabla (liga)
-- `torneos/match.blade.php` — detalle de un partido específico
+### Publicas
+- `torneos/index.blade.php` — listado con filtros (deporte, estado, zona, formato)
+- `torneos/show.blade.php` — pagina publica del torneo: info, equipos, fixture, posiciones
+  - Tier gratis: con branding TuCancha (header, footer, "Organizado en TuCancha")
+  - Tier Pro: branding personalizable (logo del torneo, colores)
+- `torneos/bracket.blade.php` — bracket visual (eliminacion) o tabla (liga)
 
 ### Organizador
-- `torneos/create.blade.php` — formulario de creación (wizard multi-step)
+- `torneos/create.blade.php` — wizard multi-step de creacion
+  - Paso 1: Info basica (nombre, deporte, formato, equipos)
+  - Paso 2: Cancha ("Ya tengo cancha" vs "Buscar en TuCancha")
+  - Paso 3: Inscripcion (precio, deadline, reglas)
+  - Paso 4: Preview y publicar
 - `torneos/edit.blade.php` — editar torneo
-- `torneos/manage.blade.php` — panel del organizador (cargar resultados, ver pagos)
+- `torneos/manage.blade.php` — panel del organizador (cargar resultados, gestionar equipos/pagos)
 
 ### Equipos
 - `torneos/teams/create.blade.php` — inscribir equipo
 - `torneos/teams/show.blade.php` — detalle del equipo
-- `torneos/teams/checkout.blade.php` — pago de inscripción
+- `torneos/teams/checkout.blade.php` — pago de inscripcion (solo Pro)
+
+### Suscripcion
+- `organizador/planes.blade.php` — comparativa de planes con CTA de suscripcion
 
 ### Venue Admin
 - `va/tournament-settings.blade.php` — habilitar/configurar torneos por cancha
@@ -479,72 +542,118 @@ POST   /va/tournament-requests/{request}/counter    → counterPropose
 
 ---
 
-## EVENTOS BROADCAST (real-time)
+## PAGINA PUBLICA DEL TORNEO (lo mas importante)
 
-- `TournamentTeamJoined` — cuando un equipo se inscribe
-- `TournamentMatchStarted` — cuando arranca un partido
-- `TournamentMatchFinished` — cuando se carga un resultado
-- `TournamentBracketUpdated` — cuando se actualiza el bracket
+La pagina publica (`/torneos/{tournament}`) es el producto principal. Es lo que el organizador comparte por WhatsApp y lo que reemplaza al "grupo de WA + Excel + Paint".
+
+### Open Graph tags (para preview de WhatsApp)
+```html
+<meta property="og:title" content="Copa Barrio Norte — Futbol 5">
+<meta property="og:description" content="8 equipos | Eliminacion directa | Inscripcion $10.000 | Arranca 15/05">
+<meta property="og:image" content="https://tucancha.com/torneos/1/og-image.png">
+<meta property="og:url" content="https://tucancha.com/torneos/copa-barrio-norte">
+```
+
+### Contenido de la pagina
+1. **Header**: nombre del torneo, deporte, formato, estado
+2. **Info**: fecha, complejo, precio inscripcion, reglas
+3. **Equipos inscriptos**: lista con logos/nombres, slots disponibles
+4. **Boton CTA**: "Inscribir equipo" (si hay lugar)
+5. **Bracket/Fixture**: visual, interactivo
+6. **Tabla de posiciones**: solo Pro, solo liga/grupos
+7. **Resultados**: lista de partidos jugados
+8. **Estadisticas**: solo Pro (goleadores, tarjetas)
+
+### Branding
+- **Gratis**: header con logo TuCancha, footer "Organizado en TuCancha | Crea tu torneo gratis", colores de TuCancha
+- **Pro**: header con logo del torneo (o del organizador), sin mencion a TuCancha (excepto un link discreto en el footer)
 
 ---
 
-## FASES DE IMPLEMENTACIÓN
+## FASES DE IMPLEMENTACION
 
-### Fase 1: Base (MVP)
-- Modelos y migraciones
-- TournamentSetting (habilitar por cancha)
-- Crear torneo (solo eliminación directa)
-- Solicitud al complejo + aprobación
-- Inscripción de equipos (sin pago, solo registro)
-- Fixture automático de eliminación directa
-- Cargar resultados
-- Bracket visual básico
+### Fase 1: MVP (camino manual + eliminacion directa)
+**Objetivo:** Un organizador puede crear un torneo, compartir el link, inscribir equipos, generar fixture y cargar resultados. Sin pagos, sin integracion con complejos.
 
-### Fase 2: Pagos
-- Pago de inscripción via MercadoPago
-- Split de pago (complejo + organizador)
-- Webhook handling para torneos
+- Modelo `tournaments` (con campos external_venue_*)
+- Modelo `tournament_teams` (sin pago, solo registro)
+- Modelo `tournament_team_players`
+- Modelo `tournament_matches`
+- TournamentService: crear, publicar, cancelar
+- TournamentFixtureService: solo eliminacion directa
+- TournamentController: index, show (pagina publica)
+- TournamentOrganizerController: create, store, edit, update, publish, cancel
+- TournamentMatchOrganizerController: updateResult
+- TournamentTeamController: create, store
+- Vistas: index, show (con bracket), create (wizard), manage
+- Open Graph tags para compartir por WhatsApp
+- Branding TuCancha en todo (tier gratis)
 
-### Fase 3: Formatos avanzados
-- Liga (round robin)
-- Grupos + eliminación
-- Tabla de posiciones
-- Stats (goleadores, tarjetas)
+### Fase 2: Suscripcion Pro
+- Modelo `organizer_subscriptions`
+- OrganizerSubscriptionService (reutilizar MercadoPagoSubscriptionService)
+- Middleware CheckOrganizerTier
+- Vista de planes
+- Desbloqueo de features Pro: formatos avanzados, estadisticas, notificaciones
 
-### Fase 4: Social
-- Compartir torneo por WhatsApp
-- Chat del torneo
-- Notificaciones push
-- Página pública compartible
-- Invitar jugadores a equipo
+### Fase 3: Pagos de inscripcion (Pro)
+- TournamentPaymentService
+- Checkout de inscripcion via MercadoPago
+- Webhook handling para confirmar equipos
+- Confirmacion manual de pago (para organizadores gratis que quieran trackear)
 
-### Fase 5: Premium
-- Premios/trofeos virtuales
-- MVP por partido/torneo
-- Integración con ratings de Falta Uno
-- Historial de torneos por usuario/equipo
+### Fase 4: Integracion con complejos (camino automatico)
+- Modelo `tournament_settings`
+- Modelo `tournament_venue_requests`
+- Panel venue admin: habilitar torneos, gestionar solicitudes
+- Reserva automatica de canchas
+- Notificaciones al complejo
+
+### Fase 5: Formatos avanzados (Pro)
+- Liga (round robin): fixture + tabla de posiciones
+- Grupos + eliminacion: fase de grupos + bracket
+- TournamentStandingsService
+- Modelo `tournament_standings`
+- Modelo `tournament_match_events` (goles, tarjetas)
+- Estadisticas: goleadores, MVP
+
+### Fase 6: Social y growth
+- Compartir por WhatsApp mejorado (imagen dinamica del bracket)
+- Notificaciones push a usuarios de Falta Uno cuando hay torneo de su deporte/zona
+- Chat del torneo (reutilizar infraestructura de Falta Uno chat)
+- Invitar jugadores a equipo por link
 - Rankings de equipos
+- Historial de torneos por usuario
 
 ---
 
-## CONSIDERACIONES TÉCNICAS
+## CONSIDERACIONES TECNICAS
 
-### Base de datos
-- SQLite en desarrollo/producción actual — funciona bien para esta escala
-- Si migran a MySQL: cambiar strftime() por HOUR(), DATE_FORMAT()
-
-### Pagos
-- MercadoPago marketplace split: requiere que el complejo tenga mp_access_token
-- Si el complejo no tiene MP conectado, el torneo no puede aprobarse
-- Webhook endpoint: /webhooks/mercadopago (ya existe, agregar handler para torneos)
+### Suscripciones
+- Reutilizar `MercadoPagoSubscriptionService` que ya existe para venue admins
+- Misma API de Preapproval de MercadoPago
+- Webhook endpoint separado: `/webhooks/organizer-subscription`
 
 ### Performance
-- Indexes en: [tournament_id, status], [tournament_id, round], [team_id, status]
+- Indexes en: [tournament_id, status], [tournament_id, round], [team_id, status], [organizer_user_id]
 - Eager loading: Tournament::with(['teams.players', 'matches.homeTeam', 'matches.awayTeam'])
+- Cache de bracket/standings con invalidacion al cargar resultado
 
 ### Seguridad
 - Solo el organizador puede editar/cancelar su torneo
-- Solo el dueño del complejo puede aprobar/rechazar
-- Solo el capitán puede gestionar su equipo
-- Rate limiting en inscripción y pago
-- Validar que el organizador no se inscriba en su propio torneo como equipo (o sí, configurable)
+- Solo el organizador puede cargar resultados y gestionar equipos
+- Solo el dueno del complejo puede aprobar/rechazar solicitudes
+- Solo el capitan puede gestionar su equipo
+- Rate limiting en inscripcion de equipos
+- Verificacion de tier en cada accion restringida via middleware
+
+### SEO
+- URLs amigables: `/torneos/copa-barrio-norte` (slug)
+- Cada torneo es una pagina indexable
+- Structured data (Schema.org SportsEvent)
+- Sitemap dinamico con torneos activos
+
+### Slug
+- Agregar columna `slug` (string, unique) al modelo `tournaments`
+- Generar automaticamente desde el nombre al crear
+- Usar slug en las URLs publicas en vez de ID

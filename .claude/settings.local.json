@@ -12,7 +12,21 @@
       "Bash(grep -A5 \"function falta\\\\|function profile\\\\|protected $fillable\")",
       "Bash(*)",
       "Write(*)",
-      "Edit(*)"
+      "Edit(*)",
+      "WebFetch(domain:certifiable-crazily-madelene.ngrok-free.dev)",
+      "WebSearch",
+      "WebFetch(domain:main.vitejs.dev)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:lucide.dev)",
+      "WebFetch(domain:atcsports.io)",
+      "WebFetch(domain:www.dondejuegoapp.com)",
+      "WebFetch(domain:www.canchas.club)",
+      "WebFetch(domain:www.quierocancha.com)",
+      "WebFetch(domain:www.ambito.com)",
+      "WebFetch(domain:www.empirepadel.com.ar)",
+      "Skill(claude-api)",
+      "Skill(claude-api:*)",
+      "mcp__Claude_Preview__preview_start"
     ]
   }
 }
