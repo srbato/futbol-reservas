@@ -13,8 +13,8 @@ $faqs = [
     ['q' => 'Como cancelo una reserva?', 'a' => 'Podes cancelar desde la seccion Mis Reservas. El plazo de cancelacion depende de la politica de cada complejo y se muestra al momento de reservar.'],
     ['q' => 'Que deportes estan disponibles?', 'a' => 'Futbol (5, 7 y 11), padel, tenis, basquet y voley. Depende de las canchas disponibles en cada complejo.'],
     ['q' => 'Como funciona el pago?', 'a' => 'Todos los pagos se procesan a traves de MercadoPago. Podes pagar con tarjeta de credito, debito, o dinero en cuenta de MercadoPago.'],
-    ['q' => 'Que es el perfil deportivo?', 'a' => 'Es tu perfil como jugador donde se registran tus partidos jugados, victorias, rating y categoria. Te ayuda a encontrar partidos de tu nivel.'],
-    ['q' => 'Soy dueno de un complejo. Como me registro?', 'a' => 'Registrate en TuCancha, activa el plan de complejo desde la seccion Planes, y carga tus canchas con horarios y precios. Tenes {{ $trialDays }} dias de prueba gratis.'],
+    ['q' => 'Que es el perfil deportivo?', 'a' => 'Es tu perfil como jugador donde se registran tus partidos jugados, resultados y categoria. Te ayuda a encontrar partidos de tu nivel.'],
+    ['q' => 'Soy dueno de un complejo. Como me registro?', 'a' => 'Registrate en TuCancha, activa el plan de complejo desde la seccion Planes, y carga tus canchas con horarios y precios. Tenes ' . $trialDays . ' dias de prueba gratis.'],
     ['q' => 'TuCancha cobra comision sobre mis ingresos?', 'a' => 'No. TuCancha cobra una suscripcion mensual fija. El 100% de lo que pagan los jugadores va directo a tu cuenta de MercadoPago.'],
     ['q' => 'Puedo reservar una cancha sin crear cuenta?', 'a' => 'No, necesitas crear una cuenta gratuita para reservar. El registro toma menos de 30 segundos y podes hacerlo con Google.'],
 ];
@@ -472,7 +472,7 @@ echo json_encode([
             <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
           </button>
           <div class="faq-answer">
-            <p>Es tu perfil como jugador donde se registran tus partidos jugados, victorias, rating y categoria. Te ayuda a encontrar partidos de tu nivel y construir tu reputacion deportiva.</p>
+            <p>Es tu perfil como jugador donde se registran tus partidos jugados, resultados y categoria. Te ayuda a encontrar partidos de tu nivel y construir tu reputacion deportiva.</p>
           </div>
         </div>
       </div>
@@ -502,7 +502,7 @@ echo json_encode([
             <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
           </button>
           <div class="faq-answer">
-            <p>Hay planes de suscripcion mensual con precio fijo. No cobramos comisiones sobre tus reservas: el 100% va directo a tu MercadoPago. Consulta los <a href="/planes">planes disponibles</a>.</p>
+            <p>Hay planes de suscripcion mensual con precio fijo. No cobramos comisiones sobre tus reservas: el 100% va directo a tu MercadoPago. Ademas, tenes {{ $trialDays }} dias gratis para probar. Consulta los <a href="/planes">planes disponibles</a>.</p>
           </div>
         </div>
       </div>

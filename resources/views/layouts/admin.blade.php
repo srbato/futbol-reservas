@@ -136,8 +136,8 @@
     @endphp
     <nav class="flex-1 px-4 py-5 space-y-1 overflow-y-auto">
 
-      {{-- Panel venueadmin --}}
-      <p class="px-2 mb-2 text-xs font-semibold text-slate-500 uppercase tracking-widest">Panel</p>
+      {{-- ═══ DÍA A DÍA ═══ --}}
+      <p class="px-2 mb-2 text-xs font-semibold text-slate-500 uppercase tracking-widest">Día a día</p>
 
       <a href="{{ route('va.dashboard') }}"
          class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
@@ -147,17 +147,6 @@
         </svg>
         Panel
       </a>
-
-      @if(!$isStaff || $navUser->hasStaffPermission('view_reservations', $staffVenueId))
-      <a href="{{ route('va.reservations.index') }}"
-         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
-                {{ request()->routeIs('va.reservations.index') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
-        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-        </svg>
-        Reservas
-      </a>
-      @endif
 
       @if(!$isStaff || $navUser->hasStaffPermission('view_agenda', $staffVenueId))
       <a href="{{ route('va.reservations.agenda') }}"
@@ -170,7 +159,43 @@
       </a>
       @endif
 
+      @if(!$isStaff || $navUser->hasStaffPermission('view_reservations', $staffVenueId))
+      <a href="{{ route('va.reservations.index') }}"
+         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
+                {{ request()->routeIs('va.reservations.index') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+        Reservas
+      </a>
+      @endif
+
+      @if(!$isStaff || $navUser->hasStaffPermission('view_checkin', $staffVenueId))
+      <a href="{{ route('va.checkin.index') }}"
+         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
+                {{ request()->routeIs('va.checkin.*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        Check-in
+      </a>
+      @endif
+
+      {{-- ═══ GESTIÓN ═══ --}}
       @unless($isStaff)
+      <div class="pt-4">
+        <p class="px-2 mb-2 text-xs font-semibold text-slate-500 uppercase tracking-widest">Gestión</p>
+      </div>
+
+      <a href="{{ route('va.reports') }}"
+         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
+                {{ request()->routeIs('va.reports') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+        </svg>
+        Reportes
+      </a>
+
       <a href="{{ route('va.recurring_subscriptions.index') }}"
          class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
                 {{ request()->routeIs('va.recurring_subscriptions.*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
@@ -181,40 +206,6 @@
       </a>
       @endunless
 
-      @unless($isStaff)
-      <a href="{{ route('va.reports') }}"
-         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
-                {{ request()->routeIs('va.reports') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
-        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-        </svg>
-        Reportes
-      </a>
-      @endunless
-
-      @if(!$isStaff || $navUser->hasStaffPermission('manage_blocks', $staffVenueId))
-      <a href="{{ route('va.blocks.index') }}"
-         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
-                {{ request()->routeIs('va.blocks.*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
-        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
-        </svg>
-        Bloqueos
-      </a>
-      @endif
-
-      @if(!$isStaff || $navUser->hasStaffPermission('manage_blocks', $staffVenueId))
-      <a href="{{ route('va.user-blocks.index') }}"
-         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
-                {{ request()->routeIs('va.user-blocks.*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
-        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-          <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364L5.636 5.636" stroke-width="2.5"/>
-        </svg>
-        Bloqueo de usuarios
-      </a>
-      @endif
-
       @if(!$isStaff || $navUser->hasStaffPermission('manage_discounts', $staffVenueId))
       <a href="{{ route('va.discounts.index') }}"
          class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
@@ -223,39 +214,6 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a2 2 0 012-2z"/>
         </svg>
         Descuentos
-      </a>
-      @endif
-
-      @unless($isStaff)
-      <a href="{{ route('va.tournament_settings.index') }}"
-         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
-                {{ request()->routeIs('va.tournament_settings.*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
-        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M18.75 4.236c.982.143 1.954.317 2.916.52A6.003 6.003 0 0016.27 9.728M18.75 4.236V4.5c0 2.108-.966 3.99-2.48 5.228m0 0a6.003 6.003 0 01-5.54 0"/>
-        </svg>
-        Torneos
-      </a>
-      @endunless
-
-      @unless($isStaff)
-      <a href="{{ route('va.tournament_requests.index') }}"
-         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
-                {{ request()->routeIs('va.tournament_requests.*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
-        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 012.012 1.244l.256.512a2.25 2.25 0 002.013 1.244h3.218a2.25 2.25 0 002.013-1.244l.256-.512a2.25 2.25 0 012.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 00-2.15-1.588H6.911a2.25 2.25 0 00-2.15 1.588L2.35 13.177a2.25 2.25 0 00-.1.661z"/>
-        </svg>
-        Solicitudes Torneos
-      </a>
-      @endunless
-
-      @if(!$isStaff || $navUser->hasStaffPermission('view_checkin', $staffVenueId))
-      <a href="{{ route('va.checkin.index') }}"
-         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
-                {{ request()->routeIs('va.checkin.*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
-        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        Check-in
       </a>
       @endif
 
@@ -270,7 +228,33 @@
       </a>
       @endif
 
-      {{-- Superadmin section --}}
+      {{-- ═══ CONTROL ═══ --}}
+      @if(!$isStaff || $navUser->hasStaffPermission('manage_blocks', $staffVenueId))
+      <div class="pt-4">
+        <p class="px-2 mb-2 text-xs font-semibold text-slate-500 uppercase tracking-widest">Control</p>
+      </div>
+
+      <a href="{{ route('va.blocks.index') }}"
+         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
+                {{ request()->routeIs('va.blocks.*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+        </svg>
+        Bloqueo de horarios
+      </a>
+
+      <a href="{{ route('va.user-blocks.index') }}"
+         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
+                {{ request()->routeIs('va.user-blocks.*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364L5.636 5.636" stroke-width="2.5"/>
+        </svg>
+        Bloqueo de usuarios
+      </a>
+      @endif
+
+      {{-- ═══ SUPERADMIN ═══ --}}
       @if(auth()->user()->role === 'super_admin')
         <div class="pt-4">
           <p class="px-2 mb-2 text-xs font-semibold text-slate-500 uppercase tracking-widest">Superadmin</p>

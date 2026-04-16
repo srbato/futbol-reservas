@@ -190,6 +190,115 @@ echo json_encode([
     margin-bottom: 18px;
   }
 
+  /* ── Launch offer banner ─────────────────────────── */
+  .plan-offer-banner {
+    position: relative;
+    margin: -32px -28px 20px -28px;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #052e16 0%, #064e3b 50%, #052e16 100%);
+    border-bottom: 2px solid #22c55e;
+    border-radius: 24px 24px 0 0;
+    text-align: center;
+    overflow: hidden;
+  }
+  .plan-card.featured .plan-offer-banner {
+    margin-top: -32px;
+    border-radius: 20px 20px 0 0;
+  }
+  .plan-offer-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 8px,
+      rgba(34,197,94,.06) 8px,
+      rgba(34,197,94,.06) 16px
+    );
+  }
+  .plan-offer-pulse {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 14px;
+    border-radius: 999px;
+    background: rgba(34,197,94,.2);
+    border: 1px solid rgba(34,197,94,.4);
+    color: #4ade80;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin-bottom: 8px;
+    position: relative;
+    animation: offer-pulse 2s ease-in-out infinite;
+  }
+  @keyframes offer-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,.3); }
+    50% { box-shadow: 0 0 0 8px rgba(34,197,94,0); }
+  }
+  .plan-offer-title {
+    position: relative;
+    font-size: 18px;
+    font-weight: 800;
+    color: #fff;
+    margin: 0;
+    letter-spacing: -.01em;
+  }
+  .plan-offer-title span { color: #4ade80; }
+  .plan-offer-sub {
+    position: relative;
+    font-size: 12px;
+    color: rgba(255,255,255,.55);
+    margin: 4px 0 0;
+  }
+
+  /* ── Price with offer styling ────────────────────── */
+  .plan-price-offer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .plan-price-old {
+    font-size: 22px;
+    font-weight: 700;
+    color: #555;
+    text-decoration: line-through;
+    text-decoration-color: #ef4444;
+    text-decoration-thickness: 2px;
+  }
+  .plan-card.featured .plan-price-old { color: rgba(255,255,255,.35); }
+  .plan-price-free {
+    font-size: 42px;
+    font-weight: 900;
+    letter-spacing: -.03em;
+    line-height: 1;
+    background: linear-gradient(135deg, #22c55e, #4ade80);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .plan-price-free-period {
+    font-size: 13px;
+    color: #4ade80;
+    font-weight: 700;
+    margin-top: 2px;
+  }
+  .plan-price-then {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: #666;
+    margin-top: 6px;
+    padding: 3px 10px;
+    background: rgba(255,255,255,.04);
+    border-radius: 6px;
+  }
+  .plan-card.featured .plan-price-then { color: rgba(255,255,255,.45); }
+
   .plan-name {
     font-size: 20px;
     font-weight: 800;
@@ -439,6 +548,12 @@ echo json_encode([
         </div>
         <h1>Planes para tu <span class="hero-highlight">complejo</span></h1>
         <p>Todo lo que necesitás para gestionar tus canchas online.</p>
+        @if($trialDays > 0)
+          <div style="margin-top:18px; display:inline-flex; align-items:center; gap:8px; padding:8px 20px; border-radius:999px; background:rgba(34,197,94,.15); border:1px solid rgba(34,197,94,.3);">
+            <i data-lucide="zap" style="width:14px;height:14px;stroke:#4ade80;stroke-width:2.5;"></i>
+            <span style="color:#4ade80; font-size:14px; font-weight:700;">Oferta de lanzamiento: {{ $trialDays }} días gratis en todos los planes</span>
+          </div>
+        @endif
       </div>
     </div>
   </section>
@@ -467,28 +582,62 @@ echo json_encode([
         @endphp
         <div class="plan-card {{ $plan->is_featured ? 'featured' : '' }}"
              data-aos="{{ $aosDir }}" data-aos-delay="{{ $aosDelay }}">
+
+          {{-- ── Offer banner (only if plan has trial) ── --}}
           @if($plan->hasTrial())
-            <div class="plan-popular-badge trial-badge" style="background:#157347;">
-              <i data-lucide="gift" style="width:12px;height:12px;stroke:#fff;stroke-width:2;"></i>
-              {{ $plan->trial_days }} días gratis
+            <div class="plan-offer-banner trial-element">
+              <div class="plan-offer-pulse">
+                <i data-lucide="zap" style="width:11px;height:11px;stroke:currentColor;stroke-width:2.5;"></i>
+                Oferta de lanzamiento
+              </div>
+              <p class="plan-offer-title"><span>{{ $plan->trial_days }} días GRATIS</span></p>
+              <p class="plan-offer-sub">Probá sin compromiso · sin tarjeta</p>
             </div>
-          @elseif($plan->is_featured)
-            <div class="plan-popular-badge">
+          @endif
+
+          @if($plan->is_featured)
+            <div class="plan-popular-badge" @if($plan->hasTrial()) style="margin-top:0;" @endif>
               <i data-lucide="star" style="width:12px;height:12px;stroke:#052e16;stroke-width:2;fill:#052e16;"></i>
               Más popular
             </div>
           @endif
+
           <p class="plan-name">{{ $plan->name }}</p>
           <p class="plan-limit">{{ $plan->maxFieldsLabel() }}</p>
 
           <div class="plan-price-wrap">
-            <div class="plan-original-price" id="{{ $plan->slug }}-original" style="display:none;">
-              ${{ number_format($plan->monthly_price, 0, ',', '.') }}
-            </div>
-            <div class="plan-price">
-              $<span id="{{ $plan->slug }}-price">{{ number_format($plan->monthly_price, 0, ',', '.') }}</span>
-            </div>
-            <div class="plan-price-period">ARS / mes</div>
+            @if($plan->hasTrial())
+              {{-- Offer pricing: FREE then $X/mes --}}
+              <div class="trial-element">
+                <div class="plan-price-offer">
+                  <span class="plan-price-old">${{ number_format($plan->monthly_price, 0, ',', '.') }}/mes</span>
+                </div>
+                <div class="plan-price-free">GRATIS</div>
+                <div class="plan-price-free-period">por {{ $plan->trial_days }} días</div>
+                <div class="plan-price-then">
+                  <i data-lucide="arrow-right" style="width:10px;height:10px;stroke:currentColor;"></i>
+                  Luego ${{ number_format($plan->monthly_price, 0, ',', '.') }} ARS/mes
+                </div>
+              </div>
+              {{-- Normal pricing (shown when annual billing is selected) --}}
+              <div class="no-trial-element" style="display:none;">
+                <div class="plan-original-price" id="{{ $plan->slug }}-original" style="display:none;">
+                  ${{ number_format($plan->monthly_price, 0, ',', '.') }}
+                </div>
+                <div class="plan-price">
+                  $<span id="{{ $plan->slug }}-price">{{ number_format($plan->monthly_price, 0, ',', '.') }}</span>
+                </div>
+                <div class="plan-price-period">ARS / mes</div>
+              </div>
+            @else
+              <div class="plan-original-price" id="{{ $plan->slug }}-original" style="display:none;">
+                ${{ number_format($plan->monthly_price, 0, ',', '.') }}
+              </div>
+              <div class="plan-price">
+                $<span id="{{ $plan->slug }}-price">{{ number_format($plan->monthly_price, 0, ',', '.') }}</span>
+              </div>
+              <div class="plan-price-period">ARS / mes</div>
+            @endif
           </div>
 
           @php
@@ -524,13 +673,15 @@ echo json_encode([
           </ul>
 
           @if($plan->hasTrial())
-            <div class="trial-text" style="font-size:12px; color:#6eeaa0; font-weight:600; text-align:center; margin-bottom:10px;">
-              {{ $plan->trial_days }} días gratis · luego se cobra automáticamente
+            <div class="trial-text trial-element" style="font-size:12px; color:#6eeaa0; font-weight:600; text-align:center; margin-bottom:10px;">
+              ⚡ {{ $plan->trial_days }} días gratis · sin compromiso
             </div>
           @endif
           <a id="{{ $plan->slug }}-btn"
              href="{{ route('membership.become') }}?plan={{ $plan->slug }}&billing=monthly"
-             class="plan-btn">{{ $plan->hasTrial() ? 'Empezar gratis' : 'Empezar' }}</a>
+             class="plan-btn"
+             @if($plan->hasTrial()) style="background:#22c55e; color:#050505; border-color:#22c55e; font-size:16px;" @endif
+          >{{ $plan->hasTrial() ? 'Empezar gratis →' : 'Empezar' }}</a>
         </div>
         @endforeach
 
@@ -554,8 +705,8 @@ echo json_encode([
             <span class="faq-icon"><i data-lucide="plus" style="width:14px;height:14px;stroke:currentColor;stroke-width:2.5;"></i></span>
           </button>
           <div class="faq-body">
-            Sí. Tenés {{ $trialDays }} días de prueba gratuita para explorar el panel, cargar tus canchas y ver cómo funciona
-            el sistema. No se te cobra nada hasta que decidís activar tu suscripción.
+            Sí. Tenés {{ $trialDays }} días de prueba completamente gratis para explorar el panel, cargar tus canchas y ver cómo funciona
+            el sistema. No necesitás tarjeta y no se te cobra nada durante ese período.
           </div>
         </div>
 
@@ -645,14 +796,25 @@ echo json_encode([
         ctaBtn.href = url.toString();
 
         if (plan.hasTrial) {
-          ctaBtn.textContent = isAnnual ? 'Empezar' : 'Empezar gratis';
+          ctaBtn.textContent = isAnnual ? 'Empezar' : 'Empezar gratis →';
+          if (isAnnual) {
+            ctaBtn.style.background = '';
+            ctaBtn.style.color = '';
+            ctaBtn.style.borderColor = '';
+            ctaBtn.style.fontSize = '';
+          } else {
+            ctaBtn.style.background = '#22c55e';
+            ctaBtn.style.color = '#050505';
+            ctaBtn.style.borderColor = '#22c55e';
+            ctaBtn.style.fontSize = '16px';
+          }
         }
       }
     });
 
-    // Ocultar/mostrar badges y textos de trial según billing
-    document.querySelectorAll('.trial-badge').forEach(el => el.style.display = isAnnual ? 'none' : '');
-    document.querySelectorAll('.trial-text').forEach(el => el.style.display = isAnnual ? 'none' : '');
+    // Ocultar/mostrar todos los elementos de trial según billing
+    document.querySelectorAll('.trial-element').forEach(el => el.style.display = isAnnual ? 'none' : '');
+    document.querySelectorAll('.no-trial-element').forEach(el => el.style.display = isAnnual ? '' : 'none');
   }
 
   function toggleFaq(trigger) {

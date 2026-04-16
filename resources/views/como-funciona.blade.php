@@ -702,8 +702,8 @@ echo json_encode([
           <span class="owner-step-card-ghost-num">02</span>
           <span class="step-number">Paso 02</span>
           <span class="step-icon"><i data-lucide="star" style="width:36px;height:36px;stroke:#6eeaa0;stroke-width:1.5;"></i></span>
-          <h3>Suscribite al plan</h3>
-          <p>Activá tu cuenta como administrador de complejo. Elegí entre pago mensual o {{ $longTermLabel }} para acceder a todas las funciones del sistema.</p>
+          <h3>Elegí tu plan</h3>
+          <p>Ahora los primeros complejos arrancan con 3 meses gratis. Después elegís el plan que mejor te quede.</p>
         </div>
 
         <div class="owner-step-card" data-aos="fade-up" data-aos-delay="200">
@@ -733,11 +733,11 @@ echo json_encode([
         <p>Tanto si querés reservar una cancha como si querés sumar tu complejo, estás a un clic de distancia.</p>
 
         <div class="final-cta-actions">
-          <a href="{{ route('venues.index') }}" class="btn-cf-primary">
-            Ver complejos
+          <a href="https://wa.me/5491100000000?text=Hola%2C%20quiero%20sumar%20mi%20complejo%20a%20TuCancha" target="_blank" rel="noopener" class="btn-cf-primary">
+            Hablanos por WhatsApp
           </a>
-          <a href="{{ route('planes') }}" class="btn-cf-ghost">
-            Sumar mi complejo
+          <a href="{{ route('venues.index') }}" class="btn-cf-ghost">
+            Ver complejos
           </a>
         </div>
       </div>

@@ -1,7 +1,7 @@
 @extends('layouts.marketing')
 
 @section('title', 'Quiénes somos — TuCancha')
-@section('meta_description', 'Conocé el equipo detrás de TuCancha, la plataforma argentina de reservas deportivas online. Nuestra misión es conectar jugadores con los mejores complejos.')
+@section('meta_description', 'Conocé la historia detrás de TuCancha, la plataforma argentina de reservas deportivas online creada por un desarrollador que se cansó de no poder reservar una cancha.')
 
 @push('jsonld')
 <script type="application/ld+json">
@@ -1029,9 +1029,9 @@ echo json_encode([
             Nacimos para que<br>jugar sea <em>fácil</em>
           </h1>
           <p data-aos="fade-up" data-aos-delay="160" data-aos-duration="700">
-            Somos un equipo argentino con una misión simple: que reservar una cancha
-            sea tan fácil como pedir una pizza. Sin llamadas, sin grupos de WhatsApp,
-            sin "preguntale al encargado".
+            Soy un desarrollador argentino que se cansó de no poder reservar una cancha
+            online. TuCancha es la solución que me hubiese gustado tener: sin llamadas,
+            sin grupos de WhatsApp, sin "preguntale al encargado".
           </p>
           <div class="ns-hero-micro-stats" data-aos="fade-up" data-aos-delay="260" data-aos-duration="700">
             <div class="ns-hero-micro-stat">
@@ -1074,8 +1074,9 @@ echo json_encode([
             y para los dueños de complejos que merecen una herramienta moderna.
           </p>
           <p>
-            Hoy conectamos complejos de todo el país con miles de jugadores que solo
-            quieren reservar su cancha y aparecer a patear la pelota.
+            Hoy la plataforma está lista y estamos buscando los primeros complejos
+            que se animen a digitalizarse con nosotros. Todo funciona: reservas,
+            pagos, panel de gestión. Solo falta que te sumes.
           </p>
         </div>
 
@@ -1084,7 +1085,7 @@ echo json_encode([
             <div class="manifesto-quote-bg"></div>
             <blockquote>
               "El fútbol no debería tener fricción. La cancha tiene que estar a un par de clics, no a veinte llamadas perdidas."
-              <cite>— El equipo de TuCancha</cite>
+              <cite>— Santiago, creador de TuCancha</cite>
             </blockquote>
           </div>
         </div>
@@ -1162,27 +1163,28 @@ echo json_encode([
         </div>
 
         <div class="ns-tl-item" data-aos="fade-up" data-aos-delay="240" data-aos-duration="600">
-          <div class="ns-tl-dot"><i data-lucide="rocket" style="width:20px;height:20px;stroke:#22c55e;stroke-width:1.5;"></i></div>
+          <div class="ns-tl-dot ns-tl-dot-active"><i data-lucide="rocket" style="width:20px;height:20px;stroke:#fff;stroke-width:1.5;"></i></div>
           <div class="ns-tl-content">
-            <span class="ns-tl-year">Lanzamiento</span>
-            <h3>Los primeros complejos se suman</h3>
+            <span class="ns-tl-year">Hoy</span>
+            <h3>Lista para los primeros complejos</h3>
             <p>
-              Los primeros complejos empiezan a usar TuCancha. Las reservas llegan
-              solas, los cobros se procesan automáticamente y los dueños
-              pueden enfocarse en lo que importa: el negocio.
+              La plataforma está construida, testeada y lista. Reservas online,
+              cobros con MercadoPago, panel de gestión, mails automáticos. Ahora
+              empieza lo más importante: sumar los primeros complejos y demostrar
+              que funciona.
             </p>
           </div>
         </div>
 
         <div class="ns-tl-item" data-aos="fade-up" data-aos-delay="360" data-aos-duration="600">
-          <div class="ns-tl-dot ns-tl-dot-active"><i data-lucide="trending-up" style="width:20px;height:20px;stroke:#fff;stroke-width:1.5;"></i></div>
+          <div class="ns-tl-dot"><i data-lucide="map" style="width:20px;height:20px;stroke:#22c55e;stroke-width:1.5;"></i></div>
           <div class="ns-tl-content">
-            <span class="ns-tl-year">Hoy</span>
-            <h3>Creciendo junto a la comunidad</h3>
+            <span class="ns-tl-year">Lo que viene</span>
+            <h3>El roadmap está lleno de ideas</h3>
             <p>
-              Seguimos sumando complejos, escuchando a los usuarios y lanzando
-              funcionalidades nuevas. Reservas recurrentes, descuentos, historial
-              de partidos, reportes. Y hay mucho más por venir.
+              Torneos, ranking de jugadores, notificaciones push, estadísticas
+              avanzadas. Pero primero lo primero: los primeros complejos, los
+              primeros jugadores, las primeras reservas reales.
             </p>
           </div>
         </div>
@@ -1284,23 +1286,22 @@ echo json_encode([
           <div class="ns-culture-bg"></div>
 
           <div class="ns-culture-left" data-aos="fade-right" data-aos-duration="700">
-            <h2>Un equipo chico con ideas grandes</h2>
+            <h2>Un proyecto con alma</h2>
             <p>
-              Somos pocos pero nos movemos rápido. Creemos que los mejores productos
-              los hacen equipos que se comunican bien, se retroalimentan sin ego
-              y comparten la obsesión por el detalle.
+              TuCancha es un proyecto de una sola persona que cree que las mejores
+              herramientas nacen de necesidades reales. Cada línea de código, cada
+              pantalla y cada decisión de diseño tiene un nombre detrás: el mismo
+              que juega al fútbol los miércoles.
             </p>
           </div>
 
           <div class="ns-culture-pills" data-aos="fade-left" data-aos-delay="120" data-aos-duration="700">
-            <div class="ns-culture-pill"><span>🇦🇷</span> 100% argentinos</div>
-            <div class="ns-culture-pill"><span>☕</span> Mucho café, poco reunionismo</div>
-            <div class="ns-culture-pill"><span><i data-lucide="package" style="width:14px;height:14px;stroke:currentColor;stroke-width:1.5;vertical-align:middle;"></i></span> Enviamos a producción seguido</div>
+            <div class="ns-culture-pill"><span>🇦🇷</span> 100% argentino</div>
+            <div class="ns-culture-pill"><span>☕</span> Mucho café</div>
+            <div class="ns-culture-pill"><span><i data-lucide="package" style="width:14px;height:14px;stroke:currentColor;stroke-width:1.5;vertical-align:middle;"></i></span> Deploy diario</div>
             <div class="ns-culture-pill"><span><i data-lucide="message-circle" style="width:14px;height:14px;stroke:currentColor;stroke-width:1.5;vertical-align:middle;"></i></span> Escuchamos a cada usuario</div>
-            <div class="ns-culture-pill"><span>🐛</span> Los bugs nos quitan el sueño</div>
+            <div class="ns-culture-pill"><span>🐛</span> Los bugs me quitan el sueño</div>
             <div class="ns-culture-pill"><span>⚽</span> Jugamos los miércoles</div>
-            <div class="ns-culture-pill"><span><i data-lucide="refresh-cw" style="width:14px;height:14px;stroke:currentColor;stroke-width:1.5;vertical-align:middle;"></i></span> Iteramos, no planificamos ad infinitum</div>
-            <div class="ns-culture-pill"><span><i data-lucide="trending-up" style="width:14px;height:14px;stroke:currentColor;stroke-width:1.5;vertical-align:middle;"></i></span> Crecimiento sin perder el alma</div>
           </div>
 
         </div>
@@ -1313,17 +1314,18 @@ echo json_encode([
     <div class="container">
       <div class="ns-cta-shell">
         <div class="ns-cta-inner ns-noise" data-aos="fade-up" data-aos-duration="700">
-          <h2>¿Tenés un complejo y querés sumarte?</h2>
+          <h2>¿Tenés un complejo? Sumate ahora</h2>
           <p>
-            Unite a los complejos que ya gestionan sus reservas online con TuCancha.
-            Setup en minutos, soporte real y sin comisiones sobre tus ingresos.
+            Estamos buscando los primeros complejos que se animen a digitalizarse.
+            Los primeros 3 meses son gratis, sin compromiso. Escribinos por WhatsApp
+            y en el día te dejamos todo configurado.
           </p>
           <div class="ns-cta-actions">
-            <a href="{{ route('planes') }}" class="btn-ns-primary">
-              Ver planes <i data-lucide="arrow-right" style="width:16px;height:16px;stroke:currentColor;stroke-width:2;"></i>
+            <a href="https://wa.me/5491100000000?text=Hola%2C%20quiero%20sumar%20mi%20complejo%20a%20TuCancha" target="_blank" rel="noopener" class="btn-ns-primary">
+              Escribinos por WhatsApp <i data-lucide="message-circle" style="width:16px;height:16px;stroke:currentColor;stroke-width:2;"></i>
             </a>
-            <a href="{{ route('como-funciona') }}" class="btn-ns-ghost">
-              Cómo funciona
+            <a href="{{ route('register') }}" class="btn-ns-ghost">
+              Crear cuenta
             </a>
           </div>
         </div>

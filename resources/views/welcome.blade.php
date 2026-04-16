@@ -1499,8 +1499,8 @@ html { scroll-behavior: smooth; }
               </span>
             </button>
             <div class="faq-body">
-              Si. Podes cancelar desde "Mis reservas" dentro del periodo de cancelacion que establece cada complejo.
-              Si el pago fue procesado, se inicia el reintegro automaticamente a traves de Mercado Pago.
+              Sí. Podés cancelar desde "Mis reservas" dentro del periodo de cancelación que establece cada complejo.
+              Si el pago fue procesado, el reintegro se gestiona a través de Mercado Pago.
             </div>
           </div>
 
@@ -1515,8 +1515,8 @@ html { scroll-behavior: smooth; }
               </span>
             </button>
             <div class="faq-body">
-              Aceptamos todos los metodos de Mercado Pago: tarjetas de credito y debito, transferencia bancaria
-              y efectivo en puntos de pago. El proceso es 100% seguro.
+              Aceptamos todos los métodos de Mercado Pago: tarjetas de crédito, débito y transferencia bancaria.
+              El proceso es 100% seguro.
             </div>
           </div>
 
@@ -1531,8 +1531,8 @@ html { scroll-behavior: smooth; }
               </span>
             </button>
             <div class="faq-body">
-              Haz clic en "Crear cuenta", completa tu nombre, mail y contrasena.
-              En menos de un minuto tenes tu cuenta lista. No se requiere tarjeta para registrarse.
+              Hacé clic en "Crear cuenta", completá tu nombre, mail y contraseña.
+              En menos de un minuto tenés tu cuenta lista. No se requiere tarjeta para registrarse.
             </div>
           </div>
 
@@ -1547,9 +1547,9 @@ html { scroll-behavior: smooth; }
               </span>
             </button>
             <div class="faq-body">
-              Es una seccion de tu perfil donde podes ver todos los partidos que jugaste: cuantos fueron,
-              que deporte jugaste mas, tu complejo favorito y el total gastado. Tambien podes cargar el resultado
-              de cada partido y ver estadisticas con graficos.
+              Es una sección de tu perfil donde podés ver todos los partidos que jugaste: cuántos fueron,
+              qué deporte jugaste más y tu complejo favorito. También podés cargar el resultado
+              de cada partido y ver tus estadísticas.
             </div>
           </div>
 

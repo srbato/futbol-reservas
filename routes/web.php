@@ -92,10 +92,7 @@ Route::get('/auth/google', [\App\Http\Controllers\Auth\GoogleAuthController::cla
 Route::get('/auth/google/callback', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'callback']);
 
 Route::get('/como-funciona', function () {
-    $plan = \App\Models\MembershipPlan::where('is_active', true)->first();
-    $longTermMonths = $plan ? $plan->longTermMonths() : 12;
-    $longTermLabel = $longTermMonths === 6 ? 'semestral' : 'anual';
-    return view('como-funciona', compact('longTermLabel', 'longTermMonths'));
+    return view('como-funciona');
 })->name('como-funciona');
 
 Route::get('/nosotros', function () {

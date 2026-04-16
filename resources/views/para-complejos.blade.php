@@ -1,7 +1,7 @@
 @extends('layouts.marketing')
 
 @section('title', 'Para complejos deportivos — TuCancha')
-@section('meta_description', 'Digitalizá tu complejo deportivo con TuCancha. Agenda online, cobros automáticos con MercadoPago, sin comisiones. Probá {{ $trialDays }} días gratis.')
+@section('meta_description', 'Digitalizá tu complejo deportivo con TuCancha. Agenda online, cobros con MercadoPago, cero comisiones. Primeros complejos: 3 meses gratis.')
 
 @push('jsonld')
 <script type="application/ld+json">
@@ -144,6 +144,30 @@ echo json_encode([
     transform: translateX(3px);
   }
 
+  .pc-btn-wa {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 15px 30px;
+    background: #25d366;
+    color: #fff;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 800;
+    text-decoration: none;
+    transition: background 300ms var(--ease-out-expo), transform 300ms var(--ease-out-expo);
+    box-shadow: 0 4px 16px rgba(37,211,102,0.25);
+  }
+
+  .pc-btn-wa:hover {
+    background: #1da851;
+    transform: translateY(-2px);
+  }
+
+  .pc-btn-wa:active {
+    transform: translateY(0) scale(0.97);
+  }
+
   .pc-btn-ghost {
     display: inline-flex;
     align-items: center;
@@ -172,6 +196,121 @@ echo json_encode([
     .pc-hero { padding: 24px 0 0; }
     .pc-hero-shell { border-radius: 1.25rem; }
     .pc-hero-inner { border-radius: calc(1.25rem - 5px); padding: 40px 20px; }
+  }
+
+  /* ── Launch Offer ──────────────────────────────── */
+  .pc-launch {
+    padding: 64px 0;
+  }
+
+  .pc-launch-shell {
+    background: rgba(34,197,94,0.04);
+    border-radius: 2rem;
+    padding: 5px;
+    border: 1px solid rgba(34,197,94,0.10);
+  }
+
+  .pc-launch-inner {
+    background: linear-gradient(145deg, #0a3d21 0%, #0f5c32 40%, #147a42 100%);
+    border-radius: calc(2rem - 5px);
+    padding: 56px 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pc-launch-inner::before {
+    content: '';
+    position: absolute;
+    top: -60px;
+    right: -30px;
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(74,222,128,0.12) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .pc-launch-badge {
+    display: inline-flex;
+    padding: 6px 18px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.20);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .10em;
+    text-transform: uppercase;
+    color: #fbbf24;
+    margin-bottom: 20px;
+    position: relative;
+    animation: pc-launch-pulse 2.5s ease-in-out infinite;
+  }
+
+  @keyframes pc-launch-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(251,191,36,0.15); }
+    50% { box-shadow: 0 0 0 10px rgba(251,191,36,0); }
+  }
+
+  .pc-launch-inner h2 {
+    margin: 0 0 12px;
+    font-size: clamp(26px, 3.5vw, 40px);
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -0.03em;
+    position: relative;
+    text-wrap: balance;
+  }
+
+  .pc-launch-inner h2 em {
+    font-style: normal;
+    color: #4ade80;
+  }
+
+  .pc-launch-inner > p {
+    margin: 0 auto 32px;
+    max-width: 500px;
+    font-size: 16px;
+    color: rgba(255,255,255,0.60);
+    line-height: 1.6;
+    position: relative;
+  }
+
+  .pc-launch-perks {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+    position: relative;
+  }
+
+  .pc-launch-perk {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .pc-launch-perk svg {
+    color: #4ade80;
+    flex-shrink: 0;
+  }
+
+  .pc-launch-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    position: relative;
+  }
+
+  @media (max-width: 768px) {
+    .pc-launch-inner { padding: 40px 24px; }
+    .pc-launch-perks { flex-direction: column; align-items: center; gap: 14px; }
+    .pc-launch-actions { flex-direction: column; align-items: center; }
   }
 
   /* ── Antes vs Ahora ────────────────────────────── */
@@ -287,6 +426,117 @@ echo json_encode([
     }
   }
 
+  /* ── Panel Preview ─────────────────────────────── */
+  .pc-panel {
+    padding: 0 0 64px;
+  }
+
+  .pc-panel .section-head {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .pc-panel-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+
+  .pc-panel-shell {
+    background: rgba(255,255,255,0.04);
+    border-radius: 1.5rem;
+    padding: 4px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .pc-panel-card {
+    background: #111;
+    border-radius: calc(1.5rem - 4px);
+    padding: 32px 24px;
+    text-align: center;
+    height: 100%;
+  }
+
+  .pc-panel-mockup {
+    background: #0a0a0a;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    min-height: 160px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .pc-mockup-bar {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+
+  .pc-mockup-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+  }
+
+  .pc-mockup-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .pc-mockup-row-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .pc-mockup-row-line {
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.10);
+    flex: 1;
+  }
+
+  .pc-mockup-row-badge {
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .pc-panel-card h3 {
+    font-size: 17px;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    margin: 0 0 8px;
+    color: #e8e8e8;
+  }
+
+  .pc-panel-card p {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #888;
+    margin: 0;
+  }
+
+  @media (max-width: 768px) {
+    .pc-panel-grid {
+      grid-template-columns: 1fr;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+  }
+
   /* ── Features Grid ─────────────────────────────── */
   .pc-features {
     padding: 0 0 64px;
@@ -372,149 +622,79 @@ echo json_encode([
     }
   }
 
-  /* ── Pricing Preview ───────────────────────────── */
-  .pc-pricing {
-    padding: 64px 0;
+  /* ── How it works ──────────────────────────────── */
+  .pc-steps {
+    padding: 0 0 64px;
   }
 
-  .pc-pricing .section-head {
+  .pc-steps .section-head {
     text-align: center;
     margin-bottom: 40px;
   }
 
-  .pc-pricing-grid {
+  .pc-steps-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 16px;
-    align-items: start;
+    counter-reset: step-counter;
   }
 
-  .pc-price-shell {
+  .pc-step-shell {
     background: rgba(255,255,255,0.04);
     border-radius: 1.5rem;
     padding: 4px;
     border: 1px solid rgba(255,255,255,0.06);
-    transition: transform 500ms var(--ease-out-expo), box-shadow 500ms var(--ease-out-expo);
   }
 
-  .pc-price-shell:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 20px 48px rgba(0,0,0,0.25);
-  }
-
-  .pc-price-shell--featured {
-    background: rgba(34,197,94,0.06);
-    border-color: rgba(34,197,94,0.15);
-  }
-
-  .pc-price-shell--featured:hover {
-    box-shadow: 0 20px 48px rgba(34,197,94,0.10);
-  }
-
-  .pc-price-card {
+  .pc-step-card {
     background: #111;
     border-radius: calc(1.5rem - 4px);
-    padding: 36px 28px;
+    padding: 32px 24px;
+    text-align: center;
     height: 100%;
-    display: flex;
-    flex-direction: column;
+    counter-increment: step-counter;
   }
 
-  .pc-price-badge {
-    display: inline-flex;
-    align-self: flex-start;
-    padding: 4px 12px;
-    border-radius: 999px;
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: .06em;
-    text-transform: uppercase;
-    margin-bottom: 16px;
-    background: var(--color-border-light);
-    color: var(--color-text-secondary);
-  }
-
-  .pc-price-badge--accent {
-    background: rgba(34,197,94,0.12);
-    color: #6eeaa0;
-  }
-
-  .pc-price-name {
-    font-size: 22px;
-    font-weight: 900;
-    letter-spacing: -0.02em;
-    margin: 0 0 4px;
-    color: var(--color-text);
-  }
-
-  .pc-price-tagline {
-    font-size: 13px;
-    color: var(--color-text-muted);
-    margin: 0 0 20px;
-  }
-
-  .pc-price-amount {
-    font-size: 36px;
-    font-weight: 900;
-    letter-spacing: -0.03em;
-    color: var(--color-text);
-    margin: 0 0 4px;
-  }
-
-  .pc-price-amount span {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--color-text-secondary);
-    letter-spacing: 0;
-  }
-
-  .pc-price-features {
-    list-style: none;
-    padding: 0;
-    margin: 20px 0 0;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    flex: 1;
-  }
-
-  .pc-price-features li {
+  .pc-step-num {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: rgba(34,197,94,.1);
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 14px;
-    color: var(--color-text-secondary);
-    line-height: 1.4;
+    justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 18px;
+    font-weight: 900;
+    color: #4ade80;
   }
 
-  .pc-price-features li svg {
-    flex-shrink: 0;
-    color: #22c55e;
+  .pc-step-card h3 {
+    font-size: 16px;
+    font-weight: 800;
+    margin: 0 0 8px;
+    color: #e8e8e8;
   }
 
-  .pc-pricing-link {
-    text-align: center;
-    margin-top: 32px;
-  }
-
-  .pc-pricing-link a {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--color-primary);
-    text-decoration: none;
-    border-bottom: 2px solid transparent;
-    transition: border-color var(--transition-fast);
-  }
-
-  .pc-pricing-link a:hover {
-    border-color: var(--color-primary);
+  .pc-step-card p {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #888;
+    margin: 0;
   }
 
   @media (max-width: 768px) {
-    .pc-pricing-grid {
-      grid-template-columns: 1fr;
-      max-width: 400px;
+    .pc-steps-grid {
+      grid-template-columns: 1fr 1fr;
+      max-width: 500px;
       margin: 0 auto;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .pc-steps-grid {
+      grid-template-columns: 1fr;
+      max-width: 360px;
     }
   }
 
@@ -690,18 +870,6 @@ echo json_encode([
     position: relative;
   }
 
-  .pc-cta-link {
-    font-size: 14px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.55);
-    text-decoration: none;
-    transition: color var(--transition-fast);
-  }
-
-  .pc-cta-link:hover {
-    color: rgba(255,255,255,0.85);
-  }
-
   @media (max-width: 768px) {
     .pc-cta { padding: 48px 24px; }
     .pc-cta-actions { flex-direction: column; align-items: center; }
@@ -711,11 +879,13 @@ echo json_encode([
   @media (prefers-reduced-motion: reduce) {
     .pc-feat-shell,
     .pc-feat-icon,
-    .pc-price-shell,
     .pc-btn-primary,
+    .pc-btn-wa,
     .pc-btn-ghost,
-    .pc-compare-shell {
+    .pc-compare-shell,
+    .pc-launch-badge {
       transition-duration: 0ms !important;
+      animation: none !important;
     }
   }
 </style>
@@ -730,15 +900,54 @@ echo json_encode([
         <div class="pc-hero-inner">
           <div class="pc-hero-orb-1"></div>
           <div class="pc-hero-orb-2"></div>
-          <div class="pc-hero-badge" data-aos="fade-down" data-aos-duration="600">Para complejos deportivos</div>
-          <h1 data-aos="fade-up" data-aos-delay="80" data-aos-duration="700">Digitalizá tu complejo.<br><em>Sin comisiones.</em></h1>
-          <p class="pc-hero-subtitle" data-aos="fade-up" data-aos-delay="160" data-aos-duration="700">Agenda online, cobros automáticos con MercadoPago y visibilidad ante miles de jugadores. Probá gratis {{ $trialDays }} días.</p>
+          <div class="pc-hero-badge" data-aos="fade-down" data-aos-duration="600">Oferta de lanzamiento</div>
+          <h1 data-aos="fade-up" data-aos-delay="80" data-aos-duration="700">Tu complejo merece<br>una <em>agenda digital.</em></h1>
+          <p class="pc-hero-subtitle" data-aos="fade-up" data-aos-delay="160" data-aos-duration="700">Reservas online, cobros con MercadoPago directo a tu cuenta y cero comisiones sobre tus ingresos. Estamos arrancando y buscamos los primeros complejos.</p>
           <div class="pc-hero-actions" data-aos="fade-up" data-aos-delay="240" data-aos-duration="700">
-            <a href="{{ route('register') }}" class="pc-btn-primary">
-              Registrá tu complejo
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+            <a href="https://wa.me/5491100000000?text=Hola%2C%20tengo%20un%20complejo%20y%20me%20interesa%20TuCancha" target="_blank" rel="noopener" class="pc-btn-wa">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              Hablemos por WhatsApp
             </a>
-            <a href="{{ route('planes') }}" class="pc-btn-ghost">Ver planes</a>
+            <a href="{{ route('register') }}" class="pc-btn-ghost">Crear cuenta</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {{-- Oferta de Lanzamiento --}}
+  <section class="pc-launch">
+    <div class="container">
+      <div class="pc-launch-shell" data-aos="fade-up" data-aos-duration="700">
+        <div class="pc-launch-inner">
+          <div class="pc-launch-badge">Cupos limitados</div>
+          <h2>Primeros complejos:<br><em>3 meses gratis.</em></h2>
+          <p>Estamos en etapa de lanzamiento. Los primeros complejos que se sumen arrancan con 3 meses gratis de cualquier plan, sin tarjeta, sin letra chica. Queremos que pruebes la plataforma y nos ayudes a mejorarla.</p>
+
+          <div class="pc-launch-perks">
+            <div class="pc-launch-perk">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+              3 meses gratis
+            </div>
+            <div class="pc-launch-perk">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+              Sin tarjeta de credito
+            </div>
+            <div class="pc-launch-perk">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+              Soporte personalizado
+            </div>
+            <div class="pc-launch-perk">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+              Te ayudamos a cargar todo
+            </div>
+          </div>
+
+          <div class="pc-launch-actions">
+            <a href="https://wa.me/5491100000000?text=Hola%2C%20quiero%20sumar%20mi%20complejo%20a%20TuCancha%20con%20la%20oferta%20de%20lanzamiento" target="_blank" rel="noopener" class="pc-btn-wa">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              Quiero los 3 meses gratis
+            </a>
           </div>
         </div>
       </div>
@@ -781,7 +990,7 @@ echo json_encode([
                 <span class="pc-icon-wrap">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
                 </span>
-                <span>Canchas vacías sin visibilidad</span>
+                <span>Canchas vacías y sin presencia online</span>
               </li>
             </ul>
           </div>
@@ -814,9 +1023,117 @@ echo json_encode([
                 <span class="pc-icon-wrap">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
                 </span>
-                <span>Miles de jugadores te encuentran en TuCancha</span>
+                <span>Tu complejo visible en Google y en la plataforma</span>
               </li>
             </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {{-- Panel Preview --}}
+  <section class="pc-panel">
+    <div class="container">
+      <div class="section-head" data-aos="fade-up" data-aos-duration="600">
+        <span class="section-label">Tu panel</span>
+        <h2 class="section-title" style="text-align:center;">Esto es lo que vas a ver</h2>
+        <p class="section-subtitle" style="text-align:center; margin:10px auto 0; max-width:480px;">Un panel simple donde gestionás tus canchas, reservas e ingresos desde cualquier dispositivo.</p>
+      </div>
+
+      <div class="pc-panel-grid">
+        {{-- Mockup 1: Agenda --}}
+        <div class="pc-panel-shell" data-aos="fade-up" data-aos-delay="0" data-aos-duration="600">
+          <div class="pc-panel-card">
+            <div class="pc-panel-mockup">
+              <div class="pc-mockup-bar">
+                <div class="pc-mockup-dot"></div>
+                <div class="pc-mockup-dot"></div>
+                <div class="pc-mockup-dot"></div>
+              </div>
+              <div class="pc-mockup-row">
+                <div class="pc-mockup-row-dot" style="background:#22c55e;"></div>
+                <div class="pc-mockup-row-line" style="width:60%;"></div>
+                <div class="pc-mockup-row-badge" style="background:rgba(34,197,94,.15); color:#4ade80;">Confirmada</div>
+              </div>
+              <div class="pc-mockup-row">
+                <div class="pc-mockup-row-dot" style="background:#fbbf24;"></div>
+                <div class="pc-mockup-row-line" style="width:50%;"></div>
+                <div class="pc-mockup-row-badge" style="background:rgba(251,191,36,.12); color:#fbbf24;">Pendiente</div>
+              </div>
+              <div class="pc-mockup-row">
+                <div class="pc-mockup-row-dot" style="background:#22c55e;"></div>
+                <div class="pc-mockup-row-line" style="width:70%;"></div>
+                <div class="pc-mockup-row-badge" style="background:rgba(34,197,94,.15); color:#4ade80;">Confirmada</div>
+              </div>
+            </div>
+            <h3>Agenda de reservas</h3>
+            <p>Ves todas las reservas del día, la semana o el mes. Filtrá por cancha y estado.</p>
+          </div>
+        </div>
+
+        {{-- Mockup 2: Ingresos --}}
+        <div class="pc-panel-shell" data-aos="fade-up" data-aos-delay="80" data-aos-duration="600">
+          <div class="pc-panel-card">
+            <div class="pc-panel-mockup">
+              <div class="pc-mockup-bar">
+                <div class="pc-mockup-dot"></div>
+                <div class="pc-mockup-dot"></div>
+                <div class="pc-mockup-dot"></div>
+              </div>
+              <div style="text-align:center; padding: 8px 0 4px;">
+                <div style="font-size:11px; color:#666; font-weight:600; text-transform:uppercase; letter-spacing:.06em;">Ingresos del mes</div>
+                <div style="font-size:28px; font-weight:900; color:#4ade80; letter-spacing:-0.03em; margin:4px 0;">$185.000</div>
+                <div style="font-size:11px; color:#666;">24 reservas confirmadas</div>
+              </div>
+              <div style="display:flex; gap:4px; align-items:flex-end; justify-content:center; height:32px; margin-top:4px;">
+                <div style="width:12px; background:rgba(34,197,94,.3); border-radius:3px; height:40%;"></div>
+                <div style="width:12px; background:rgba(34,197,94,.3); border-radius:3px; height:60%;"></div>
+                <div style="width:12px; background:rgba(34,197,94,.3); border-radius:3px; height:45%;"></div>
+                <div style="width:12px; background:rgba(34,197,94,.4); border-radius:3px; height:75%;"></div>
+                <div style="width:12px; background:rgba(34,197,94,.4); border-radius:3px; height:55%;"></div>
+                <div style="width:12px; background:rgba(34,197,94,.5); border-radius:3px; height:85%;"></div>
+                <div style="width:12px; background:#22c55e; border-radius:3px; height:100%;"></div>
+              </div>
+            </div>
+            <h3>Ingresos en tiempo real</h3>
+            <p>Cuánto facturaste, cuántas reservas, todo actualizado al instante.</p>
+          </div>
+        </div>
+
+        {{-- Mockup 3: Canchas --}}
+        <div class="pc-panel-shell" data-aos="fade-up" data-aos-delay="160" data-aos-duration="600">
+          <div class="pc-panel-card">
+            <div class="pc-panel-mockup">
+              <div class="pc-mockup-bar">
+                <div class="pc-mockup-dot"></div>
+                <div class="pc-mockup-dot"></div>
+                <div class="pc-mockup-dot"></div>
+              </div>
+              <div class="pc-mockup-row">
+                <div style="width:24px; height:24px; border-radius:6px; background:rgba(34,197,94,.15); flex-shrink:0; display:flex; align-items:center; justify-content:center;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+                </div>
+                <div class="pc-mockup-row-line" style="width:40%;"></div>
+                <div style="font-size:10px; color:#888; flex-shrink:0;">Futbol 5</div>
+              </div>
+              <div class="pc-mockup-row">
+                <div style="width:24px; height:24px; border-radius:6px; background:rgba(124,58,237,.15); flex-shrink:0; display:flex; align-items:center; justify-content:center;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+                </div>
+                <div class="pc-mockup-row-line" style="width:35%;"></div>
+                <div style="font-size:10px; color:#888; flex-shrink:0;">Padel</div>
+              </div>
+              <div class="pc-mockup-row">
+                <div style="width:24px; height:24px; border-radius:6px; background:rgba(34,197,94,.15); flex-shrink:0; display:flex; align-items:center; justify-content:center;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+                </div>
+                <div class="pc-mockup-row-line" style="width:50%;"></div>
+                <div style="font-size:10px; color:#888; flex-shrink:0;">Futbol 7</div>
+              </div>
+            </div>
+            <h3>Tus canchas</h3>
+            <p>Configurá cada cancha con su deporte, precios por horario, fotos y disponibilidad.</p>
           </div>
         </div>
       </div>
@@ -848,17 +1165,17 @@ echo json_encode([
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
             </div>
             <h3>Cobros con MercadoPago</h3>
-            <p>El pago va directo a tu cuenta. Sin intermediarios, sin comisiones de TuCancha.</p>
+            <p>Conectás tu cuenta de MercadoPago y el dinero va directo a vos. Sin intermediarios.</p>
           </div>
         </div>
 
         <div class="pc-feat-shell" data-aos="fade-up" data-aos-delay="160" data-aos-duration="600">
           <div class="pc-feat-card">
             <div class="pc-feat-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
             </div>
-            <h3>Visibilidad</h3>
-            <p>Tu complejo aparece en TuCancha donde miles de jugadores buscan cancha cada semana.</p>
+            <h3>Cero comisiones</h3>
+            <p>Suscripción fija mensual. No tocamos ni un peso de tus reservas. Nunca.</p>
           </div>
         </div>
 
@@ -868,17 +1185,17 @@ echo json_encode([
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
             </div>
             <h3>Panel de gestión</h3>
-            <p>Reservas, ingresos, ocupación. Todo en tiempo real desde cualquier dispositivo.</p>
+            <p>Reservas, ingresos, ocupación. Todo en tiempo real desde el celular o la compu.</p>
           </div>
         </div>
 
         <div class="pc-feat-shell" data-aos="fade-up" data-aos-delay="80" data-aos-duration="600">
           <div class="pc-feat-card">
             <div class="pc-feat-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             </div>
-            <h3>Cero comisiones</h3>
-            <p>Suscripción fija mensual. No tocamos ni un peso de tus reservas.</p>
+            <h3>Presencia online</h3>
+            <p>Tu complejo con perfil propio, fotos, reseñas de jugadores y posicionamiento en Google.</p>
           </div>
         </div>
 
@@ -888,81 +1205,53 @@ echo json_encode([
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             </div>
             <h3>Soporte dedicado</h3>
-            <p>Te ayudamos a configurar todo y a sacarle el máximo a la plataforma.</p>
+            <p>Te ayudamos a configurar todo. Nos sentamos con vos hasta que quede andando.</p>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  {{-- Pricing Preview --}}
-  <section class="pc-pricing">
+  {{-- Cómo funciona --}}
+  <section class="pc-steps">
     <div class="container">
       <div class="section-head" data-aos="fade-up" data-aos-duration="600">
-        <span class="section-label">Planes</span>
-        <h2 class="section-title" style="text-align:center;">Precios simples, sin sorpresas</h2>
-        <p class="section-subtitle" style="text-align:center; margin:10px auto 0;">Todos los planes incluyen {{ $trialDays }} días de prueba gratis. Sin tarjeta, sin compromiso.</p>
+        <span class="section-label">Proceso</span>
+        <h2 class="section-title" style="text-align:center;">En 4 pasos ya estás funcionando</h2>
       </div>
 
-      <div class="pc-pricing-grid">
-        @foreach($plans as $index => $plan)
-        @php
-          $taglines = [
-              'starter' => 'Ideal para empezar',
-              'pro' => 'Para complejos en crecimiento',
-              'full' => 'Para complejos grandes',
-          ];
-          $featuresByPlan = [
-              'starter' => [
-                  $plan->maxFieldsLabel(),
-                  'Reservas online 24/7',
-                  'Cobro por MercadoPago',
-                  'Panel de administración',
-              ],
-              'pro' => [
-                  $plan->maxFieldsLabel(),
-                  'Todo de Starter',
-                  'Soporte prioritario',
-                  'Posicionamiento prioritario',
-              ],
-              'full' => [
-                  $plan->maxFieldsLabel(),
-                  'Todo de Pro',
-                  'Badge "Premium" exclusivo',
-                  'Máxima visibilidad y prioridad',
-              ],
-          ];
-          $features = $featuresByPlan[$plan->slug] ?? [$plan->maxFieldsLabel(), 'Reservas online 24/7'];
-          $tagline = $taglines[$plan->slug] ?? '';
-          $price = number_format($plan->monthly_price, 0, ',', '.');
-        @endphp
-        <div class="pc-price-shell {{ $plan->is_featured ? 'pc-price-shell--featured' : '' }}" data-aos="fade-up" data-aos-delay="{{ $index * 80 }}" data-aos-duration="600">
-          <div class="pc-price-card">
-            @if($plan->is_featured)
-              <span class="pc-price-badge pc-price-badge--accent">Más popular</span>
-            @elseif($plan->trial_days > 0)
-              <span class="pc-price-badge">{{ $plan->trial_days }} días gratis</span>
-            @else
-              <span class="pc-price-badge">{{ $plan->name }}</span>
-            @endif
-            <h3 class="pc-price-name">{{ $plan->name }}</h3>
-            <p class="pc-price-tagline">{{ $tagline }}</p>
-            <p class="pc-price-amount">${{ $price }} <span>/mes</span></p>
-            <ul class="pc-price-features">
-              @foreach($features as $feature)
-              <li>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
-                {{ $feature }}
-              </li>
-              @endforeach
-            </ul>
+      <div class="pc-steps-grid">
+        <div class="pc-step-shell" data-aos="fade-up" data-aos-delay="0" data-aos-duration="600">
+          <div class="pc-step-card">
+            <div class="pc-step-num">1</div>
+            <h3>Hablamos</h3>
+            <p>Nos contactás por WhatsApp y te contamos cómo funciona. Sin compromiso.</p>
           </div>
         </div>
-        @endforeach
-      </div>
 
-      <div class="pc-pricing-link" data-aos="fade-up" data-aos-delay="200" data-aos-duration="600">
-        <a href="{{ route('planes') }}">Ver todos los detalles</a>
+        <div class="pc-step-shell" data-aos="fade-up" data-aos-delay="80" data-aos-duration="600">
+          <div class="pc-step-card">
+            <div class="pc-step-num">2</div>
+            <h3>Te creamos la cuenta</h3>
+            <p>Cargamos tus canchas, horarios y precios. Vos no tenés que hacer nada.</p>
+          </div>
+        </div>
+
+        <div class="pc-step-shell" data-aos="fade-up" data-aos-delay="160" data-aos-duration="600">
+          <div class="pc-step-card">
+            <div class="pc-step-num">3</div>
+            <h3>Conectás MercadoPago</h3>
+            <p>En 2 clicks conectás tu cuenta. Los pagos van directo a vos.</p>
+          </div>
+        </div>
+
+        <div class="pc-step-shell" data-aos="fade-up" data-aos-delay="240" data-aos-duration="600">
+          <div class="pc-step-card">
+            <div class="pc-step-num">4</div>
+            <h3>Empezás a recibir reservas</h3>
+            <p>Tu complejo queda online y los jugadores pueden reservar al instante.</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -1002,7 +1291,7 @@ echo json_encode([
                 <td><span class="pc-partial"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4"/><path d="M12 16h.01"/></svg></span></td>
               </tr>
               <tr>
-                <td>Visibilidad online</td>
+                <td>Presencia en Google</td>
                 <td><span class="pc-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span></td>
                 <td><span class="pc-cross"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg></span></td>
               </tr>
@@ -1012,55 +1301,9 @@ echo json_encode([
                 <td><span class="pc-cross"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg></span></td>
               </tr>
               <tr>
-                <td>Costo</td>
-                <td><strong style="color:#22c55e;">Fijo desde ${{ number_format($plans->min('monthly_price'), 0, ',', '.') }}/mes</strong></td>
-                <td><span style="color:#a0a0a0;">Tiempo, errores, ingresos perdidos</span></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  {{-- Comparativa vs Competidores --}}
-  <section class="pc-table-section">
-    <div class="container">
-      <div class="section-head" data-aos="fade-up" data-aos-duration="600">
-        <span class="section-label">vs otras plataformas</span>
-        <h2 class="section-title" style="text-align:center;">TuCancha vs la competencia</h2>
-      </div>
-
-      <div class="pc-table-shell" data-aos="fade-up" data-aos-duration="600">
-        <div class="pc-table-wrap">
-          <table class="pc-table">
-            <thead>
-              <tr>
-                <th></th>
-                <th>TuCancha</th>
-                <th>Otras plataformas</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Comisiones sobre reservas</td>
-                <td><strong style="color:#22c55e;">0%</strong></td>
-                <td><span style="color:#ef4444; font-weight:700;">3% o más</span></td>
-              </tr>
-              <tr>
-                <td>Buscar jugadores (Falta Uno)</td>
-                <td><span class="pc-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span></td>
-                <td><span class="pc-cross"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg></span></td>
-              </tr>
-              <tr>
-                <td>Perfil deportivo con stats</td>
-                <td><span class="pc-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span></td>
-                <td><span class="pc-cross"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg></span></td>
-              </tr>
-              <tr>
-                <td>Precio transparente</td>
-                <td><strong style="color:#22c55e;">Fijo, sin sorpresas</strong></td>
-                <td><span style="color:#a0a0a0;">Variable o no público</span></td>
+                <td>Comisiones</td>
+                <td><strong style="color:#22c55e;">0% — siempre</strong></td>
+                <td><span style="color:#a0a0a0;">No aplica</span></td>
               </tr>
             </tbody>
           </table>
@@ -1073,14 +1316,14 @@ echo json_encode([
   <div class="container">
     <div class="pc-cta-shell" data-aos="fade-up" data-aos-duration="700">
       <div class="pc-cta">
-        <h2>Sumá tu complejo hoy</h2>
-        <p>{{ $trialDays }} días gratis. Sin tarjeta. Sin compromiso.</p>
+        <h2>Sumate ahora y arrancá gratis</h2>
+        <p>Escribinos por WhatsApp, te ayudamos a cargar todo y en el día ya estás recibiendo reservas.</p>
         <div class="pc-cta-actions">
-          <a href="{{ route('register') }}" class="pc-btn-primary">
-            Crear cuenta gratis
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+          <a href="https://wa.me/5491100000000?text=Hola%2C%20quiero%20sumar%20mi%20complejo%20a%20TuCancha" target="_blank" rel="noopener" class="pc-btn-wa">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            Hablemos por WhatsApp
           </a>
-          <a href="mailto:tucancha10@gmail.com" class="pc-cta-link">Escribinos</a>
+          <a href="{{ route('register') }}" class="pc-btn-ghost">Crear cuenta</a>
         </div>
       </div>
     </div>
