@@ -554,7 +554,7 @@ echo json_encode([
         <h2>¿Tenés un complejo?</h2>
         <p>Escribinos y te ayudamos a arrancar. Los primeros complejos tienen 3 meses gratis.</p>
         <div class="pqt-cta-actions">
-          <a href="https://wa.me/5491100000000?text=Hola%2C%20me%20interesa%20TuCancha%20para%20mi%20complejo" target="_blank" rel="noopener" class="pqt-cta-btn">
+          <a href="https://wa.me/5491127279757?text=Hola%2C%20me%20interesa%20TuCancha%20para%20mi%20complejo" target="_blank" rel="noopener" class="pqt-cta-btn">
             Hablanos por WhatsApp
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
           </a>

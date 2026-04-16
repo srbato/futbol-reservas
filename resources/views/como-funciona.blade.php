@@ -733,7 +733,7 @@ echo json_encode([
         <p>Tanto si querés reservar una cancha como si querés sumar tu complejo, estás a un clic de distancia.</p>
 
         <div class="final-cta-actions">
-          <a href="https://wa.me/5491100000000?text=Hola%2C%20quiero%20sumar%20mi%20complejo%20a%20TuCancha" target="_blank" rel="noopener" class="btn-cf-primary">
+          <a href="https://wa.me/5491127279757?text=Hola%2C%20quiero%20sumar%20mi%20complejo%20a%20TuCancha" target="_blank" rel="noopener" class="btn-cf-primary">
             Hablanos por WhatsApp
           </a>
           <a href="{{ route('venues.index') }}" class="btn-cf-ghost">

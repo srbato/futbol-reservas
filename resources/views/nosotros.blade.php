@@ -1321,7 +1321,7 @@ echo json_encode([
             y en el día te dejamos todo configurado.
           </p>
           <div class="ns-cta-actions">
-            <a href="https://wa.me/5491100000000?text=Hola%2C%20quiero%20sumar%20mi%20complejo%20a%20TuCancha" target="_blank" rel="noopener" class="btn-ns-primary">
+            <a href="https://wa.me/5491127279757?text=Hola%2C%20quiero%20sumar%20mi%20complejo%20a%20TuCancha" target="_blank" rel="noopener" class="btn-ns-primary">
               Escribinos por WhatsApp <i data-lucide="message-circle" style="width:16px;height:16px;stroke:currentColor;stroke-width:2;"></i>
             </a>
             <a href="{{ route('register') }}" class="btn-ns-ghost">
