@@ -30,14 +30,14 @@
     </div>
 
     @if($reservation->expires_at && $reservation->expires_at->isFuture())
-        <div class="page-card" style="margin-bottom:18px; background:#fff4db; border-color:#f5d48a;">
-            <p style="margin:0; color:#9a6700; line-height:1.6;">
+        <div class="page-card" style="margin-bottom:18px; background:rgba(245,158,11,.08); border-color:rgba(245,158,11,.2);">
+            <p style="margin:0; color:#fbbf24; line-height:1.6;">
                 La reserva sigue vigente. Si el pago no termina de impactar, podés volver a revisar el estado desde <strong>Mis reservas</strong>.
             </p>
         </div>
     @else
-        <div class="page-card" style="margin-bottom:18px; background:#f8d7da; border-color:#f1b9c0;">
-            <p style="margin:0; color:#842029; line-height:1.6;">
+        <div class="page-card" style="margin-bottom:18px; background:rgba(229,57,53,.1); border-color:rgba(229,57,53,.2);">
+            <p style="margin:0; color:#f87171; line-height:1.6;">
                 La reserva ya venció o está por vencer. Si el pago no fue aprobado a tiempo, vas a tener que volver a reservar.
             </p>
         </div>

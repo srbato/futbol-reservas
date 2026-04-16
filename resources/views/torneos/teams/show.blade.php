@@ -18,7 +18,7 @@
     gap: 6px;
     font-size: 14px;
     font-weight: 600;
-    color: #6b7280;
+    color: #a0a0a0;
     text-decoration: none;
     margin-bottom: 20px;
     transition: color .15s;
@@ -28,10 +28,10 @@
 
   /* ── Card ────────────────────────────────────────── */
   .ts-card {
-    background: #fff;
-    border: 1px solid #ececec;
+    background: #111;
+    border: 1px solid rgba(255,255,255,.08);
     border-radius: 20px;
-    box-shadow: 0 2px 12px rgba(0,0,0,.04);
+    box-shadow: 0 2px 12px rgba(0,0,0,.2);
     padding: 32px;
     margin-bottom: 20px;
   }
@@ -49,11 +49,11 @@
     border-radius: 18px;
     overflow: hidden;
     flex-shrink: 0;
-    border: 2px solid #f3f4f6;
+    border: 2px solid rgba(255,255,255,.06);
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #f9fafb;
+    background: #0a0a0a;
   }
   .ts-team-logo img {
     width: 100%;
@@ -61,14 +61,14 @@
     object-fit: cover;
   }
   .ts-team-logo-placeholder {
-    color: #d1d5db;
+    color: rgba(255,255,255,.2);
   }
   .ts-team-logo-placeholder svg { width: 36px; height: 36px; }
   .ts-team-info { flex: 1; }
   .ts-team-name {
     font-size: 26px;
     font-weight: 800;
-    color: #111;
+    color: #e8e8e8;
     margin: 0 0 4px;
     letter-spacing: -.02em;
   }
@@ -83,13 +83,13 @@
     align-items: center;
     gap: 5px;
     font-size: 14px;
-    color: #6b7280;
+    color: #a0a0a0;
   }
   .ts-team-captain svg { width: 14px; height: 14px; color: #d97706; }
-  .ts-team-captain strong { color: #374151; font-weight: 600; }
+  .ts-team-captain strong { color: #e8e8e8; font-weight: 600; }
   .ts-team-tournament {
     font-size: 13px;
-    color: #9ca3af;
+    color: #666;
     display: inline-flex;
     align-items: center;
     gap: 5px;
@@ -112,24 +112,24 @@
   .ts-badge-confirmed {
     background: rgba(34,197,94,.12);
     border: 1px solid rgba(34,197,94,.3);
-    color: #16a34a;
+    color: #22c55e;
   }
   .ts-badge-disqualified {
     background: rgba(239,68,68,.1);
     border: 1px solid rgba(239,68,68,.25);
-    color: #dc2626;
+    color: #f87171;
   }
   .ts-badge-withdrawn {
     background: rgba(107,114,128,.1);
     border: 1px solid rgba(107,114,128,.25);
-    color: #6b7280;
+    color: #a0a0a0;
   }
 
   /* ── Section title ──────────────────────────────── */
   .ts-section-title {
     font-size: 16px;
     font-weight: 700;
-    color: #111;
+    color: #e8e8e8;
     margin: 0 0 16px;
     display: flex;
     align-items: center;
@@ -151,9 +151,9 @@
     border-radius: 12px;
     transition: background .15s;
   }
-  .ts-player-item:hover { background: #f9fafb; }
+  .ts-player-item:hover { background: #0a0a0a; }
   .ts-player-item + .ts-player-item {
-    border-top: 1px solid #f3f4f6;
+    border-top: 1px solid rgba(255,255,255,.06);
   }
   .ts-player-info {
     display: flex;
@@ -164,19 +164,19 @@
     width: 38px;
     height: 38px;
     border-radius: 10px;
-    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    background: linear-gradient(135deg, rgba(34,197,94,.12), rgba(34,197,94,.2));
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 15px;
     font-weight: 700;
-    color: #16a34a;
+    color: #22c55e;
     flex-shrink: 0;
   }
   .ts-player-name {
     font-size: 15px;
     font-weight: 600;
-    color: #111;
+    color: #e8e8e8;
   }
   .ts-role-badge {
     display: inline-flex;
@@ -195,17 +195,17 @@
   }
   .ts-role-arquero {
     background: rgba(59,130,246,.1);
-    color: #2563eb;
+    color: #60a5fa;
     border: 1px solid rgba(59,130,246,.25);
   }
   .ts-role-jugador {
     background: rgba(34,197,94,.1);
-    color: #16a34a;
+    color: #22c55e;
     border: 1px solid rgba(34,197,94,.25);
   }
   .ts-role-suplente {
     background: rgba(107,114,128,.1);
-    color: #6b7280;
+    color: #a0a0a0;
     border: 1px solid rgba(107,114,128,.25);
   }
 
@@ -213,10 +213,10 @@
   .ts-matches-empty {
     text-align: center;
     padding: 28px 16px;
-    color: #9ca3af;
+    color: #666;
     font-size: 14px;
   }
-  .ts-matches-empty svg { width: 40px; height: 40px; margin-bottom: 8px; color: #d1d5db; }
+  .ts-matches-empty svg { width: 40px; height: 40px; margin-bottom: 8px; color: rgba(255,255,255,.2); }
   .ts-match-item {
     display: flex;
     align-items: center;
@@ -225,15 +225,15 @@
     transition: background .15s;
     gap: 12px;
   }
-  .ts-match-item:hover { background: #f9fafb; }
+  .ts-match-item:hover { background: #0a0a0a; }
   .ts-match-item + .ts-match-item {
-    border-top: 1px solid #f3f4f6;
+    border-top: 1px solid rgba(255,255,255,.06);
   }
   .ts-match-round {
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
-    color: #9ca3af;
+    color: #666;
     letter-spacing: .05em;
     width: 80px;
     flex-shrink: 0;
@@ -245,18 +245,18 @@
     gap: 8px;
     font-size: 14px;
     font-weight: 600;
-    color: #374151;
+    color: #e8e8e8;
   }
   .ts-match-vs {
-    color: #9ca3af;
+    color: #666;
     font-weight: 400;
     font-size: 12px;
   }
-  .ts-match-self { color: #111; font-weight: 700; }
+  .ts-match-self { color: #e8e8e8; font-weight: 700; }
   .ts-match-score {
     font-size: 15px;
     font-weight: 700;
-    color: #111;
+    color: #e8e8e8;
     min-width: 60px;
     text-align: center;
   }
@@ -273,40 +273,40 @@
   }
   .ts-match-win {
     background: rgba(34,197,94,.12);
-    color: #16a34a;
+    color: #22c55e;
   }
   .ts-match-loss {
     background: rgba(239,68,68,.1);
-    color: #dc2626;
+    color: #f87171;
   }
   .ts-match-pending {
     background: rgba(107,114,128,.08);
-    color: #9ca3af;
+    color: #666;
   }
 
   /* ── Withdraw button ────────────────────────────── */
   .ts-withdraw-wrap {
     margin-top: 24px;
     padding-top: 20px;
-    border-top: 1px solid #f3f4f6;
+    border-top: 1px solid rgba(255,255,255,.06);
   }
   .ts-withdraw-btn {
     display: inline-flex;
     align-items: center;
     gap: 8px;
     padding: 12px 24px;
-    background: #fff;
-    border: 1.5px solid #fecaca;
+    background: #111;
+    border: 1.5px solid rgba(239,68,68,.25);
     border-radius: 12px;
     font-size: 14px;
     font-weight: 600;
-    color: #dc2626;
+    color: #f87171;
     cursor: pointer;
     font-family: inherit;
     transition: background .15s, border-color .15s;
   }
   .ts-withdraw-btn:hover {
-    background: #fef2f2;
+    background: rgba(239,68,68,.1);
     border-color: #ef4444;
   }
   .ts-withdraw-btn svg { width: 16px; height: 16px; }
@@ -393,7 +393,7 @@
             Inscripcion paga
           </span>
           @if($team->payment_confirmed_at)
-            <span style="font-size: 13px; color: #9ca3af;">
+            <span style="font-size: 13px; color: #666;">
               {{ $team->payment_confirmed_at->format('d/m/Y') }}
             </span>
           @endif
@@ -404,23 +404,23 @@
             <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
               <div style="display: flex; align-items: center; gap: 8px;">
                 <i data-lucide="alert-circle" style="width: 18px; height: 18px; color: #f59e0b;"></i>
-                <span style="font-size: 14px; font-weight: 600; color: #92400e;">Pago pendiente</span>
+                <span style="font-size: 14px; font-weight: 600; color: #fbbf24;">Pago pendiente</span>
               </div>
-              <a href="{{ route('torneos.teams.checkout', [$tournament, $team]) }}" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: #111; color: #fff; border-radius: 12px; font-size: 14px; font-weight: 700; text-decoration: none; transition: background .15s;">
+              <a href="{{ route('torneos.teams.checkout', [$tournament, $team]) }}" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: #22c55e; color: #052e16; border-radius: 12px; font-size: 14px; font-weight: 700; text-decoration: none; transition: background .15s;">
                 <i data-lucide="credit-card" style="width: 16px; height: 16px;"></i>
                 Pagar inscripcion
               </a>
             </div>
           @else
             <div style="display: flex; align-items: center; gap: 8px;">
-              <i data-lucide="clock" style="width: 16px; height: 16px; color: #9ca3af;"></i>
-              <span style="font-size: 14px; color: #6b7280;">Pendiente de pago</span>
+              <i data-lucide="clock" style="width: 16px; height: 16px; color: #666;"></i>
+              <span style="font-size: 14px; color: #a0a0a0;">Pendiente de pago</span>
             </div>
           @endif
         @else
           <div style="display: flex; align-items: center; gap: 8px;">
-            <i data-lucide="clock" style="width: 16px; height: 16px; color: #9ca3af;"></i>
-            <span style="font-size: 14px; color: #6b7280;">Pendiente de pago</span>
+            <i data-lucide="clock" style="width: 16px; height: 16px; color: #666;"></i>
+            <span style="font-size: 14px; color: #a0a0a0;">Pendiente de pago</span>
           </div>
         @endauth
       @endif
@@ -516,7 +516,7 @@
               {{ $isWinner ? 'W' : 'L' }}
             </div>
           @else
-            <div class="ts-match-score" style="color: #9ca3af;">
+            <div class="ts-match-score" style="color: #666;">
               {{ $match->scheduled_at ? $match->scheduled_at->format('d/m H:i') : '—' }}
             </div>
             <div class="ts-match-result ts-match-pending">—</div>
@@ -539,14 +539,14 @@
           </template>
           <template x-if="showConfirm">
             <div>
-              <p style="font-size: 14px; color: #374151; margin: 0 0 14px; font-weight: 500;">
+              <p style="font-size: 14px; color: #e8e8e8; margin: 0 0 14px; font-weight: 500;">
                 Estas seguro de que queres retirar a <strong>{{ $team->name }}</strong> del torneo?
                 Esta accion no se puede deshacer.
               </p>
               <div style="display: flex; gap: 10px;">
                 <form action="{{ route('torneos.teams.withdraw', [$tournament, $team]) }}" method="POST">
                   @csrf
-                  <button type="submit" class="ts-withdraw-btn" style="background: #fef2f2;">
+                  <button type="submit" class="ts-withdraw-btn" style="background: rgba(239,68,68,.1);">
                     <i data-lucide="alert-triangle"></i>
                     Si, retirar equipo
                   </button>
@@ -554,7 +554,7 @@
                 <button
                   type="button"
                   @click="showConfirm = false"
-                  style="padding: 12px 24px; background: #f3f4f6; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; color: #374151; cursor: pointer; font-family: inherit;"
+                  style="padding: 12px 24px; background: rgba(255,255,255,.06); border: none; border-radius: 12px; font-size: 14px; font-weight: 600; color: #e8e8e8; cursor: pointer; font-family: inherit;"
                 >
                   Cancelar
                 </button>

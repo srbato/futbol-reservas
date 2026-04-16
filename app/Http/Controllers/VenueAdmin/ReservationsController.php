@@ -93,7 +93,7 @@ class ReservationsController extends Controller
                     ->where('start_at', '>=', $weekStart)
                     ->where('start_at', '<', $weekEnd)
                     ->where('field_id', $selectedField->id)
-                    ->where('status', 'PAID')
+                    ->whereIn('status', ['PAID', 'PENDING_CASH'])
                     ->with(['user', 'field'])
                     ->get()
                 : collect();
@@ -174,7 +174,7 @@ class ReservationsController extends Controller
             ->where('start_at', '>=', $startDay)
             ->where('start_at', '<', $endDay)
             ->whereHas('field.venue', fn ($q) => $q->accessibleBy($user))
-            ->where('status', 'PAID')
+            ->whereIn('status', ['PAID', 'PENDING_CASH'])
             ->with(['user', 'field'])
             ->get();
 
@@ -223,6 +223,33 @@ class ReservationsController extends Controller
             'date', 'fields', 'reservations', 'reservationMap', 'fieldId',
             'slots', 'weekDays', 'weekStart', 'selectedField', 'activeSlotsPerDay', 'view'
         ));
+    }
+
+    public function confirmCash(Request $request, Reservation $reservation)
+    {
+        $user = $request->user();
+
+        $reservation->load('field.venue');
+
+        if ($user->role !== 'super_admin' && $reservation->field->venue->owner_user_id !== $user->id && !$user->isStaffOf($reservation->field->venue->id)) {
+            abort(403);
+        }
+
+        if ($user->isVenueStaff()) {
+            abort_if(!$user->hasStaffPermission('view_reservations', $reservation->field->venue->id), 403);
+        }
+
+        if ($reservation->status !== 'PENDING_CASH') {
+            return back()->with('error', 'Esta reserva no tiene pago en efectivo pendiente.');
+        }
+
+        $reservation->update([
+            'status'         => 'PAID',
+            'payment_status' => 'approved',
+            'notes'          => trim(($reservation->notes ? $reservation->notes . ' | ' : '') . 'Pago en efectivo confirmado por ' . $user->name . ' el ' . now()->format('d/m/Y H:i')),
+        ]);
+
+        return back()->with('success', 'Pago en efectivo confirmado. La reserva ahora está pagada.');
     }
 
     public function cancel(Request $request, Reservation $reservation, MercadoPagoRefundService $refundService)

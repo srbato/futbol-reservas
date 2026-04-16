@@ -52,7 +52,7 @@
     display: flex;
     align-items: center;
     gap: 14px;
-    color: var(--color-text-inverse);
+    color: #e8e8e8;
   }
   .chat-header-icon {
     width: 42px;
@@ -287,7 +287,7 @@
     background: #0f5c32;
     border: 1px solid rgba(34, 197, 94, .2);
     border-radius: 16px 4px 16px 16px;
-    color: var(--color-text-inverse);
+    color: #e8e8e8;
   }
 
   .chat-bubble-name {

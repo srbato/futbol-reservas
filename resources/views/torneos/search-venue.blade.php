@@ -15,42 +15,42 @@
     align-items: center;
     gap: 5px;
     font-size: 13px;
-    color: #888;
+    color: #a0a0a0;
     text-decoration: none;
     font-weight: 600;
     transition: color .15s;
     margin-bottom: 14px;
   }
-  .sv-back:hover { color: #111; }
+  .sv-back:hover { color: #e8e8e8; }
 
   .sv-title {
     font-size: 26px;
     font-weight: 800;
-    color: #111;
+    color: #e8e8e8;
     letter-spacing: -.02em;
     margin: 0 0 6px;
   }
 
   .sv-sub {
     font-size: 14px;
-    color: #888;
+    color: #a0a0a0;
     margin: 0 0 28px;
   }
 
   .sv-card {
-    background: #fff;
-    border: 1px solid #ececec;
+    background: #111;
+    border: 1px solid rgba(255,255,255,.08);
     border-radius: 20px;
-    box-shadow: 0 2px 12px rgba(0,0,0,.04);
+    box-shadow: 0 2px 12px rgba(0,0,0,.12);
     overflow: hidden;
     margin-bottom: 20px;
     transition: border-color .2s;
   }
-  .sv-card:hover { border-color: #d1d5db; }
+  .sv-card:hover { border-color: rgba(255,255,255,.15); }
 
   .sv-card-header {
     padding: 20px 24px;
-    border-bottom: 1px solid #f4f4f4;
+    border-bottom: 1px solid rgba(255,255,255,.06);
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -60,14 +60,14 @@
   .sv-venue-name {
     font-size: 16px;
     font-weight: 800;
-    color: #111;
+    color: #e8e8e8;
     margin: 0 0 2px;
   }
 
   .sv-field-name {
     font-size: 14px;
     font-weight: 600;
-    color: #555;
+    color: #a0a0a0;
     margin: 0;
   }
 
@@ -79,7 +79,7 @@
   }
   .sv-price-label {
     font-size: 11px;
-    color: #888;
+    color: #a0a0a0;
     font-weight: 600;
   }
 
@@ -93,28 +93,28 @@
   .sv-detail-label {
     font-size: 11px;
     font-weight: 700;
-    color: #9ca3af;
+    color: #a0a0a0;
     text-transform: uppercase;
     letter-spacing: .06em;
   }
   .sv-detail-value {
     font-size: 14px;
     font-weight: 600;
-    color: #111;
+    color: #e8e8e8;
     margin-top: 2px;
   }
 
   .sv-notes {
     padding: 0 24px 16px;
     font-size: 13px;
-    color: #666;
+    color: #a0a0a0;
     line-height: 1.5;
   }
 
   .sv-form {
     padding: 16px 24px 20px;
-    border-top: 1px solid #f4f4f4;
-    background: #fafafa;
+    border-top: 1px solid rgba(255,255,255,.06);
+    background: #0a0a0a;
   }
 
   .sv-form-row {
@@ -127,12 +127,12 @@
   .sv-input {
     width: 100%;
     padding: 10px 14px;
-    border: 1.5px solid #e5e7eb;
+    border: 1.5px solid rgba(255,255,255,.1);
     border-radius: 12px;
     font-size: 14px;
     font-family: inherit;
-    color: #111;
-    background: #fff;
+    color: #e8e8e8;
+    background: #0a0a0a;
     transition: border-color .15s;
   }
   .sv-input:focus {
@@ -144,7 +144,7 @@
   .sv-input-label {
     font-size: 12px;
     font-weight: 700;
-    color: #555;
+    color: #a0a0a0;
     margin-bottom: 4px;
     display: block;
   }
@@ -170,25 +170,25 @@
   .sv-empty {
     text-align: center;
     padding: 60px 24px;
-    background: #fff;
-    border: 1px solid #ececec;
+    background: #111;
+    border: 1px solid rgba(255,255,255,.08);
     border-radius: 20px;
   }
   .sv-empty svg {
     width: 48px;
     height: 48px;
-    color: #d1d5db;
+    color: #444;
     margin: 0 auto 12px;
   }
   .sv-empty p {
     font-size: 15px;
     font-weight: 600;
-    color: #888;
+    color: #a0a0a0;
     margin: 0 0 4px;
   }
   .sv-empty span {
     font-size: 13px;
-    color: #aaa;
+    color: #555;
   }
 
   @media (max-width: 600px) {

@@ -64,10 +64,10 @@ echo json_encode([
   }
 
   .bp-hero-shell {
-    background: rgba(0,0,0,0.03);
+    background: rgba(255,255,255,0.04);
     border-radius: 2rem;
     padding: 5px;
-    border: 1px solid rgba(0,0,0,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
   }
 
   .bp-hero-inner {
@@ -179,7 +179,7 @@ echo json_encode([
   .bp-prose {
     font-size: 17px;
     line-height: 1.8;
-    color: #333;
+    color: #a0a0a0;
   }
 
   .bp-prose h2 {
@@ -233,10 +233,10 @@ echo json_encode([
     margin: 32px 0;
     padding: 20px 24px;
     border-left: 3px solid #22c55e;
-    background: #f0fdf4;
+    background: rgba(34,197,94,.06);
     border-radius: 0 12px 12px 0;
     font-style: italic;
-    color: #166534;
+    color: #6eeaa0;
   }
 
   .bp-prose img {
@@ -253,10 +253,10 @@ echo json_encode([
   }
 
   .bp-sidebar-cta-shell {
-    background: rgba(0,0,0,0.03);
+    background: rgba(255,255,255,0.04);
     border-radius: 1.25rem;
     padding: 4px;
-    border: 1px solid rgba(0,0,0,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
   }
 
   .bp-sidebar-cta {
@@ -380,21 +380,21 @@ echo json_encode([
   }
 
   .bp-related-card {
-    background: rgba(0,0,0,0.02);
+    background: rgba(255,255,255,0.04);
     border-radius: 1.25rem;
     padding: 4px;
-    border: 1px solid rgba(0,0,0,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
     transition: transform 400ms var(--ease-out-expo), box-shadow 400ms var(--ease-out-expo);
   }
 
   .bp-related-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 32px rgba(0,0,0,0.06);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.25);
   }
 
   .bp-related-card a {
     display: block;
-    background: #fff;
+    background: #111;
     border-radius: calc(1.25rem - 4px);
     padding: 20px;
     text-decoration: none;
@@ -482,7 +482,7 @@ echo json_encode([
 <div class="bp-article-wrap">
   <article class="bp-article">
     <div class="bp-prose">
-      {!! strip_tags($post->body, '<p><br><h1><h2><h3><h4><h5><h6><ul><ol><li><a><strong><em><b><i><blockquote><code><pre><img><table><thead><tbody><tr><th><td><hr><span><div><figure><figcaption>') !!}
+      {!! \App\Helpers\HtmlSanitizer::clean($post->body) !!}
     </div>
 
     {{-- Share --}}

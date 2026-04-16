@@ -63,9 +63,17 @@ class ReservationBatchMercadoPagoController extends Controller
             'notification_url' => $baseUrl . '/webhooks/mercadopago',
         ];
 
-        $response = Http::withOptions(['verify' => app()->isProduction()])
-            ->withToken($accessToken)
-            ->post('https://api.mercadopago.com/checkout/preferences', $payload);
+        try {
+            $response = Http::withOptions(['verify' => app()->isProduction()])
+                ->withToken($accessToken)
+                ->post('https://api.mercadopago.com/checkout/preferences', $payload);
+        } catch (\Exception $e) {
+            Log::error('MercadoPago batch: error de conexión al crear preferencia', [
+                'batch_id' => $batch->id,
+                'error'    => $e->getMessage(),
+            ]);
+            return back()->with('error', 'No se pudo conectar con Mercado Pago. Intentá de nuevo en unos segundos.');
+        }
 
         if (!$response->successful()) {
             Log::error('MercadoPago batch: error al crear preferencia', [

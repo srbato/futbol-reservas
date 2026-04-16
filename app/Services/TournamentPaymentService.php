@@ -89,6 +89,40 @@ class TournamentPaymentService
         if (!$payment) return;
 
         if ($paymentStatus === 'approved') {
+            // Verify payment amount against MercadoPago API
+            $tournament = $payment->tournament;
+            if ($tournament && $tournament->inscription_price > 0) {
+                try {
+                    $venue = $tournament->venue;
+                    $accessToken = $venue?->mp_access_token
+                        ? decrypt($venue->mp_access_token)
+                        : config('services.mercadopago.access_token');
+
+                    $mpResponse = \Illuminate\Support\Facades\Http::withOptions(['verify' => app()->isProduction()])
+                        ->withToken($accessToken)
+                        ->get("https://api.mercadopago.com/v1/payments/{$mpPaymentId}");
+
+                    if ($mpResponse->successful()) {
+                        $paidAmount = $mpResponse->json('transaction_amount');
+                        $expectedAmount = (float) $payment->amount;
+
+                        if (abs($paidAmount - $expectedAmount) > 0.01) {
+                            Log::warning('Tournament payment amount mismatch', [
+                                'payment_id' => $payment->id,
+                                'expected' => $expectedAmount,
+                                'paid' => $paidAmount,
+                                'mp_payment_id' => $mpPaymentId,
+                            ]);
+                        }
+                    }
+                } catch (\Exception $e) {
+                    Log::warning('Tournament payment: could not verify amount', [
+                        'payment_id' => $payment->id,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            }
+
             $payment->update([
                 'status' => 'approved',
                 'mp_payment_id' => $mpPaymentId,

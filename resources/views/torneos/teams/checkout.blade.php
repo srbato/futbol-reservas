@@ -16,7 +16,7 @@
     gap: 6px;
     font-size: 14px;
     font-weight: 600;
-    color: #6b7280;
+    color: #a0a0a0;
     text-decoration: none;
     margin-bottom: 20px;
     transition: color .15s;
@@ -25,10 +25,10 @@
   .tc-back svg { width: 16px; height: 16px; }
 
   .tc-card {
-    background: #fff;
-    border: 1px solid #ececec;
+    background: #111;
+    border: 1px solid rgba(255,255,255,.08);
     border-radius: 20px;
-    box-shadow: 0 2px 12px rgba(0,0,0,.04);
+    box-shadow: 0 2px 12px rgba(0,0,0,.2);
     padding: 28px;
     margin-bottom: 20px;
   }
@@ -36,7 +36,7 @@
   .tc-section-title {
     font-size: 15px;
     font-weight: 700;
-    color: #9ca3af;
+    color: #666;
     text-transform: uppercase;
     letter-spacing: .06em;
     margin: 0 0 14px;
@@ -53,16 +53,16 @@
     padding: 10px 0;
   }
   .tc-info-row + .tc-info-row {
-    border-top: 1px solid #f3f4f6;
+    border-top: 1px solid rgba(255,255,255,.06);
   }
   .tc-info-label {
     font-size: 14px;
-    color: #6b7280;
+    color: #a0a0a0;
   }
   .tc-info-value {
     font-size: 14px;
     font-weight: 600;
-    color: #111;
+    color: #e8e8e8;
   }
 
   .tc-price-wrap {
@@ -72,7 +72,7 @@
   .tc-price-label {
     font-size: 13px;
     font-weight: 600;
-    color: #9ca3af;
+    color: #666;
     text-transform: uppercase;
     letter-spacing: .06em;
     margin-bottom: 8px;
@@ -80,14 +80,14 @@
   .tc-price {
     font-size: 42px;
     font-weight: 900;
-    color: #111;
+    color: #e8e8e8;
     letter-spacing: -.02em;
     line-height: 1;
   }
   .tc-price-currency {
     font-size: 24px;
     font-weight: 700;
-    color: #6b7280;
+    color: #a0a0a0;
     vertical-align: super;
   }
 
@@ -98,8 +98,8 @@
     gap: 10px;
     width: 100%;
     padding: 16px 24px;
-    background: #111;
-    color: #fff;
+    background: #22c55e;
+    color: #052e16;
     border: none;
     border-radius: 14px;
     font-size: 16px;
@@ -107,10 +107,10 @@
     font-family: inherit;
     cursor: pointer;
     transition: background .15s, transform .1s, box-shadow .15s;
-    box-shadow: 0 4px 14px rgba(0,0,0,.15);
+    box-shadow: 0 4px 14px rgba(34,197,94,.3);
   }
   .tc-pay-btn:hover {
-    background: #222;
+    background: #16a34a;
     transform: translateY(-1px);
     box-shadow: 0 6px 20px rgba(0,0,0,.2);
   }
@@ -127,7 +127,7 @@
   .tc-info-text {
     text-align: center;
     font-size: 13px;
-    color: #9ca3af;
+    color: #666;
     margin-top: 16px;
     display: flex;
     align-items: center;
@@ -148,19 +148,19 @@
   }
   .tc-alert svg { width: 18px; height: 18px; flex-shrink: 0; }
   .tc-alert-success {
-    background: #dcfce7;
-    color: #15803d;
-    border: 1px solid #bbf7d0;
+    background: rgba(34,197,94,.08);
+    color: #22c55e;
+    border: 1px solid rgba(34,197,94,.25);
   }
   .tc-alert-error {
-    background: #fee2e2;
-    color: #991b1b;
-    border: 1px solid #fecaca;
+    background: rgba(239,68,68,.08);
+    color: #f87171;
+    border: 1px solid rgba(239,68,68,.25);
   }
   .tc-alert-info {
-    background: #eff6ff;
-    color: #1d4ed8;
-    border: 1px solid #bfdbfe;
+    background: rgba(59,130,246,.08);
+    color: #60a5fa;
+    border: 1px solid rgba(59,130,246,.25);
   }
 
   .tc-mp-badge {
@@ -170,14 +170,14 @@
     gap: 8px;
     margin-top: 12px;
     font-size: 12px;
-    color: #9ca3af;
+    color: #666;
   }
   .tc-mp-badge svg { width: 14px; height: 14px; }
 
   .tc-no-mp {
     text-align: center;
     padding: 20px;
-    color: #9ca3af;
+    color: #666;
     font-size: 14px;
   }
 

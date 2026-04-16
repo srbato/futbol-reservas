@@ -71,16 +71,16 @@
 
   /* Card principal */
   .fu-card {
-    background: #fff;
-    border: 1px solid #ececec;
+    background: #111;
+    border: 1px solid rgba(255,255,255,.08);
     border-radius: 20px;
-    box-shadow: 0 2px 12px rgba(0,0,0,.04);
+    box-shadow: 0 2px 12px rgba(0,0,0,.12);
     overflow: hidden;
   }
 
   .fu-card-header {
     padding: 20px 24px 0;
-    border-bottom: 1px solid #f4f4f4;
+    border-bottom: 1px solid rgba(255,255,255,.06);
     padding-bottom: 16px;
     display: flex;
     align-items: center;
@@ -91,8 +91,8 @@
     width: 36px;
     height: 36px;
     border-radius: 10px;
-    background: #111;
-    color: #fff;
+    background: #22c55e;
+    color: #050505;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -128,7 +128,7 @@
   .fu-label {
     font-size: 13px;
     font-weight: 700;
-    color: #333;
+    color: #e8e8e8;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -140,7 +140,7 @@
 
   .fu-hint {
     font-size: 12px;
-    color: #aaa;
+    color: #555;
     margin: 0;
     line-height: 1.5;
   }
@@ -151,18 +151,18 @@
     align-items: center;
     gap: 0;
     width: fit-content;
-    border: 1.5px solid #e0e0e0;
+    border: 1.5px solid rgba(255,255,255,.1);
     border-radius: 12px;
     overflow: hidden;
-    background: #fff;
+    background: #0a0a0a;
   }
 
   .fu-counter button {
     width: 40px;
     height: 42px;
     border: none;
-    background: #f8f8f8;
-    color: #333;
+    background: rgba(255,255,255,.04);
+    color: #e8e8e8;
     font-size: 18px;
     font-weight: 700;
     cursor: pointer;
@@ -173,21 +173,21 @@
     flex-shrink: 0;
   }
 
-  .fu-counter button:hover { background: #efefef; }
-  .fu-counter button:active { background: #e8e8e8; }
+  .fu-counter button:hover { background: rgba(255,255,255,.08); }
+  .fu-counter button:active { background: rgba(255,255,255,.12); }
 
   .fu-counter input {
     width: 60px;
     height: 42px;
     border: none;
-    border-left: 1.5px solid #e0e0e0;
-    border-right: 1.5px solid #e0e0e0;
+    border-left: 1.5px solid rgba(255,255,255,.1);
+    border-right: 1.5px solid rgba(255,255,255,.1);
     text-align: center;
     font-size: 16px;
     font-weight: 800;
-    color: #111;
+    color: #e8e8e8;
     outline: none;
-    background: #fff;
+    background: #0a0a0a;
     -moz-appearance: textfield;
   }
 
@@ -196,8 +196,8 @@
 
   /* Vista previa */
   .fu-preview {
-    background: linear-gradient(135deg, #f9f9f9 0%, #f4f4f4 100%);
-    border: 1.5px solid #e8e8e8;
+    background: linear-gradient(135deg, #0a0a0a 0%, #111 100%);
+    border: 1.5px solid rgba(255,255,255,.08);
     border-radius: 16px;
     padding: 18px 20px;
     display: none;
@@ -216,7 +216,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .07em;
-    color: #aaa;
+    color: #555;
     margin: 0 0 12px 0;
   }
 
@@ -228,15 +228,15 @@
   }
 
   .fu-preview-stat {
-    background: #fff;
-    border: 1px solid #eaeaea;
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.08);
     border-radius: 12px;
     padding: 12px 14px;
   }
 
   .fu-preview-stat-label {
     font-size: 11px;
-    color: #aaa;
+    color: #555;
     font-weight: 600;
     margin-bottom: 4px;
   }
@@ -244,7 +244,7 @@
   .fu-preview-stat-value {
     font-size: 17px;
     font-weight: 800;
-    color: #111;
+    color: #e8e8e8;
     letter-spacing: -.01em;
   }
 
@@ -272,7 +272,7 @@
 
   .fu-preview-footer {
     font-size: 12px;
-    color: #aaa;
+    color: #555;
     margin: 10px 0 0 0;
     line-height: 1.5;
   }
@@ -280,14 +280,14 @@
   /* Separador de secciones */
   .fu-divider {
     height: 1px;
-    background: #f4f4f4;
+    background: rgba(255,255,255,.06);
     margin: 0 -24px;
   }
 
   /* Footer del card */
   .fu-card-footer {
     padding: 18px 24px;
-    border-top: 1px solid #f4f4f4;
+    border-top: 1px solid rgba(255,255,255,.06);
   }
 
   .fu-submit {
@@ -295,8 +295,8 @@
     padding: 14px;
     font-size: 15px;
     font-weight: 700;
-    background: #111;
-    color: #fff;
+    background: #22c55e;
+    color: #050505;
     border: none;
     border-radius: 14px;
     cursor: pointer;
@@ -304,17 +304,17 @@
     letter-spacing: -.01em;
   }
 
-  .fu-submit:hover  { background: #222; }
+  .fu-submit:hover  { background: #16a34a; }
   .fu-submit:active { transform: scale(.98); }
 
   /* Error */
   .fu-error {
-    background: #fef2f2;
-    border: 1px solid #fecaca;
+    background: rgba(229,57,53,.1);
+    border: 1px solid rgba(229,57,53,.25);
     border-radius: 12px;
     padding: 12px 16px;
     font-size: 13px;
-    color: #dc2626;
+    color: #f87171;
   }
 
   @media (max-width: 600px) {
@@ -333,8 +333,8 @@
   {{-- Back --}}
   <div style="margin-bottom:14px;">
     <a href="{{ route('fields.show', $field) }}"
-       style="display:inline-flex; align-items:center; gap:5px; font-size:13px; color:#888; text-decoration:none; font-weight:600; transition:color .15s;"
-       onmouseover="this.style.color='#111'" onmouseout="this.style.color='#888'">
+       style="display:inline-flex; align-items:center; gap:5px; font-size:13px; color:#666; text-decoration:none; font-weight:600; transition:color .15s;"
+       onmouseover="this.style.color='#e8e8e8'" onmouseout="this.style.color='#666'">
       <i data-lucide="arrow-left" style="width:14px;height:14px;stroke:currentColor;"></i> Volver a {{ $field->name }}
     </a>
   </div>
@@ -441,7 +441,7 @@
           </label>
           <div style="display:flex; gap:10px; flex-wrap:wrap;">
             @foreach(['mixed'=>'Mixto', 'male'=>'Solo masculino', 'female'=>'Solo femenino'] as $val => $gLabel)
-              <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:13px; font-weight:600; color:#555;">
+              <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:13px; font-weight:600; color:#a0a0a0;">
                 <input type="radio" name="gender_filter" value="{{ $val }}"
                        {{ old('gender_filter', 'mixed') === $val ? 'checked' : '' }}>
                 {{ $gLabel }}
@@ -461,7 +461,7 @@
           </label>
           <div style="display:flex; gap:10px; align-items:center;">
             <div style="flex:1;">
-              <div style="font-size:11px; color:#aaa; font-weight:600; margin-bottom:4px; text-transform:uppercase; letter-spacing:.05em;">Desde</div>
+              <div style="font-size:11px; color:#555; font-weight:600; margin-bottom:4px; text-transform:uppercase; letter-spacing:.05em;">Desde</div>
               <select id="category_min" name="category_min" class="form-control" style="width:100%; font-size:14px;" onchange="syncCategoryMax()">
                 <option value="">Cualquiera</option>
                 @foreach($sportCategories as $cat)
@@ -471,9 +471,9 @@
                 @endforeach
               </select>
             </div>
-            <div style="color:#ccc; padding-top:18px; display:flex; align-items:center;"><i data-lucide="arrow-right" style="width:18px;height:18px;stroke:#ccc;"></i></div>
+            <div style="color:#444; padding-top:18px; display:flex; align-items:center;"><i data-lucide="arrow-right" style="width:18px;height:18px;stroke:#ccc;"></i></div>
             <div style="flex:1;">
-              <div style="font-size:11px; color:#aaa; font-weight:600; margin-bottom:4px; text-transform:uppercase; letter-spacing:.05em;">Hasta</div>
+              <div style="font-size:11px; color:#555; font-weight:600; margin-bottom:4px; text-transform:uppercase; letter-spacing:.05em;">Hasta</div>
               <select id="category_max" name="category_max" class="form-control" style="width:100%; font-size:14px;" onchange="syncCategoryMin()">
                 <option value="">Cualquiera</option>
                 @foreach($sportCategories as $cat)
@@ -505,7 +505,7 @@
           </label>
           <div style="display:flex; gap:10px; align-items:center;">
             <div style="flex:1;">
-              <div style="font-size:11px; color:#aaa; font-weight:600; margin-bottom:4px; text-transform:uppercase; letter-spacing:.05em;">Desde</div>
+              <div style="font-size:11px; color:#555; font-weight:600; margin-bottom:4px; text-transform:uppercase; letter-spacing:.05em;">Desde</div>
               <select id="age_group_min" name="age_group_min" class="form-control" style="width:100%; font-size:14px;" onchange="syncAgeMax()">
                 <option value="">Cualquiera</option>
                 @foreach($ageGroups as $val => $label)
@@ -515,9 +515,9 @@
                 @endforeach
               </select>
             </div>
-            <div style="color:#ccc; padding-top:18px; display:flex; align-items:center;"><i data-lucide="arrow-right" style="width:18px;height:18px;stroke:#ccc;"></i></div>
+            <div style="color:#444; padding-top:18px; display:flex; align-items:center;"><i data-lucide="arrow-right" style="width:18px;height:18px;stroke:#ccc;"></i></div>
             <div style="flex:1;">
-              <div style="font-size:11px; color:#aaa; font-weight:600; margin-bottom:4px; text-transform:uppercase; letter-spacing:.05em;">Hasta</div>
+              <div style="font-size:11px; color:#555; font-weight:600; margin-bottom:4px; text-transform:uppercase; letter-spacing:.05em;">Hasta</div>
               <select id="age_group_max" name="age_group_max" class="form-control" style="width:100%; font-size:14px;" onchange="syncAgeMin()">
                 <option value="">Cualquiera</option>
                 @foreach($ageGroups as $val => $label)
@@ -590,17 +590,17 @@
           return $min . ' minutos';
         };
       @endphp
-      <div style="background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:14px; padding:18px 20px; margin:0 20px 20px;">
+      <div style="background:rgba(255,255,255,.04); border:1.5px solid rgba(255,255,255,.08); border-radius:14px; padding:18px 20px; margin:0 20px 20px;">
         <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
-          <i data-lucide="info" style="width:18px;height:18px;stroke:#3b82f6;stroke-width:2;flex-shrink:0;"></i>
-          <span style="font-size:14px; font-weight:800; color:#1e293b;">Antes de crear tu partido</span>
+          <i data-lucide="info" style="width:18px;height:18px;stroke:#60a5fa;stroke-width:2;flex-shrink:0;"></i>
+          <span style="font-size:14px; font-weight:800; color:#e8e8e8;">Antes de crear tu partido</span>
         </div>
-        <div style="display:grid; gap:10px; font-size:13px; color:#475569; line-height:1.5;">
+        <div style="display:grid; gap:10px; font-size:13px; color:#a0a0a0; line-height:1.5;">
 
           <div style="display:flex; gap:8px; align-items:flex-start;">
             <i data-lucide="clock" style="width:15px;height:15px;stroke:#22c55e;stroke-width:2;flex-shrink:0;margin-top:2px;"></i>
             <div>
-              <strong style="color:#15803d;">Cancelacion con reembolso</strong><br>
+              <strong style="color:#4ade80;">Cancelacion con reembolso</strong><br>
               Podes cancelar hasta <strong>{{ $fmt($refundMin) }} antes</strong> del inicio y se te devuelve el dinero completo.
             </div>
           </div>
@@ -608,7 +608,7 @@
           <div style="display:flex; gap:8px; align-items:flex-start;">
             <i data-lucide="clock" style="width:15px;height:15px;stroke:#f59e0b;stroke-width:2;flex-shrink:0;margin-top:2px;"></i>
             <div>
-              <strong style="color:#92400e;">Cancelacion sin reembolso</strong><br>
+              <strong style="color:#fbbf24;">Cancelacion sin reembolso</strong><br>
               Si cancelás con menos de {{ $fmt($refundMin) }} de anticipacion, <strong>no se devuelve el dinero</strong>.
             </div>
           </div>
@@ -616,7 +616,7 @@
           <div style="display:flex; gap:8px; align-items:flex-start;">
             <i data-lucide="users" style="width:15px;height:15px;stroke:#3b82f6;stroke-width:2;flex-shrink:0;margin-top:2px;"></i>
             <div>
-              <strong style="color:#1d4ed8;">Si no se completa el partido</strong><br>
+              <strong style="color:#60a5fa;">Si no se completa el partido</strong><br>
               Si el partido no se llena {{ $fmt($fillMin) }} antes del inicio, se cancela automaticamente y se libera el horario. <strong>No hay reembolso</strong> en este caso.
             </div>
           </div>
@@ -624,7 +624,7 @@
           <div style="display:flex; gap:8px; align-items:flex-start;">
             <i data-lucide="user-minus" style="width:15px;height:15px;stroke:#dc2626;stroke-width:2;flex-shrink:0;margin-top:2px;"></i>
             <div>
-              <strong style="color:#991b1b;">Si un jugador se baja</strong><br>
+              <strong style="color:#f87171;">Si un jugador se baja</strong><br>
               Los jugadores que se bajen con menos de {{ $fmt($lateMin) }} de anticipacion reciben una penalizacion en su cuenta.
             </div>
           </div>
@@ -632,7 +632,7 @@
           <div style="display:flex; gap:8px; align-items:flex-start;">
             <i data-lucide="wallet" style="width:15px;height:15px;stroke:#6b7280;stroke-width:2;flex-shrink:0;margin-top:2px;"></i>
             <div>
-              <strong style="color:#374151;">Pago de los demas jugadores</strong><br>
+              <strong style="color:#e8e8e8;">Pago de los demas jugadores</strong><br>
               Vos pagas tu parte ahora. Los jugadores que se unan abonan su parte directamente en el complejo el dia del partido.
             </div>
           </div>
@@ -645,7 +645,7 @@
         <button type="submit" class="fu-submit" style="display:inline-flex;align-items:center;justify-content:center;gap:6px;">
           Publicar partido y pagar <i data-lucide="arrow-right" style="width:16px;height:16px;stroke:currentColor;"></i>
         </button>
-        <p style="text-align:center; font-size:12px; color:#bbb; margin:10px 0 0 0;">
+        <p style="text-align:center; font-size:12px; color:#555; margin:10px 0 0 0;">
           Serás redirigido a Mercado Pago para completar el pago.
         </p>
       </div>

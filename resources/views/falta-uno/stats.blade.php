@@ -28,14 +28,14 @@
     font-weight: 600;
     transition: color .15s, transform .15s;
   }
-  .fst-back:hover { color: #111; transform: translateX(-2px); }
+  .fst-back:hover { color: #e8e8e8; transform: translateX(-2px); }
 
   /* ── Hero (Double-Bezel) ───────────────────────── */
   .fst-hero-shell {
-    background: rgba(0,0,0,0.03);
+    background: rgba(255,255,255,0.03);
     border-radius: 2rem;
     padding: 5px;
-    border: 1px solid rgba(0,0,0,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
   }
 
   .fst-hero {
@@ -133,14 +133,14 @@
 
   /* ── Form Card (Double-Bezel) ──────────────────── */
   .fst-form-shell {
-    background: rgba(0,0,0,0.02);
+    background: rgba(255,255,255,0.02);
     border-radius: 1.5rem;
     padding: 4px;
-    border: 1px solid rgba(0,0,0,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
   }
 
   .fst-form-card {
-    background: #fff;
+    background: #111;
     border-radius: calc(1.5rem - 4px);
     overflow: hidden;
   }
@@ -162,17 +162,17 @@
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: .08em;
-    color: #999;
+    color: #666;
   }
 
   .fst-counter {
     display: flex;
     align-items: center;
     gap: 0;
-    border: 1.5px solid #e5e7eb;
+    border: 1.5px solid rgba(255,255,255,.1);
     border-radius: 14px;
     overflow: hidden;
-    background: #fafafa;
+    background: #0a0a0a;
     transition: border-color .2s;
   }
   .fst-counter:focus-within { border-color: #22c55e; }
@@ -193,8 +193,8 @@
     flex-shrink: 0;
     font-family: inherit;
   }
-  .fst-counter-btn:hover { background: #f0fdf4; color: #22c55e; }
-  .fst-counter-btn:active { background: #dcfce7; }
+  .fst-counter-btn:hover { background: rgba(34,197,94,.1); color: #22c55e; }
+  .fst-counter-btn:active { background: rgba(34,197,94,.15); }
 
   .fst-counter-input {
     flex: 1;
@@ -203,7 +203,7 @@
     background: transparent;
     font-size: 24px;
     font-weight: 900;
-    color: #111;
+    color: #e8e8e8;
     outline: none;
     font-variant-numeric: tabular-nums;
     padding: 8px 0;
@@ -218,7 +218,7 @@
 
   .fst-sport-note {
     font-size: 13px;
-    color: #aaa;
+    color: #555;
     text-align: center;
     padding: 8px 0;
     font-style: italic;
@@ -244,12 +244,12 @@
     align-items: center;
     gap: 6px;
     padding: 18px 8px;
-    border: 2px solid #e5e7eb;
+    border: 2px solid rgba(255,255,255,.1);
     border-radius: 16px;
-    background: #fff;
+    background: #0a0a0a;
     transition: all .2s ease;
   }
-  .fst-result-tile:hover { border-color: #d1d5db; }
+  .fst-result-tile:hover { border-color: rgba(255,255,255,.15); }
 
   .fst-result-icon {
     width: 36px;
@@ -264,39 +264,39 @@
   .fst-result-name {
     font-size: 13px;
     font-weight: 700;
-    color: #666;
+    color: #a0a0a0;
     transition: color .2s;
   }
 
   /* Win */
-  .fst-result-option.win .fst-result-icon { background: #f0fdf4; color: #22c55e; }
+  .fst-result-option.win .fst-result-icon { background: rgba(34,197,94,.1); color: #22c55e; }
   .fst-result-option.win input:checked ~ .fst-result-tile {
     border-color: #22c55e;
-    background: #f0fdf4;
+    background: rgba(34,197,94,.1);
     box-shadow: 0 0 0 3px rgba(34,197,94,0.12);
   }
-  .fst-result-option.win input:checked ~ .fst-result-tile .fst-result-icon { background: #22c55e; color: #fff; }
-  .fst-result-option.win input:checked ~ .fst-result-tile .fst-result-name { color: #15803d; }
+  .fst-result-option.win input:checked ~ .fst-result-tile .fst-result-icon { background: #22c55e; color: #050505; }
+  .fst-result-option.win input:checked ~ .fst-result-tile .fst-result-name { color: #4ade80; }
 
   /* Draw */
-  .fst-result-option.draw .fst-result-icon { background: #fffbeb; color: #f59e0b; }
+  .fst-result-option.draw .fst-result-icon { background: rgba(245,158,11,.08); color: #f59e0b; }
   .fst-result-option.draw input:checked ~ .fst-result-tile {
     border-color: #f59e0b;
-    background: #fffbeb;
+    background: rgba(245,158,11,.08);
     box-shadow: 0 0 0 3px rgba(245,158,11,0.12);
   }
-  .fst-result-option.draw input:checked ~ .fst-result-tile .fst-result-icon { background: #f59e0b; color: #fff; }
-  .fst-result-option.draw input:checked ~ .fst-result-tile .fst-result-name { color: #b45309; }
+  .fst-result-option.draw input:checked ~ .fst-result-tile .fst-result-icon { background: #f59e0b; color: #050505; }
+  .fst-result-option.draw input:checked ~ .fst-result-tile .fst-result-name { color: #fbbf24; }
 
   /* Loss */
-  .fst-result-option.loss .fst-result-icon { background: #fef2f2; color: #ef4444; }
+  .fst-result-option.loss .fst-result-icon { background: rgba(229,57,53,.1); color: #ef4444; }
   .fst-result-option.loss input:checked ~ .fst-result-tile {
     border-color: #ef4444;
-    background: #fef2f2;
+    background: rgba(229,57,53,.1);
     box-shadow: 0 0 0 3px rgba(239,68,68,0.12);
   }
-  .fst-result-option.loss input:checked ~ .fst-result-tile .fst-result-icon { background: #ef4444; color: #fff; }
-  .fst-result-option.loss input:checked ~ .fst-result-tile .fst-result-name { color: #dc2626; }
+  .fst-result-option.loss input:checked ~ .fst-result-tile .fst-result-icon { background: #ef4444; color: #050505; }
+  .fst-result-option.loss input:checked ~ .fst-result-tile .fst-result-name { color: #f87171; }
 
   /* ── Submit ────────────────────────────────────── */
   .fst-form-footer {
@@ -306,8 +306,8 @@
   .fst-submit {
     width: 100%;
     padding: 15px;
-    background: #111;
-    color: #fff;
+    background: #22c55e;
+    color: #050505;
     border: none;
     border-radius: 14px;
     font-size: 15px;
@@ -333,9 +333,9 @@
     align-items: center;
     gap: 10px;
   }
-  .fst-alert-success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; }
-  .fst-alert-info    { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
-  .fst-alert-error   { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; }
+  .fst-alert-success { background: rgba(34,197,94,.1); border: 1px solid rgba(34,197,94,.2); color: #4ade80; }
+  .fst-alert-info    { background: rgba(37,99,235,.08); border: 1px solid rgba(37,99,235,.2); color: #60a5fa; }
+  .fst-alert-error   { background: rgba(229,57,53,.1); border: 1px solid rgba(229,57,53,.25); color: #f87171; }
 
   /* ── Responsive ────────────────────────────────── */
   @media (max-width: 480px) {

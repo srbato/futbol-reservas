@@ -19,6 +19,7 @@ echo json_encode([
 @endpush
 
 @push('styles')
+<style>
   /* ── Hero ────────────────────────────────────────── */
   .cf-hero {
     padding: 40px 0 0 0;
@@ -182,7 +183,7 @@ echo json_encode([
   /* ── Section fondo jugadores ─────────────────────── */
   .cf-players-section {
     padding: 72px 0;
-    background: #f7f7f8;
+    background: #0a0a0a;
   }
 
   /* ── Steps grid ──────────────────────────────────── */
@@ -206,12 +207,12 @@ echo json_encode([
   }
 
   .step-card {
-    background: #fff;
-    border: 1px solid #ececec;
+    background: #111;
+    border: 1px solid rgba(255,255,255,.08);
     border-left: 4px solid #22c55e;
     border-radius: 20px;
     padding: 28px 22px 24px 22px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
     transition: transform .2s, box-shadow .2s;
     position: relative;
     z-index: 1;
@@ -258,11 +259,12 @@ echo json_encode([
     font-size: 18px;
     font-weight: 800;
     line-height: 1.2;
+    color: #e8e8e8;
   }
 
   .step-card p {
     margin: 0;
-    color: #666;
+    color: #a0a0a0;
     font-size: 14px;
     line-height: 1.65;
   }
@@ -270,14 +272,14 @@ echo json_encode([
   /* ── Divider ─────────────────────────────────────── */
   .flow-divider {
     border: none;
-    border-top: 1px solid #e8e8e8;
+    border-top: 1px solid rgba(255,255,255,.06);
     margin: 0;
   }
 
   /* ── Historial section ────────────────────────────── */
   .cf-historial-section {
     padding: 72px 0;
-    background: #fff;
+    background: #050505;
   }
 
   /* ── Feature highlight cards ─────────────────────── */
@@ -288,24 +290,24 @@ echo json_encode([
   }
 
   .feature-card {
-    background: #fff;
-    border: 1px solid #ececec;
+    background: #111;
+    border: 1px solid rgba(255,255,255,.08);
     border-radius: 20px;
     padding: 28px 24px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
     transition: transform .2s, box-shadow .2s;
   }
 
   .feature-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 28px rgba(0,0,0,0.08);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.25);
   }
 
   .feature-card-icon-wrap {
     width: 52px;
     height: 52px;
     border-radius: 14px;
-    background: #f0fdf4;
+    background: rgba(34,197,94,.1);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -323,11 +325,12 @@ echo json_encode([
     margin: 0 0 10px 0;
     font-size: 17px;
     font-weight: 800;
+    color: #e8e8e8;
   }
 
   .feature-card p {
     margin: 0;
-    color: #555;
+    color: #a0a0a0;
     font-size: 14px;
     line-height: 1.7;
   }
@@ -336,7 +339,7 @@ echo json_encode([
     margin: 12px 0 0 0;
     padding: 0;
     list-style: none;
-    color: #555;
+    color: #a0a0a0;
     font-size: 14px;
     line-height: 1.9;
   }
@@ -541,6 +544,7 @@ echo json_encode([
     .final-cta-inner { padding: 36px 24px; }
     .final-cta-inner h2 { font-size: 28px; }
   }
+</style>
 @endpush
 
 @section('content')
@@ -578,7 +582,7 @@ echo json_encode([
   <section class="cf-players-section">
     <div class="container">
       <div class="section-head" data-aos="fade-up">
-        <span class="section-label" style="background:#e8f7ee; color:#157347;">Para usuarios</span>
+        <span class="section-label" style="background:rgba(34,197,94,.1); color:#6eeaa0;">Para usuarios</span>
         <h2 class="section-title">Reservá en 4 pasos</h2>
         <p class="section-subtitle">
           Todo el proceso desde que entrás a TuCancha hasta que llegás a la cancha.
@@ -625,7 +629,7 @@ echo json_encode([
   <section class="cf-historial-section">
     <div class="container">
       <div class="section-head" data-aos="fade-up">
-        <span class="section-label" style="background:#e8f0ff; color:#1a4a9a;">Más que reservas</span>
+        <span class="section-label" style="background:rgba(34,197,94,.1); color:#6eeaa0;">Más que reservas</span>
         <h2 class="section-title">Tu historial deportivo</h2>
         <p class="section-subtitle">
           TuCancha no es solo para reservar. También te ayuda a llevar el registro de tu actividad deportiva y compartirla con tus compañeros.
@@ -653,7 +657,7 @@ echo json_encode([
             ¿Fuiste con amigos? Desde el detalle de tu reserva podés agregarlos buscándolos por nombre
             o mail. Ellos ven el partido en su propio historial aunque no hayan reservado.
           </p>
-          <p style="margin-top:10px; color:#555; font-size:14px; line-height:1.7;">
+          <p style="margin-top:10px; color:#a0a0a0; font-size:14px; line-height:1.7;">
             Ideal para cuando uno del grupo reserva por todos: nadie pierde el registro del partido.
           </p>
         </div>
@@ -665,7 +669,7 @@ echo json_encode([
             Cada jugador carga su propio resultado: si ganaron, empataron o perdieron, y el marcador si quieren.
             Como cada uno puede haber estado en un equipo diferente, los resultados son completamente independientes.
           </p>
-          <p style="margin-top:10px; color:#555; font-size:14px; line-height:1.7;">
+          <p style="margin-top:10px; color:#a0a0a0; font-size:14px; line-height:1.7;">
             El gráfico de torta en tu historial refleja solo tus propios resultados.
           </p>
         </div>

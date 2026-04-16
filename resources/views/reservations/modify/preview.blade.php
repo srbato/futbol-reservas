@@ -12,7 +12,7 @@
 
   {{-- Comparativa antes / después --}}
   <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
-    <div class="page-card" style="background:#f8f9fa; border-color:#e8e8e8;">
+    <div class="page-card" style="background:#1a1a1a; border-color:rgba(255,255,255,.08);">
       <div style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:#aaa; margin-bottom:12px;">Horario actual</div>
       <div style="font-size:16px; font-weight:700; margin-bottom:6px;">{{ $reservation->field->name }}</div>
       <div class="muted" style="font-size:13px; margin-bottom:10px;">{{ $reservation->field->venue->name }}</div>
@@ -23,7 +23,7 @@
       </div>
     </div>
 
-    <div class="page-card" style="border-color:#22c55e; background:#f0fdf4;">
+    <div class="page-card" style="border-color:#22c55e; background:rgba(34,197,94,.06);">
       <div style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:#16a34a; margin-bottom:12px;">Nuevo horario</div>
       <div style="font-size:16px; font-weight:700; margin-bottom:6px;">{{ $newField->name }}</div>
       <div class="muted" style="font-size:13px; margin-bottom:10px;">{{ $newField->venue->name }}</div>

@@ -25,6 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'venue.mp'           => \App\Http\Middleware\EnsureVenueMpConnected::class,
             'venue.onboarding'   => \App\Http\Middleware\VenueAdminOnboarding::class,
             'organizer.tier'     => \App\Http\Middleware\CheckOrganizerTier::class,
+            'torneos.soon'       => \App\Http\Middleware\TournamentsComingSoon::class,
         ]);
 
         $middleware->validateCsrfTokens(except: [

@@ -16,12 +16,12 @@
 
     <div class="page-card" style="text-align:center; margin-bottom:20px;">
       <div style="font-size:56px; margin-bottom:12px;">
-        <span style="display:inline-flex; align-items:center; justify-content:center; width:72px; height:72px; background:#dcfce7; border-radius:50%;">
+        <span style="display:inline-flex; align-items:center; justify-content:center; width:72px; height:72px; background:rgba(34,197,94,.1); border-radius:50%;">
           <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         </span>
       </div>
-      <h1 style="margin:0 0 10px 0; font-size:26px; font-weight:800; color:#15803d;">¡Suscripción activada!</h1>
-      <p style="margin:0 0 20px 0; color:#444; line-height:1.6;">
+      <h1 style="margin:0 0 10px 0; font-size:26px; font-weight:800; color:#6ee7a0;">¡Suscripción activada!</h1>
+      <p style="margin:0 0 20px 0; color:#a0a0a0; line-height:1.6;">
         MercadoPago cobrará
         <strong>{{ $subscription->currency }} {{ number_format($subscription->monthly_amount, 0, ',', '.') }}</strong>
         por mes automáticamente y generará tus turnos de
@@ -30,8 +30,8 @@
       </p>
 
       @if(count($nextOccurrences) > 0)
-        <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; padding:16px; text-align:left; margin-bottom:20px;">
-          <p style="margin:0 0 10px 0; font-size:13px; font-weight:700; color:#166534; text-transform:uppercase; letter-spacing:.04em;">
+        <div style="background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.2); border-radius:10px; padding:16px; text-align:left; margin-bottom:20px;">
+          <p style="margin:0 0 10px 0; font-size:13px; font-weight:700; color:#6ee7a0; text-transform:uppercase; letter-spacing:.04em;">
             Proximos turnos estimados
           </p>
           <ul style="margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:8px;">
@@ -40,7 +40,7 @@
                 <span style="text-transform:capitalize;">
                   {{ $occurrence->locale('es')->isoFormat('dddd D [de] MMMM YYYY') }}
                 </span>
-                <span style="font-weight:700; color:#15803d;">
+                <span style="font-weight:700; color:#6ee7a0;">
                   {{ $occurrence->format('H:i') }}
                 </span>
               </li>
@@ -57,7 +57,7 @@
         <form method="POST" action="{{ route('recurring.subscription.cancel', $subscription) }}"
               onsubmit="return confirm('¿Seguro que querés cancelar esta suscripción? Se cancelarán también tus turnos futuros.');">
           @csrf
-          <button type="submit" class="btn" style="width:100%; background:#fff; border:1px solid #fca5a5; color:#dc2626; font-size:14px;">
+          <button type="submit" class="btn" style="width:100%; background:rgba(229,57,53,.1); border:1px solid rgba(229,57,53,.2); color:#f87171; font-size:14px;">
             Cancelar suscripción
           </button>
         </form>
@@ -68,17 +68,17 @@
 
     <div class="page-card" style="text-align:center; margin-bottom:20px;">
       <div style="margin-bottom:12px;">
-        <span style="display:inline-flex; align-items:center; justify-content:center; width:72px; height:72px; background:#fef9c3; border-radius:50%;">
+        <span style="display:inline-flex; align-items:center; justify-content:center; width:72px; height:72px; background:rgba(245,158,11,.08); border-radius:50%;">
           <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         </span>
       </div>
-      <h1 style="margin:0 0 10px 0; font-size:24px; font-weight:800; color:#854d0e;">Pendiente de confirmacion</h1>
-      <p style="margin:0 0 20px 0; color:#444; line-height:1.6;">
+      <h1 style="margin:0 0 10px 0; font-size:24px; font-weight:800; color:#fbbf24;">Pendiente de confirmacion</h1>
+      <p style="margin:0 0 20px 0; color:#a0a0a0; line-height:1.6;">
         Estamos esperando la confirmacion de MercadoPago. Esto puede tardar unos minutos.
         Cuando se confirme, recibirás un email y tus turnos se crearán automáticamente.
       </p>
-      <div style="background:#fefce8; border:1px solid #fde68a; border-radius:8px; padding:12px; margin-bottom:20px;">
-        <p style="margin:0; font-size:13px; color:#92400e;">
+      <div style="background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2); border-radius:8px; padding:12px; margin-bottom:20px;">
+        <p style="margin:0; font-size:13px; color:#fbbf24;">
           Esta página se actualiza automáticamente. No hace falta que la cierres.
         </p>
       </div>
@@ -92,15 +92,15 @@
     {{-- FAILED o CANCELLED --}}
     <div class="page-card" style="text-align:center; margin-bottom:20px;">
       <div style="margin-bottom:12px;">
-        <span style="display:inline-flex; align-items:center; justify-content:center; width:72px; height:72px; background:#fee2e2; border-radius:50%;">
+        <span style="display:inline-flex; align-items:center; justify-content:center; width:72px; height:72px; background:rgba(229,57,53,.1); border-radius:50%;">
           <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
         </span>
       </div>
-      <h1 style="margin:0 0 10px 0; font-size:24px; font-weight:800; color:#b91c1c;">No se pudo activar la suscripción</h1>
-      <p style="margin:0 0 20px 0; color:#444; line-height:1.6;">
+      <h1 style="margin:0 0 10px 0; font-size:24px; font-weight:800; color:#f87171;">No se pudo activar la suscripción</h1>
+      <p style="margin:0 0 20px 0; color:#a0a0a0; line-height:1.6;">
         Hubo un problema al procesar tu suscripción. Podés intentarlo nuevamente desde la página de la cancha.
       </p>
-      <button onclick="history.back()" class="btn" style="background:#fff; border:1px solid #ddd; cursor:pointer;">
+      <button onclick="history.back()" class="btn" style="background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1); cursor:pointer;">
         Volver
       </button>
     </div>
@@ -123,7 +123,7 @@
         <span class="muted">Frecuencia</span>
         <span style="font-weight:600;">{{ $subscription->frequencyLabel() }}</span>
       </div>
-      <div style="display:flex; justify-content:space-between; border-top:1px solid #eee; padding-top:10px; margin-top:2px;">
+      <div style="display:flex; justify-content:space-between; border-top:1px solid rgba(255,255,255,.08); padding-top:10px; margin-top:2px;">
         <span class="muted">Monto mensual</span>
         <span style="font-weight:800; font-size:16px;">
           {{ $subscription->currency }} {{ number_format($subscription->monthly_amount, 0, ',', '.') }}

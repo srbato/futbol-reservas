@@ -18,7 +18,7 @@
     gap: 6px;
     font-size: 14px;
     font-weight: 600;
-    color: #6b7280;
+    color: #a0a0a0;
     text-decoration: none;
     margin-bottom: 20px;
     transition: color .15s;
@@ -28,10 +28,10 @@
 
   /* ── Card ────────────────────────────────────────── */
   .te-card {
-    background: #fff;
-    border: 1px solid #ececec;
+    background: #111;
+    border: 1px solid rgba(255,255,255,.08);
     border-radius: 20px;
-    box-shadow: 0 2px 12px rgba(0,0,0,.04);
+    box-shadow: 0 2px 12px rgba(0,0,0,.2);
     padding: 32px;
   }
 
@@ -44,7 +44,7 @@
     align-items: center;
     gap: 6px;
     background: rgba(34,197,94,.12);
-    color: #16a34a;
+    color: #22c55e;
     font-size: 12px;
     font-weight: 700;
     letter-spacing: .05em;
@@ -57,18 +57,18 @@
   .te-header h1 {
     font-size: 26px;
     font-weight: 800;
-    color: #111;
+    color: #e8e8e8;
     margin: 0 0 6px;
     letter-spacing: -.02em;
   }
   .te-header p {
     font-size: 14px;
-    color: #6b7280;
+    color: #a0a0a0;
     margin: 0;
   }
   .te-header-tournament {
     font-weight: 600;
-    color: #374151;
+    color: #e8e8e8;
   }
 
   /* ── Form ────────────────────────────────────────── */
@@ -79,23 +79,23 @@
     display: block;
     font-size: 14px;
     font-weight: 600;
-    color: #374151;
+    color: #e8e8e8;
     margin-bottom: 6px;
   }
   .te-label-hint {
     font-weight: 400;
-    color: #9ca3af;
+    color: #666;
     font-size: 13px;
   }
   .te-input {
     width: 100%;
-    border: 1px solid #d1d5db;
+    border: 1px solid rgba(255,255,255,.1);
     border-radius: 12px;
     padding: 12px 16px;
     font-size: 15px;
     font-family: inherit;
-    color: #111;
-    background: #fff;
+    color: #e8e8e8;
+    background: #111;
     outline: none;
     transition: border-color .15s, box-shadow .15s;
     box-sizing: border-box;
@@ -104,11 +104,11 @@
     border-color: #22c55e;
     box-shadow: 0 0 0 3px rgba(34,197,94,.1);
   }
-  .te-input::placeholder { color: #9ca3af; }
+  .te-input::placeholder { color: #666; }
   .te-input.is-invalid { border-color: #ef4444; }
   .te-input-readonly {
-    background: #f9fafb;
-    color: #6b7280;
+    background: #1a1a1a;
+    color: #666;
     cursor: not-allowed;
   }
   .te-error {
@@ -127,13 +127,13 @@
     width: 72px;
     height: 72px;
     border-radius: 14px;
-    border: 2px dashed #d1d5db;
+    border: 2px dashed rgba(255,255,255,.12);
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
     flex-shrink: 0;
-    background: #f9fafb;
+    background: #0a0a0a;
     transition: border-color .15s;
   }
   .te-file-preview img {
@@ -141,19 +141,19 @@
     height: 100%;
     object-fit: cover;
   }
-  .te-file-preview svg { width: 28px; height: 28px; color: #d1d5db; }
+  .te-file-preview svg { width: 28px; height: 28px; color: rgba(255,255,255,.2); }
   .te-file-input-wrap { flex: 1; }
   .te-file-btn {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     padding: 10px 18px;
-    border: 1px solid #d1d5db;
+    border: 1px solid rgba(255,255,255,.1);
     border-radius: 12px;
     font-size: 14px;
     font-weight: 600;
-    color: #374151;
-    background: #fff;
+    color: #e8e8e8;
+    background: #111;
     cursor: pointer;
     transition: border-color .15s, background .15s;
   }
@@ -161,14 +161,14 @@
   .te-file-btn svg { width: 16px; height: 16px; }
   .te-file-hint {
     font-size: 12px;
-    color: #9ca3af;
+    color: #666;
     margin-top: 6px;
   }
 
   /* ── Divider ────────────────────────────────────── */
   .te-divider {
     border: none;
-    border-top: 1px solid #f3f4f6;
+    border-top: 1px solid rgba(255,255,255,.06);
     margin: 28px 0;
   }
 
@@ -182,7 +182,7 @@
   .te-players-title {
     font-size: 16px;
     font-weight: 700;
-    color: #111;
+    color: #e8e8e8;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -191,7 +191,7 @@
   .te-players-count {
     font-size: 13px;
     font-weight: 600;
-    color: #9ca3af;
+    color: #666;
   }
 
   .te-player-row {
@@ -221,14 +221,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #fecaca;
+    border: 1px solid rgba(239,68,68,.25);
     border-radius: 12px;
-    background: #fff;
+    background: #111;
     color: #ef4444;
     cursor: pointer;
     transition: background .15s, border-color .15s;
   }
-  .te-player-remove:hover { background: #fef2f2; border-color: #ef4444; }
+  .te-player-remove:hover { background: rgba(239,68,68,.1); border-color: #ef4444; }
   .te-player-remove svg { width: 16px; height: 16px; }
   .te-player-remove-placeholder {
     width: 40px;
@@ -251,13 +251,13 @@
 
   .te-select {
     width: 100%;
-    border: 1px solid #d1d5db;
+    border: 1px solid rgba(255,255,255,.1);
     border-radius: 12px;
     padding: 12px 16px;
     font-size: 15px;
     font-family: inherit;
-    color: #111;
-    background: #fff;
+    color: #e8e8e8;
+    background: #111;
     outline: none;
     transition: border-color .15s, box-shadow .15s;
     box-sizing: border-box;
@@ -278,11 +278,11 @@
     align-items: center;
     gap: 6px;
     padding: 10px 18px;
-    border: 1.5px dashed #d1d5db;
+    border: 1.5px dashed rgba(255,255,255,.12);
     border-radius: 12px;
     font-size: 14px;
     font-weight: 600;
-    color: #6b7280;
+    color: #a0a0a0;
     background: transparent;
     cursor: pointer;
     transition: border-color .15s, color .15s, background .15s;
@@ -312,7 +312,7 @@
     gap: 8px;
     padding: 14px 32px;
     background: #22c55e;
-    color: #fff;
+    color: #052e16;
     border: none;
     border-radius: 14px;
     font-size: 15px;
@@ -343,14 +343,14 @@
   }
   .te-alert svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
   .te-alert-error {
-    background: #fef2f2;
-    color: #dc2626;
-    border: 1px solid #fecaca;
+    background: rgba(239,68,68,.08);
+    color: #f87171;
+    border: 1px solid rgba(239,68,68,.25);
   }
   .te-alert-info {
-    background: #f0f9ff;
-    color: #0369a1;
-    border: 1px solid #bae6fd;
+    background: rgba(59,130,246,.08);
+    color: #60a5fa;
+    border: 1px solid rgba(59,130,246,.25);
   }
 
   /* ── Responsive ─────────────────────────────────── */
@@ -369,11 +369,7 @@
 <div class="te-create-wrap" x-data="{
   logoPreview: null,
   players: [],
-  maxPlayers: {{ $tournament->players_per_team ? $tournament->players_per_team : 'null' }},
   idCounter: 0,
-  get maxReached() {
-    return this.maxPlayers !== null && (this.players.length + 1) >= this.maxPlayers;
-  },
   previewLogo(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -387,8 +383,7 @@
     reader.readAsDataURL(file);
   },
   addPlayer() {
-    if (this.maxReached) return;
-    this.players.push({ id: ++this.idCounter, name: '', role: 'jugador', removing: false });
+    this.players.push({ id: ++this.idCounter, name: '', dni: '', jersey_number: '', removing: false });
     this.$nextTick(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); });
   },
   removePlayer(index) {
@@ -430,7 +425,7 @@
       @if($tournament->players_per_team)
         <div class="te-alert te-alert-info" style="margin-top: 12px; margin-bottom: 0;">
           <i data-lucide="info"></i>
-          <span>Este torneo requiere <strong>{{ $tournament->players_per_team }} jugadores</strong> por equipo.</span>
+          <span>Minimo <strong>{{ $tournament->players_per_team }} jugadores</strong> por equipo.</span>
         </div>
       @endif
     </div>
@@ -500,42 +495,55 @@
           Jugadores
         </div>
         <div class="te-players-count">
-          <span x-text="players.length"></span>
-          @if($tournament->players_per_team)
-            / {{ $tournament->players_per_team }}
-          @endif
-          jugador<span x-show="players.length !== 1">es</span>
+          <span x-text="players.length + 1"></span>
+          jugador<span x-show="players.length !== 0">es</span>
         </div>
       </div>
 
-      {{-- Captain row (read-only) --}}
+      {{-- Captain row (editable) --}}
       <div class="te-player-row">
-        <div class="te-player-name">
+        <div class="te-player-name" style="flex:1;">
           <input
             type="text"
             name="players[0][name]"
-            class="te-input te-input-readonly"
-            value="{{ auth()->user()->name }}"
-            readonly
+            class="te-input"
+            value="{{ old('players.0.name', auth()->user()->name) }}"
+            placeholder="Nombre del capitan"
+            required
           >
+          <input type="hidden" name="players[0][role]" value="capitan">
           <div class="te-player-captain-badge">
             <i data-lucide="crown"></i>
-            Capitan del equipo
+            Capitan
           </div>
         </div>
-        <div class="te-player-role">
-          <input type="hidden" name="players[0][role]" value="capitan">
-          <select class="te-select te-input-readonly" disabled>
-            <option selected>Capitan</option>
-          </select>
-        </div>
+        <input
+          type="text"
+          name="players[0][dni]"
+          class="te-input"
+          value="{{ old('players.0.dni') }}"
+          placeholder="DNI"
+          required
+          style="width:120px;flex-shrink:0;"
+        >
+        <input
+          type="number"
+          name="players[0][jersey_number]"
+          class="te-input"
+          value="{{ old('players.0.jersey_number') }}"
+          placeholder="N°"
+          required
+          min="0"
+          max="99"
+          style="width:70px;flex-shrink:0;text-align:center;"
+        >
         <div class="te-player-remove-placeholder"></div>
       </div>
 
       {{-- Dynamic player rows --}}
       <template x-for="(player, index) in players" :key="player.id">
         <div class="te-player-row" :class="{ 'te-removing': player.removing }">
-          <div class="te-player-name">
+          <div class="te-player-name" style="flex:1;">
             <input
               type="text"
               :name="'players[' + (index + 1) + '][name]'"
@@ -544,19 +552,28 @@
               placeholder="Nombre del jugador"
               required
             >
+            <input type="hidden" :name="'players[' + (index + 1) + '][role]'" value="jugador">
           </div>
-          <div class="te-player-role">
-            <select
-              :name="'players[' + (index + 1) + '][role]'"
-              x-model="player.role"
-              class="te-select"
-            >
-              <option value="jugador">Jugador</option>
-              <option value="arquero">Arquero</option>
-              <option value="capitan">Capitan</option>
-              <option value="suplente">Suplente</option>
-            </select>
-          </div>
+          <input
+            type="text"
+            :name="'players[' + (index + 1) + '][dni]'"
+            x-model="player.dni"
+            class="te-input"
+            placeholder="DNI"
+            required
+            style="width:120px;flex-shrink:0;"
+          >
+          <input
+            type="number"
+            :name="'players[' + (index + 1) + '][jersey_number]'"
+            x-model="player.jersey_number"
+            class="te-input"
+            placeholder="N°"
+            required
+            min="0"
+            max="99"
+            style="width:70px;flex-shrink:0;text-align:center;"
+          >
           <button
             type="button"
             class="te-player-remove"
@@ -573,7 +590,6 @@
         type="button"
         class="te-add-player"
         @click="addPlayer()"
-        :disabled="maxReached"
       >
         <i data-lucide="plus"></i>
         Agregar jugador

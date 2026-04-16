@@ -26,10 +26,10 @@ echo json_encode([
   }
 
   .pc-hero-shell {
-    background: rgba(0,0,0,0.03);
+    background: rgba(255,255,255,0.04);
     border-radius: 2rem;
     padding: 5px;
-    border: 1px solid rgba(0,0,0,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
   }
 
   .pc-hero-inner {
@@ -193,11 +193,11 @@ echo json_encode([
   .pc-compare-shell {
     border-radius: 1.5rem;
     padding: 4px;
-    border: 1px solid rgba(0,0,0,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
   }
 
   .pc-compare-shell--antes {
-    background: rgba(0,0,0,0.02);
+    background: rgba(255,255,255,0.04);
   }
 
   .pc-compare-shell--ahora {
@@ -212,11 +212,11 @@ echo json_encode([
   }
 
   .pc-compare-shell--antes .pc-compare-card {
-    background: #fff;
+    background: #111;
   }
 
   .pc-compare-shell--ahora .pc-compare-card {
-    background: #f0fdf4;
+    background: rgba(34,197,94,.06);
   }
 
   .pc-compare-label {
@@ -231,13 +231,13 @@ echo json_encode([
   }
 
   .pc-compare-shell--antes .pc-compare-label {
-    background: #fef2f2;
-    color: #ef4444;
+    background: rgba(229,57,53,.1);
+    color: #f87171;
   }
 
   .pc-compare-shell--ahora .pc-compare-label {
     background: rgba(34,197,94,0.12);
-    color: #16a34a;
+    color: #6eeaa0;
   }
 
   .pc-compare-list {
@@ -270,12 +270,12 @@ echo json_encode([
   }
 
   .pc-compare-shell--antes .pc-icon-wrap {
-    background: #fef2f2;
-    color: #ef4444;
+    background: rgba(229,57,53,.1);
+    color: #f87171;
   }
 
   .pc-compare-shell--ahora .pc-icon-wrap {
-    background: #dcfce7;
+    background: rgba(34,197,94,.1);
     color: #22c55e;
   }
 
@@ -304,20 +304,20 @@ echo json_encode([
   }
 
   .pc-feat-shell {
-    background: rgba(0,0,0,0.02);
+    background: rgba(255,255,255,0.04);
     border-radius: 1.5rem;
     padding: 4px;
-    border: 1px solid rgba(0,0,0,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
     transition: transform 500ms var(--ease-out-expo), box-shadow 500ms var(--ease-out-expo);
   }
 
   .pc-feat-shell:hover {
     transform: translateY(-6px);
-    box-shadow: 0 20px 48px rgba(34,197,94,0.06);
+    box-shadow: 0 20px 48px rgba(34,197,94,0.12);
   }
 
   .pc-feat-card {
-    background: #fff;
+    background: #111;
     border-radius: calc(1.5rem - 4px);
     padding: 36px 28px;
     text-align: center;
@@ -328,7 +328,7 @@ echo json_encode([
     width: 48px;
     height: 48px;
     border-radius: 14px;
-    background: #f0fdf4;
+    background: rgba(34,197,94,.1);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -339,7 +339,7 @@ echo json_encode([
 
   .pc-feat-shell:hover .pc-feat-icon {
     transform: scale(1.1);
-    background: #dcfce7;
+    background: rgba(74,222,128,.18);
   }
 
   .pc-feat-card h3 {
@@ -353,7 +353,7 @@ echo json_encode([
   .pc-feat-card p {
     font-size: 14px;
     line-height: 1.65;
-    color: #5a5a5a;
+    color: #a0a0a0;
     margin: 0;
   }
 
@@ -390,16 +390,16 @@ echo json_encode([
   }
 
   .pc-price-shell {
-    background: rgba(0,0,0,0.02);
+    background: rgba(255,255,255,0.04);
     border-radius: 1.5rem;
     padding: 4px;
-    border: 1px solid rgba(0,0,0,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
     transition: transform 500ms var(--ease-out-expo), box-shadow 500ms var(--ease-out-expo);
   }
 
   .pc-price-shell:hover {
     transform: translateY(-6px);
-    box-shadow: 0 20px 48px rgba(0,0,0,0.06);
+    box-shadow: 0 20px 48px rgba(0,0,0,0.25);
   }
 
   .pc-price-shell--featured {
@@ -412,7 +412,7 @@ echo json_encode([
   }
 
   .pc-price-card {
-    background: #fff;
+    background: #111;
     border-radius: calc(1.5rem - 4px);
     padding: 36px 28px;
     height: 100%;
@@ -436,7 +436,7 @@ echo json_encode([
 
   .pc-price-badge--accent {
     background: rgba(34,197,94,0.12);
-    color: #16a34a;
+    color: #6eeaa0;
   }
 
   .pc-price-name {
@@ -529,15 +529,15 @@ echo json_encode([
   }
 
   .pc-table-shell {
-    background: rgba(0,0,0,0.02);
+    background: rgba(255,255,255,0.04);
     border-radius: 1.5rem;
     padding: 4px;
-    border: 1px solid rgba(0,0,0,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
     overflow: hidden;
   }
 
   .pc-table-wrap {
-    background: #fff;
+    background: #111;
     border-radius: calc(1.5rem - 4px);
     overflow-x: auto;
   }
@@ -563,7 +563,7 @@ echo json_encode([
 
   .pc-table thead th:nth-child(2) {
     color: #22c55e;
-    background: #f0fdf4;
+    background: rgba(34,197,94,.06);
   }
 
   .pc-table thead th:nth-child(3) {
@@ -590,7 +590,7 @@ echo json_encode([
   }
 
   .pc-table tbody td:nth-child(2) {
-    background: rgba(240,253,244,0.5);
+    background: rgba(34,197,94,.04);
   }
 
   .pc-check {
@@ -600,7 +600,7 @@ echo json_encode([
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    background: #f0fdf4;
+    background: rgba(34,197,94,.1);
     color: #22c55e;
   }
 
@@ -611,8 +611,8 @@ echo json_encode([
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    background: #fef2f2;
-    color: #ef4444;
+    background: rgba(229,57,53,.1);
+    color: #f87171;
   }
 
   .pc-partial {
@@ -622,8 +622,8 @@ echo json_encode([
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    background: #fffbeb;
-    color: #f59e0b;
+    background: rgba(245,158,11,.08);
+    color: #fbbf24;
   }
 
   @media (max-width: 600px) {
@@ -1014,7 +1014,7 @@ echo json_encode([
               <tr>
                 <td>Costo</td>
                 <td><strong style="color:#22c55e;">Fijo desde ${{ number_format($plans->min('monthly_price'), 0, ',', '.') }}/mes</strong></td>
-                <td><span style="color:#5a5a5a;">Tiempo, errores, ingresos perdidos</span></td>
+                <td><span style="color:#a0a0a0;">Tiempo, errores, ingresos perdidos</span></td>
               </tr>
             </tbody>
           </table>
@@ -1060,7 +1060,7 @@ echo json_encode([
               <tr>
                 <td>Precio transparente</td>
                 <td><strong style="color:#22c55e;">Fijo, sin sorpresas</strong></td>
-                <td><span style="color:#5a5a5a;">Variable o no público</span></td>
+                <td><span style="color:#a0a0a0;">Variable o no público</span></td>
               </tr>
             </tbody>
           </table>

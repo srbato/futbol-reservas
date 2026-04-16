@@ -52,6 +52,10 @@ Schedule::command('reviews:send-reminders')
     ->hourly()
     ->withoutOverlapping();
 
+Schedule::command('reservations:notify-post-game')
+    ->everyFiveMinutes()
+    ->withoutOverlapping();
+
 Schedule::command('app:send-reengagement-emails')
     ->dailyAt('10:00')
     ->withoutOverlapping();

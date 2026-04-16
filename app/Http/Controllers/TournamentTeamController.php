@@ -40,15 +40,18 @@ class TournamentTeamController extends Controller
     {
         abort_if(!$tournament->canRegister(), 403, 'El torneo no acepta inscripciones.');
 
+        $minPlayers = $tournament->players_per_team ?? 1;
         $data = $request->validate([
-            'name' => 'required|string|max:80',
-            'logo' => 'nullable|image|max:1024',
-            'players' => 'nullable|array|max:' . ($tournament->players_per_team * 2),
+            'team_name' => 'required|string|max:80',
+            'logo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:1024',
+            'players' => 'required|array|min:' . $minPlayers,
             'players.*.name' => 'required|string|max:80',
-            'players.*.role' => 'nullable|string|in:jugador,arquero,capitan,suplente',
+            'players.*.dni' => 'required|string|max:20',
+            'players.*.jersey_number' => 'required|integer|min:0|max:99',
+            'players.*.role' => 'nullable|string',
         ]);
 
-        $exists = $tournament->teams()->where('name', $data['name'])->exists();
+        $exists = $tournament->teams()->where('name', $data['team_name'])->exists();
         if ($exists) {
             return back()->withErrors(['name' => 'Ya existe un equipo con ese nombre en este torneo.'])->withInput();
         }
@@ -81,7 +84,7 @@ class TournamentTeamController extends Controller
 
         $team = TournamentTeam::create([
             'tournament_id' => $tournament->id,
-            'name' => $data['name'],
+            'name' => $data['team_name'],
             'logo_path' => $logoPath,
             'captain_user_id' => auth()->id(),
             'status' => TournamentTeam::STATUS_CONFIRMED,
@@ -96,24 +99,28 @@ class TournamentTeamController extends Controller
             $payment->update(['team_id' => $team->id]);
         }
 
-        // Agregar capitan como primer jugador
-        $team->players()->create([
-            'user_id' => auth()->id(),
-            'name' => auth()->user()->name,
-            'email' => auth()->user()->email,
-            'role' => 'captain',
-        ]);
-
-        // Agregar jugadores adicionales
+        // Agregar todos los jugadores (el primero es el capitan)
         if (!empty($data['players'])) {
-            foreach ($data['players'] as $playerData) {
+            foreach ($data['players'] as $index => $playerData) {
                 if (empty($playerData['name'])) continue;
 
+                $isCaptain = ($index == 0 || ($playerData['role'] ?? '') === 'capitan');
+
                 $team->players()->create([
+                    'user_id' => $isCaptain ? auth()->id() : null,
                     'name' => $playerData['name'],
-                    'role' => $playerData['role'] ?? 'jugador',
+                    'email' => $isCaptain ? auth()->user()->email : null,
+                    'dni' => $playerData['dni'] ?? null,
+                    'jersey_number' => $playerData['jersey_number'] ?? null,
+                    'role' => $isCaptain ? 'captain' : ($playerData['role'] ?? 'jugador'),
                 ]);
             }
+        }
+
+        // Notificar al organizador si tiene plan con notificaciones
+        $orgPlan = \App\Models\OrganizerPlan::where('slug', $tournament->organizer->organizerTier())->where('is_active', true)->first();
+        if ($orgPlan && $orgPlan->has_notifications) {
+            $tournament->organizer->notify(new \App\Notifications\TournamentTeamRegisteredNotification($tournament, $team));
         }
 
         return redirect()->route('torneos.show', $tournament)

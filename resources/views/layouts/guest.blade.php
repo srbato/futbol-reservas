@@ -19,17 +19,21 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
 <link rel="canonical" href="{{ url()->current() }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/design-tokens.css">
 
 <style>
 * { box-sizing:border-box; margin:0; padding:0; }
 
 body{
-font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-background:#f7f7f8;
-color:#111;
+font-family:'Sora',system-ui,-apple-system,sans-serif;
+background:#050505;
+color:#e8e8e8;
 min-height:100vh;
 overflow-x:hidden;
+-webkit-font-smoothing:antialiased;
 }
 
 /* ===================== TWO-COLUMN LAYOUT ===================== */
@@ -55,7 +59,7 @@ inset:0;
 width:100%;
 height:100%;
 object-fit:cover;
-opacity:.7;
+opacity:.5;
 animation:heroZoom 25s ease-in-out infinite alternate;
 }
 
@@ -67,7 +71,7 @@ animation:heroZoom 25s ease-in-out infinite alternate;
 .auth-hero-overlay{
 position:absolute;
 inset:0;
-background:linear-gradient(135deg,rgba(0,0,0,.55) 0%,rgba(22,163,74,.25) 100%);
+background:linear-gradient(135deg,rgba(0,0,0,.6) 0%,rgba(34,197,94,.15) 100%);
 display:flex;
 flex-direction:column;
 justify-content:flex-end;
@@ -80,10 +84,11 @@ font-size:32px;
 font-weight:800;
 line-height:1.2;
 margin-bottom:12px;
+letter-spacing:-0.02em;
 }
 
 .auth-hero-overlay p{
-color:rgba(255,255,255,.8);
+color:rgba(255,255,255,.7);
 font-size:16px;
 line-height:1.5;
 max-width:380px;
@@ -112,7 +117,7 @@ overflow:hidden;
 width:100%;
 height:100%;
 object-fit:cover;
-opacity:.12;
+opacity:.06;
 filter:blur(2px);
 }
 
@@ -121,10 +126,10 @@ filter:blur(2px);
 .auth-header{
 position:relative;
 z-index:2;
-background:rgba(255,255,255,.85);
+background:rgba(10,10,10,.85);
 backdrop-filter:blur(12px);
 -webkit-backdrop-filter:blur(12px);
-border-bottom:1px solid rgba(0,0,0,.06);
+border-bottom:1px solid rgba(255,255,255,.06);
 padding:14px 24px;
 display:flex;
 justify-content:space-between;
@@ -150,18 +155,18 @@ display:none;
 .auth-header-link{
 font-size:14px;
 font-weight:500;
-color:#111;
+color:#e8e8e8;
 text-decoration:none;
 padding:8px 16px;
 border-radius:10px;
-border:1px solid #e5e7eb;
+border:1px solid rgba(255,255,255,.12);
 transition:all .2s ease;
 }
 
 .auth-header-link:hover{
-background:#16a34a;
-color:#fff;
-border-color:#16a34a;
+background:#22c55e;
+color:#050505;
+border-color:#22c55e;
 text-decoration:none;
 }
 
@@ -182,13 +187,13 @@ padding:32px 20px;
 .auth-card{
 width:100%;
 max-width:440px;
-background:rgba(255,255,255,.92);
+background:rgba(17,17,17,.92);
 backdrop-filter:blur(16px);
 -webkit-backdrop-filter:blur(16px);
 border-radius:24px;
 padding:32px 28px;
-border:1px solid rgba(0,0,0,.06);
-box-shadow:0 20px 60px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.04);
+border:1px solid rgba(255,255,255,.08);
+box-shadow:0 20px 60px rgba(0,0,0,.4), 0 1px 3px rgba(0,0,0,.2);
 animation:cardSlideUp .6s cubic-bezier(.16,1,.3,1) both;
 }
 
@@ -202,7 +207,7 @@ animation:cardSlideUp .6s cubic-bezier(.16,1,.3,1) both;
 label{
 font-size:14px;
 font-weight:600;
-color:#374151;
+color:#a0a0a0;
 }
 
 input[type="text"],
@@ -211,11 +216,12 @@ input[type="password"]{
 width:100%;
 padding:11px 14px;
 border-radius:12px;
-border:1.5px solid #e5e7eb;
+border:1.5px solid rgba(255,255,255,.1);
 margin-top:6px;
 font-size:15px;
-background:#fff;
-color:#111;
+background:#0a0a0a;
+color:#e8e8e8;
+font-family:'Sora',sans-serif;
 transition:border-color .2s ease, box-shadow .2s ease;
 }
 
@@ -223,34 +229,35 @@ input[type="text"]:focus,
 input[type="email"]:focus,
 input[type="password"]:focus{
 outline:none;
-border-color:#16a34a;
-box-shadow:0 0 0 3px rgba(22,163,74,.12);
+border-color:#22c55e;
+box-shadow:0 0 0 3px rgba(34,197,94,.12);
 }
 
 input[type="checkbox"]{
 width:auto;
-accent-color:#16a34a;
+accent-color:#22c55e;
 }
 
 /* BUTTON (green CTA) */
 
 .auth-btn{
-background:#16a34a;
-color:#fff;
+background:#22c55e;
+color:#050505;
 border:none;
 padding:12px 24px;
 border-radius:12px;
-font-weight:600;
+font-weight:700;
 font-size:15px;
 cursor:pointer;
 transition:all .2s ease;
 width:100%;
+font-family:'Sora',sans-serif;
 }
 
 .auth-btn:hover{
-background:#15803d;
+background:#16a34a;
 transform:translateY(-1px);
-box-shadow:0 4px 12px rgba(22,163,74,.3);
+box-shadow:0 4px 12px rgba(34,197,94,.3);
 }
 
 .auth-btn:active{
@@ -260,7 +267,7 @@ transform:translateY(0);
 /* LINKS */
 
 a{
-color:#111;
+color:#e8e8e8;
 text-decoration:none;
 }
 
@@ -290,15 +297,17 @@ color:#666;
   }
 
   .auth-header{
-    background:#fff;
+    background:#0a0a0a;
     backdrop-filter:none;
+    border-bottom:1px solid rgba(255,255,255,.06);
   }
 
   .auth-card{
-    background:#fff;
+    background:#111;
     backdrop-filter:none;
     max-width:460px;
     padding:36px 32px;
+    border:1px solid rgba(255,255,255,.08);
   }
 
   .brand-full{ height:52px; }
@@ -337,8 +346,8 @@ color:#666;
 
   <header class="auth-header">
     <a href="{{ route('home') }}" class="brand">
-      <img src="/images/logo-multicolor.svg" alt="TuCancha" class="brand-full">
-      <img src="/images/logo-multicolor-responsive.svg" alt="TuCancha" class="brand-icon">
+      <img src="/images/logo-fondonegro-multicolor.svg" alt="TuCancha" class="brand-full">
+      <img src="/images/logo-fondonegro-multicolor-responsive.svg" alt="TuCancha" class="brand-icon">
     </a>
 
     <a href="{{ route('venues.index') }}" class="auth-header-link">Ver complejos</a>

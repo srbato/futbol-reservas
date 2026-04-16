@@ -2,9 +2,17 @@
 
 @section('title', $tournament->name . ' — Torneo en TuCancha')
 @section('meta_description', $tournament->max_teams . ' equipos | Eliminacion directa | ' . $tournament->external_venue_name)
+@section('og_title', $tournament->name . ' — Torneo en TuCancha')
+@section('og_description', $tournament->max_teams . ' equipos | Eliminacion directa | ' . $tournament->external_venue_name)
+@section('og_image', $tournament->cover_image_path ? asset('storage/' . $tournament->cover_image_path) : ($tournament->venue && $tournament->venue->cover_image_path ? \Illuminate\Support\Facades\Storage::url($tournament->venue->cover_image_path) : asset('images/og-default.png')))
 
 @push('head')
 <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
+@if($tournament->primary_color)
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+@endif
 {{-- Open Graph para compartir por WhatsApp --}}
 <meta property="og:title" content="{{ $tournament->name }}">
 <meta property="og:description" content="{{ $tournament->max_teams }} equipos | Eliminacion directa | {{ $tournament->external_venue_name }}">
@@ -32,13 +40,13 @@
     align-items: center;
     gap: 6px;
     font-size: 13px;
-    color: #888;
+    color: #a0a0a0;
     text-decoration: none;
     font-weight: 600;
     transition: color .15s, transform .15s;
     margin-bottom: 16px;
   }
-  .tt-back:hover { color: #111; transform: translateX(-2px); }
+  .tt-back:hover { color: #e8e8e8; transform: translateX(-2px); }
   .tt-back svg { width: 16px; height: 16px; }
 
   /* ── Sport color variables ─────────────────────── */
@@ -244,8 +252,8 @@
 
   /* ── Rules ─────────────────────────────────────── */
   .tt-rules {
-    background: var(--sport-color-bg, #f0fdf4);
-    border: 1px solid rgba(0,0,0,.05);
+    background: var(--sport-color-bg, rgba(34,197,94,.08));
+    border: 1px solid rgba(255,255,255,.06);
     border-radius: 12px;
     padding: 16px;
     font-size: 13px;
@@ -380,7 +388,7 @@
   .tt-btn-outline:hover { border-color: var(--color-text); color: var(--color-text); }
 
   .tt-btn-manage {
-    background: var(--sport-color-bg, #f0fdf4);
+    background: var(--sport-color-bg, rgba(34,197,94,.08));
     color: var(--sport-color, var(--color-primary));
     border: 1px solid var(--sport-color, var(--color-primary));
     font-size: 13px;
@@ -701,6 +709,434 @@
   $finishedMatches = $tournament->matches->where('status', 'finished')->sortByDesc('played_at');
 @endphp
 
+{{-- Custom branding override --}}
+@if($tournament->primary_color)
+@php
+  $pc = $tournament->primary_color;
+  $sc = $tournament->secondary_color ?? '#111111';
+@endphp
+<style>
+  /* ── FULL PAGE BRANDING ─────────────────────────── */
+
+  /* Override CSS variables — pc=fondo, sc=detalles */
+  .tt-sport-{{ $tournament->sport }} {
+    --sport-color: {{ $sc }};
+    --sport-color-light: {{ $sc }};
+    --sport-color-bg: {{ $sc }}18;
+    --sport-gradient: linear-gradient(135deg, {{ $pc }} 0%, {{ $pc }}ee 35%, {{ $sc }} 100%);
+  }
+
+  /* Page background — primary color with rich depth layers */
+  .site-main {
+    background: {{ $pc }} !important;
+    color: #fff !important;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ── DEPTH LAYER 1: large ambient color blobs ── */
+  .site-main::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    background:
+      /* Top-left warm glow from secondary */
+      radial-gradient(ellipse 70% 50% at 5% 15%, {{ $sc }}30 0%, transparent 60%),
+      /* Bottom-right secondary bloom */
+      radial-gradient(ellipse 60% 45% at 95% 85%, {{ $sc }}25 0%, transparent 55%),
+      /* Center-left darker pocket */
+      radial-gradient(ellipse 50% 60% at 15% 55%, rgba(0,0,0,.15) 0%, transparent 50%),
+      /* Top highlight - lighter version of primary */
+      radial-gradient(ellipse 90% 40% at 50% 0%, rgba(255,255,255,.06) 0%, transparent 50%),
+      /* Mid-right secondary accent */
+      radial-gradient(circle at 85% 40%, {{ $sc }}18 0%, transparent 40%),
+      /* Bottom darkening for grounding */
+      linear-gradient(180deg, transparent 0%, transparent 60%, rgba(0,0,0,.12) 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── DEPTH LAYER 2: subtle geometric shapes for texture ── */
+  .site-main::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    background:
+      /* Large diagonal stripe of light */
+      linear-gradient(135deg, transparent 20%, rgba(255,255,255,.03) 35%, transparent 50%),
+      /* Opposite diagonal */
+      linear-gradient(225deg, transparent 30%, rgba(255,255,255,.02) 45%, transparent 55%),
+      /* Soft vignette around edges */
+      radial-gradient(ellipse 120% 120% at 50% 50%, transparent 40%, rgba(0,0,0,.1) 100%),
+      /* Scattered light dots */
+      radial-gradient(circle at 30% 25%, rgba(255,255,255,.05) 0%, transparent 15%),
+      radial-gradient(circle at 70% 65%, rgba(255,255,255,.04) 0%, transparent 12%),
+      radial-gradient(circle at 45% 80%, rgba(255,255,255,.03) 0%, transparent 10%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .site-main > * { position: relative; z-index: 1; }
+
+  /* Scroll progress */
+  .tt-scroll-progress { background: {{ $sc }} !important; }
+
+  /* Back link */
+  .tt-back { color: rgba(255,255,255,.6) !important; }
+  .tt-back:hover { color: #fff !important; }
+
+  /* Hero — light overlay so cover image shows through clearly */
+  .tt-hero-overlay { background: {{ $pc }}55 !important; }
+  .tt-hero-gradient { background: linear-gradient(to top, {{ $pc }}cc 0%, {{ $pc }}44 40%, transparent 70%) !important; }
+  .tt-hero-pattern {
+    background-image:
+      radial-gradient(circle at 15% 85%, {{ $sc }}30 0%, transparent 50%),
+      radial-gradient(circle at 85% 20%, {{ $sc }}15 0%, transparent 40%) !important;
+  }
+  /* Hero bg fallback when no cover image */
+  .tt-hero-bg:not([style*="background-image"]) { background: var(--sport-gradient) !important; }
+
+  /* Glass stats */
+  .tt-glass-stat { background: {{ $sc }}88 !important; border-color: {{ $sc }} !important; color: #fff !important; }
+
+  /* Badges */
+  .tt-badge-sport { color: #fff !important; border-color: {{ $sc }} !important; background: {{ $sc }} !important; }
+  .tt-badge-format { border-color: {{ $sc }} !important; color: #fff !important; }
+
+  /* ── CARDS — glassmorphism with depth ── */
+  .tt-card {
+    background: linear-gradient(145deg, rgba(255,255,255,.08) 0%, rgba(255,255,255,.02) 100%) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(255,255,255,.12) !important;
+    box-shadow:
+      0 8px 32px rgba(0,0,0,.2),
+      0 2px 8px rgba(0,0,0,.1),
+      inset 0 1px 0 rgba(255,255,255,.08) !important;
+    transition: box-shadow .3s, transform .3s !important;
+  }
+  .tt-card:hover {
+    box-shadow:
+      0 12px 40px rgba(0,0,0,.25),
+      0 4px 12px rgba(0,0,0,.15),
+      inset 0 1px 0 rgba(255,255,255,.1),
+      0 0 30px {{ $sc }}20 !important;
+    transform: translateY(-2px) !important;
+  }
+  .tt-card-accent { border-top: 4px solid {{ $sc }} !important; }
+
+  /* Section titles */
+  .tt-section-title { color: {{ $sc }} !important; text-shadow: 0 0 30px {{ $sc }}40, 0 2px 4px rgba(0,0,0,.3); }
+  .tt-section-title svg { stroke: {{ $sc }} !important; filter: drop-shadow(0 0 8px {{ $sc }}50); }
+
+  /* Info tiles — frosted glass with secondary tint */
+  .tt-info-tile {
+    background: linear-gradient(135deg, {{ $sc }}99 0%, {{ $sc }}66 100%) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 16px {{ $sc }}30, inset 0 1px 0 rgba(255,255,255,.15) !important;
+    border: 1px solid {{ $sc }}bb !important;
+  }
+  .tt-info-tile-label { color: rgba(255,255,255,.85) !important; }
+  .tt-info-tile-val { color: #fff !important; font-weight: 700 !important; text-shadow: 0 1px 3px rgba(0,0,0,.2); }
+
+  /* Description */
+  .tt-description { color: rgba(255,255,255,.9) !important; }
+
+  /* Rules — frosted panel */
+  .tt-rules {
+    background: linear-gradient(135deg, rgba(255,255,255,.06) 0%, rgba(255,255,255,.02) 100%) !important;
+    backdrop-filter: blur(8px) !important;
+    border-color: rgba(255,255,255,.1) !important;
+    color: #fff !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 4px 16px rgba(0,0,0,.15) !important;
+  }
+
+  /* ── CTA CARD — elevated with glow ── */
+  .tt-cta-card {
+    border-top: 4px solid {{ $sc }} !important;
+    background: linear-gradient(145deg, {{ $sc }}cc 0%, {{ $sc }}99 100%) !important;
+    border-color: {{ $sc }} !important;
+    box-shadow: 0 8px 32px {{ $sc }}40, 0 0 60px {{ $sc }}15, inset 0 1px 0 rgba(255,255,255,.15) !important;
+  }
+  .tt-cta-sub { color: rgba(255,255,255,.8) !important; }
+
+  /* Buttons — elevated with glow */
+  .tt-btn-primary {
+    background: linear-gradient(135deg, {{ $sc }} 0%, {{ $sc }}cc 100%) !important;
+    color: #fff !important;
+    box-shadow: 0 4px 16px {{ $sc }}60, 0 2px 4px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.2) !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,.2) !important;
+  }
+  .tt-btn-primary:hover { filter: brightness(1.1) !important; box-shadow: 0 6px 24px {{ $sc }}80, 0 2px 8px rgba(0,0,0,.25) !important; }
+  .tt-btn-outline {
+    border-color: {{ $sc }} !important;
+    color: #fff !important;
+    background: rgba(255,255,255,.05) !important;
+    backdrop-filter: blur(4px) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.08) !important;
+  }
+  .tt-btn-outline:hover { background: {{ $sc }} !important; color: #fff !important; box-shadow: 0 4px 16px {{ $sc }}50 !important; }
+  .tt-btn-manage {
+    background: rgba(255,255,255,.06) !important;
+    color: {{ $sc }} !important;
+    border-color: {{ $sc }} !important;
+    backdrop-filter: blur(4px) !important;
+  }
+  .tt-btn-manage:hover { background: {{ $sc }} !important; color: #fff !important; }
+
+  /* Share buttons — glass */
+  .tt-share-btn {
+    border-color: rgba(255,255,255,.15) !important;
+    background: rgba(255,255,255,.06) !important;
+    backdrop-filter: blur(4px) !important;
+    color: #fff !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.06) !important;
+  }
+  .tt-share-btn:hover { background: {{ $sc }}60 !important; border-color: {{ $sc }} !important; box-shadow: 0 4px 12px {{ $sc }}30 !important; }
+
+  /* ── TEAMS — glass cards with depth ── */
+  .tt-team-card {
+    background: linear-gradient(145deg, rgba(255,255,255,.08) 0%, rgba(255,255,255,.03) 100%) !important;
+    backdrop-filter: blur(8px) !important;
+    border: 1px solid rgba(255,255,255,.1) !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,.15), inset 0 1px 0 rgba(255,255,255,.08) !important;
+  }
+  .tt-team-card:hover {
+    border-color: {{ $sc }}99 !important;
+    box-shadow: 0 8px 28px rgba(0,0,0,.2), 0 0 20px {{ $sc }}20 !important;
+    background: linear-gradient(145deg, rgba(255,255,255,.12) 0%, rgba(255,255,255,.05) 100%) !important;
+    transform: translateY(-2px) !important;
+  }
+  .tt-team-card.is-user-team {
+    border-color: {{ $sc }} !important;
+    background: linear-gradient(145deg, {{ $sc }}30 0%, {{ $sc }}15 100%) !important;
+    box-shadow: 0 4px 20px {{ $sc }}25, inset 0 1px 0 rgba(255,255,255,.1) !important;
+  }
+  .tt-team-name { color: #fff !important; text-shadow: 0 1px 2px rgba(0,0,0,.2); }
+  .tt-team-captain { color: rgba(255,255,255,.7) !important; }
+  .tt-team-avatar {
+    background: linear-gradient(135deg, {{ $sc }} 0%, {{ $sc }}cc 100%) !important;
+    box-shadow: 0 2px 8px {{ $sc }}40 !important;
+  }
+  .tt-team-players-count { color: #fff !important; background: {{ $sc }} !important; box-shadow: 0 2px 6px {{ $sc }}40 !important; }
+  .tt-team-slot {
+    border: 1px dashed rgba(255,255,255,.15) !important;
+    color: rgba(255,255,255,.4) !important;
+    background: rgba(255,255,255,.03) !important;
+  }
+
+  /* ── BRACKET — glass match cards ── */
+  .tt-match {
+    border: 1px solid rgba(255,255,255,.1) !important;
+    background: linear-gradient(145deg, rgba(255,255,255,.07) 0%, rgba(255,255,255,.02) 100%) !important;
+    backdrop-filter: blur(6px) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,.15), inset 0 1px 0 rgba(255,255,255,.06) !important;
+  }
+  .tt-match:hover {
+    border-color: {{ $sc }}88 !important;
+    box-shadow: 0 6px 20px rgba(0,0,0,.2), 0 0 16px {{ $sc }}18 !important;
+  }
+  .tt-match-team { color: #fff !important; }
+  .tt-match-team.is-winner { background: {{ $sc }}30 !important; }
+  .tt-match-team.is-winner .tt-match-team-score { color: {{ $sc }} !important; font-weight: 800 !important; text-shadow: 0 0 10px {{ $sc }}50; }
+  .tt-match-team + .tt-match-team { border-top-color: rgba(255,255,255,.08) !important; }
+  .tt-match-team-score { color: #fff !important; }
+  .tt-match-team-seed { background: rgba(255,255,255,.08) !important; color: rgba(255,255,255,.6) !important; }
+  .tt-match-penalties { background: rgba(255,255,255,.05) !important; color: rgba(255,255,255,.8) !important; }
+  .tt-match-tbd { color: rgba(255,255,255,.3) !important; }
+  .tt-round-title { color: rgba(255,255,255,.5) !important; text-shadow: 0 1px 2px rgba(0,0,0,.2); }
+
+  /* ── RESULTS — glass rows ── */
+  .tt-result-row {
+    background: linear-gradient(135deg, rgba(255,255,255,.06) 0%, rgba(255,255,255,.02) 100%) !important;
+    border: 1px solid rgba(255,255,255,.08) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.05) !important;
+  }
+  .tt-result-round { color: rgba(255,255,255,.5) !important; }
+  .tt-result-teams { color: #fff !important; }
+
+  /* Layout grid text */
+  .tt-layout { color: #fff; }
+
+  /* ══════════════════════════════════════════════════
+     PREMIUM FEATURES — only for Pro plan branding
+     ══════════════════════════════════════════════════ */
+
+  /* ── 1. FLOATING PARTICLES ─────────────────────── */
+  .tt-particles {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .tt-particle {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0;
+    animation: ttFloat linear infinite;
+  }
+  .tt-particle:nth-child(1)  { width: 6px;  height: 6px;  left: 8%;   background: {{ $sc }}; animation-duration: 18s; animation-delay: 0s; }
+  .tt-particle:nth-child(2)  { width: 4px;  height: 4px;  left: 18%;  background: rgba(255,255,255,.3); animation-duration: 22s; animation-delay: 2s; }
+  .tt-particle:nth-child(3)  { width: 8px;  height: 8px;  left: 30%;  background: {{ $sc }}88; animation-duration: 16s; animation-delay: 4s; }
+  .tt-particle:nth-child(4)  { width: 3px;  height: 3px;  left: 42%;  background: rgba(255,255,255,.25); animation-duration: 24s; animation-delay: 1s; }
+  .tt-particle:nth-child(5)  { width: 5px;  height: 5px;  left: 55%;  background: {{ $sc }}aa; animation-duration: 20s; animation-delay: 3s; }
+  .tt-particle:nth-child(6)  { width: 7px;  height: 7px;  left: 65%;  background: {{ $sc }}66; animation-duration: 17s; animation-delay: 5s; }
+  .tt-particle:nth-child(7)  { width: 4px;  height: 4px;  left: 75%;  background: rgba(255,255,255,.2); animation-duration: 21s; animation-delay: 0.5s; }
+  .tt-particle:nth-child(8)  { width: 6px;  height: 6px;  left: 85%;  background: {{ $sc }}99; animation-duration: 19s; animation-delay: 2.5s; }
+  .tt-particle:nth-child(9)  { width: 3px;  height: 3px;  left: 92%;  background: rgba(255,255,255,.15); animation-duration: 23s; animation-delay: 4.5s; }
+  .tt-particle:nth-child(10) { width: 5px;  height: 5px;  left: 50%;  background: {{ $sc }}77; animation-duration: 15s; animation-delay: 1.5s; }
+  .tt-particle:nth-child(11) { width: 4px;  height: 4px;  left: 12%;  background: rgba(255,255,255,.18); animation-duration: 25s; animation-delay: 6s; }
+  .tt-particle:nth-child(12) { width: 7px;  height: 7px;  left: 38%;  background: {{ $sc }}55; animation-duration: 14s; animation-delay: 3.5s; }
+
+  @keyframes ttFloat {
+    0%   { transform: translateY(100vh) rotate(0deg) scale(0); opacity: 0; }
+    10%  { opacity: .6; transform: translateY(80vh) rotate(36deg) scale(1); }
+    50%  { opacity: .4; }
+    90%  { opacity: .6; }
+    100% { transform: translateY(-10vh) rotate(360deg) scale(0.5); opacity: 0; }
+  }
+
+  /* ── 2. PREMIUM BADGE ──────────────────────────── */
+  .tt-premium-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+    color: #1a1a1a;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    box-shadow: 0 2px 12px rgba(251,191,36,.4), inset 0 1px 0 rgba(255,255,255,.4);
+    position: relative;
+    overflow: hidden;
+  }
+  .tt-premium-badge svg { width: 14px; height: 14px; flex-shrink: 0; }
+  /* Shimmer sweep */
+  .tt-premium-badge::after {
+    content: '';
+    position: absolute;
+    top: -50%; left: -75%;
+    width: 50%; height: 200%;
+    background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,.5) 50%, transparent 60%);
+    animation: ttShimmer 3s ease-in-out infinite;
+  }
+  @keyframes ttShimmer {
+    0%, 100% { left: -75%; }
+    50% { left: 125%; }
+  }
+
+  /* ── 3. ANIMATED GRADIENT BACKGROUND ───────────── */
+  @keyframes ttGradientShift {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  .site-main {
+    background: linear-gradient(135deg,
+      {{ $pc }} 0%,
+      {{ $pc }} 25%,
+      color-mix(in srgb, {{ $pc }}, {{ $sc }} 12%) 50%,
+      {{ $pc }} 75%,
+      color-mix(in srgb, {{ $pc }}, black 8%) 100%
+    ) !important;
+    background-size: 400% 400% !important;
+    animation: ttGradientShift 15s ease infinite !important;
+  }
+
+  /* ── 4. PARALLAX HERO ──────────────────────────── */
+  .tt-hero {
+    transform-style: preserve-3d;
+  }
+  .tt-hero-bg {
+    will-change: transform;
+    transition: transform .1s linear;
+  }
+
+  /* ── 5. ANIMATED GRADIENT BORDERS ON CARDS ─────── */
+  @keyframes ttBorderRotate {
+    0%   { --tt-border-angle: 0deg; }
+    100% { --tt-border-angle: 360deg; }
+  }
+  @property --tt-border-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+  }
+  .tt-card {
+    position: relative !important;
+    border: none !important;
+  }
+  .tt-card::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: conic-gradient(
+      from var(--tt-border-angle),
+      {{ $sc }} 0%,
+      transparent 25%,
+      {{ $sc }}44 50%,
+      transparent 75%,
+      {{ $sc }} 100%
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: ttBorderRotate 4s linear infinite;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* ── 6. PREMIUM TYPOGRAPHY ─────────────────────── */
+  .site-main,
+  .site-main * {
+    font-family: 'Outfit', 'Inter', system-ui, sans-serif !important;
+  }
+  .tt-hero-h1 {
+    font-weight: 900 !important;
+    letter-spacing: -1px !important;
+  }
+  .tt-section-title {
+    font-weight: 800 !important;
+    letter-spacing: -.5px !important;
+  }
+  .tt-glass-stat-num, .tt-info-tile-val {
+    font-weight: 800 !important;
+    letter-spacing: -.5px !important;
+  }
+
+  /* ── 7. COUNTER ANIMATION BASE ─────────────────── */
+  .tt-counter {
+    display: inline-block;
+    transition: transform .2s;
+  }
+  .tt-counter.is-counting {
+    animation: ttCountPulse .4s ease-out;
+  }
+  @keyframes ttCountPulse {
+    0% { transform: scale(1.3); opacity: .5; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+</style>
+@endif
+
+{{-- Floating particles (Pro only) --}}
+@if($tournament->primary_color)
+<div class="tt-particles" aria-hidden="true">
+  <div class="tt-particle"></div><div class="tt-particle"></div><div class="tt-particle"></div>
+  <div class="tt-particle"></div><div class="tt-particle"></div><div class="tt-particle"></div>
+  <div class="tt-particle"></div><div class="tt-particle"></div><div class="tt-particle"></div>
+  <div class="tt-particle"></div><div class="tt-particle"></div><div class="tt-particle"></div>
+</div>
+@endif
+
 {{-- Scroll progress --}}
 <div class="tt-scroll-progress" id="ttScrollProgress"></div>
 
@@ -724,6 +1160,12 @@
   <div class="tt-hero-content">
     {{-- Badges --}}
     <div class="tt-hero-badges" data-aos="fade-up" data-aos-delay="100">
+      @if($tournament->primary_color)
+      <span class="tt-premium-badge">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+        Torneo Premium
+      </span>
+      @endif
       <span class="tt-badge tt-badge-sport">{{ $sportLabel }}</span>
       <span class="tt-badge {{ $statusClass }}">
         @if($tournament->status === 'open_registration')
@@ -734,8 +1176,14 @@
       <span class="tt-badge tt-badge-format">{{ $formatLabel }}</span>
     </div>
 
-    {{-- Title --}}
-    <h1 class="tt-hero-h1" data-aos="fade-up" data-aos-delay="150">{{ $tournament->name }}</h1>
+    {{-- Title + Logo --}}
+    <div style="display:flex;align-items:center;gap:16px;" data-aos="fade-up" data-aos-delay="150">
+      @if($tournament->logo_image_path)
+        <img src="{{ asset('storage/' . $tournament->logo_image_path) }}" alt="{{ $tournament->name }}"
+             style="width:64px;height:64px;border-radius:14px;object-fit:cover;border:2px solid rgba(255,255,255,.25);flex-shrink:0;box-shadow:0 4px 16px rgba(0,0,0,.3);">
+      @endif
+      <h1 class="tt-hero-h1">{{ $tournament->name }}</h1>
+    </div>
 
     {{-- Branding --}}
     <div class="tt-hero-branding" data-aos="fade-up" data-aos-delay="200">
@@ -1049,7 +1497,7 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
                 Inscribir equipo
               </a>
-              <p class="tt-cta-sub" style="color:#15803d;">Pago confirmado — completa tu inscripcion</p>
+              <p class="tt-cta-sub" style="color:#22c55e;">Pago confirmado — completa tu inscripcion</p>
             @else
               <a href="{{ route('torneos.teams.checkout', $tournament) }}" class="tt-btn tt-btn-primary">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
@@ -1076,7 +1524,7 @@
           Inscripcion completa
         </div>
       @elseif(isset($userTeam) && $userTeam)
-        <div style="padding:12px; background:var(--sport-color-bg, #f0fdf4); border-radius:10px; font-size:14px; font-weight:700; color:var(--sport-color, var(--color-primary)); display:flex; align-items:center; gap:8px; justify-content:center;">
+        <div style="padding:12px; background:var(--sport-color-bg, rgba(34,197,94,.08)); border-radius:10px; font-size:14px; font-weight:700; color:var(--sport-color, var(--color-primary)); display:flex; align-items:center; gap:8px; justify-content:center;">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
           Ya estas inscripto con {{ $userTeam->name }}
         </div>
@@ -1100,6 +1548,13 @@
             <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
           </svg>
         </button>
+        @if($tournament->estimated_start_date || $tournament->actual_start_date)
+          <a href="{{ route('calendar.tournament', $tournament) }}" class="tt-share-btn" title="Agregar al calendario">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 13V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="19" y1="16" x2="19" y2="22"/><line x1="16" y1="19" x2="22" y2="19"/>
+            </svg>
+          </a>
+        @endif
       </div>
     </div>
 
@@ -1162,17 +1617,17 @@
 
         @if($tournament->status === 'draft')
           @if($tournament->venue_approval_status === 'pending')
-            <span class="tt-btn tt-btn-manage" style="background:rgba(245,179,1,.1);color:#92400e;border-color:#fbbf24;cursor:default;">
+            <span class="tt-btn tt-btn-manage" style="background:rgba(245,179,1,.1);color:#fbbf24;border-color:#fbbf24;cursor:default;">
               Esperando aprobacion
             </span>
           @elseif($tournament->venue_approval_status === 'rejected')
-            <span class="tt-btn tt-btn-manage" style="background:rgba(239,68,68,.1);color:#991b1b;border-color:#f87171;cursor:default;">
+            <span class="tt-btn tt-btn-manage" style="background:rgba(239,68,68,.1);color:#f87171;border-color:#f87171;cursor:default;">
               Cancha rechazada
             </span>
           @else
             <form method="POST" action="{{ route('torneos.publish', $tournament) }}" style="display:inline;">
               @csrf
-              <button type="submit" class="tt-btn tt-btn-manage" style="background:rgba(34,197,94,.1);color:#16a34a;border-color:#22c55e;">
+              <button type="submit" class="tt-btn tt-btn-manage" style="background:rgba(34,197,94,.1);color:#22c55e;border-color:#22c55e;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                 Publicar
               </button>
@@ -1211,5 +1666,92 @@
     const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
     el.style.width = Math.min(pct, 100) + '%';
   });
+
+  @if($tournament->primary_color)
+  // ── PARALLAX on hero image ──
+  (function() {
+    const heroBg = document.querySelector('.tt-hero-bg');
+    if (!heroBg) return;
+    let ticking = false;
+    window.addEventListener('scroll', function() {
+      if (!ticking) {
+        requestAnimationFrame(function() {
+          const scroll = window.scrollY;
+          if (scroll < 600) {
+            heroBg.style.transform = 'translateY(' + (scroll * 0.35) + 'px) scale(1.1)';
+          }
+          ticking = false;
+        });
+        ticking = true;
+      }
+    });
+    heroBg.style.transform = 'scale(1.1)';
+  })();
+
+  // ── ANIMATED COUNTERS ──
+  (function() {
+    function animateCounter(el, target, suffix) {
+      suffix = suffix || '';
+      const duration = 1200;
+      const start = performance.now();
+      el.classList.add('tt-counter', 'is-counting');
+      function step(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const current = Math.round(eased * target);
+        el.textContent = current + suffix;
+        if (progress < 1) requestAnimationFrame(step);
+        else {
+          el.classList.remove('is-counting');
+          el.textContent = target + suffix;
+        }
+      }
+      requestAnimationFrame(step);
+    }
+
+    const observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (!entry.isIntersecting || entry.target.dataset.counted) return;
+        entry.target.dataset.counted = '1';
+        const text = entry.target.textContent.trim();
+        // Handle "X/Y" format
+        const slashMatch = text.match(/^(\d+)\s*\/\s*(\d+)$/);
+        if (slashMatch) {
+          const a = parseInt(slashMatch[1]), b = parseInt(slashMatch[2]);
+          const duration = 1200, start = performance.now();
+          entry.target.classList.add('tt-counter', 'is-counting');
+          function step(now) {
+            const elapsed = now - start;
+            const progress = Math.min(elapsed / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            entry.target.textContent = Math.round(eased * a) + '/' + Math.round(eased * b);
+            if (progress < 1) requestAnimationFrame(step);
+            else {
+              entry.target.classList.remove('is-counting');
+              entry.target.textContent = a + '/' + b;
+            }
+          }
+          requestAnimationFrame(step);
+          return;
+        }
+        // Handle pure numbers
+        const numMatch = text.match(/^(\d+)/);
+        if (numMatch) {
+          const num = parseInt(numMatch[1]);
+          const rest = text.slice(numMatch[0].length);
+          if (num > 0 && num < 10000) {
+            animateCounter(entry.target, num, rest);
+          }
+        }
+      });
+    }, { threshold: 0.5 });
+
+    document.querySelectorAll('.tt-glass-stat-num, .tt-info-tile-val').forEach(function(el) {
+      const text = el.textContent.trim();
+      if (/^\d/.test(text)) observer.observe(el);
+    });
+  })();
+  @endif
 </script>
 @endpush

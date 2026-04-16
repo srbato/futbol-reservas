@@ -80,7 +80,7 @@
   .pf-hero-name {
     font-size: 32px;
     font-weight: 900;
-    color: var(--color-text-inverse);
+    color: #e8e8e8;
     margin: 0;
     line-height: 1.1;
     letter-spacing: -.02em;
@@ -144,7 +144,7 @@
     padding: 12px 16px;
     border-radius: 14px;
     text-decoration: none;
-    color: #374151;
+    color: #a0a0a0;
     font-size: 14px;
     font-weight: 600;
     transition: background .15s ease, transform .15s ease, color .15s ease;
@@ -152,7 +152,7 @@
   }
 
   .pf-nav-item:hover {
-    background: #f3f4f6;
+    background: rgba(255,255,255,.04);
     transform: translateX(2px);
   }
 
@@ -171,7 +171,7 @@
   }
 
   .pf-nav-item.pf-nav-danger:hover {
-    background: #fef2f2;
+    background: rgba(229,57,53,.1);
   }
 
   .pf-nav-icon {
@@ -235,8 +235,8 @@
   }
 
   .pf-card-danger {
-    background: #fff5f5;
-    border: 1.5px solid #fecaca;
+    background: rgba(229,57,53,.1);
+    border: 1.5px solid rgba(229,57,53,.2);
   }
 
   .pf-card-header {
@@ -252,7 +252,7 @@
     width: 44px;
     height: 44px;
     border-radius: 12px;
-    background: #f3f4f6;
+    background: rgba(255,255,255,.04);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -268,7 +268,7 @@
 
   .pf-card-subtitle {
     font-size: 14px;
-    color: #6b7280;
+    color: #a0a0a0;
     margin: 0;
   }
 
@@ -277,7 +277,7 @@
     display: block;
     font-size: 11px;
     font-weight: 600;
-    color: #6b7280;
+    color: #a0a0a0;
     text-transform: uppercase;
     letter-spacing: .08em;
     margin-bottom: 6px;
@@ -309,8 +309,8 @@
     align-items: center;
     gap: 8px;
     padding: 12px 28px;
-    background: #111827;
-    color: var(--color-text-inverse);
+    background: #22c55e;
+    color: #050505;
     border: none;
     border-radius: 12px;
     font-size: 14px;
@@ -356,12 +356,12 @@
     align-items: center;
     gap: 10px;
     padding: 12px 16px;
-    background: #dcfce7;
-    border: 1px solid #bbf7d0;
+    background: rgba(34,197,94,.1);
+    border: 1px solid rgba(34,197,94,.2);
     border-radius: 12px;
     font-size: 14px;
     font-weight: 600;
-    color: #15803d;
+    color: #6ee7a0;
     margin-bottom: 20px;
   }
 
@@ -418,7 +418,7 @@
   .pf-avatar-overlay span {
     font-size: 12px;
     font-weight: 600;
-    color: var(--color-text-inverse);
+    color: #fff;
     line-height: 1;
   }
 
@@ -455,7 +455,7 @@
   }
 
   .pf-pass-toggle:hover {
-    color: #374151;
+    color: #a0a0a0;
   }
 
   .pf-pass-wrap .pf-input {
@@ -513,10 +513,10 @@
   }
 
   .pf-modal-header {
-    background: linear-gradient(180deg, #fff5f5 0%, #fff 100%);
+    background: linear-gradient(180deg, rgba(229,57,53,.1) 0%, #111 100%);
     padding: 32px 32px 24px 32px;
     text-align: center;
-    border-bottom: 1px solid #fecaca;
+    border-bottom: 1px solid rgba(229,57,53,.2);
   }
 
   .pf-modal-body {
@@ -532,7 +532,7 @@
 
   .pf-modal-sub {
     font-size: 14px;
-    color: #6b7280;
+    color: #a0a0a0;
     margin: 0;
     line-height: 1.5;
   }
@@ -542,8 +542,8 @@
     align-items: center;
     padding: 12px 24px;
     background: transparent;
-    color: #374151;
-    border: 1.5px solid #d1d5db;
+    color: #a0a0a0;
+    border: 1.5px solid rgba(255,255,255,.1);
     border-radius: 12px;
     font-size: 14px;
     font-weight: 700;
@@ -553,7 +553,7 @@
   }
 
   .pf-btn-cancel:hover {
-    background: #f3f4f6;
+    background: rgba(255,255,255,.04);
     transform: translateY(-1px);
   }
 
@@ -593,7 +593,7 @@
     background: var(--color-bg);
     font-size: 13px;
     font-weight: 700;
-    color: #374151;
+    color: #a0a0a0;
     cursor: pointer;
     transition: all .15s ease;
     font-family: inherit;
@@ -631,7 +631,7 @@
     width: 48px;
     height: 48px;
     border-radius: 12px;
-    background: #f3f4f6;
+    background: rgba(255,255,255,.04);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -670,7 +670,7 @@
     padding: 6px 14px;
     border: 1.5px solid var(--color-border);
     border-radius: 8px;
-    color: #374151;
+    color: #a0a0a0;
     text-decoration: none;
     font-weight: 600;
     transition: all .15s ease;
@@ -684,13 +684,13 @@
   }
 
   .pf-game-btn-rate {
-    background: #fef3c7;
-    border-color: #fde68a;
-    color: #92400e;
+    background: rgba(245,158,11,.08);
+    border-color: rgba(245,158,11,.2);
+    color: #fbbf24;
   }
 
   .pf-game-btn-rate:hover {
-    background: #fde68a;
+    background: rgba(245,158,11,.15);
   }
 
   /* ── Sport profile cards ── */
@@ -718,7 +718,7 @@
     width: 48px;
     height: 48px;
     border-radius: 12px;
-    background: #f3f4f6;
+    background: rgba(255,255,255,.04);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -743,16 +743,16 @@
   .pf-sport-badge {
     padding: 3px 10px;
     border-radius: var(--radius-full);
-    background: #f3f4f6;
+    background: rgba(255,255,255,.04);
     font-size: 11px;
     font-weight: 600;
-    color: #374151;
+    color: #a0a0a0;
     text-transform: capitalize;
   }
 
   .pf-sport-stats {
     font-size: 13px;
-    color: #6b7280;
+    color: #a0a0a0;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -778,7 +778,7 @@
     padding: 7px 16px;
     border: 1.5px solid var(--color-border);
     border-radius: 10px;
-    color: #374151;
+    color: #a0a0a0;
     font-size: 12px;
     font-weight: 700;
     text-decoration: none;
@@ -801,13 +801,13 @@
     width: 64px;
     height: 64px;
     margin: 0 auto 16px auto;
-    color: #d1d5db;
+    color: #444;
   }
 
   .pf-empty-title {
     font-size: 16px;
     font-weight: 700;
-    color: #374151;
+    color: #a0a0a0;
     margin: 0 0 6px 0;
   }
 
@@ -848,6 +848,94 @@
     display: block;
   }
 
+  /* ── Badges ── */
+  .pf-badges-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .pf-badge-pill {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px 5px 10px;
+    border-radius: 999px;
+    background: var(--badge-bg);
+    border: 1.5px solid var(--badge-border);
+    color: var(--badge-color);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: default;
+    opacity: 0;
+    animation: pf-badge-fadein 0.5s ease forwards;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .pf-badge-pill:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+
+  @keyframes pf-badge-fadein {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .pf-badge-icon {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .pf-badge-icon svg {
+    stroke: var(--badge-color);
+  }
+
+  .pf-badge-label {
+    white-space: nowrap;
+  }
+
+  .pf-badge-tooltip {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 6px 12px;
+    background: #1f2937;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 8px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 10;
+  }
+
+  .pf-badge-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #333;
+  }
+
+  .pf-badge-pill:hover .pf-badge-tooltip {
+    opacity: 1;
+  }
+
   /* ── Responsive ── */
   @media (max-width: 768px) {
     .pf-layout {
@@ -883,6 +971,8 @@
     .pf-modal-body {
       padding: 20px;
     }
+
+    .pf-badge-tooltip { display: none; }
   }
 </style>
 @endpush
@@ -916,11 +1006,16 @@
     ->where('user_id', $userId)
     ->whereIn('status', ['confirmed', 'no_show'])
     ->get();
+  $myConvResults = \App\Models\ReservationResult::where('user_id', $userId)
+    ->whereNotNull('match_outcome')
+    ->with('reservation.field')
+    ->get();
   $realSportStats = [];
   foreach ($sportProfiles as $sp) {
     $sportParts = $allMyParts->filter(fn($p) => $p->game->field->sport === $sp->sport);
     $confirmed = $sportParts->where('status', 'confirmed');
-    $realSportStats[$sp->sport] = $confirmed->count();
+    $convCount = $myConvResults->filter(fn($r) => $r->reservation->field->sport === $sp->sport)->count();
+    $realSportStats[$sp->sport] = $confirmed->count() + $convCount;
   }
 @endphp
 
@@ -964,6 +1059,13 @@
         </span>
       @endif
     </div>
+
+    {{-- Reputation Badges --}}
+    @if(!empty($allBadges))
+      <div style="margin-top: 14px;" data-aos="fade-up" data-aos-delay="240">
+        @include('components.badges', ['badges' => $allBadges, 'prefix' => 'pf'])
+      </div>
+    @endif
   </div>
 </div>
 
@@ -1030,7 +1132,7 @@
     <section id="deportivo" class="pf-section pf-card" data-aos="fade-up" data-aos-delay="180">
       <div class="pf-card-header">
         <div class="pf-card-icon-wrap">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#a0a0a0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>
         </div>
         <div style="flex:1;">
           <h2 class="pf-card-title">Perfil deportivo</h2>
@@ -1038,7 +1140,7 @@
         </div>
         <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
           @if($sportProfiles->isNotEmpty())
-            <a href="{{ route('sport-profile.public', auth()->user()) }}" style="padding:9px 18px; font-size:13px; font-weight:700; color:#16a34a; border:1.5px solid #dcfce7; border-radius:10px; text-decoration:none; background:#f0fdf4; transition:all .15s;" onmouseover="this.style.background='#dcfce7'" onmouseout="this.style.background='#f0fdf4'">
+            <a href="{{ route('sport-profile.public', auth()->user()) }}" style="padding:9px 18px; font-size:13px; font-weight:700; color:#16a34a; border:1.5px solid rgba(34,197,94,.2); border-radius:10px; text-decoration:none; background:rgba(34,197,94,.1); transition:all .15s;" onmouseover="this.style.background='rgba(34,197,94,.15)'" onmouseout="this.style.background='rgba(34,197,94,.1)'">
               Ver mi perfil publico
             </a>
           @endif
@@ -1109,7 +1211,7 @@
     <section id="partidos" class="pf-section pf-card" data-aos="fade-up" data-aos-delay="200">
       <div class="pf-card-header">
         <div class="pf-card-icon-wrap">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#a0a0a0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
         </div>
         <div>
           <h2 class="pf-card-title">Mis partidos</h2>
@@ -1151,8 +1253,8 @@
                 </div>
                 <div class="pf-game-actions">
                   <span style="font-size:12px; font-weight:700; padding:4px 10px; border-radius:999px;
-                    background:{{ $pg->status === 'full' ? '#dcfce7' : '#fef9c3' }};
-                    color:{{ $pg->status === 'full' ? '#15803d' : '#854d0e' }};">
+                    background:{{ $pg->status === 'full' ? 'rgba(34,197,94,.1)' : 'rgba(245,158,11,.08)' }};
+                    color:{{ $pg->status === 'full' ? '#6ee7a0' : '#fbbf24' }};">
                     {{ $pg->status === 'full' ? 'Completo' : 'Buscando' }}
                   </span>
                   <a href="{{ route('falta-uno.show', $pg) }}" class="pf-game-btn">Ver partido</a>
@@ -1191,7 +1293,7 @@
               <div class="pf-game-card" data-aos="fade-left" data-aos-delay="{{ $index * 50 }}" style="opacity:.85;">
                 <div class="pf-game-emoji" style="opacity:.7;">{{ $sportEmoji }}</div>
                 <div class="pf-game-info">
-                  <p class="pf-game-name" style="color:#444;">{{ $pg->field->name }} · {{ $pg->field->venue->name }}</p>
+                  <p class="pf-game-name" style="color:#e8e8e8;">{{ $pg->field->name }} · {{ $pg->field->venue->name }}</p>
                   <p class="pf-game-meta">
                     {{ $pg->start_at->format('d/m/Y H:i') }} hs
                     @if($esIniciador) &nbsp;·&nbsp; Organizador @endif

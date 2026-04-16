@@ -13,7 +13,7 @@
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    background: var(--color-bg-page, #f7f7f8);
+    background: var(--color-bg-page, #050505);
   }
 
   .sp-page-inner {
@@ -33,19 +33,19 @@
     margin-bottom: 20px;
     transition: color 250ms var(--ease-out-expo);
   }
-  .sp-back:hover { color: var(--color-text, #111); }
+  .sp-back:hover { color: var(--color-text, #e8e8e8); }
   .sp-back svg { transition: transform 250ms var(--ease-out-expo); }
   .sp-back:hover svg { transform: translateX(-3px); }
   .sp-back:focus-visible { outline: 2px solid #22c55e; outline-offset: 2px; border-radius: 6px; }
 
   /* ── Error Box ──────────────────────────────────── */
   .sp-error {
-    background: #fef2f2;
-    border: 1px solid #fecaca;
+    background: rgba(229,57,53,.1);
+    border: 1px solid rgba(229,57,53,.25);
     border-radius: 16px;
     padding: 14px 18px;
     font-size: 13px;
-    color: #dc2626;
+    color: #f87171;
     margin-bottom: 16px;
     animation: sp-shake 400ms var(--ease-out-expo);
   }
@@ -60,14 +60,14 @@
 
   /* ── Form Card (Double-Bezel) ───────────────────── */
   .sp-form-shell {
-    background: rgba(0,0,0,0.025);
+    background: rgba(255,255,255,0.025);
     border-radius: 2rem;
     padding: 5px;
-    border: 1px solid rgba(0,0,0,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
   }
 
   .sp-form-card {
-    background: #fff;
+    background: #111;
     border-radius: calc(2rem - 5px);
     overflow: hidden;
   }
@@ -136,7 +136,7 @@
   .sp-section-label {
     font-size: 13px;
     font-weight: 800;
-    color: #111;
+    color: #e8e8e8;
     margin-bottom: 12px;
     letter-spacing: -0.01em;
   }
@@ -149,7 +149,7 @@
   }
 
   .sp-section-hint.warning {
-    color: #b45309;
+    color: #fbbf24;
   }
 
   .sp-field {
@@ -163,8 +163,8 @@
     gap: 12px;
     padding: 14px 20px;
     border-radius: 14px;
-    background: #f0fdf4;
-    border: 1px solid #dcfce7;
+    background: rgba(34,197,94,.1);
+    border: 1px solid rgba(34,197,94,.2);
   }
 
   .sp-sport-display-icon {
@@ -174,7 +174,7 @@
   .sp-sport-display-name {
     font-size: 15px;
     font-weight: 800;
-    color: #166534;
+    color: #4ade80;
     letter-spacing: -0.01em;
   }
 
@@ -190,19 +190,19 @@
     cursor: pointer;
     padding: 12px 20px;
     border-radius: 12px;
-    border: 2px solid #ececec;
-    background: #fff;
+    border: 2px solid rgba(255,255,255,.08);
+    background: #0a0a0a;
     font-size: 14px;
     font-weight: 700;
-    color: #555;
+    color: #a0a0a0;
     transition: border-color 350ms var(--ease-out-expo), background 350ms var(--ease-out-expo), color 350ms var(--ease-out-expo), transform 350ms var(--ease-out-expo), box-shadow 350ms var(--ease-out-expo);
     user-select: none;
   }
 
   .sp-cat-pill:hover {
-    border-color: #d0d0d0;
+    border-color: rgba(255,255,255,.15);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   }
 
   .sp-cat-pill:active {
@@ -211,9 +211,9 @@
 
   .sp-cat-pill.selected {
     border-color: #22c55e;
-    background: #111;
-    color: #fff;
-    box-shadow: 0 4px 16px rgba(17,17,17,0.15);
+    background: #22c55e;
+    color: #050505;
+    box-shadow: 0 4px 16px rgba(34,197,94,0.25);
   }
 
   .sp-cat-pill input { display: none; }
@@ -230,15 +230,15 @@
     gap: 8px;
     padding: 12px 20px;
     border-radius: 14px;
-    background: #f0fdf4;
-    border: 1px solid #bbf7d0;
+    background: rgba(34,197,94,.1);
+    border: 1px solid rgba(34,197,94,.2);
     font-size: 15px;
     font-weight: 800;
-    color: #15803d;
+    color: #4ade80;
   }
 
   .sp-cat-locked svg {
-    color: #16a34a;
+    color: #22c55e;
   }
 
   /* ── Gender Toggle ──────────────────────────────── */
@@ -253,17 +253,17 @@
     cursor: pointer;
     padding: 14px 16px;
     border-radius: 14px;
-    border: 2px solid #ececec;
-    background: #fff;
+    border: 2px solid rgba(255,255,255,.08);
+    background: #0a0a0a;
     text-align: center;
     transition: border-color 350ms var(--ease-out-expo), background 350ms var(--ease-out-expo), color 350ms var(--ease-out-expo), transform 350ms var(--ease-out-expo), box-shadow 350ms var(--ease-out-expo);
     user-select: none;
   }
 
   .sp-gender-btn:hover {
-    border-color: #d0d0d0;
+    border-color: rgba(255,255,255,.15);
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.05);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.3);
   }
 
   .sp-gender-btn:active {
@@ -272,9 +272,9 @@
 
   .sp-gender-btn.selected {
     border-color: #22c55e;
-    background: #111;
-    color: #fff;
-    box-shadow: 0 6px 20px rgba(17,17,17,0.12);
+    background: #22c55e;
+    color: #050505;
+    box-shadow: 0 6px 20px rgba(34,197,94,0.25);
   }
 
   .sp-gender-btn input { display: none; }
@@ -306,13 +306,13 @@
   .sp-select {
     width: 100%;
     padding: 12px 16px;
-    border: 2px solid #ececec;
+    border: 2px solid rgba(255,255,255,.1);
     border-radius: 12px;
     font-size: 14px;
     font-weight: 600;
     font-family: inherit;
-    color: #111;
-    background: #fff;
+    color: #e8e8e8;
+    background: #0a0a0a;
     outline: none;
     transition: border-color 250ms var(--ease-out-expo), box-shadow 250ms var(--ease-out-expo);
     cursor: pointer;

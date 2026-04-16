@@ -58,6 +58,7 @@
                 class="px-3 py-2 rounded-xl border border-slate-300 bg-white text-sm text-slate-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:shadow-indigo-100">
           <option value="">Todos</option>
           <option value="PENDING_PAYMENT" {{ ($status ?? '') === 'PENDING_PAYMENT' ? 'selected' : '' }}>Pendiente de pago</option>
+          <option value="PENDING_CASH"    {{ ($status ?? '') === 'PENDING_CASH'    ? 'selected' : '' }}>Pago en el complejo</option>
           <option value="PAID"            {{ ($status ?? '') === 'PAID'            ? 'selected' : '' }}>Pagada</option>
           <option value="CANCELLED"       {{ ($status ?? '') === 'CANCELLED'       ? 'selected' : '' }}>Cancelada</option>
           <option value="EXPIRED"         {{ ($status ?? '') === 'EXPIRED'         ? 'selected' : '' }}>Expirada</option>
@@ -143,8 +144,19 @@
               </code>
             </td>
 
-            <td class="px-6 py-3.5 text-right">
-              @if(in_array($r->status, ['PENDING_PAYMENT', 'PAID']))
+            <td class="px-6 py-3.5 text-right whitespace-nowrap">
+              @if($r->status === 'PENDING_CASH')
+                <form method="POST" action="{{ route('va.reservations.confirm_cash', $r) }}"
+                      style="display:inline;"
+                      onsubmit="return confirm('¿Confirmar el pago en efectivo de esta reserva?')">
+                  @csrf
+                  <button type="submit"
+                          style="padding:6px 12px; background:#16a34a; color:#fff; font-size:12px; font-weight:700; border-radius:8px; border:none; cursor:pointer;">
+                    Confirmar pago
+                  </button>
+                </form>
+              @endif
+              @if(in_array($r->status, ['PENDING_PAYMENT', 'PENDING_CASH', 'PAID']))
                 <form method="POST" action="{{ route('va.reservations.cancel', $r) }}"
                       style="display:inline;"
                       onsubmit="return confirm('¿Cancelar esta reserva?')">

@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Events\FieldAvailabilityChanged;
 use App\Models\Field;
 use App\Models\Reservation;
+use App\Models\VenueUserBlock;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -22,6 +23,10 @@ class ReservationService
 
         if (!$field->venue || !$field->venue->is_active) {
             abort(422, 'El complejo no está activo.');
+        }
+
+        if (VenueUserBlock::isBlocked($userId, $field->venue->id)) {
+            throw new \App\Exceptions\VenueBlockedException('No podés reservar en este complejo. Contactá al complejo para más información.');
         }
 
         $start = $start->copy()->seconds(0);
@@ -85,9 +90,9 @@ class ReservationService
 
             $overlap = Reservation::query()
                 ->where('field_id', $field->id)
-                ->whereIn('status', ['PENDING_PAYMENT', 'PAID'])
+                ->whereIn('status', ['PENDING_PAYMENT', 'PENDING_CASH', 'PAID'])
                 ->where(function ($q) {
-                    $q->where('status', '!=', 'PENDING_PAYMENT')
+                    $q->whereIn('status', ['PAID', 'PENDING_CASH'])
                       ->orWhere(function ($q2) {
                           $q2->where('status', 'PENDING_PAYMENT')
                              ->whereNotNull('expires_at')

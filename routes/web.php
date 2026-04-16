@@ -4,6 +4,7 @@ use App\Http\Controllers\AvailabilityController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\FavoriteVenueController;
 use App\Http\Controllers\FieldController;
+use App\Http\Controllers\CashPaymentController;
 use App\Http\Controllers\MercadoPagoController;
 use App\Http\Controllers\MercadoPagoWebhookController;
 use App\Http\Controllers\MyReservationsController;
@@ -53,6 +54,7 @@ use App\Http\Controllers\BlogController;
 use App\Http\Controllers\SuperAdmin\BlogPostController;
 use App\Http\Controllers\SuperAdmin\OrganizerPlanController;
 use App\Http\Controllers\VenueAdmin\CheckinController as VaCheckinController;
+use App\Http\Controllers\VenueAdmin\VenueUserBlockController as VaVenueUserBlockController;
 use App\Http\Controllers\FaltaUnoController;
 use App\Http\Controllers\FaltaUnoSportProfileController;
 use App\Http\Controllers\FaltaUnoProfilePublicController;
@@ -68,6 +70,7 @@ use App\Http\Controllers\TournamentTeamController;
 use App\Http\Controllers\TournamentTeamManageController;
 use App\Http\Controllers\TournamentPaymentController;
 use App\Http\Controllers\OrganizerSubscriptionController;
+use App\Http\Controllers\CalendarExportController;
 use App\Models\MembershipPlan;
 
 
@@ -188,12 +191,16 @@ Route::middleware(['auth', 'active.user'])->group(function () {
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/venues', [VenueController::class, 'index'])->name('venues.index');
 Route::get('/venues/{venue}', [VenueController::class, 'show'])->name('venues.show');
+Route::get('/venues/{venue}/calendario', [VenueController::class, 'weeklyCalendar'])->name('venues.weekly-calendar');
 Route::get('/falta-uno', [FaltaUnoController::class, 'index'])->name('falta-uno.index');
 Route::get('/falta-uno/{game}', [FaltaUnoController::class, 'show'])->name('falta-uno.show');
 
 Route::get('/fields/{field}', [FieldController::class, 'show'])->name('fields.show');
 Route::get('/fields/{field}/availability', [AvailabilityController::class, 'show'])->name('fields.availability');
 Route::get('/fields/{field}/recurring-availability', [AvailabilityController::class, 'recurring'])->name('fields.recurring_availability');
+
+// Ranking de jugadores (publico)
+Route::get('/ranking', [\App\Http\Controllers\RankingController::class, 'index'])->name('ranking.index');
 
 /*
 |--------------------------------------------------------------------------
@@ -239,6 +246,9 @@ Route::middleware(['auth', 'active.user'])->group(function () {
     Route::post('/reservations/{reservation}/mercadopago', [MercadoPagoController::class, 'checkout'])
         ->name('reservations.mercadopago');
 
+    Route::post('/reservations/{reservation}/pay-cash', [CashPaymentController::class, 'store'])
+        ->name('reservations.pay_cash');
+
     Route::get('/reservations/{reservation}/modify', [ReservationModifyController::class, 'showSlotPicker'])
         ->name('reservations.modify.show');
     Route::post('/reservations/{reservation}/modify/preview', [ReservationModifyController::class, 'previewChange'])
@@ -280,6 +290,10 @@ Route::middleware(['auth', 'active.user'])->group(function () {
         ->name('falta-uno.kick');
     Route::post('/falta-uno/{game}/no-shows', [FaltaUnoController::class, 'markNoShows'])
         ->name('falta-uno.no-shows');
+    Route::get('/reservations/{reservation}/convert-falta-uno', [FaltaUnoController::class, 'convertForm'])
+        ->name('reservations.convert-falta-uno');
+    Route::post('/reservations/{reservation}/convert-falta-uno', [FaltaUnoController::class, 'convertStore'])
+        ->name('reservations.convert-falta-uno.store');
 
     // Perfil deportivo propio
     Route::get('/mi-perfil-deportivo', [FaltaUnoSportProfileController::class, 'index'])->name('sport-profile.index');
@@ -310,6 +324,11 @@ Route::middleware(['auth', 'active.user'])->group(function () {
 
     Route::post('/push-subscriptions', [PushSubscriptionController::class, 'store'])->name('push.subscribe');
     Route::delete('/push-subscriptions', [PushSubscriptionController::class, 'destroy'])->name('push.unsubscribe');
+
+    // Exportar a calendario (.ics)
+    Route::get('/calendar/reservation/{reservation}', [CalendarExportController::class, 'reservation'])->name('calendar.reservation');
+    Route::get('/calendar/falta-uno/{game}', [CalendarExportController::class, 'faltaUno'])->name('calendar.falta-uno');
+    Route::get('/calendar/tournament/{tournament}', [CalendarExportController::class, 'tournament'])->name('calendar.tournament');
 
     Route::post('/referral/redeem-reservation/{reservation}', [ReferralController::class, 'redeemReservation'])
         ->middleware(['throttle:5,1', 'role:super_admin'])
@@ -622,6 +641,7 @@ Route::middleware(['auth', 'active.user', 'role:venue_admin,super_admin', 'venue
         // Reservations / agenda
         Route::get('/reservations', [VaReservationsController::class, 'index'])->name('va.reservations.index');
         Route::post('/reservations/{reservation}/cancel', [VaReservationsController::class, 'cancel'])->name('va.reservations.cancel');
+        Route::post('/reservations/{reservation}/confirm-cash', [VaReservationsController::class, 'confirmCash'])->name('va.reservations.confirm_cash');
         Route::post('/manual-reservations', [VaManualReservationController::class, 'store'])->name('va.reservations.manual_store');
         Route::post('/manual-recurring-reservations', [VaManualRecurringReservationController::class, 'store'])->name('va.reservations.manual_recurring_store');
         Route::get('/users/search', [VaManualReservationController::class, 'searchUsers'])->name('va.users.search');
@@ -631,6 +651,12 @@ Route::middleware(['auth', 'active.user', 'role:venue_admin,super_admin', 'venue
         Route::get('/blocks', [VaFieldBlockController::class, 'index'])->name('va.blocks.index');
         Route::post('/blocks', [VaFieldBlockController::class, 'store'])->name('va.blocks.store');
         Route::post('/blocks/{block}/delete', [VaFieldBlockController::class, 'destroy'])->name('va.blocks.destroy');
+
+        // User Blocks
+        Route::get('/user-blocks', [VaVenueUserBlockController::class, 'index'])->name('va.user-blocks.index');
+        Route::get('/user-blocks/search', [VaVenueUserBlockController::class, 'search'])->name('va.user-blocks.search');
+        Route::post('/user-blocks', [VaVenueUserBlockController::class, 'store'])->name('va.user-blocks.store');
+        Route::post('/user-blocks/{block}/delete', [VaVenueUserBlockController::class, 'destroy'])->name('va.user-blocks.destroy');
 
         // Discounts
         Route::get('/discounts', [VaFieldDiscountController::class, 'index'])->name('va.discounts.index');
@@ -669,15 +695,17 @@ Route::middleware(['auth', 'active.user', 'role:venue_admin,super_admin', 'venue
         Route::post('/staff/cancel-invitation', [VaVenueStaffController::class, 'cancelInvitation'])->name('va.staff.cancel_invitation');
         Route::post('/staff/{staff}/permissions', [VaVenueStaffController::class, 'updatePermissions'])->name('va.staff.update_permissions');
 
-        // Tournament settings for venue fields
-        Route::get('/tournament-settings', [\App\Http\Controllers\VenueAdmin\TournamentSettingController::class, 'index'])->name('va.tournament_settings.index');
-        Route::post('/tournament-settings/{field}', [\App\Http\Controllers\VenueAdmin\TournamentSettingController::class, 'update'])->name('va.tournament_settings.update');
+        // Tournament settings for venue fields (hidden — coming soon)
+        Route::get('/tournament-settings', [\App\Http\Controllers\VenueAdmin\TournamentSettingController::class, 'index'])->name('va.tournament_settings.index')->middleware('torneos.soon');
+        Route::post('/tournament-settings/{field}', [\App\Http\Controllers\VenueAdmin\TournamentSettingController::class, 'update'])->name('va.tournament_settings.update')->middleware('torneos.soon');
 
-        // Tournament venue requests
-        Route::get('/tournament-requests', [\App\Http\Controllers\VenueAdmin\TournamentRequestController::class, 'index'])->name('va.tournament_requests.index');
-        Route::post('/tournament-requests/{tournamentRequest}/approve', [\App\Http\Controllers\VenueAdmin\TournamentRequestController::class, 'approve'])->name('va.tournament_requests.approve');
-        Route::post('/tournament-requests/{tournamentRequest}/reject', [\App\Http\Controllers\VenueAdmin\TournamentRequestController::class, 'reject'])->name('va.tournament_requests.reject');
-        Route::post('/tournament-requests/{tournamentRequest}/mensaje', [\App\Http\Controllers\TournamentRequestChatController::class, 'storeVenueAdmin'])->name('va.tournament_requests.message');
+        // Tournament venue requests (hidden — coming soon)
+        Route::get('/tournament-requests', [\App\Http\Controllers\VenueAdmin\TournamentRequestController::class, 'index'])->name('va.tournament_requests.index')->middleware('torneos.soon');
+        Route::post('/tournament-requests/{tournamentRequest}/approve', [\App\Http\Controllers\VenueAdmin\TournamentRequestController::class, 'approve'])->name('va.tournament_requests.approve')->middleware('torneos.soon');
+        Route::post('/tournament-requests/{tournamentRequest}/reject', [\App\Http\Controllers\VenueAdmin\TournamentRequestController::class, 'reject'])->name('va.tournament_requests.reject')->middleware('torneos.soon');
+        Route::post('/tournament-requests/{tournamentRequest}/mensaje', [\App\Http\Controllers\TournamentRequestChatController::class, 'storeVenueAdmin'])->name('va.tournament_requests.message')->middleware('torneos.soon');
+        Route::post('/tournament-requests/{tournamentRequest}/schedule/approve', [\App\Http\Controllers\VenueAdmin\TournamentRequestController::class, 'approveSchedule'])->name('va.tournament_requests.schedule_approve')->middleware('torneos.soon');
+        Route::post('/tournament-requests/{tournamentRequest}/schedule/reject', [\App\Http\Controllers\VenueAdmin\TournamentRequestController::class, 'rejectSchedule'])->name('va.tournament_requests.schedule_reject')->middleware('torneos.soon');
     });
 
     Route::get('/mp-oauth/callback', [MercadoPagoOAuthController::class, 'callback'])
@@ -694,10 +722,10 @@ Route::middleware(['auth', 'active.user', 'role:venue_admin,super_admin', 'venue
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth', 'active.user'])->group(function () {
+Route::middleware(['auth', 'active.user', 'torneos.soon'])->group(function () {
     Route::get('/organizador/planes', [OrganizerSubscriptionController::class, 'plans'])->name('organizador.planes');
     Route::post('/organizador/suscribir', [OrganizerSubscriptionController::class, 'subscribe'])->name('organizador.subscribe');
-    Route::post('/organizador/cancelar-suscripcion', [OrganizerSubscriptionController::class, 'cancel'])->name('organizador.cancel');
+    Route::post('/organizador/cancelar-suscripcion', [OrganizerSubscriptionController::class, 'cancel'])->name('organizador.cancel')->middleware('throttle:5,1');
     Route::get('/organizador/suscripcion/exito', [OrganizerSubscriptionController::class, 'success'])->name('organizador.success');
 
     // Organizer MercadoPago OAuth
@@ -711,9 +739,9 @@ Route::middleware(['auth', 'active.user'])->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::get('/torneos', [TournamentController::class, 'index'])->name('torneos.index');
+Route::get('/torneos', [TournamentController::class, 'index'])->name('torneos.index')->middleware('torneos.soon');
 
-Route::middleware(['auth', 'active.user'])->group(function () {
+Route::middleware(['auth', 'active.user', 'torneos.soon'])->group(function () {
     // Mis torneos (debe ir antes de {tournament})
     Route::get('/torneos/mis-torneos', [TournamentController::class, 'myTournaments'])->name('torneos.my');
 
@@ -737,6 +765,9 @@ Route::middleware(['auth', 'active.user'])->group(function () {
     Route::post('/torneos/solicitudes/{tournamentRequest}/mensaje', [\App\Http\Controllers\TournamentRequestChatController::class, 'storeOrganizer'])->name('torneos.request_message');
     Route::post('/torneos/solicitudes/{tournamentRequest}/leido', [\App\Http\Controllers\TournamentRequestChatController::class, 'markRead'])->name('torneos.request_chat_read');
 
+    // Solicitud de horarios (segunda fase)
+    Route::post('/torneos/{tournament}/solicitar-horarios/{venueRequest}', [TournamentOrganizerController::class, 'storeScheduleRequest'])->name('torneos.schedule_request');
+
     // Equipos — inscripcion y gestion por capitan
     Route::get('/torneos/{tournament}/inscribir', [TournamentTeamController::class, 'create'])->name('torneos.teams.create');
     Route::post('/torneos/{tournament}/equipos', [TournamentTeamController::class, 'store'])->middleware('throttle:10,1')->name('torneos.teams.store');
@@ -754,7 +785,7 @@ Route::middleware(['auth', 'active.user'])->group(function () {
 });
 
 // Show publico — AL FINAL para que "crear", "inscribir", etc. no se capturen como slug
-Route::get('/torneos/{tournament}', [TournamentController::class, 'show'])->name('torneos.show');
+Route::get('/torneos/{tournament}', [TournamentController::class, 'show'])->name('torneos.show')->middleware('torneos.soon');
 
 /*
 |--------------------------------------------------------------------------
@@ -883,6 +914,6 @@ Route::get('/reservations/{reservation}/status', function (\App\Models\Reservati
     }
 
     return response()->json(['status' => $reservation->status]);
-})->middleware('auth');
+})->middleware(['auth', 'active.user']);
 
 require __DIR__ . '/auth.php';

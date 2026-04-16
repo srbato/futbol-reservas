@@ -14,6 +14,7 @@ class TournamentTeamPlayer extends Model
         'email',
         'role',
         'jersey_number',
+        'dni',
     ];
 
     // ── Relaciones ──────────────────────────────────────────

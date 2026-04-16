@@ -11,7 +11,7 @@ class ReservationViewController extends Controller
     {
         $user = $request->user();
 
-        $reservation->load(['field.venue', 'user', 'players.user']);
+        $reservation->load(['field.venue', 'field.faltaUnoSetting', 'user', 'players.user', 'faltaUnoGame']);
 
         $isOwner      = $reservation->user_id === $user->id;
         $isSuperAdmin = $user->role === 'super_admin';

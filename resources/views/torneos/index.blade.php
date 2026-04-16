@@ -174,7 +174,7 @@
     font-weight: 600;
     font-size: 13px;
     transition: border-color .15s, background .15s, color .15s;
-    color: #555;
+    color: #a0a0a0;
     text-decoration: none;
     display: inline-block;
     flex-shrink: 0;
@@ -215,7 +215,7 @@
   /* ── Section wrapper ───────────────────────────── */
   .tt-section {
     position: relative;
-    background: #f9fafb;
+    background: #0a0a0a;
     border-radius: 24px;
     padding: 28px 24px;
     overflow: hidden;
@@ -267,7 +267,7 @@
   }
   .tt-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 32px rgba(0,0,0,.10);
+    box-shadow: 0 12px 32px rgba(0,0,0,.30);
     border-color: var(--color-primary);
   }
   .tt-card::before {
@@ -543,9 +543,9 @@
       Crear torneo
     </a>
     @if(($myTournamentsCount ?? 0) > 0)
-      <a href="{{ route('torneos.my') }}" style="display:inline-flex;align-items:center;gap:7px;background:#fff;color:#111;border:1.5px solid var(--color-border);border-radius:14px;padding:14px 24px;font-size:15px;font-weight:700;text-decoration:none;font-family:inherit;transition:border-color .15s,transform .15s,box-shadow .15s;box-shadow:0 2px 8px rgba(0,0,0,.06);"
-         onmouseover="this.style.borderColor='var(--color-primary)';this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(0,0,0,.1)'"
-         onmouseout="this.style.borderColor='var(--color-border)';this.style.transform='none';this.style.boxShadow='0 2px 8px rgba(0,0,0,.06)'">
+      <a href="{{ route('torneos.my') }}" style="display:inline-flex;align-items:center;gap:7px;background:#111;color:#e8e8e8;border:1.5px solid rgba(255,255,255,.1);border-radius:14px;padding:14px 24px;font-size:15px;font-weight:700;text-decoration:none;font-family:inherit;transition:border-color .15s,transform .15s,box-shadow .15s;box-shadow:0 2px 8px rgba(0,0,0,.2);"
+         onmouseover="this.style.borderColor='var(--color-primary)';this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(0,0,0,.3)'"
+         onmouseout="this.style.borderColor='rgba(255,255,255,.1)';this.style.transform='none';this.style.boxShadow='0 2px 8px rgba(0,0,0,.2)'">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
         Mis torneos
       </a>

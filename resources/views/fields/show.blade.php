@@ -120,7 +120,7 @@
   }
   .fs-back-link:hover {
     background: rgba(255,255,255,.18);
-    color: var(--color-text-inverse);
+    color: #fff;
     transform: translateX(-2px);
   }
 
@@ -129,7 +129,7 @@
     font-weight: 900;
     letter-spacing: -.035em;
     line-height: 1.05;
-    color: var(--color-text-inverse);
+    color: #fff;
     margin: 0;
     text-shadow: 0 2px 20px rgba(0,0,0,.4);
   }
@@ -197,8 +197,8 @@
 
   /* ── AVAILABILITY BLOCK ────────────────────────── */
   .fs-avail-block {
-    background: #f9fafb;
-    border: 1px solid var(--color-border);
+    background: #0a0a0a;
+    border: 1px solid rgba(255,255,255,.08);
     border-radius: 24px;
     padding: 24px 28px;
     margin-bottom: 24px;
@@ -207,7 +207,7 @@
   .fs-avail-title {
     font-size: 20px;
     font-weight: 800;
-    color: #111827;
+    color: #e8e8e8;
     margin: 0 0 2px 0;
     border-left: 4px solid var(--color-primary);
     padding-left: 14px;
@@ -243,10 +243,10 @@
     align-items: center;
     gap: 10px;
     padding: 10px 18px;
-    background: var(--color-bg);
-    border: 1px solid var(--color-border);
+    background: #111;
+    border: 1px solid rgba(255,255,255,.1);
     border-radius: 14px;
-    color: #111827;
+    color: #e8e8e8;
     font-size: 14px;
     font-weight: 700;
     cursor: pointer;
@@ -255,7 +255,7 @@
     user-select: none;
   }
   .fs-date-display:hover {
-    background: #f0fdf4;
+    background: rgba(34,197,94,.08);
     border-color: var(--color-primary);
   }
 
@@ -323,13 +323,13 @@
   .fs-slot-time {
     font-size: 22px;
     font-weight: 900;
-    color: #111827;
+    color: #e8e8e8;
     letter-spacing: -.01em;
   }
 
   .fs-slot-duration {
     font-size: 12px;
-    color: #6b7280;
+    color: #666;
     margin-top: 2px;
   }
 
@@ -352,7 +352,7 @@
   }
 
   .fs-slot-price.green  { color: var(--color-primary); }
-  .fs-slot-price.yellow { color: #d97706; }
+  .fs-slot-price.yellow { color: #fbbf24; }
   .fs-slot-price.purple { color: #7c3aed; }
   .fs-slot-price.muted  { color: var(--color-text-muted); }
 
@@ -402,7 +402,7 @@
     box-sizing: border-box;
   }
   .fs-btn-recurring:hover {
-    background: #f0fdf4;
+    background: rgba(34,197,94,.1);
     border-color: var(--color-primary-hover);
   }
 
@@ -413,7 +413,7 @@
   }
 
   .fs-skeleton-card {
-    background: #f3f4f6;
+    background: rgba(255,255,255,.04);
     border-radius: 14px;
     border: 1px solid var(--color-border);
     padding: 18px;
@@ -432,7 +432,7 @@
   .fs-modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,.5);
+    background: rgba(0,0,0,.7);
     z-index: 200;
     display: flex;
     align-items: center;
@@ -441,15 +441,15 @@
   }
 
   .fs-modal {
-    background: var(--color-bg);
-    border: 1px solid var(--color-border);
+    background: #111;
+    border: 1px solid rgba(255,255,255,.1);
     border-radius: 24px;
     padding: 28px 30px;
     width: 100%;
     max-width: 420px;
     max-height: calc(100vh - 40px);
     overflow-y: auto;
-    box-shadow: 0 24px 64px rgba(0,0,0,.15);
+    box-shadow: 0 24px 64px rgba(0,0,0,.45);
     position: relative;
   }
 
@@ -460,14 +460,14 @@
   .fs-modal-title {
     font-size: 19px;
     font-weight: 800;
-    color: #111827;
+    color: #e8e8e8;
     margin: 0 0 6px 0;
     letter-spacing: -.015em;
   }
 
   .fs-modal-sub {
     font-size: 13px;
-    color: #6b7280;
+    color: #a0a0a0;
     margin: 0 0 20px 0;
     line-height: 1.5;
   }
@@ -475,8 +475,8 @@
   .fs-checkmark {
     width: 56px;
     height: 56px;
-    background: #f0fdf4;
-    border: 2px solid #bbf7d0;
+    background: rgba(34,197,94,.1);
+    border: 2px solid rgba(34,197,94,.2);
     border-radius: var(--radius-full);
     display: flex;
     align-items: center;
@@ -507,10 +507,10 @@
     flex: 1;
     padding: 9px 14px;
     text-align: center;
-    border: 1.5px solid var(--color-border);
+    border: 1.5px solid rgba(255,255,255,.1);
     border-radius: 12px;
-    background: var(--color-bg);
-    color: #6b7280;
+    background: #0a0a0a;
+    color: #a0a0a0;
     font-size: 13px;
     font-weight: 700;
     cursor: pointer;
@@ -521,8 +521,8 @@
   .fs-freq-pill.active,
   .fs-freq-pill:has(input:checked) {
     border-color: var(--color-primary);
-    background: #f0fdf4;
-    color: var(--color-primary-hover);
+    background: rgba(34,197,94,.1);
+    color: #6ee7a0;
   }
 
   .fs-freq-pill input[type="radio"] {
@@ -532,10 +532,10 @@
   .fs-modal-select {
     width: 100%;
     padding: 10px 14px;
-    border: 1.5px solid var(--color-border);
+    border: 1.5px solid rgba(255,255,255,.1);
     border-radius: 12px;
-    background: var(--color-bg);
-    color: #111827;
+    background: #0a0a0a;
+    color: #e8e8e8;
     font-size: 14px;
     font-weight: 600;
     font-family: inherit;
@@ -551,32 +551,32 @@
 
   .fs-discount-preview {
     padding: 12px 16px;
-    background: #f0fdf4;
-    border: 1px solid #bbf7d0;
+    background: rgba(34,197,94,.1);
+    border: 1px solid rgba(34,197,94,.2);
     border-radius: 12px;
     font-size: 14px;
     font-weight: 700;
-    color: #15803d;
+    color: #6ee7a0;
     display: none;
   }
 
   .fs-discount-tiers {
     padding: 12px 16px;
-    background: #f9fafb;
-    border: 1px solid var(--color-border);
+    background: #0a0a0a;
+    border: 1px solid rgba(255,255,255,.08);
     border-radius: 12px;
   }
 
   .modo-btn {
     display: block;
     padding: 12px 14px;
-    border: 2px solid var(--color-border);
+    border: 2px solid rgba(255,255,255,.1);
     border-radius: 12px;
     cursor: pointer;
-    background: var(--color-bg);
+    background: #0a0a0a;
     transition: border-color .15s, background .15s;
     font-size: 13px;
-    color: #111827;
+    color: #e8e8e8;
     line-height: 1.4;
   }
 
@@ -586,7 +586,7 @@
 
   .modo-btn--active {
     border-color: var(--color-primary-hover);
-    background: #f0fdf4;
+    background: rgba(34,197,94,.1);
   }
 
   .fs-modal-btn-row {
@@ -622,19 +622,19 @@
   .fs-btn-modal-ghost {
     padding: 10px 20px;
     background: transparent;
-    color: #6b7280;
+    color: #a0a0a0;
     font-weight: 600;
     font-size: 14px;
-    border: 1px solid var(--color-border);
+    border: 1px solid rgba(255,255,255,.1);
     border-radius: 12px;
     cursor: pointer;
     transition: background .18s, border-color .18s;
     font-family: inherit;
   }
   .fs-btn-modal-ghost:hover {
-    background: var(--color-bg-page);
-    border-color: #d1d5db;
-    color: #111827;
+    background: rgba(255,255,255,.04);
+    border-color: rgba(255,255,255,.2);
+    color: #e8e8e8;
   }
 
   /* Results rows */
@@ -662,14 +662,14 @@
     margin-bottom: 16px;
   }
   .fs-feedback.error {
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-    color: #991b1b;
+    background: rgba(229,57,53,.1);
+    border: 1px solid rgba(229,57,53,.2);
+    color: #f87171;
   }
   .fs-feedback.success {
-    background: #f0fdf4;
-    border: 1px solid #bbf7d0;
-    color: #15803d;
+    background: rgba(34,197,94,.1);
+    border: 1px solid rgba(34,197,94,.2);
+    color: #6ee7a0;
   }
 
   /* ── SLOT ENTER ANIMATION ───────────────────────── */
@@ -710,7 +710,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .1em;
-    color: #6b7280;
+    color: #a0a0a0;
     border-left: 4px solid var(--color-primary);
     padding-left: 10px;
   }
@@ -718,7 +718,7 @@
   .fs-field-info-title {
     font-size: 32px;
     font-weight: 900;
-    color: #111827;
+    color: #e8e8e8;
     letter-spacing: -.025em;
     line-height: 1.05;
     margin: 0;
@@ -737,9 +737,9 @@
     font-weight: 700;
   }
 
-  .fs-field-info-badge.sport  { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
-  .fs-field-info-badge.format { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
-  .fs-field-info-badge.time   { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+  .fs-field-info-badge.sport  { background: rgba(59,130,246,.08); color: #93c5fd; border: 1px solid rgba(59,130,246,.2); }
+  .fs-field-info-badge.format { background: rgba(34,197,94,.1); color: #6ee7a0; border: 1px solid rgba(34,197,94,.2); }
+  .fs-field-info-badge.time   { background: rgba(245,158,11,.08); color: #fbbf24; border: 1px solid rgba(245,158,11,.2); }
 
   .fs-field-info-chars {
     display: grid;
@@ -766,7 +766,7 @@
   .fs-field-info-char-value {
     font-size: 14px;
     font-weight: 700;
-    color: #111827;
+    color: #e8e8e8;
   }
 
   .fs-field-info-price {
@@ -788,7 +788,7 @@
     gap: 6px;
     font-size: 13px;
     font-weight: 700;
-    color: #6b7280;
+    color: #a0a0a0;
     text-decoration: none;
     transition: color .2s;
   }
@@ -805,7 +805,7 @@
   .fs-other-fields-title {
     font-size: 18px;
     font-weight: 800;
-    color: #111827;
+    color: #e8e8e8;
     margin: 0 0 14px 0;
     border-left: 4px solid var(--color-primary);
     padding-left: 14px;
@@ -843,7 +843,7 @@
   .fs-other-field-img-placeholder {
     width: 88px;
     height: 88px;
-    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    background: linear-gradient(135deg, rgba(34,197,94,.08), rgba(34,197,94,.15));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -862,7 +862,7 @@
   .fs-other-field-name {
     font-size: 15px;
     font-weight: 800;
-    color: #111827;
+    color: #e8e8e8;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -881,8 +881,8 @@
     font-weight: 700;
   }
 
-  .fs-other-field-badge.sport  { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
-  .fs-other-field-badge.format { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+  .fs-other-field-badge.sport  { background: rgba(59,130,246,.08); color: #93c5fd; border: 1px solid rgba(59,130,246,.2); }
+  .fs-other-field-badge.format { background: rgba(34,197,94,.1); color: #6ee7a0; border: 1px solid rgba(34,197,94,.2); }
 
   .fs-other-field-price {
     font-size: 15px;
@@ -1065,20 +1065,20 @@
   </div>
 
   <div class="fs-legend-bar">
-    <span class="fs-legend-chip" style="background:#f0fdf4; border:1px solid #bbf7d0; color:#15803d;">
+    <span class="fs-legend-chip" style="background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.2); color:#6ee7a0;">
       <span class="fs-legend-dot" style="background:#22c55e;"></span>Disponible
     </span>
-    <span class="fs-legend-chip" style="background:#fffbeb; border:1px solid #fde68a; color:#92400e;">
+    <span class="fs-legend-chip" style="background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2); color:#fbbf24;">
       <span class="fs-legend-dot" style="background:#f59e0b;"></span>Con descuento
     </span>
-    <span class="fs-legend-chip" style="background:#f5f3ff; border:1px solid #ddd6fe; color:#5b21b6;">
+    <span class="fs-legend-chip" style="background:rgba(139,92,246,.08); border:1px solid rgba(139,92,246,.2); color:#c4b5fd;">
       <span class="fs-legend-dot" style="background:#8b5cf6;"></span>Nocturno
     </span>
-    <span class="fs-legend-chip" style="background:#fef2f2; border:1px solid #fecaca; color:#991b1b;">
+    <span class="fs-legend-chip" style="background:rgba(229,57,53,.1); border:1px solid rgba(229,57,53,.2); color:#f87171;">
       <span class="fs-legend-dot" style="background:#ef4444;"></span>Bloqueado
     </span>
-    <span class="fs-legend-chip" style="background:#f9fafb; border:1px solid #e5e7eb; color:#9ca3af;">
-      <span class="fs-legend-dot" style="background:#9ca3af;"></span>No disponible
+    <span class="fs-legend-chip" style="background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); color:#666;">
+      <span class="fs-legend-dot" style="background:#555;"></span>No disponible
     </span>
   </div>
 </div>
@@ -1175,20 +1175,20 @@
 
   // ── Slot status config ──────────────────────────
   function getStatusConfig(slot) {
-    if (slot.status === 'BLOCKED')     return { label: 'Bloqueado',     bg: '#fef2f2',  color: '#991b1b',  border: '#fecaca',  borderLeft: '#ef4444',  priceClass: 'muted',  cardClass: 'fs-disabled' };
-    if (slot.status === 'PAST')        return { label: 'Pasado',        bg: '#f9fafb',  color: '#9ca3af',  border: '#e5e7eb',  borderLeft: '#9ca3af',  priceClass: 'muted',  cardClass: 'fs-disabled' };
-    if (slot.status === 'UNAVAILABLE') return { label: 'No disponible', bg: '#f9fafb',  color: '#9ca3af',  border: '#e5e7eb',  borderLeft: '#9ca3af',  priceClass: 'muted',  cardClass: 'fs-disabled' };
-    if (slot.has_discount)             return { label: 'Con descuento', bg: '#fffbeb',  color: '#92400e',  border: '#fde68a',  borderLeft: '#f59e0b',  priceClass: 'yellow', cardClass: 'fs-available' };
-    if (slot.is_night_price)           return { label: 'Nocturno',      bg: '#f5f3ff',  color: '#5b21b6',  border: '#ddd6fe',  borderLeft: '#8b5cf6',  priceClass: 'purple', cardClass: 'fs-available' };
-    return                                    { label: 'Disponible',    bg: '#f0fdf4',  color: '#15803d',  border: '#bbf7d0',  borderLeft: '#22c55e',  priceClass: 'green',  cardClass: 'fs-available' };
+    if (slot.status === 'BLOCKED')     return { label: 'Bloqueado',     bg: 'rgba(229,57,53,.1)',   color: '#f87171',  border: 'rgba(229,57,53,.2)',  borderLeft: '#ef4444',  priceClass: 'muted',  cardClass: 'fs-disabled' };
+    if (slot.status === 'PAST')        return { label: 'Pasado',        bg: 'rgba(255,255,255,.04)', color: '#666',     border: 'rgba(255,255,255,.08)', borderLeft: '#444',     priceClass: 'muted',  cardClass: 'fs-disabled' };
+    if (slot.status === 'UNAVAILABLE') return { label: 'No disponible', bg: 'rgba(255,255,255,.04)', color: '#666',     border: 'rgba(255,255,255,.08)', borderLeft: '#444',     priceClass: 'muted',  cardClass: 'fs-disabled' };
+    if (slot.has_discount)             return { label: 'Con descuento', bg: 'rgba(245,158,11,.08)', color: '#fbbf24',  border: 'rgba(245,158,11,.2)',  borderLeft: '#f59e0b',  priceClass: 'yellow', cardClass: 'fs-available' };
+    if (slot.is_night_price)           return { label: 'Nocturno',      bg: 'rgba(139,92,246,.08)', color: '#c4b5fd',  border: 'rgba(139,92,246,.2)',  borderLeft: '#8b5cf6',  priceClass: 'purple', cardClass: 'fs-available' };
+    return                                    { label: 'Disponible',    bg: 'rgba(34,197,94,.1)',   color: '#6ee7a0',  border: 'rgba(34,197,94,.2)',   borderLeft: '#22c55e',  priceClass: 'green',  cardClass: 'fs-available' };
   }
 
   // ── Render helpers ──────────────────────────────
   function renderEmptySlots(message) {
     document.getElementById('slots').innerHTML = `
-      <div style="background:#f9fafb; border:1px solid #e5e7eb; border-radius:20px; padding:40px; text-align:center;">
-        <div style="margin-bottom:10px;"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-        <p style="margin:0; color:#9ca3af; font-size:15px;">${message}</p>
+      <div style="background:#0a0a0a; border:1px solid rgba(255,255,255,.08); border-radius:20px; padding:40px; text-align:center;">
+        <div style="margin-bottom:10px;"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+        <p style="margin:0; color:#666; font-size:15px;">${message}</p>
       </div>`;
   }
 
@@ -1217,7 +1217,7 @@
         ? `<div style="font-size:12px; color:#991b1b; line-height:1.4;">Motivo: ${slot.reason}</div>` : '';
 
       const reserveButton = disabled
-        ? `<button type="button" disabled class="fs-btn-reserve" style="opacity:.5; cursor:not-allowed; background:#e5e7eb; color:#9ca3af;">
+        ? `<button type="button" disabled class="fs-btn-reserve" style="opacity:.5; cursor:not-allowed; background:#333; color:#666;">
              ${slot.status === 'PAST' ? 'Turno pasado' : 'No disponible'}
            </button>`
         : `<div style="display:flex; flex-direction:column; gap:7px;">
@@ -1245,8 +1245,8 @@
 
     el.innerHTML = `
       <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:14px;">
-        <h3 style="margin:0; font-size:17px; font-weight:800; color:#111827;">Turnos del día</h3>
-        <span style="font-size:13px; color:#9ca3af;">${data.slots.length} horario${data.slots.length === 1 ? '' : 's'}</span>
+        <h3 style="margin:0; font-size:17px; font-weight:800; color:#e8e8e8;">Turnos del día</h3>
+        <span style="font-size:13px; color:#666;">${data.slots.length} horario${data.slots.length === 1 ? '' : 's'}</span>
       </div>
       <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:12px;">
         ${cards}
@@ -1340,8 +1340,11 @@
       let message = 'No se pudo crear la reserva. Intentá nuevamente.';
       if (err.status === 409) message = 'Ese horario acaba de ser reservado por otra persona. Ya actualizamos la disponibilidad.';
       else if (err.message) message = err.message;
-      showReservationFeedback(message, 'error');
       loadSlots();
+      setTimeout(() => {
+        showReservationFeedback(message, 'error');
+        document.getElementById('reservationFeedback')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 300);
       console.error(err);
     });
   }
@@ -1435,7 +1438,7 @@
     const btn = document.getElementById('recurSubmitBtn');
 
     preview.style.display = 'block';
-    preview.innerHTML = '<div style="text-align:center; padding:12px; color:#6b7280; font-size:13px;">Verificando disponibilidad...</div>';
+    preview.innerHTML = '<div style="text-align:center; padding:12px; color:#a0a0a0; font-size:13px;">Verificando disponibilidad...</div>';
     btn.disabled = true;
 
     if (recurAvailAbort) recurAvailAbort.abort();
@@ -1469,9 +1472,9 @@
         const icon = isOk
           ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>'
           : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
-        const color = isOk ? '#166534' : '#991b1b';
-        const bg = isOk ? '#f0fdf4' : '#fef2f2';
-        const border = isOk ? '#bbf7d0' : '#fecaca';
+        const color = isOk ? '#6ee7a0' : '#f87171';
+        const bg = isOk ? 'rgba(34,197,94,.1)' : 'rgba(229,57,53,.1)';
+        const border = isOk ? 'rgba(34,197,94,.2)' : 'rgba(229,57,53,.2)';
         const reason = !isOk && s.reason ? ' — ' + s.reason : '';
 
         html += `<div style="display:flex; align-items:center; gap:8px; padding:8px 10px; background:${bg}; border:1px solid ${border}; border-radius:8px; font-size:13px; color:${color};">
@@ -1482,7 +1485,7 @@
       html += '</div>';
 
       if (unavailable.length > 0) {
-        html += `<div style="margin-top:10px; padding:10px 12px; background:#fef2f2; border:1px solid #fecaca; border-radius:8px; font-size:13px; color:#991b1b; font-weight:600;">
+        html += `<div style="margin-top:10px; padding:10px 12px; background:rgba(229,57,53,.1); border:1px solid rgba(229,57,53,.2); border-radius:8px; font-size:13px; color:#f87171; font-weight:600;">
           ${unavailable.length} de ${slots.length} turnos no disponibles. Cambia la frecuencia o la cantidad para continuar.
         </div>`;
         btn.disabled = true;
@@ -1571,27 +1574,27 @@
       ? `<div class="fs-result-row">
            <span style="color:#22c55e; display:inline-flex; align-items:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg></span>
            <div>
-             <div style="font-weight:700; font-size:14px; color:#111827;">${r.date} — ${r.time}</div>
-             <div style="font-size:13px; color:#15803d;">Reservada correctamente</div>
+             <div style="font-weight:700; font-size:14px; color:#e8e8e8;">${r.date} — ${r.time}</div>
+             <div style="font-size:13px; color:#6ee7a0;">Reservada correctamente</div>
            </div>
          </div>`
       : `<div class="fs-result-row">
            <span style="color:#dc2626; display:inline-flex; align-items:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></span>
            <div>
-             <div style="font-weight:700; font-size:14px; color:#111827;">${r.date} — ${r.time}</div>
-             <div style="font-size:13px; color:#991b1b;">${r.reason ?? 'No disponible'}</div>
+             <div style="font-weight:700; font-size:14px; color:#e8e8e8;">${r.date} — ${r.time}</div>
+             <div style="font-size:13px; color:#f87171;">${r.reason ?? 'No disponible'}</div>
            </div>
          </div>`
     ).join('');
 
     const summaryHtml = `
       <div style="display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap;">
-        <span class="fs-result-pill" style="background:#f0fdf4; border:1px solid #bbf7d0; color:#15803d; display:inline-flex; align-items:center; gap:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg> ${summary.created} reservadas</span>
-        ${summary.failed > 0 ? `<span class="fs-result-pill" style="background:#fef2f2; border:1px solid #fecaca; color:#991b1b; display:inline-flex; align-items:center; gap:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#991b1b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> ${summary.failed} fallidas</span>` : ''}
+        <span class="fs-result-pill" style="background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.2); color:#6ee7a0; display:inline-flex; align-items:center; gap:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6ee7a0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg> ${summary.created} reservadas</span>
+        ${summary.failed > 0 ? `<span class="fs-result-pill" style="background:rgba(229,57,53,.1); border:1px solid rgba(229,57,53,.2); color:#f87171; display:inline-flex; align-items:center; gap:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> ${summary.failed} fallidas</span>` : ''}
       </div>`;
 
     const noteHtml = summary.created > 0
-      ? `<div style="margin-top:12px; padding:12px 16px; border-radius:12px; background:#fffbeb; border:1px solid #fde68a; color:#92400e; font-size:13px;">
+      ? `<div style="margin-top:12px; padding:12px 16px; border-radius:12px; background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2); color:#fbbf24; font-size:13px;">
            Tenés <strong>30 minutos</strong> para pagar cada reserva desde <strong>Mis Reservas</strong>.
          </div>` : '';
 
@@ -1626,7 +1629,7 @@
 <div id="recurringModal" style="display:none;" class="fs-modal-overlay">
   <div class="fs-modal fs-modal-wide">
     <h3 class="fs-modal-title" style="display:flex;align-items:center;gap:8px;"><i data-lucide="refresh-cw" style="width:18px;height:18px;stroke:currentColor;"></i> Reserva recurrente</h3>
-    <p class="fs-modal-sub">Turno: <strong id="recurringDateLabel" style="color:#111827;"></strong></p>
+    <p class="fs-modal-sub">Turno: <strong id="recurringDateLabel" style="color:#e8e8e8;"></strong></p>
 
     @if($venueRecurringMode === 'subscription')
     <div style="margin-bottom:18px;">
@@ -1635,12 +1638,12 @@
         <label class="modo-btn modo-btn--active" data-mode="upfront" style="flex:1; min-width:130px;">
           <input type="radio" name="recurring_mode" value="upfront" checked style="display:none;">
           <strong style="display:block; margin-bottom:3px;">Pago unico</strong>
-          <span style="font-size:12px; color:#6b7280;">Pagas todo ahora</span>
+          <span style="font-size:12px; color:#a0a0a0;">Pagas todo ahora</span>
         </label>
         <label class="modo-btn" data-mode="subscription" style="flex:1; min-width:130px;">
           <input type="radio" name="recurring_mode" value="subscription" style="display:none;">
           <strong style="display:block; margin-bottom:3px;">Suscripcion mensual</strong>
-          <span style="font-size:12px; color:#6b7280;">MP te cobra automaticamente cada mes</span>
+          <span style="font-size:12px; color:#a0a0a0;">MP te cobra automaticamente cada mes</span>
         </label>
       </div>
     </div>
@@ -1681,11 +1684,11 @@
 
     <div id="discountPreview" class="fs-discount-preview" style="margin-bottom:18px;"></div>
 
-    <div id="upfrontPreview" style="margin-bottom:18px; padding:12px 14px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; font-size:13px; color:#166534;">
+    <div id="upfrontPreview" style="margin-bottom:18px; padding:12px 14px; background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.2); border-radius:10px; font-size:13px; color:#6ee7a0;">
       Total a pagar: <strong id="upfrontTotalAmount">—</strong>
     </div>
 
-    <div id="subscriptionPreview" style="display:none; margin-bottom:18px; padding:12px 14px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; font-size:13px; color:#166534;">
+    <div id="subscriptionPreview" style="display:none; margin-bottom:18px; padding:12px 14px; background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.2); border-radius:10px; font-size:13px; color:#6ee7a0;">
       MercadoPago cobrara <strong id="subscriptionMonthlyAmount">—</strong> por mes automaticamente.
       <div style="font-size:12px; color:#16a34a; margin-top:4px;">Podes cancelar cuando quieras.</div>
     </div>
@@ -1697,7 +1700,7 @@
       <div class="fs-discount-tiers" style="margin-bottom:18px;">
         <div style="font-size:10px; font-weight:700; color:#9ca3af; margin-bottom:10px; text-transform:uppercase; letter-spacing:.07em;">Descuentos disponibles</div>
         @foreach($recurringDiscounts as $t)
-          <div style="font-size:13px; color:#4b5563; margin-bottom:4px;">
+          <div style="font-size:13px; color:#a0a0a0; margin-bottom:4px;">
             {{ $t->min_occurrences }}+ turnos
             <strong style="color:#16a34a; display:inline-flex; align-items:center; gap:3px;"><i data-lucide="arrow-right" style="width:12px;height:12px;stroke:#16a34a;"></i> {{ $t->discount_percentage }}% off</strong>
           </div>

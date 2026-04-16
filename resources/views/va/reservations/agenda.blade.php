@@ -166,6 +166,7 @@
   }
   .res-cell.status-PAID            { background: #d1e7dd; border-left-color: #198754; color: #0f5132; }
   .res-cell.status-PENDING_PAYMENT { background: #fff3cd; border-left-color: #ffc107; color: #856404; }
+  .res-cell.status-PENDING_CASH    { background: #e0e7ff; border-left-color: #6366f1; color: #3730a3; }
   .res-cell.status-CANCELLED       { background: #e9ecef; border-left-color: #adb5bd; color: #6c757d; }
   .res-cell.status-EXPIRED         { background: #f8d7da; border-left-color: #dc3545; color: #842029; }
   .res-user   { font-weight: 700; font-size: 14px; }
@@ -213,6 +214,7 @@
   }
   .wres-cell.status-PAID            { background: #d1e7dd; border-left-color: #198754; color: #0f5132; }
   .wres-cell.status-PENDING_PAYMENT { background: #fff3cd; border-left-color: #ffc107; color: #856404; }
+  .wres-cell.status-PENDING_CASH    { background: #e0e7ff; border-left-color: #6366f1; color: #3730a3; }
   .wres-cell.status-CANCELLED       { background: #e9ecef; border-left-color: #adb5bd; color: #6c757d; }
   .wres-cell.status-EXPIRED         { background: #f8d7da; border-left-color: #dc3545; color: #842029; }
   .wres-name  { font-weight: 700; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px; }
@@ -267,9 +269,10 @@
   $nextDate = $date->copy()->addDay()->toDateString();
   $isToday  = $date->isToday();
 
-  $paid    = $reservations->where('status', 'PAID')->count();
-  $pending = $reservations->where('status', 'PENDING_PAYMENT')->count();
-  $total   = $reservations->where('status', 'PAID')->sum('total_amount');
+  $paid        = $reservations->where('status', 'PAID')->count();
+  $pending     = $reservations->where('status', 'PENDING_PAYMENT')->count();
+  $pendingCash = $reservations->where('status', 'PENDING_CASH')->count();
+  $total       = $reservations->where('status', 'PAID')->sum('total_amount');
 @endphp
 
 <div class="agenda-nav">
@@ -319,6 +322,12 @@
     <div class="agenda-stat-value">{{ $pending }}</div>
     <div class="agenda-stat-label">Pendientes</div>
   </div>
+  @if($pendingCash > 0)
+  <div class="agenda-stat">
+    <div class="agenda-stat-value">{{ $pendingCash }}</div>
+    <div class="agenda-stat-label">Pago en complejo</div>
+  </div>
+  @endif
   <div class="agenda-stat">
     <div class="agenda-stat-value">${{ number_format($total, 0, ',', '.') }}</div>
     <div class="agenda-stat-label">Ingresos del día</div>
@@ -373,7 +382,16 @@
                         <a class="res-btn-view"
                            href="{{ route('reservations.show', $reservation) }}"
                            target="_blank">Ver</a>
-                        @if(in_array($reservation->status, ['PENDING_PAYMENT', 'PAID']))
+                        @if($reservation->status === 'PENDING_CASH')
+                          <form method="POST"
+                                action="{{ route('va.reservations.confirm_cash', $reservation) }}"
+                                style="display:inline;"
+                                onsubmit="return confirm('¿Confirmar el pago en efectivo de {{ addslashes($reservation->user->name ?? 'este usuario') }}?')">
+                            @csrf
+                            <button type="submit" class="res-btn-cancel" style="color:#15803d; border-color:#15803d;">Confirmar pago</button>
+                          </form>
+                        @endif
+                        @if(in_array($reservation->status, ['PENDING_PAYMENT', 'PENDING_CASH', 'PAID']))
                           <form method="POST"
                                 action="{{ route('va.reservations.cancel', $reservation) }}"
                                 style="display:inline;"
@@ -515,7 +533,16 @@
                         <a class="wres-btn"
                            href="{{ route('reservations.show', $reservation) }}"
                            target="_blank">Ver</a>
-                        @if(in_array($reservation->status, ['PENDING_PAYMENT', 'PAID']))
+                        @if($reservation->status === 'PENDING_CASH')
+                          <form method="POST"
+                                action="{{ route('va.reservations.confirm_cash', $reservation) }}"
+                                style="display:inline;"
+                                onsubmit="return confirm('¿Confirmar pago en efectivo?')">
+                            @csrf
+                            <button type="submit" class="wres-btn" style="color:#15803d; border-color:#15803d;">Confirmar</button>
+                          </form>
+                        @endif
+                        @if(in_array($reservation->status, ['PENDING_PAYMENT', 'PENDING_CASH', 'PAID']))
                           <form method="POST"
                                 action="{{ route('va.reservations.cancel', $reservation) }}"
                                 style="display:inline;"

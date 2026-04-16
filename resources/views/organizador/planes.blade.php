@@ -79,9 +79,9 @@
 }
 
 .plan-badge--current {
-    background: #e8f7ee;
-    color: #157347;
-    border: 1px solid #cfe9d7;
+    background: rgba(34,197,94,.1);
+    color: #6eeaa0;
+    border: 1px solid rgba(74,222,128,.25);
 }
 
 .plan-badge--recommended {
@@ -161,7 +161,7 @@
 }
 
 .feature-icon--x {
-    color: #ccc;
+    color: #444;
 }
 
 .feature-icon--star {
@@ -174,7 +174,7 @@
     font-weight: var(--font-semibold);
     padding: 2px 6px;
     border-radius: var(--radius-full);
-    background: #f0f0f0;
+    background: rgba(255,255,255,.06);
     color: var(--color-text-muted);
     margin-left: 4px;
     white-space: nowrap;
@@ -216,16 +216,16 @@
 }
 
 .btn-plan--primary {
-    background: var(--color-bg-dark);
-    color: var(--color-text-inverse);
+    background: #22c55e;
+    color: #050505;
 }
 
 .btn-plan--primary:hover {
-    background: #333;
+    background: #16a34a;
 }
 
 .btn-plan--disabled {
-    background: #f3f3f3;
+    background: rgba(255,255,255,.04);
     color: var(--color-text-muted);
     cursor: not-allowed;
     border: 1px solid var(--color-border);
@@ -261,7 +261,7 @@
     margin-top: var(--space-lg);
     padding: var(--space-md);
     border-radius: var(--radius-md);
-    background: #f8f9fa;
+    background: rgba(255,255,255,.04);
     border: 1px solid var(--color-border);
 }
 
@@ -322,21 +322,21 @@
 }
 
 .planes-flash-msg--success {
-    background: #e8f7ee;
-    color: #157347;
-    border: 1px solid #cfe9d7;
+    background: rgba(34,197,94,.1);
+    color: #6eeaa0;
+    border: 1px solid rgba(74,222,128,.25);
 }
 
 .planes-flash-msg--error {
-    background: #fef2f2;
-    color: #991b1b;
-    border: 1px solid #fecaca;
+    background: rgba(229,57,53,.1);
+    color: #f87171;
+    border: 1px solid rgba(248,113,113,.25);
 }
 
 .planes-flash-msg--info {
-    background: #eff6ff;
-    color: #1e40af;
-    border: 1px solid #bfdbfe;
+    background: rgba(59,130,246,.08);
+    color: #93c5fd;
+    border: 1px solid rgba(147,197,253,.25);
 }
 
 /* Responsive */

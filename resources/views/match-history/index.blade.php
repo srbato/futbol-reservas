@@ -22,11 +22,11 @@
   }
 
   .stat-card {
-    background: #fff;
-    border: 1px solid #ececec;
+    background: #111;
+    border: 1px solid rgba(255,255,255,.08);
     border-radius: 18px;
     padding: 20px;
-    box-shadow: 0 2px 12px rgba(0,0,0,.03);
+    box-shadow: 0 2px 12px rgba(0,0,0,.15);
     animation: fadeInUp .45s ease both;
   }
 
@@ -37,7 +37,7 @@
 
   .stat-card-label {
     font-size: 11px;
-    color: #999;
+    color: #666;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -53,7 +53,7 @@
 
   .stat-card-sub {
     font-size: 12px;
-    color: #aaa;
+    color: #666;
     margin-top: 5px;
   }
 
@@ -85,14 +85,14 @@
   .sport-bar-track {
     flex: 1;
     height: 8px;
-    background: #f0f0f0;
+    background: rgba(255,255,255,.06);
     border-radius: 999px;
     overflow: hidden;
   }
 
   .sport-bar-fill {
     height: 100%;
-    background: #111;
+    background: #22c55e;
     border-radius: 999px;
     transform-origin: left;
     animation: barGrow .6s ease .4s both;
@@ -108,7 +108,7 @@
     font-weight: 700;
     min-width: 26px;
     text-align: right;
-    color: #555;
+    color: #a0a0a0;
   }
 
   .history-table-wrap {
@@ -123,37 +123,37 @@
   .history-table th {
     text-align: left;
     font-size: 11px;
-    color: #aaa;
+    color: #666;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     padding: 8px 12px;
-    border-bottom: 1px solid #ececec;
+    border-bottom: 1px solid rgba(255,255,255,.08);
   }
 
   .history-table td {
     padding: 14px 12px;
-    border-bottom: 1px solid #f3f3f3;
+    border-bottom: 1px solid rgba(255,255,255,.06);
     font-size: 14px;
     vertical-align: middle;
   }
 
   .history-table tr:last-child td { border-bottom: 0; }
-  .history-table tr:hover td { background: #fafafa; }
+  .history-table tr:hover td { background: rgba(255,255,255,.02); }
 
   .outcome-select {
     padding: 6px 10px;
-    border: 1px solid #ddd;
+    border: 1px solid rgba(255,255,255,.1);
     border-radius: 8px;
     font-size: 13px;
     font-family: inherit;
-    background: #fff;
+    background: #0a0a0a;
     cursor: pointer;
   }
 
   .score-input {
     padding: 6px 10px;
-    border: 1px solid #ddd;
+    border: 1px solid rgba(255,255,255,.1);
     border-radius: 8px;
     font-size: 13px;
     width: 75px;
@@ -162,8 +162,8 @@
 
   .result-save-btn {
     padding: 6px 12px;
-    border: 1px solid #ddd;
-    background: #fff;
+    border: 1px solid rgba(255,255,255,.1);
+    background: #0a0a0a;
     border-radius: 8px;
     font-size: 13px;
     font-weight: 700;
@@ -172,11 +172,11 @@
     white-space: nowrap;
   }
 
-  .result-save-btn:hover { background: #f5f5f5; }
+  .result-save-btn:hover { background: rgba(255,255,255,.06); }
 
-  .outcome-badge-W { padding:4px 10px; border-radius:999px; font-size:12px; font-weight:700; background:#d1e7dd; color:#0f5132; }
-  .outcome-badge-D { padding:4px 10px; border-radius:999px; font-size:12px; font-weight:700; background:#fff3cd; color:#856404; }
-  .outcome-badge-L { padding:4px 10px; border-radius:999px; font-size:12px; font-weight:700; background:#f8d7da; color:#842029; }
+  .outcome-badge-W { padding:4px 10px; border-radius:999px; font-size:12px; font-weight:700; background:rgba(34,197,94,.1); color:#6ee7a0; }
+  .outcome-badge-D { padding:4px 10px; border-radius:999px; font-size:12px; font-weight:700; background:rgba(245,158,11,.08); color:#fbbf24; }
+  .outcome-badge-L { padding:4px 10px; border-radius:999px; font-size:12px; font-weight:700; background:rgba(229,57,53,.1); color:#f87171; }
 
   .pie-sport-filter {
     display: flex;
@@ -188,8 +188,8 @@
   .pie-sport-btn {
     padding: 5px 13px;
     border-radius: 999px;
-    border: 1px solid #ddd;
-    background: #fff;
+    border: 1px solid rgba(255,255,255,.1);
+    background: #0a0a0a;
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
@@ -197,20 +197,20 @@
     transition: all .15s ease;
   }
 
-  .pie-sport-btn:hover { border-color: #111; }
-  .pie-sport-btn.active { background: #111; color: #fff; border-color: #111; }
+  .pie-sport-btn:hover { border-color: #22c55e; }
+  .pie-sport-btn.active { background: #22c55e; color: #050505; border-color: #22c55e; }
 
   .pie-no-data {
     text-align: center;
-    color: #ccc;
+    color: #444;
     font-size: 14px;
     padding: 40px 0;
   }
 
   /* help banner */
   .help-banner {
-    background: #f0f7ff;
-    border: 1px solid #c8e0ff;
+    background: rgba(59,130,246,.08);
+    border: 1px solid rgba(59,130,246,.15);
     border-radius: 16px;
     padding: 16px 18px;
     margin-bottom: 22px;
@@ -230,7 +230,7 @@
   .help-banner-text {
     flex: 1;
     font-size: 14px;
-    color: #1a4a7a;
+    color: #93c5fd;
     line-height: 1.6;
   }
 
@@ -239,7 +239,7 @@
     .history-table thead { display: none; }
     .history-table tr {
       display: block;
-      border: 1px solid #ececec;
+      border: 1px solid rgba(255,255,255,.08);
       border-radius: 14px;
       margin-bottom: 12px;
       padding: 4px 0;
@@ -249,14 +249,14 @@
       justify-content: space-between;
       align-items: center;
       gap: 8px;
-      border-bottom: 1px solid #f3f3f3;
+      border-bottom: 1px solid rgba(255,255,255,.06);
       padding: 10px 14px;
     }
     .history-table td:last-child { border-bottom: 0; }
     .history-table td::before {
       content: attr(data-label);
       font-size: 11px;
-      color: #aaa;
+      color: #666;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.05em;
@@ -376,16 +376,22 @@
     </div>
 
     @if($reservations->isEmpty())
-      <div style="text-align:center; padding:40px 20px;">
-        <div style="font-size:44px; margin-bottom:14px;">⚽</div>
-        <p style="font-weight:800; margin:0 0 8px 0; font-size:18px;">Todavía no tenés partidos jugados</p>
-        <p class="muted" style="margin:0 0 6px 0; font-size:14px; max-width:400px; margin-left:auto; margin-right:auto; line-height:1.6;">
-          Acá aparecen solo las reservas <strong>pagadas o validadas en cancha</strong> con fecha pasada.
+      <div style="text-align:center; padding:56px 24px;">
+        <div style="width:72px; height:72px; margin:0 auto 18px; background:linear-gradient(135deg, #f0fdf4, #dcfce7); border-radius:50%; display:flex; align-items:center; justify-content:center;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <p style="font-weight:800; margin:0 0 8px; font-size:18px; letter-spacing:-0.01em;">Todavía no tenés partidos jugados</p>
+        <p class="muted" style="margin:0 0 6px; font-size:14px; max-width:400px; margin-left:auto; margin-right:auto; line-height:1.6;">
+          Acá van a aparecer todos tus partidos pagados o validados en cancha con fecha pasada. Vas a poder cargar resultados y ver tus estadísticas.
         </p>
-        <p class="muted" style="margin:12px 0 0 0; font-size:13px;">
-          ¿Tenés reservas pendientes de pago o futuras?
-          <a href="{{ route('my_reservations') }}" style="color:#111; font-weight:700;">Mirá Mis reservas</a>
-        </p>
+        <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:20px;">
+          <a href="{{ route('venues.index') }}" style="display:inline-flex; align-items:center; gap:6px; padding:10px 20px; background:#22c55e; color:#050505; border-radius:12px; font-size:14px; font-weight:700; text-decoration:none;">
+            Reservar cancha
+          </a>
+          <a href="{{ route('my_reservations') }}" style="display:inline-flex; align-items:center; gap:6px; padding:10px 20px; background:#111; color:#a0a0a0; border:1.5px solid rgba(255,255,255,.1); border-radius:12px; font-size:14px; font-weight:600; text-decoration:none;">
+            Mis reservas
+          </a>
+        </div>
       </div>
     @else
       <div style="overflow-x:auto;">

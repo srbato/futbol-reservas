@@ -26,10 +26,10 @@ echo json_encode([
   }
 
   .pqt-hero-shell {
-    background: rgba(0,0,0,0.03);
+    background: rgba(255,255,255,0.04);
     border-radius: 2rem;
     padding: 5px;
-    border: 1px solid rgba(0,0,0,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
   }
 
   .pqt-hero-inner {
@@ -119,15 +119,15 @@ echo json_encode([
   }
 
   .pqt-table-shell {
-    background: rgba(0,0,0,0.02);
+    background: rgba(255,255,255,0.04);
     border-radius: 1.5rem;
     padding: 4px;
-    border: 1px solid rgba(0,0,0,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
     overflow: hidden;
   }
 
   .pqt-table-wrap {
-    background: #fff;
+    background: #111;
     border-radius: calc(1.5rem - 4px);
     overflow-x: auto;
   }
@@ -153,7 +153,7 @@ echo json_encode([
 
   .pqt-table thead th:nth-child(2) {
     color: #22c55e;
-    background: #f0fdf4;
+    background: rgba(34,197,94,.06);
   }
 
   .pqt-table thead th:nth-child(3) {
@@ -180,7 +180,7 @@ echo json_encode([
   }
 
   .pqt-table tbody td:nth-child(2) {
-    background: rgba(240,253,244,0.5);
+    background: rgba(34,197,94,.04);
   }
 
   .pqt-check {
@@ -190,7 +190,7 @@ echo json_encode([
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    background: #f0fdf4;
+    background: rgba(34,197,94,.1);
     color: #22c55e;
   }
 
@@ -201,8 +201,8 @@ echo json_encode([
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    background: #fef2f2;
-    color: #ef4444;
+    background: rgba(229,57,53,.1);
+    color: #f87171;
   }
 
   .pqt-partial {
@@ -212,8 +212,8 @@ echo json_encode([
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    background: #fffbeb;
-    color: #f59e0b;
+    background: rgba(245,158,11,.08);
+    color: #fbbf24;
   }
 
   @media (max-width: 600px) {
@@ -239,20 +239,20 @@ echo json_encode([
   }
 
   .pqt-diff-shell {
-    background: rgba(0,0,0,0.02);
+    background: rgba(255,255,255,0.04);
     border-radius: 1.5rem;
     padding: 4px;
-    border: 1px solid rgba(0,0,0,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
     transition: transform 500ms var(--ease-out-expo), box-shadow 500ms var(--ease-out-expo);
   }
 
   .pqt-diff-shell:hover {
     transform: translateY(-6px);
-    box-shadow: 0 20px 48px rgba(34,197,94,0.06);
+    box-shadow: 0 20px 48px rgba(34,197,94,0.12);
   }
 
   .pqt-diff-card {
-    background: #fff;
+    background: #111;
     border-radius: calc(1.5rem - 4px);
     padding: 36px 28px;
     text-align: center;
@@ -263,7 +263,7 @@ echo json_encode([
     width: 48px;
     height: 48px;
     border-radius: 14px;
-    background: #f0fdf4;
+    background: rgba(34,197,94,.1);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -274,7 +274,7 @@ echo json_encode([
 
   .pqt-diff-shell:hover .pqt-diff-icon {
     transform: scale(1.1);
-    background: #dcfce7;
+    background: rgba(74,222,128,.18);
   }
 
   .pqt-diff-card h3 {
@@ -288,7 +288,7 @@ echo json_encode([
   .pqt-diff-card p {
     font-size: 14px;
     line-height: 1.65;
-    color: #5a5a5a;
+    color: #a0a0a0;
     margin: 0;
   }
 
@@ -491,12 +491,12 @@ echo json_encode([
               <tr>
                 <td>Precio transparente</td>
                 <td><strong style="color:#22c55e;">Fijo, sin sorpresas</strong></td>
-                <td><span style="color:#5a5a5a;">Variable o no publico</span></td>
+                <td><span style="color:#a0a0a0;">Variable o no publico</span></td>
               </tr>
               <tr>
                 <td>Identidad argentina</td>
                 <td><span class="pqt-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span></td>
-                <td><span style="color:#5a5a5a; font-size:13px;">LATAM generico</span></td>
+                <td><span style="color:#a0a0a0; font-size:13px;">LATAM generico</span></td>
               </tr>
             </tbody>
           </table>

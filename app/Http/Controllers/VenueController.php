@@ -342,6 +342,160 @@ class VenueController extends Controller
         return view('venues.show', compact('venue', 'averageRating', 'faltaUnoGames'));
     }
 
+    public function weeklyCalendar(Request $request, Venue $venue)
+    {
+        // Si el dueño no tiene suscripción activa, el complejo no está disponible
+        $venue->loadMissing('owner');
+        $owner = $venue->owner;
+        if ($owner && $owner->role !== 'super_admin' && !$owner->hasActiveVenueAdminSubscription()) {
+            abort(404);
+        }
+
+        $weekStart = $request->query('week')
+            ? Carbon::parse($request->query('week'))->startOfWeek(Carbon::MONDAY)
+            : Carbon::now()->startOfWeek(Carbon::MONDAY);
+
+        $weekEnd = $weekStart->copy()->addDays(7);
+
+        // Cargar canchas activas con schedules, exceptions, blocks
+        $venue->load([
+            'fields' => fn ($q) => $q->where('is_active', true)->orderBy('name'),
+            'fields.schedules',
+            'fields.exceptions',
+            'fields.blocks',
+        ]);
+
+        $fields = $venue->fields;
+
+        if ($fields->isEmpty()) {
+            return view('venues.weekly-calendar', compact('venue', 'fields', 'weekStart'))
+                ->with('weekDays', [])
+                ->with('slots', [])
+                ->with('calendarData', [])
+                ->with('fieldColors', []);
+        }
+
+        // Reservas de la semana para todas las canchas del venue
+        $fieldIds = $fields->pluck('id');
+        $reservations = Reservation::query()
+            ->whereIn('field_id', $fieldIds)
+            ->whereIn('status', ['PAID', 'PENDING_PAYMENT', 'PENDING_CASH'])
+            ->where(function ($q) {
+                $q->whereIn('status', ['PAID', 'PENDING_CASH'])
+                    ->orWhere(function ($q2) {
+                        $q2->where('status', 'PENDING_PAYMENT')
+                            ->whereNotNull('expires_at')
+                            ->where('expires_at', '>', now());
+                    });
+            })
+            ->where('start_at', '>=', $weekStart)
+            ->where('start_at', '<', $weekEnd)
+            ->get(['id', 'field_id', 'start_at', 'end_at', 'status']);
+
+        // Agrupar reservas por field_id y fecha|hora
+        $reservationMap = [];
+        foreach ($reservations as $res) {
+            $key = $res->field_id . '|' . $res->start_at->format('Y-m-d|H:i');
+            $reservationMap[$key] = true;
+        }
+
+        // Generar los 7 días
+        $weekDays = [];
+        for ($i = 0; $i < 7; $i++) {
+            $weekDays[] = $weekStart->copy()->addDays($i);
+        }
+
+        // Recopilar todos los slots posibles y armar calendarData
+        // calendarData[slotTime][dateKey][fieldId] = 'available' | 'occupied' | 'past' | null (no schedule)
+        $allSlotTimes = [];
+        $calendarData = [];
+
+        foreach ($fields as $field) {
+            $slotMinutes = (int) ($field->slot_minutes ?: 60);
+
+            foreach ($weekDays as $day) {
+                $dateKey = $day->format('Y-m-d');
+                $dow = $day->dayOfWeek;
+
+                // Check exception
+                $exception = $field->exceptions->first(fn ($e) => Carbon::parse($e->date)->toDateString() === $dateKey);
+
+                if ($exception && $exception->is_closed) {
+                    continue; // No slots for this field on this day
+                }
+
+                $schedule = $field->schedules->firstWhere('day_of_week', $dow);
+
+                $openTime = $exception?->open_time ?? $schedule?->open_time;
+                $closeTime = $exception?->close_time ?? $schedule?->close_time;
+
+                if (!$openTime || !$closeTime) {
+                    continue;
+                }
+
+                $open = Carbon::parse($dateKey . ' ' . $openTime);
+                $close = Carbon::parse($dateKey . ' ' . $closeTime);
+
+                for ($t = $open->copy(); $t->lt($close); $t->addMinutes($slotMinutes)) {
+                    $slotTime = $t->format('H:i');
+                    $slotStart = $t->copy();
+                    $slotEnd = $t->copy()->addMinutes($slotMinutes);
+
+                    if ($slotEnd->gt($close)) {
+                        break;
+                    }
+
+                    $allSlotTimes[$slotTime] = true;
+
+                    // Check if blocked
+                    $blocked = $field->blocks->first(function ($block) use ($dateKey, $slotStart, $slotEnd) {
+                        if (Carbon::parse($block->date)->toDateString() !== $dateKey) {
+                            return false;
+                        }
+                        $blockStart = Carbon::parse($dateKey . ' ' . $block->start_time);
+                        $blockEnd = Carbon::parse($dateKey . ' ' . $block->end_time);
+                        return $blockStart < $slotEnd && $blockEnd > $slotStart;
+                    });
+
+                    // Check if reserved
+                    $resKey = $field->id . '|' . $dateKey . '|' . $slotTime;
+                    $isOccupied = isset($reservationMap[$resKey]);
+                    $isPast = $slotStart->lessThan(now());
+
+                    $status = 'available';
+                    if ($blocked) {
+                        $status = 'blocked';
+                    } elseif ($isOccupied) {
+                        $status = 'occupied';
+                    } elseif ($isPast) {
+                        $status = 'past';
+                    }
+
+                    $calendarData[$slotTime][$dateKey][$field->id] = $status;
+                }
+            }
+        }
+
+        ksort($allSlotTimes);
+        $slots = array_keys($allSlotTimes);
+
+        // Colores para las canchas
+        $colorPalette = [
+            '#3b82f6', '#ef4444', '#f59e0b', '#8b5cf6', '#10b981',
+            '#ec4899', '#06b6d4', '#f97316', '#6366f1', '#14b8a6',
+            '#e11d48', '#84cc16', '#a855f7', '#0ea5e9', '#d946ef',
+        ];
+
+        $fieldColors = [];
+        foreach ($fields->values() as $index => $field) {
+            $fieldColors[$field->id] = $colorPalette[$index % count($colorPalette)];
+        }
+
+        return view('venues.weekly-calendar', compact(
+            'venue', 'fields', 'weekStart', 'weekDays', 'slots', 'calendarData', 'fieldColors'
+        ));
+    }
+
     private function venueMatchesAdvancedFilters(
         Venue $venue,
         Carbon $date,

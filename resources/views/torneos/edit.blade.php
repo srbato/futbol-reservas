@@ -15,25 +15,25 @@
     align-items: center;
     gap: 5px;
     font-size: 13px;
-    color: #888;
+    color: #666;
     text-decoration: none;
     font-weight: 600;
     transition: color .15s;
     margin-bottom: 14px;
   }
-  .tc-back:hover { color: #111; }
+  .tc-back:hover { color: #e8e8e8; }
 
   .tc-page-title {
     font-size: 26px;
     font-weight: 800;
-    color: #111;
+    color: #e8e8e8;
     letter-spacing: -.02em;
     margin: 0 0 6px 0;
   }
 
   .tc-page-sub {
     font-size: 14px;
-    color: #888;
+    color: #666;
     margin: 0 0 24px 0;
   }
 
@@ -49,32 +49,32 @@
   }
 
   .tc-status-draft {
-    background: #f3f4f6;
-    color: #6b7280;
+    background: rgba(255,255,255,.06);
+    color: #a0a0a0;
   }
 
   .tc-status-open {
-    background: #dcfce7;
-    color: #15803d;
+    background: rgba(34,197,94,.15);
+    color: #22c55e;
   }
 
   .tc-status-other {
-    background: #fef3c7;
-    color: #92400e;
+    background: rgba(245,158,11,.08);
+    color: #fbbf24;
   }
 
   .tc-card {
-    background: #fff;
-    border: 1px solid #ececec;
+    background: #111;
+    border: 1px solid rgba(255,255,255,.08);
     border-radius: 20px;
-    box-shadow: 0 2px 12px rgba(0,0,0,.04);
+    box-shadow: 0 2px 12px rgba(0,0,0,.12);
     overflow: hidden;
     margin-bottom: 20px;
   }
 
   .tc-card-header {
     padding: 20px 24px 0;
-    border-bottom: 1px solid #f4f4f4;
+    border-bottom: 1px solid rgba(255,255,255,.06);
     padding-bottom: 16px;
     display: flex;
     align-items: center;
@@ -85,8 +85,8 @@
     width: 36px;
     height: 36px;
     border-radius: 10px;
-    background: #111;
-    color: #fff;
+    background: #22c55e;
+    color: #050505;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -103,7 +103,7 @@
 
   .tc-card-header-text p {
     font-size: 13px;
-    color: #999;
+    color: #666;
     margin: 1px 0 0 0;
   }
 
@@ -127,20 +127,20 @@
   .tc-label {
     font-size: 14px;
     font-weight: 600;
-    color: #374151;
+    color: #a0a0a0;
     display: flex;
     align-items: center;
     gap: 6px;
   }
 
   .tc-label .req {
-    color: #dc2626;
+    color: #f87171;
     font-weight: 700;
   }
 
   .tc-hint {
     font-size: 12px;
-    color: #aaa;
+    color: #555;
     margin: 0;
     line-height: 1.5;
   }
@@ -149,12 +149,12 @@
   .tc-select,
   .tc-textarea {
     width: 100%;
-    border: 1px solid #d1d5db;
+    border: 1px solid rgba(255,255,255,.1);
     border-radius: 12px;
     padding: 12px 16px;
     font-size: 15px;
-    color: #111;
-    background: #fff;
+    color: #e8e8e8;
+    background: #0a0a0a;
     transition: border-color .15s, box-shadow .15s;
     outline: none;
     font-family: inherit;
@@ -170,8 +170,8 @@
 
   .tc-input:disabled,
   .tc-select:disabled {
-    background: #f9fafb;
-    color: #9ca3af;
+    background: #0a0a0a;
+    color: #555;
     cursor: not-allowed;
   }
 
@@ -201,9 +201,9 @@
     cursor: pointer;
     font-size: 14px;
     font-weight: 500;
-    color: #555;
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
+    color: #a0a0a0;
+    background: #0a0a0a;
+    border: 1px solid rgba(255,255,255,.08);
     border-radius: 10px;
     padding: 10px 16px;
     transition: border-color .15s, background .15s;
@@ -211,7 +211,7 @@
 
   .tc-radio-label:hover {
     border-color: #22c55e;
-    background: #f0fdf4;
+    background: rgba(34,197,94,.1);
   }
 
   .tc-radio-label input[type="radio"] {
@@ -219,7 +219,7 @@
   }
 
   .tc-radio-label input[type="radio"]:checked ~ span {
-    color: #111;
+    color: #e8e8e8;
     font-weight: 600;
   }
 
@@ -231,27 +231,27 @@
 
   .tc-error-text {
     font-size: 12px;
-    color: #dc2626;
+    color: #f87171;
     margin: 0;
   }
 
   .tc-error-box {
-    background: #fef2f2;
-    border: 1px solid #fecaca;
+    background: rgba(229,57,53,.1);
+    border: 1px solid rgba(239,68,68,.3);
     border-radius: 12px;
     padding: 12px 16px;
     font-size: 13px;
-    color: #dc2626;
+    color: #f87171;
     margin-bottom: 16px;
   }
 
   .tc-info-box {
-    background: #eff6ff;
-    border: 1px solid #bfdbfe;
+    background: rgba(59,130,246,.08);
+    border: 1px solid rgba(59,130,246,.25);
     border-radius: 12px;
     padding: 12px 16px;
     font-size: 13px;
-    color: #1d4ed8;
+    color: #60a5fa;
     margin-bottom: 16px;
     display: flex;
     align-items: center;
@@ -260,13 +260,13 @@
 
   .tc-divider {
     height: 1px;
-    background: #f4f4f4;
+    background: rgba(255,255,255,.06);
     margin: 0 -24px;
   }
 
   /* Image upload */
   .tc-upload-zone {
-    border: 2px dashed #d1d5db;
+    border: 2px dashed rgba(255,255,255,.1);
     border-radius: 14px;
     padding: 28px 20px;
     text-align: center;
@@ -277,7 +277,7 @@
 
   .tc-upload-zone:hover {
     border-color: #22c55e;
-    background: #f0fdf4;
+    background: rgba(34,197,94,.1);
   }
 
   .tc-upload-zone input[type="file"] {
@@ -289,19 +289,19 @@
 
   .tc-upload-icon {
     margin-bottom: 8px;
-    color: #9ca3af;
+    color: #555;
   }
 
   .tc-upload-text {
     font-size: 14px;
     font-weight: 600;
-    color: #374151;
+    color: #a0a0a0;
     margin: 0;
   }
 
   .tc-upload-hint {
     font-size: 12px;
-    color: #aaa;
+    color: #555;
     margin: 4px 0 0 0;
   }
 
@@ -333,7 +333,7 @@
 
   .tc-existing-label {
     font-size: 12px;
-    color: #6b7280;
+    color: #a0a0a0;
     margin: 0 0 8px 0;
     font-weight: 600;
   }
@@ -349,8 +349,8 @@
     padding: 16px;
     font-size: 15px;
     font-weight: 700;
-    background: #111;
-    color: #fff;
+    background: #22c55e;
+    color: #050505;
     border: none;
     border-radius: 14px;
     cursor: pointer;
@@ -362,7 +362,7 @@
     gap: 8px;
   }
 
-  .tc-submit:hover { background: #222; }
+  .tc-submit:hover { background: #16a34a; }
   .tc-submit:active { transform: scale(.98); }
 
   @media (max-width: 600px) {
@@ -510,15 +510,12 @@
             <label class="tc-label" for="max_teams">
               Cantidad de equipos <span class="req">*</span>
             </label>
-            <select id="max_teams" name="max_teams" class="tc-select" required {{ $locked ? 'disabled' : '' }}>
+            <select id="max_teams" name="max_teams" class="tc-select" required>
               <option value="4" {{ old('max_teams', $tournament->max_teams) == 4 ? 'selected' : '' }}>4 equipos</option>
               <option value="8" {{ old('max_teams', $tournament->max_teams) == 8 ? 'selected' : '' }}>8 equipos</option>
               <option value="16" {{ old('max_teams', $tournament->max_teams) == 16 ? 'selected' : '' }}>16 equipos</option>
               <option value="32" {{ old('max_teams', $tournament->max_teams) == 32 ? 'selected' : '' }}>32 equipos</option>
             </select>
-            @if($locked)
-              <input type="hidden" name="max_teams" value="{{ $tournament->max_teams }}">
-            @endif
             @error('max_teams')
               <p class="tc-error-text">{{ $message }}</p>
             @enderror
@@ -582,7 +579,7 @@
                 $vr = $tournament->venueRequests()->where('field_id', $tf->id)->first();
                 $vrStatus = $vr?->status ?? 'pending';
               @endphp
-              <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid {{ $vrStatus === 'approved' ? '#22c55e' : ($vrStatus === 'rejected' ? '#f87171' : '#fbbf24') }};border-radius:12px;background:{{ $vrStatus === 'approved' ? '#f0fdf4' : ($vrStatus === 'rejected' ? '#fef2f2' : '#fefce8') }};">
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid {{ $vrStatus === 'approved' ? '#22c55e' : ($vrStatus === 'rejected' ? '#f87171' : '#fbbf24') }};border-radius:12px;background:{{ $vrStatus === 'approved' ? 'rgba(34,197,94,.1)' : ($vrStatus === 'rejected' ? 'rgba(229,57,53,.1)' : 'rgba(245,158,11,.08)') }};">
                 @if($vrStatus === 'approved')
                   <svg width="16" height="16" fill="none" stroke="#22c55e" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 @elseif($vrStatus === 'rejected')
@@ -591,17 +588,17 @@
                   <svg width="16" height="16" fill="none" stroke="#f59e0b" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                 @endif
                 <div style="flex:1;min-width:0;">
-                  <div style="font-weight:700;font-size:13px;">{{ $tf->name }}</div>
-                  <div style="font-size:12px;color:#666;">{{ $tf->venue->name }}</div>
+                  <div style="font-weight:700;font-size:13px;color:#e8e8e8;">{{ $tf->name }}</div>
+                  <div style="font-size:12px;color:#a0a0a0;">{{ $tf->venue->name }}</div>
                 </div>
-                <span style="font-size:11px;font-weight:700;color:{{ $vrStatus === 'approved' ? '#16a34a' : ($vrStatus === 'rejected' ? '#dc2626' : '#d97706') }};">
+                <span style="font-size:11px;font-weight:700;color:{{ $vrStatus === 'approved' ? '#22c55e' : ($vrStatus === 'rejected' ? '#f87171' : '#d97706') }};">
                   {{ $vrStatus === 'approved' ? 'Aprobada' : ($vrStatus === 'rejected' ? 'Rechazada' : 'Pendiente') }}
                 </span>
               </div>
             @endforeach
           </div>
         @else
-          <div style="padding:16px;text-align:center;color:#888;font-size:14px;">
+          <div style="padding:16px;text-align:center;color:#666;font-size:14px;">
             No hay canchas vinculadas a este torneo.
           </div>
         @endif
@@ -764,6 +761,92 @@
       </div>
     </div>
 
+    {{-- ═══ PASO 7: Branding (Pro) ═══ --}}
+    <div class="tc-card">
+      <div class="tc-card-header">
+        <div class="tc-step-num">
+          <i data-lucide="palette" style="width:18px;height:18px;stroke:#22c55e;stroke-width:2;"></i>
+        </div>
+        <div class="tc-card-header-text">
+          <h2>Personalizar colores</h2>
+          <p>Dale identidad a tu torneo</p>
+        </div>
+        @if(!$canBrand)
+          <span style="margin-left:auto;font-size:11px;font-weight:700;background:rgba(255,255,255,.06);color:#a0a0a0;padding:3px 10px;border-radius:99px;">PRO</span>
+        @endif
+      </div>
+
+      <div class="tc-card-body">
+        @if($canBrand)
+          {{-- Color pickers --}}
+          <div class="tc-row">
+            <div class="tc-input-group">
+              <label class="tc-label" for="primary_color">Color principal</label>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <input type="color" id="primary_color" name="primary_color"
+                       value="{{ old('primary_color', $tournament->primary_color ?? '#22c55e') }}"
+                       style="width:48px;height:40px;border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:2px;cursor:pointer;background:#0a0a0a;">
+                <input type="text" id="primary_color_text"
+                       value="{{ old('primary_color', $tournament->primary_color ?? '#22c55e') }}"
+                       style="width:90px;font-family:monospace;font-size:14px;padding:8px 12px;border:1px solid rgba(255,255,255,.1);border-radius:10px;text-transform:uppercase;background:#0a0a0a;color:#e8e8e8;"
+                       maxlength="7"
+                       oninput="if(/^#[0-9a-fA-F]{6}$/.test(this.value))document.getElementById('primary_color').value=this.value">
+              </div>
+              <p class="tc-hint">Hero, badges, botones y acentos.</p>
+              @error('primary_color') <p class="tc-error-text">{{ $message }}</p> @enderror
+            </div>
+            <div class="tc-input-group">
+              <label class="tc-label" for="secondary_color">Color secundario</label>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <input type="color" id="secondary_color" name="secondary_color"
+                       value="{{ old('secondary_color', $tournament->secondary_color ?? '#111111') }}"
+                       style="width:48px;height:40px;border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:2px;cursor:pointer;background:#0a0a0a;">
+                <input type="text" id="secondary_color_text"
+                       value="{{ old('secondary_color', $tournament->secondary_color ?? '#111111') }}"
+                       style="width:90px;font-family:monospace;font-size:14px;padding:8px 12px;border:1px solid rgba(255,255,255,.1);border-radius:10px;text-transform:uppercase;background:#0a0a0a;color:#e8e8e8;"
+                       maxlength="7"
+                       oninput="if(/^#[0-9a-fA-F]{6}$/.test(this.value))document.getElementById('secondary_color').value=this.value">
+              </div>
+              <p class="tc-hint">Fondo del hero, tarjetas y degradados.</p>
+              @error('secondary_color') <p class="tc-error-text">{{ $message }}</p> @enderror
+            </div>
+          </div>
+
+          {{-- Logo --}}
+          <div class="tc-divider"></div>
+          <div class="tc-input-group">
+            <label class="tc-label">Logo del torneo</label>
+            @if($tournament->logo_image_path)
+              <div style="margin-bottom:8px;text-align:center;">
+                <p class="tc-existing-label">Logo actual:</p>
+                <img src="{{ \Illuminate\Support\Facades\Storage::url($tournament->logo_image_path) }}"
+                     alt="Logo" style="max-width:80px;max-height:80px;border-radius:12px;border:1px solid rgba(255,255,255,.1);">
+              </div>
+            @endif
+            <div class="tc-upload-zone" style="padding:16px 14px;">
+              <input type="file" name="logo_image" accept="image/jpeg,image/png,image/webp"
+                     onchange="var p=document.getElementById('tcLogoPreview'),i=document.getElementById('tcLogoImg');if(this.files[0]){var r=new FileReader();r.onload=function(e){i.src=e.target.result;p.style.display='block';};r.readAsDataURL(this.files[0]);}">
+              <div class="tc-upload-icon">
+                <i data-lucide="image-plus" style="width:24px;height:24px;stroke:currentColor;"></i>
+              </div>
+              <p class="tc-upload-text" style="font-size:13px;">{{ $tournament->logo_image_path ? 'Cambiar logo' : 'Subir logo' }}</p>
+              <p class="tc-upload-hint">PNG o JPG. Max 2 MB.</p>
+            </div>
+            <div id="tcLogoPreview" style="display:none;margin-top:8px;text-align:center;">
+              <img id="tcLogoImg" src="" alt="Logo preview" style="max-width:80px;max-height:80px;border-radius:12px;border:1px solid rgba(255,255,255,.1);">
+            </div>
+            @error('logo_image') <p class="tc-error-text">{{ $message }}</p> @enderror
+          </div>
+        @else
+          <div style="padding:12px 16px;background:#0a0a0a;border-radius:12px;border:1px solid rgba(255,255,255,.08);text-align:center;">
+            <p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#e8e8e8;">Personalizacion de colores y logo</p>
+            <p style="margin:0 0 10px;font-size:13px;color:#a0a0a0;">Disponible con el plan Pro.</p>
+            <a href="{{ route('organizador.planes') }}" style="font-size:13px;font-weight:700;color:#22c55e;text-decoration:none;">Ver planes &rarr;</a>
+          </div>
+        @endif
+      </div>
+    </div>
+
     {{-- ═══ Submit ═══ --}}
     <div class="tc-card">
       <div class="tc-card-footer" style="border-top:none;">
@@ -775,6 +858,14 @@
     </div>
 
   </form>
+
+<script>
+['primary_color', 'secondary_color'].forEach(function(id) {
+  var cp = document.getElementById(id);
+  var txt = document.getElementById(id + '_text');
+  if (cp && txt) cp.addEventListener('input', function() { txt.value = cp.value; });
+});
+</script>
 
 </div>
 

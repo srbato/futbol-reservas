@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Services\BadgeService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,8 +15,16 @@ class ProfileController extends Controller
 {
     public function edit(Request $request): View
     {
+        $user = $request->user();
+        $badgeService = new BadgeService();
+        $sportProfiles = $user->faltaUnoSportProfiles()->get();
+        $allBadges = $badgeService->getUniqueBadges($sportProfiles);
+        $badgesBySport = $badgeService->getBadgesForProfiles($sportProfiles);
+
         return view('profile.edit', [
-            'user' => $request->user(),
+            'user' => $user,
+            'allBadges' => $allBadges,
+            'badgesBySport' => $badgesBySport,
         ]);
     }
 

@@ -173,6 +173,27 @@
       </p>
     </div>
 
+    {{-- Pago en efectivo --}}
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+      <p class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-4 pb-3 border-b border-slate-100">
+        Pago en efectivo
+      </p>
+
+      <label class="flex items-start gap-3 cursor-pointer select-none">
+        <input type="checkbox" name="accepts_cash_payment" value="1"
+               {{ old('accepts_cash_payment', $venue->accepts_cash_payment) ? 'checked' : '' }}
+               class="mt-0.5 rounded border-slate-300 text-indigo-600 shadow-sm focus:ring-indigo-500">
+        <div>
+          <span class="text-sm font-semibold text-slate-800">Acepta pago en efectivo en el complejo</span>
+          <p class="text-xs text-slate-400 mt-1">
+            Al activar esta opcion, los usuarios podran elegir "Pagar en el complejo" al reservar.
+            La reserva quedara pendiente de pago presencial y no expirara automaticamente.
+            Cuando el jugador llegue y pague, podras confirmar el pago desde tu panel.
+          </p>
+        </div>
+      </label>
+    </div>
+
     {{-- Servicios e instalaciones --}}
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
       <p class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-1 pb-3 border-b border-slate-100">

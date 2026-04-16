@@ -7,6 +7,7 @@ use App\Models\FaltaUnoRating;
 use App\Models\Reservation;
 use App\Models\ReservationResult;
 use App\Models\User;
+use App\Services\BadgeService;
 
 class FaltaUnoProfilePublicController extends Controller
 {
@@ -70,16 +71,35 @@ class FaltaUnoProfilePublicController extends Controller
             ->whereIn('status', ['confirmed', 'no_show'])
             ->get();
 
+        // Resultados de reservas convencionales del usuario
+        $conventionalResults = ReservationResult::where('user_id', $user->id)
+            ->whereNotNull('match_outcome')
+            ->with('reservation.field')
+            ->get();
+
         $realStats = [];
         foreach ($profiles as $profile) {
+            // Stats de Falta Uno
             $sportParts = $allParticipations->filter(fn($p) => $p->game->field->sport === $profile->sport);
             $confirmed = $sportParts->where('status', 'confirmed');
 
+            $fuGames = $confirmed->count();
+            $fuWins  = $confirmed->where('result', 'win')->count();
+            $fuDraws = $confirmed->where('result', 'draw')->count();
+            $fuLoss  = $confirmed->where('result', 'loss')->count();
+
+            // Stats de reservas convencionales
+            $convSport = $conventionalResults->filter(fn($r) => $r->reservation->field->sport === $profile->sport);
+            $convGames = $convSport->count();
+            $convWins  = $convSport->where('match_outcome', 'W')->count();
+            $convDraws = $convSport->where('match_outcome', 'D')->count();
+            $convLoss  = $convSport->where('match_outcome', 'L')->count();
+
             $realStats[$profile->sport] = [
-                'games_played' => $confirmed->count(),
-                'wins'         => $confirmed->where('result', 'win')->count(),
-                'draws'        => $confirmed->where('result', 'draw')->count(),
-                'losses'       => $confirmed->where('result', 'loss')->count(),
+                'games_played' => $fuGames + $convGames,
+                'wins'         => $fuWins + $convWins,
+                'draws'        => $fuDraws + $convDraws,
+                'losses'       => $fuLoss + $convLoss,
                 'no_shows'     => $sportParts->where('status', 'no_show')->count(),
             ];
         }
@@ -115,6 +135,10 @@ class FaltaUnoProfilePublicController extends Controller
             ];
         }
 
-        return view('falta-uno.sport-profile.public-show', compact('user', 'profiles', 'recentParticipations', 'chartData', 'conventionalHistory', 'conventionalStats', 'ratingsData', 'realStats'));
+        $badgeService = new BadgeService();
+        $badgesBySport = $badgeService->getBadgesForProfiles($profiles);
+        $allBadges = $badgeService->getUniqueBadges($profiles);
+
+        return view('falta-uno.sport-profile.public-show', compact('user', 'profiles', 'recentParticipations', 'chartData', 'conventionalHistory', 'conventionalStats', 'ratingsData', 'realStats', 'badgesBySport', 'allBadges'));
     }
 }

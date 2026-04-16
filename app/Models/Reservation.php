@@ -37,6 +37,7 @@ class Reservation extends Model
         'modify_field_id',
         'modify_start_at',
         'recurring_subscription_id',
+        'post_game_notified_at',
     ];
 
     protected $hidden = [
@@ -54,7 +55,8 @@ class Reservation extends Model
         'modified_at'        => 'datetime',
         'modify_start_at'    => 'datetime',
         'modify_diff_amount' => 'float',
-        'reminder_sent'      => 'boolean',
+        'reminder_sent'              => 'boolean',
+        'post_game_notified_at'      => 'datetime',
     ];
 
     public function field(): BelongsTo

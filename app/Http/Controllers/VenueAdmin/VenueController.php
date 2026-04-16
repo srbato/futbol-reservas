@@ -61,6 +61,7 @@ class VenueController extends Controller
             'recurring_payment_mode'  => ['nullable', 'string', 'in:upfront,manual,subscription'],
             'amenities'               => ['nullable', 'array'],
             'amenities.*'             => ['string', 'in:' . implode(',', $validAmenityKeys)],
+            'accepts_cash_payment'    => ['nullable'],
         ]);
 
         if ($user->role !== 'super_admin' && Venue::where('owner_user_id', $user->id)->exists()) {
@@ -83,6 +84,7 @@ class VenueController extends Controller
         $venue->modification_hours     = $data['modification_hours'] ?? null;
         $venue->recurring_payment_mode = $data['recurring_payment_mode'] ?? 'upfront';
         $venue->amenities              = $data['amenities'] ?? [];
+        $venue->accepts_cash_payment   = $request->has('accepts_cash_payment');
         $venue->is_active              = true;
 
         if ($request->hasFile('cover_image')) {
@@ -135,6 +137,7 @@ class VenueController extends Controller
             'recurring_payment_mode'  => ['nullable', 'string', 'in:upfront,manual,subscription'],
             'amenities'               => ['nullable', 'array'],
             'amenities.*'             => ['string', 'in:' . implode(',', $validAmenityKeys)],
+            'accepts_cash_payment'    => ['nullable'],
         ]);
 
         if (($data['recurring_payment_mode'] ?? null) === 'subscription' && empty($venue->mp_access_token)) {
@@ -160,6 +163,7 @@ class VenueController extends Controller
         $venue->modification_hours     = $data['modification_hours'] ?? null;
         $venue->recurring_payment_mode = $data['recurring_payment_mode'] ?? 'upfront';
         $venue->amenities              = $data['amenities'] ?? [];
+        $venue->accepts_cash_payment   = $request->has('accepts_cash_payment');
 
         if ($request->hasFile('cover_image')) {
             if ($venue->cover_image_path) {

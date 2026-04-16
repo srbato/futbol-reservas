@@ -42,6 +42,9 @@
   @endphp
   </script>
 @stack('head')
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/design-tokens.css">
 <style>
   [x-cloak] { display: none !important; }
@@ -49,22 +52,63 @@
 
   body {
     margin: 0;
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-    background: var(--color-bg-page);
-    color: var(--color-text);
+    font-family: 'Sora', system-ui, -apple-system, sans-serif;
+    background: #050505;
+    color: #e8e8e8;
+    -webkit-font-smoothing: antialiased;
+
+    /* Dark theme variable overrides */
+    --color-text: #e8e8e8;
+    --color-text-secondary: #a0a0a0;
+    --color-text-muted: #666;
+    --color-text-inverse: #050505;
+    --color-bg: #111;
+    --color-bg-page: #050505;
+    --color-bg-card: #111;
+    --color-bg-hover: #1a1a1a;
+    --color-bg-dark: #22c55e;
+    --color-border: rgba(255,255,255,.1);
+    --color-border-light: rgba(255,255,255,.06);
+    --shadow-sm: 0 2px 12px rgba(0,0,0,.3);
+    --shadow-md: 0 4px 16px rgba(0,0,0,.4);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,.5);
+    --shadow-xl: 0 12px 32px rgba(0,0,0,.6);
   }
 
   a {
     color: inherit;
   }
 
+  /* ── Noise texture (subtle) ─────────────────────── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0.02;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 256px 256px;
+  }
+
+  /* ── Logo switching (dark theme) ──────────────── */
+  .brand-light { display: none !important; }
+  .brand-dark.brand-full { display: block !important; }
+  .brand-dark.brand-icon { display: none !important; }
+
+  @media (max-width: 639px) {
+    .brand-dark.brand-full { display: none !important; }
+    .brand-dark.brand-icon { display: block !important; }
+  }
+
   .site-header {
     position: sticky;
     top: 0;
     z-index: 50;
-    background: rgba(255,255,255,.95);
-    backdrop-filter: blur(8px);
-    border-bottom: 1px solid var(--color-border);
+    background: rgba(10,10,10,.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,.06);
   }
 
   .site-header-inner {
@@ -121,6 +165,7 @@
   .site-nav a,
   .site-nav button {
     text-decoration: none;
+    color: var(--color-text);
     border: 1px solid var(--color-border);
     background: var(--color-bg);
     padding: 9px 14px;
@@ -141,6 +186,7 @@
 
   .user-menu-button {
     text-decoration: none;
+    color: var(--color-text);
     border: 1px solid var(--color-border);
     background: var(--color-bg);
     padding: 9px 14px;
@@ -196,7 +242,7 @@
   }
 
   .user-dropdown-admin:hover {
-    background: #222 !important; /* hover state for dark bg */
+    background: #16a34a !important;
   }
 
   /* ── Notificaciones ────────────────────────────────── */
@@ -206,6 +252,7 @@
 
   .notif-bell {
     background: var(--color-bg);
+    color: var(--color-text);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-full);
     padding: 9px 12px;
@@ -233,7 +280,7 @@
     align-items: center;
     justify-content: center;
     padding: 0 4px;
-    border: 2px solid #fff;
+    border: 2px solid #111;
     line-height: 1;
   }
 
@@ -295,7 +342,7 @@
     gap: 10px;
     padding: 10px 14px;
     cursor: pointer;
-    border-bottom: 1px solid #f7f7f7;
+    border-bottom: 1px solid rgba(255,255,255,.06);
     transition: background .12s;
     text-decoration: none;
     color: var(--color-text);
@@ -306,11 +353,11 @@
   }
 
   .notif-item.unread {
-    background: #f0f7ff;
+    background: rgba(34,197,94,.06);
   }
 
   .notif-item.unread:hover {
-    background: #e4f0fd;
+    background: rgba(34,197,94,.1);
   }
 
   .notif-icon {
@@ -464,7 +511,7 @@
 
   .venue-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 30px rgba(0,0,0,.12);
+    box-shadow: 0 12px 30px rgba(0,0,0,.4);
   }
 
   .venue-card-image {
@@ -472,7 +519,7 @@
     height: 220px;
     object-fit: cover;
     display: block;
-    background: #f1f1f1;
+    background: #1a1a1a;
     transition: transform .25s ease;
   }
 
@@ -560,20 +607,20 @@
     margin-bottom: 16px;
     padding: 12px 14px;
     border-radius: 12px;
-    border: 1px solid #eee;
-    background: #fff;
+    border: 1px solid rgba(255,255,255,.1);
+    background: #111;
   }
 
   .flash.success {
-    background: #e8f7ee;
-    color: #157347;
-    border-color: #cfe9d7;
+    background: rgba(34,197,94,.1);
+    color: #6ee7a0;
+    border-color: rgba(34,197,94,.2);
   }
 
   .flash.error {
-    background: #f8d7da;
-    color: #842029;
-    border-color: #f1b9c0;
+    background: rgba(229,57,53,.1);
+    color: #f87171;
+    border-color: rgba(229,57,53,.2);
   }
 
   .venue-btn {
@@ -619,7 +666,7 @@
     font-size: 28px;
     line-height: 1;
     cursor: pointer;
-    color: #d1d5db;
+    color: #444;
     padding: 0;
   }
 
@@ -739,7 +786,7 @@
   }
 
   .carousel-track::-webkit-scrollbar-thumb {
-    background: var(--color-border);
+    background: rgba(255,255,255,.15);
     border-radius: 999px;
   }
 
@@ -753,9 +800,9 @@
     width: 42px;
     height: 42px;
     border-radius: var(--radius-full);
-    border: 1px solid var(--color-border);
-    background: var(--color-bg);
-    color: var(--color-text);
+    border: 1px solid rgba(255,255,255,.15);
+    background: #111;
+    color: #e8e8e8;
     font-size: 24px;
     line-height: 1;
     cursor: pointer;
@@ -763,12 +810,12 @@
     align-items: center;
     justify-content: center;
     transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-    box-shadow: 0 6px 18px rgba(0,0,0,.14);
+    box-shadow: 0 6px 18px rgba(0,0,0,.3);
   }
 
   .featured-nav-arrow:hover {
     transform: translateY(-1px);
-    border-color: var(--color-text);
+    border-color: rgba(255,255,255,.3);
   }
 
   .carousel-card {
@@ -788,7 +835,7 @@
 
   .carousel-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 28px rgba(0,0,0,.10);
+    box-shadow: 0 12px 28px rgba(0,0,0,.4);
   }
 
   .carousel-card img,
@@ -797,7 +844,7 @@
     height: 220px;
     object-fit: cover;
     display: block;
-    background: #f1f1f1;
+    background: #1a1a1a;
   }
 
   .carousel-card-body {
@@ -852,6 +899,7 @@
   .app-hamburger {
     display: none;
     background: var(--color-bg);
+    color: var(--color-text);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-sm);
     cursor: pointer;
@@ -995,8 +1043,9 @@
     }
   }
 
-  @stack('styles')
 </style>
+@stack('styles')
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body>
 <header class="site-header" style="position:relative;">
@@ -1004,7 +1053,8 @@
       <a href="{{ route('home') }}" class="brand">
         <img src="/images/logo-multicolor.svg" alt="TuCancha" class="brand-full brand-light">
         <img src="/images/logo-multicolor-responsive.svg" alt="TuCancha" class="brand-icon brand-light">
-        <img src="/images/logo-blanco.svg" alt="TuCancha" class="brand-full brand-dark" style="display:none;">
+        <img src="/images/logo-fondonegro-multicolor.svg" alt="TuCancha" class="brand-full brand-dark" style="display:none;">
+        <img src="/images/logo-fondonegro-multicolor-responsive.svg" alt="TuCancha" class="brand-icon brand-dark" style="display:none;">
       </a>
 
       @auth
@@ -1018,6 +1068,8 @@
            @if(request()->routeIs('falta-uno.*')) style="background:var(--color-bg-dark); color:var(--color-text-inverse); border-color:var(--color-bg-dark); font-weight:700;" @endif><i data-lucide="zap" style="width:14px;height:14px;stroke:currentColor;vertical-align:middle;margin-right:4px;"></i> Falta Uno</a>
         <a href="{{ route('torneos.index') }}"
            @if(request()->routeIs('torneos.*')) style="background:var(--color-bg-hover); font-weight:700;" @endif><i data-lucide="trophy" style="width:14px;height:14px;stroke:currentColor;vertical-align:middle;margin-right:4px;"></i> Torneos</a>
+        <a href="{{ route('ranking.index') }}"
+           @if(request()->routeIs('ranking.*')) style="background:var(--color-bg-hover); font-weight:700;" @endif><i data-lucide="bar-chart-3" style="width:14px;height:14px;stroke:currentColor;vertical-align:middle;margin-right:4px;"></i> Ranking</a>
       </nav>
 
       {{-- Acciones derecha: notificaciones + user --}}
@@ -1063,9 +1115,9 @@
                         <div class="notif-empty">Sin notificaciones</div>
                     @endforelse
                 </div>
-                <div style="border-top:1px solid #f0f0f0; padding:10px 14px; text-align:center;">
+                <div style="border-top:1px solid rgba(255,255,255,.08); padding:10px 14px; text-align:center;">
                     <a href="{{ route('notifications.index') }}"
-                       style="font-size:13px; color:#555; text-decoration:none; font-weight:700; display:inline-flex; align-items:center; gap:4px;">
+                       style="font-size:13px; color:#a0a0a0; text-decoration:none; font-weight:700; display:inline-flex; align-items:center; gap:4px;">
                         Ver todas las notificaciones <i data-lucide="arrow-right" style="width:13px;height:13px;stroke:currentColor;"></i>
                     </a>
                 </div>
@@ -1079,10 +1131,10 @@
                     <img
                         src="{{ \Illuminate\Support\Facades\Storage::url(auth()->user()->avatar_path) }}"
                         alt="Avatar"
-                        style="width:32px; height:32px; border-radius:999px; object-fit:cover; border:1px solid #eee;"
+                        style="width:32px; height:32px; border-radius:999px; object-fit:cover; border:1px solid rgba(255,255,255,.1);"
                     >
                 @else
-                    <div style="width:32px; height:32px; border-radius:999px; background:#f1f1f1; display:flex; align-items:center; justify-content:center; border:1px solid #eee;">
+                    <div style="width:32px; height:32px; border-radius:999px; background:#1a1a1a; display:flex; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,.1);">
                         <i data-lucide="user" style="width:16px;height:16px;stroke:#999;stroke-width:2;"></i>
                     </div>
                 @endif
@@ -1121,6 +1173,8 @@
            @if(request()->routeIs('falta-uno.*')) style="background:var(--color-bg-dark); color:var(--color-text-inverse); border-color:var(--color-bg-dark); font-weight:700;" @endif><i data-lucide="zap" style="width:14px;height:14px;stroke:currentColor;vertical-align:middle;margin-right:4px;"></i> Falta Uno</a>
         <a href="{{ route('torneos.index') }}"
            @if(request()->routeIs('torneos.*')) style="background:var(--color-bg-hover); font-weight:700;" @endif><i data-lucide="trophy" style="width:14px;height:14px;stroke:currentColor;vertical-align:middle;margin-right:4px;"></i> Torneos</a>
+        <a href="{{ route('ranking.index') }}"
+           @if(request()->routeIs('ranking.*')) style="background:var(--color-bg-hover); font-weight:700;" @endif><i data-lucide="bar-chart-3" style="width:14px;height:14px;stroke:currentColor;vertical-align:middle;margin-right:4px;"></i> Ranking</a>
       </nav>
       <div class="site-nav-right">
           <a href="{{ route('login') }}" class="btn" style="font-size:14px;">Ingresar</a>
@@ -1141,6 +1195,7 @@
       <a href="{{ route('venues.index') }}">Complejos</a>
       <a href="{{ route('falta-uno.index') }}" style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="zap" style="width:14px;height:14px;stroke:currentColor;"></i> Falta Uno</a>
       <a href="{{ route('torneos.index') }}" style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="trophy" style="width:14px;height:14px;stroke:currentColor;"></i> Torneos</a>
+      <a href="{{ route('ranking.index') }}" style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="bar-chart-3" style="width:14px;height:14px;stroke:currentColor;"></i> Ranking</a>
       <div class="app-mobile-divider"></div>
       <a href="{{ route('sport-profile.public', auth()->user()) }}">Perfil</a>
       <a href="{{ route('my_reservations') }}">Mi actividad</a>
@@ -1162,6 +1217,7 @@
       <a href="{{ route('venues.index') }}">Complejos</a>
       <a href="{{ route('falta-uno.index') }}" style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="zap" style="width:14px;height:14px;stroke:currentColor;"></i> Falta Uno</a>
       <a href="{{ route('torneos.index') }}" style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="trophy" style="width:14px;height:14px;stroke:currentColor;"></i> Torneos</a>
+      <a href="{{ route('ranking.index') }}" style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="bar-chart-3" style="width:14px;height:14px;stroke:currentColor;"></i> Ranking</a>
       <div class="app-mobile-divider"></div>
       <a href="{{ route('login') }}">Ingresar</a>
       <a href="{{ route('register') }}" class="app-mobile-cta">Crear cuenta</a>
@@ -1182,17 +1238,17 @@
     @yield('content')
   </main>
 
-  <footer style="border-top:1px solid #e5e7eb; padding:24px 0; margin-top:48px; text-align:center; font-size:13px; color:#9ca3af;">
+  <footer style="border-top:1px solid rgba(255,255,255,.06); padding:24px 0; margin-top:48px; text-align:center; font-size:13px; color:#666;">
     <div style="max-width:1200px; margin:0 auto; padding:0 20px; display:flex; justify-content:center; align-items:center; gap:16px; flex-wrap:wrap;">
       <span>&copy; {{ date('Y') }} TuCancha</span>
-      <span style="color:#d1d5db;">|</span>
-      <a href="{{ url('/como-funciona') }}" style="color:#6b7280; text-decoration:none; transition:color .2s;" onmouseover="this.style.color='#16a34a'" onmouseout="this.style.color='#6b7280'">Como funciona</a>
-      <span style="color:#d1d5db;">|</span>
-      <a href="{{ url('/nosotros') }}" style="color:#6b7280; text-decoration:none; transition:color .2s;" onmouseover="this.style.color='#16a34a'" onmouseout="this.style.color='#6b7280'">Nosotros</a>
-      <span style="color:#d1d5db;">|</span>
-      <a href="{{ route('blog.index') }}" style="color:#6b7280; text-decoration:none; transition:color .2s;" onmouseover="this.style.color='#16a34a'" onmouseout="this.style.color='#6b7280'">Blog</a>
-      <span style="color:#d1d5db;">|</span>
-      <a href="{{ route('planes') }}" style="color:#6b7280; text-decoration:none; transition:color .2s;" onmouseover="this.style.color='#16a34a'" onmouseout="this.style.color='#6b7280'">Sos dueno de un complejo? Registralo aca</a>
+      <span style="color:rgba(255,255,255,.15);">|</span>
+      <a href="{{ url('/como-funciona') }}" style="color:#888; text-decoration:none; transition:color .2s;" onmouseover="this.style.color='#22c55e'" onmouseout="this.style.color='#888'">Como funciona</a>
+      <span style="color:rgba(255,255,255,.15);">|</span>
+      <a href="{{ url('/nosotros') }}" style="color:#888; text-decoration:none; transition:color .2s;" onmouseover="this.style.color='#22c55e'" onmouseout="this.style.color='#888'">Nosotros</a>
+      <span style="color:rgba(255,255,255,.15);">|</span>
+      <a href="{{ route('blog.index') }}" style="color:#888; text-decoration:none; transition:color .2s;" onmouseover="this.style.color='#22c55e'" onmouseout="this.style.color='#888'">Blog</a>
+      <span style="color:rgba(255,255,255,.15);">|</span>
+      <a href="{{ route('planes') }}" style="color:#888; text-decoration:none; transition:color .2s;" onmouseover="this.style.color='#22c55e'" onmouseout="this.style.color='#888'">Sos dueno de un complejo? Registralo aca</a>
     </div>
   </footer>
 
@@ -1301,11 +1357,11 @@
   @endphp
 
   @if($activeSystemMessage)
-    <div id="systemMessageModal" style="position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:9999; display:flex; align-items:center; justify-content:center; padding:20px;">
-      <div style="width:100%; max-width:520px; background:#fff; border-radius:18px; padding:22px; box-shadow:0 12px 40px rgba(0,0,0,.18);">
-        <h3 style="margin-top:0; margin-bottom:10px;">{{ $activeSystemMessage->title }}</h3>
+    <div id="systemMessageModal" style="position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:9999; display:flex; align-items:center; justify-content:center; padding:20px;">
+      <div style="width:100%; max-width:520px; background:#161616; border:1px solid rgba(255,255,255,.1); border-radius:18px; padding:22px; box-shadow:0 12px 40px rgba(0,0,0,.5);">
+        <h3 style="margin-top:0; margin-bottom:10px; color:#e8e8e8;">{{ $activeSystemMessage->title }}</h3>
 
-        <div class="muted" style="line-height:1.7; white-space:pre-wrap;">
+        <div style="line-height:1.7; white-space:pre-wrap; color:#a0a0a0;">
           {{ $activeSystemMessage->body }}
         </div>
 
@@ -1313,7 +1369,7 @@
           <button
             type="button"
             onclick="dismissSystemMessage({{ $activeSystemMessage->id }})"
-            style="padding:10px 14px; border:0; background:#111; color:#fff; border-radius:10px; cursor:pointer;"
+            style="padding:10px 14px; border:0; background:#22c55e; color:#050505; border-radius:10px; cursor:pointer; font-weight:600;"
           >
             Cerrar
           </button>
@@ -1349,7 +1405,7 @@
 {{-- Botón flotante de feedback --}}
 <style>
   #feedbackWidget { position:fixed; bottom:90px; right:24px; z-index:9990; }
-  #feedbackPanel  { display:none; position:absolute; bottom:60px; right:0; width:300px; background:#fff; border:1px solid #ececec; border-radius:16px; box-shadow:0 12px 36px rgba(0,0,0,.14); padding:20px; }
+  #feedbackPanel  { display:none; position:absolute; bottom:60px; right:0; width:300px; background:#161616; border:1px solid rgba(255,255,255,.1); border-radius:16px; box-shadow:0 12px 36px rgba(0,0,0,.4); padding:20px; }
   @media (max-width: 400px) {
     #feedbackWidget { bottom:80px; right:16px; }
     #feedbackPanel  { width: calc(100vw - 32px); right: auto; left: 50%; transform: translateX(-50%); bottom: 60px; }
@@ -1359,21 +1415,21 @@
   <button
     id="feedbackToggle"
     title="Enviar feedback"
-    style="width:48px; height:48px; border-radius:999px; background:#111; color:#fff; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 16px rgba(0,0,0,.22); transition:transform .15s, box-shadow .15s;"
-    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,.28)'"
-    onmouseout="this.style.transform=''; this.style.boxShadow='0 4px 16px rgba(0,0,0,.22)'"
+    style="width:48px; height:48px; border-radius:999px; background:#22c55e; color:#050505; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 16px rgba(34,197,94,.25); transition:transform .15s, box-shadow .15s;"
+    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(34,197,94,.35)'"
+    onmouseout="this.style.transform=''; this.style.boxShadow='0 4px 16px rgba(34,197,94,.25)'"
     aria-label="Feedback"
   >
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#050505" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
   </button>
 
   <div id="feedbackPanel">
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
-      <span style="font-size:15px; font-weight:700; color:#111;">Envianos tu feedback</span>
-      <button id="feedbackClose" style="background:none; border:none; cursor:pointer; color:#aaa; font-size:18px; line-height:1; padding:0;" aria-label="Cerrar">&times;</button>
+      <span style="font-size:15px; font-weight:700; color:#e8e8e8;">Envianos tu feedback</span>
+      <button id="feedbackClose" style="background:none; border:none; cursor:pointer; color:#666; font-size:18px; line-height:1; padding:0;" aria-label="Cerrar">&times;</button>
     </div>
 
-    <div id="feedbackSuccess" style="display:none; background:#e8f7ee; color:#157347; border:1px solid #cfe9d7; border-radius:10px; padding:12px 14px; font-size:14px; font-weight:600; text-align:center;">
+    <div id="feedbackSuccess" style="display:none; background:rgba(34,197,94,.1); color:#6ee7a0; border:1px solid rgba(34,197,94,.2); border-radius:10px; padding:12px 14px; font-size:14px; font-weight:600; text-align:center;">
       Gracias por tu feedback.
     </div>
 
@@ -1382,14 +1438,14 @@
         id="feedbackMessage"
         rows="4"
         placeholder="Sugerencia, error o comentario..."
-        style="width:100%; padding:10px 12px; border:1px solid #ddd; border-radius:10px; font-size:14px; font-family:inherit; resize:vertical; color:#111; background:#fff; outline:none; box-sizing:border-box;"
+        style="width:100%; padding:10px 12px; border:1px solid rgba(255,255,255,.1); border-radius:10px; font-size:14px; font-family:inherit; resize:vertical; color:#e8e8e8; background:#0a0a0a; outline:none; box-sizing:border-box;"
       ></textarea>
-      <div id="feedbackError" style="display:none; color:#b91c1c; font-size:13px; margin-top:6px;"></div>
+      <div id="feedbackError" style="display:none; color:#f87171; font-size:13px; margin-top:6px;"></div>
       <button
         id="feedbackSubmit"
-        style="margin-top:10px; width:100%; padding:10px; background:#111; color:#fff; border:none; border-radius:10px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; transition:background .15s;"
-        onmouseover="if(!this.disabled) this.style.background='#222'"
-        onmouseout="this.style.background='#111'"
+        style="margin-top:10px; width:100%; padding:10px; background:#22c55e; color:#050505; border:none; border-radius:10px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; transition:background .15s;"
+        onmouseover="if(!this.disabled) this.style.background='#16a34a'"
+        onmouseout="this.style.background='#22c55e'"
       >Enviar</button>
     </div>
   </div>

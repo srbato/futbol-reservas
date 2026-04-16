@@ -75,7 +75,7 @@ class OrganizerSubscriptionService
                 'transaction_amount' => $price,
                 'currency_id'        => 'ARS',
             ],
-            'back_url'           => $baseUrl . '/organizador/planes',
+            'back_url'           => $baseUrl . '/organizador/suscripcion/exito',
             'notification_url'   => $baseUrl . '/webhooks/mercadopago',
             'external_reference' => 'organizer_subscription:' . $subscription->id,
             'status'             => 'pending',

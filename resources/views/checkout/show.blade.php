@@ -8,18 +8,18 @@
 
 @section('content')
   @if(session('info'))
-    <div style="background:linear-gradient(135deg,#f0f9ff,#e0f2fe); border:1px solid #bae6fd; border-radius:14px; padding:14px 18px; margin-bottom:18px; display:flex; align-items:center; gap:12px;">
-      <i data-lucide="zap" style="width:20px;height:20px;stroke:#0369a1;flex-shrink:0;"></i>
-      <div style="font-size:14px; font-weight:700; color:#0369a1;">{{ session('info') }}</div>
+    <div style="background:rgba(59,130,246,.08); border:1px solid rgba(59,130,246,.2); border-radius:14px; padding:14px 18px; margin-bottom:18px; display:flex; align-items:center; gap:12px;">
+      <i data-lucide="zap" style="width:20px;height:20px;stroke:#93c5fd;flex-shrink:0;"></i>
+      <div style="font-size:14px; font-weight:700; color:#93c5fd;">{{ session('info') }}</div>
     </div>
   @endif
 
   @if($availableReward ?? null)
-    <div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7); border:1px solid #86efac; border-radius:14px; padding:14px 18px; margin-bottom:18px; display:flex; align-items:center; gap:12px;">
-      <i data-lucide="gift" style="width:20px;height:20px;stroke:#15803d;flex-shrink:0;"></i>
+    <div style="background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.2); border-radius:14px; padding:14px 18px; margin-bottom:18px; display:flex; align-items:center; gap:12px;">
+      <i data-lucide="gift" style="width:20px;height:20px;stroke:#6ee7a0;flex-shrink:0;"></i>
       <div>
-        <div style="font-size:14px; font-weight:700; color:#15803d;">Tenés un beneficio de referido disponible</div>
-        <div style="font-size:13px; color:#166534; margin-top:2px; line-height:1.5;">
+        <div style="font-size:14px; font-weight:700; color:#6ee7a0;">Tenés un beneficio de referido disponible</div>
+        <div style="font-size:13px; color:#6ee7a0; margin-top:2px; line-height:1.5;">
           Tenés un beneficio pendiente por haber referido a un nuevo socio.
           Contactá al soporte de TuCancha para aplicarlo a tu reserva.
         </div>
@@ -35,12 +35,12 @@
 
       <div style="display:grid; gap:14px;">
         <div>
-          <div style="font-size:12px; color:#666; margin-bottom:4px;">Complejo</div>
+          <div style="font-size:12px; color:#a0a0a0; margin-bottom:4px;">Complejo</div>
           <div style="font-size:18px; font-weight:700;">{{ $reservation->field->venue->name }}</div>
         </div>
 
         <div>
-          <div style="font-size:12px; color:#666; margin-bottom:4px;">Cancha</div>
+          <div style="font-size:12px; color:#a0a0a0; margin-bottom:4px;">Cancha</div>
           <div style="font-size:18px; font-weight:700;">{{ $reservation->field->name }}</div>
         </div>
 
@@ -54,11 +54,11 @@
 
         <div id="checkoutStatusBox">
           @if($reservation->status === 'PAID')
-            <div style="padding:12px 14px; border-radius:12px; background:#e8f7ee; color:#157347; border:1px solid #cfe9d7;">
+            <div style="padding:12px 14px; border-radius:12px; background:rgba(34,197,94,.1); color:#6ee7a0; border:1px solid rgba(34,197,94,.2);">
               Esta reserva ya fue pagada correctamente.
             </div>
           @elseif($reservation->expires_at && $reservation->expires_at->isFuture())
-            <div style="padding:12px 14px; border-radius:12px; background:#fff3cd; color:#856404; border:1px solid #f3df8a;">
+            <div style="padding:12px 14px; border-radius:12px; background:rgba(245,158,11,.08); color:#fbbf24; border:1px solid rgba(245,158,11,.2);">
               <div>
                 Esta reserva está pendiente de pago y vence el
                 <strong>{{ $reservation->expires_at->format('d/m/Y H:i') }}</strong>.
@@ -66,11 +66,11 @@
               <div id="checkoutCountdown" style="margin-top:6px; font-weight:700;"></div>
             </div>
           @elseif($reservation->expires_at && $reservation->expires_at->isPast())
-            <div style="padding:12px 14px; border-radius:12px; background:#f8d7da; color:#842029; border:1px solid #f1b9c0;">
+            <div style="padding:12px 14px; border-radius:12px; background:rgba(229,57,53,.1); color:#f87171; border:1px solid rgba(229,57,53,.2);">
               Esta reserva ya expiró y no se puede pagar.
             </div>
           @else
-            <div style="padding:12px 14px; border-radius:12px; background:#f3f3f3; color:#444; border:1px solid #e2e2e2;">
+            <div style="padding:12px 14px; border-radius:12px; background:rgba(255,255,255,.04); color:#a0a0a0; border:1px solid rgba(255,255,255,.08);">
               Revisá el estado actual de la reserva antes de continuar.
             </div>
           @endif
@@ -82,6 +82,16 @@
               @csrf
               <button type="submit" class="btn btn-primary" id="checkoutPayButton">Pagar con Mercado Pago</button>
             </form>
+
+            @if($reservation->field->venue->accepts_cash_payment)
+              <form method="POST" action="{{ route('reservations.pay_cash', $reservation) }}" style="margin:0;" id="cashPaymentForm">
+                @csrf
+                <button type="submit" class="btn" id="cashPayButton"
+                        onclick="return confirm('Al elegir esta opcion, tu reserva queda confirmada y debes pagar al llegar al complejo. Continuar?')">
+                  Pagar en el complejo
+                </button>
+              </form>
+            @endif
           @endif
 
           <a href="{{ route('my_reservations') }}" class="btn">Volver a mis reservas</a>
@@ -97,7 +107,7 @@
 
     <div style="display:grid; gap:16px;">
 <div class="page-card">
-      <div style="font-size:12px; color:#666; margin-bottom:6px;">Resumen del pago</div>
+      <div style="font-size:12px; color:#a0a0a0; margin-bottom:6px;">Resumen del pago</div>
       <div style="font-size:38px; font-weight:800; line-height:1.1; margin-bottom:14px;">
         {{ $reservation->currency }} {{ number_format($reservation->total_amount, 0, ',', '.') }}
       </div>
@@ -115,20 +125,26 @@
 
         <div style="display:flex; justify-content:space-between; gap:12px;">
           <span class="muted">Método</span>
-          <strong>Mercado Pago</strong>
+          <strong>
+            @if($reservation->payment_provider === 'cash')
+              Efectivo en el complejo
+            @else
+              Mercado Pago
+            @endif
+          </strong>
         </div>
       </div>
 
-      <hr style="margin:18px 0; border:none; border-top:1px solid #eee;">
+      <hr style="margin:18px 0; border:none; border-top:1px solid rgba(255,255,255,.08);">
 
       @if($reservation->status === 'PAID')
         <p class="muted" style="margin:0; line-height:1.6;">
-          La reserva ya está pagada. Podés revisar el código de verificación desde <strong style="color:#111;">Mis reservas</strong>.
+          La reserva ya está pagada. Podés revisar el código de verificación desde <strong style="color:#e8e8e8;">Mis reservas</strong>.
         </p>
       @elseif($reservation->expires_at && $reservation->expires_at->isFuture())
         <p class="muted" style="margin:0; line-height:1.6;">
           Una vez aprobado el pago, la reserva pasará automáticamente a estado
-          <strong style="color:#111;">Pagada</strong> y se habilitará el código de verificación.
+          <strong style="color:#e8e8e8;">Pagada</strong> y se habilitará el código de verificación.
         </p>
       @else
         <p class="muted" style="margin:0; line-height:1.6;">
@@ -185,7 +201,7 @@
 
       if (statusBox) {
         statusBox.innerHTML = `
-          <div style="padding:12px 14px; border-radius:12px; background:#f8d7da; color:#842029; border:1px solid #f1b9c0;">
+          <div style="padding:12px 14px; border-radius:12px; background:rgba(229,57,53,.1); color:#f87171; border:1px solid rgba(229,57,53,.2);">
             Esta reserva expiró mientras estabas en la pantalla de pago. Ya no se puede pagar.
           </div>
         `;

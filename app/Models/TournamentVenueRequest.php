@@ -40,4 +40,9 @@ class TournamentVenueRequest extends Model
     }
 
     public function isPending(): bool { return $this->status === self::STATUS_PENDING; }
+
+    public function scheduleRequest(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(TournamentScheduleRequest::class, 'venue_request_id');
+    }
 }

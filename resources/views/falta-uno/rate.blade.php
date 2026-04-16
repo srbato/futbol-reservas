@@ -16,12 +16,12 @@
   .rate-header p  { margin:0; font-size:13px; color:rgba(255,255,255,.6); }
 
   .rate-card {
-    background: #fff;
-    border: 1px solid #ececec;
+    background: #111;
+    border: 1px solid rgba(255,255,255,.08);
     border-radius: 16px;
     padding: 18px 20px;
     margin-bottom: 12px;
-    box-shadow: 0 2px 6px rgba(0,0,0,.03);
+    box-shadow: 0 2px 6px rgba(0,0,0,.1);
   }
 
   .rate-player {
@@ -33,11 +33,11 @@
 
   .rate-avatar {
     width:44px; height:44px; border-radius:50%;
-    background:#111; display:flex; align-items:center; justify-content:center;
-    font-size:16px; font-weight:800; color:#fff; overflow:hidden; flex-shrink:0;
+    background:#22c55e; display:flex; align-items:center; justify-content:center;
+    font-size:16px; font-weight:800; color:#050505; overflow:hidden; flex-shrink:0;
   }
   .rate-avatar img { width:100%; height:100%; object-fit:cover; }
-  .rate-name { font-size:16px; font-weight:800; color:#111; }
+  .rate-name { font-size:16px; font-weight:800; color:#e8e8e8; }
 
   .assess-row {
     display: grid;
@@ -48,9 +48,9 @@
 
   .assess-btn {
     padding: 10px 8px;
-    border: 2px solid #e5e7eb;
+    border: 2px solid rgba(255,255,255,.1);
     border-radius: 12px;
-    background: #fff;
+    background: #0a0a0a;
     cursor: pointer;
     text-align: center;
     transition: all .15s;
@@ -59,17 +59,20 @@
     align-items: center;
     gap: 4px;
   }
-  .assess-btn .assess-icon { font-size: 22px; line-height: 1; }
-  .assess-btn .assess-label { font-size: 12px; font-weight: 700; color: #555; }
-  .assess-btn .assess-desc { font-size: 10px; color: #aaa; line-height: 1.3; }
+  .assess-btn .assess-icon { font-size: 22px; line-height: 1; color: #a0a0a0; }
+  .assess-btn .assess-label { font-size: 12px; font-weight: 700; color: #a0a0a0; }
+  .assess-btn .assess-desc { font-size: 10px; color: #555; line-height: 1.3; }
 
-  .assess-btn:hover { border-color: #9ca3af; }
-  .assess-btn.selected-below  { border-color: #ef4444; background: #fef2f2; }
-  .assess-btn.selected-below .assess-label  { color: #dc2626; }
-  .assess-btn.selected-match  { border-color: #6b7280; background: #f3f4f6; }
-  .assess-btn.selected-match .assess-label  { color: #374151; }
-  .assess-btn.selected-above  { border-color: #22c55e; background: #f0fdf4; }
-  .assess-btn.selected-above .assess-label  { color: #15803d; }
+  .assess-btn:hover { border-color: rgba(255,255,255,.2); }
+  .assess-btn.selected-below  { border-color: #ef4444; background: rgba(229,57,53,.1); }
+  .assess-btn.selected-below .assess-label  { color: #f87171; }
+  .assess-btn.selected-match  { border-color: #6b7280; background: rgba(255,255,255,.06); }
+  .assess-btn.selected-match .assess-label  { color: #e8e8e8; }
+  .assess-btn.selected-above  { border-color: #22c55e; background: rgba(34,197,94,.1); }
+  .assess-btn.selected-above .assess-label  { color: #4ade80; }
+  .assess-btn.selected-below .assess-icon   { color: #f87171; }
+  .assess-btn.selected-match .assess-icon   { color: #e8e8e8; }
+  .assess-btn.selected-above .assess-icon   { color: #4ade80; }
 
   @media (max-width: 480px) {
     .assess-row { grid-template-columns: 1fr; }
@@ -78,7 +81,7 @@
   .rate-comment {
     width: 100%;
     padding: 8px 12px;
-    border: 1.5px solid #e0e0e0;
+    border: 1.5px solid rgba(255,255,255,.1);
     border-radius: 10px;
     font-size: 13px;
     resize: vertical;
@@ -87,14 +90,16 @@
     transition: border-color .15s;
     box-sizing: border-box;
     font-family: inherit;
+    background: #0a0a0a;
+    color: #e8e8e8;
   }
-  .rate-comment:focus { border-color:#111; }
+  .rate-comment:focus { border-color:#22c55e; }
 
   .rate-submit {
     width: 100%;
     padding: 14px;
-    background: #111;
-    color: #fff;
+    background: #22c55e;
+    color: #050505;
     border: none;
     border-radius: 12px;
     font-size: 15px;
@@ -103,7 +108,7 @@
     margin-top: 8px;
     transition: background .15s;
   }
-  .rate-submit:hover { background: #222; }
+  .rate-submit:hover { background: #16a34a; }
 </style>
 @endpush
 
@@ -113,8 +118,8 @@
 
   <div style="margin-bottom:14px;">
     <a href="{{ route('falta-uno.index') }}"
-       style="display:inline-flex; align-items:center; gap:5px; font-size:13px; color:#888; text-decoration:none; font-weight:600;"
-       onmouseover="this.style.color='#111'" onmouseout="this.style.color='#888'">
+       style="display:inline-flex; align-items:center; gap:5px; font-size:13px; color:#666; text-decoration:none; font-weight:600;"
+       onmouseover="this.style.color='#e8e8e8'" onmouseout="this.style.color='#666'">
       <i data-lucide="arrow-left" style="width:14px;height:14px;stroke:currentColor;"></i> Volver a partidos
     </a>
   </div>
@@ -125,7 +130,7 @@
   </div>
 
   @if(session('info'))
-    <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:12px; padding:12px 16px; margin-bottom:16px; color:#1e40af; font-size:14px; font-weight:600;">
+    <div style="background:rgba(37,99,235,.08); border:1px solid rgba(37,99,235,.2); border-radius:12px; padding:12px 16px; margin-bottom:16px; color:#60a5fa; font-size:14px; font-weight:600;">
       {{ session('info') }}
     </div>
   @endif
@@ -154,9 +159,9 @@
         $playerProfile = $player->sportProfileFor($playerSport);
       @endphp
       @if($playerProfile)
-        <div style="font-size:12px; color:#888; margin-bottom:10px;">
+        <div style="font-size:12px; color:#666; margin-bottom:10px;">
           Categoría actual:
-          <strong style="color:#111; text-transform:capitalize;">{{ $playerProfile->category }}</strong>
+          <strong style="color:#e8e8e8; text-transform:capitalize;">{{ $playerProfile->category }}</strong>
         </div>
       @endif
 

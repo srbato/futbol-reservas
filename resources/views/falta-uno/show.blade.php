@@ -2,6 +2,24 @@
 
 @section('title', 'Partido · ' . ($game->field->name ?? 'Falta Uno'))
 
+@php
+  $ogSportLabel = match($game->field->sport ?? '') {
+    'football'   => 'Fútbol',
+    'padel'      => 'Pádel',
+    'tennis'     => 'Tenis',
+    'basketball' => 'Básquet',
+    'volleyball' => 'Vóley',
+    default      => ucfirst($game->field->sport ?? 'Deporte'),
+  };
+  $ogSlotsLeft = max(0, $game->players_needed - $game->activeParticipants->count());
+@endphp
+
+@section('og_title', 'Partido de ' . $ogSportLabel . ' en ' . $game->field->venue->name . ' — Falta Uno')
+@section('og_description', $game->start_at->format('d/m/Y') . ' a las ' . $game->start_at->format('H:i') . ' hs — ' . ($ogSlotsLeft > 0 ? $ogSlotsLeft . ' lugar' . ($ogSlotsLeft > 1 ? 'es' : '') . ' disponible' . ($ogSlotsLeft > 1 ? 's' : '') : 'Completo') . ' — ' . $game->field->venue->name)
+@if($game->field->venue->cover_image_path)
+  @section('og_image', \Illuminate\Support\Facades\Storage::url($game->field->venue->cover_image_path))
+@endif
+
 @push('head')
 <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
 @endpush
@@ -30,7 +48,7 @@
     font-weight: 600;
     transition: color .15s, transform .15s;
   }
-  .fus-back:hover { color: #111; transform: translateX(-2px); }
+  .fus-back:hover { color: #e8e8e8; transform: translateX(-2px); }
 
   /* ── Hero ──────────────────────────────────────── */
   .fus-hero {
@@ -158,8 +176,8 @@
 
   /* ── Panel de acciones ─────────────────────────── */
   .fus-actions-card {
-    background: #fff;
-    border: 1px solid #ececec;
+    background: #111;
+    border: 1px solid rgba(255,255,255,.08);
     border-top: 4px solid #22c55e;
     border-radius: 16px;
     padding: 24px;
@@ -170,7 +188,7 @@
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: .08em;
-    color: #aaa;
+    color: #666;
   }
   .fus-actions-row { display: flex; gap: 10px; flex-wrap: wrap; }
 
@@ -188,42 +206,42 @@
     font-family: inherit;
     transition: transform .15s, box-shadow .15s, background .15s;
   }
-  .fus-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.1); }
+  .fus-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.3); }
 
-  .fus-btn-chat   { background: #111; color: #fff; }
-  .fus-btn-chat:hover { background: #22c55e; color: #052e16; }
-  .fus-btn-stats  { background: #f4f4f4; color: #333; }
-  .fus-btn-stats:hover { background: #e5e5e5; }
-  .fus-btn-rate   { background: #fef3c7; color: #92400e; }
-  .fus-btn-rate:hover  { background: #fde68a; }
-  .fus-btn-cancel { background: transparent; border: 1.5px solid #fecaca; color: #dc2626; }
-  .fus-btn-cancel:hover { background: #fef2f2; }
-  .fus-btn-leave  { background: transparent; border: 1.5px solid #fed7aa; color: #ea580c; }
-  .fus-btn-leave:hover  { background: #fff7ed; }
+  .fus-btn-chat   { background: #22c55e; color: #050505; }
+  .fus-btn-chat:hover { background: #16a34a; color: #050505; }
+  .fus-btn-stats  { background: rgba(255,255,255,.06); color: #e8e8e8; }
+  .fus-btn-stats:hover { background: rgba(255,255,255,.1); }
+  .fus-btn-rate   { background: rgba(245,158,11,.08); color: #fbbf24; }
+  .fus-btn-rate:hover  { background: rgba(245,158,11,.15); }
+  .fus-btn-cancel { background: transparent; border: 1.5px solid rgba(229,57,53,.3); color: #f87171; }
+  .fus-btn-cancel:hover { background: rgba(229,57,53,.1); }
+  .fus-btn-leave  { background: transparent; border: 1.5px solid rgba(234,88,12,.3); color: #fb923c; }
+  .fus-btn-leave:hover  { background: rgba(234,88,12,.1); }
   .fus-badge-rated {
     display: inline-flex; align-items: center; gap: 6px;
-    background: #f0fdf4; color: #15803d;
+    background: rgba(34,197,94,.1); color: #4ade80;
     border-radius: 12px; padding: 10px 18px;
     font-size: 14px; font-weight: 700;
   }
 
   /* ── CTA unirse / guest ────────────────────────── */
   .fus-join-card {
-    background: #fff;
-    border: 1px solid #ececec;
+    background: #111;
+    border: 1px solid rgba(255,255,255,.08);
     border-radius: 16px;
     padding: 28px;
     text-align: center;
   }
   .fus-join-card.needs-profile {
-    background: #fffbeb;
-    border-color: #fde68a;
+    background: rgba(245,158,11,.08);
+    border-color: rgba(245,158,11,.25);
   }
   .fus-btn-join {
     display: block;
     width: 100%;
-    background: #111;
-    color: #fff;
+    background: #22c55e;
+    color: #050505;
     border: none;
     border-radius: 12px;
     padding: 14px;
@@ -233,22 +251,22 @@
     font-family: inherit;
     transition: background .15s, transform .15s;
   }
-  .fus-btn-join:hover { background: #22c55e; color: #052e16; transform: translateY(-1px); }
-  .fus-join-sub { font-size: 13px; color: #888; margin-top: 10px; }
+  .fus-btn-join:hover { background: #16a34a; color: #050505; transform: translateY(-1px); }
+  .fus-join-sub { font-size: 13px; color: #666; margin-top: 10px; }
   .fus-btn-outline {
     display: inline-flex; align-items: center;
-    border: 1.5px solid #d1d5db; background: transparent; color: #555;
+    border: 1.5px solid rgba(255,255,255,.1); background: transparent; color: #a0a0a0;
     border-radius: 12px; padding: 10px 22px;
     font-size: 14px; font-weight: 700; cursor: pointer;
     font-family: inherit; text-decoration: none;
     transition: border-color .15s, color .15s;
   }
-  .fus-btn-outline:hover { border-color: #111; color: #111; }
+  .fus-btn-outline:hover { border-color: #22c55e; color: #e8e8e8; }
 
   /* ── Detalles del partido ──────────────────────── */
   .fus-details-card {
-    background: #fff;
-    border: 1px solid #ececec;
+    background: #111;
+    border: 1px solid rgba(255,255,255,.08);
     border-radius: 16px;
     padding: 24px;
   }
@@ -258,7 +276,7 @@
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: .08em;
-    color: #aaa;
+    color: #666;
   }
   .fus-details-grid {
     display: grid;
@@ -266,16 +284,16 @@
     gap: 12px;
   }
   .fus-detail-tile {
-    background: #f8f8f8;
+    background: rgba(255,255,255,.04);
     border-radius: 12px;
     padding: 16px;
   }
-  .fus-detail-tile.gender-male   { background: #eff6ff; }
-  .fus-detail-tile.gender-female { background: #fdf2f8; }
-  .fus-detail-tile.cat    { background: #f0fdf4; }
+  .fus-detail-tile.gender-male   { background: rgba(37,99,235,.08); }
+  .fus-detail-tile.gender-female { background: rgba(219,39,119,.08); }
+  .fus-detail-tile.cat    { background: rgba(34,197,94,.08); }
   .fus-tile-label {
     font-size: 11px;
-    color: #888;
+    color: #666;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .05em;
@@ -284,17 +302,17 @@
   .fus-tile-val {
     font-size: 20px;
     font-weight: 800;
-    color: #111;
+    color: #e8e8e8;
     line-height: 1.1;
   }
-  .fus-detail-tile.gender-male   .fus-tile-val { color: #2563eb; }
-  .fus-detail-tile.gender-female .fus-tile-val { color: #db2777; }
-  .fus-detail-tile.cat    .fus-tile-val { color: #15803d; }
+  .fus-detail-tile.gender-male   .fus-tile-val { color: #60a5fa; }
+  .fus-detail-tile.gender-female .fus-tile-val { color: #f472b6; }
+  .fus-detail-tile.cat    .fus-tile-val { color: #4ade80; }
 
   /* ── Jugadores ─────────────────────────────────── */
   .fus-players-card {
-    background: #fff;
-    border: 1px solid #ececec;
+    background: #111;
+    border: 1px solid rgba(255,255,255,.08);
     border-radius: 16px;
     padding: 24px;
   }
@@ -305,7 +323,7 @@
     align-items: center;
     gap: 12px;
     padding: 10px 0;
-    border-bottom: 1px solid #f4f4f4;
+    border-bottom: 1px solid rgba(255,255,255,.06);
   }
   .fus-avatar {
     width: 44px; height: 44px;
@@ -318,8 +336,8 @@
   .fus-avatar-initial {
     width: 44px; height: 44px;
     border-radius: 50%;
-    background: #111;
-    color: #fff;
+    background: #22c55e;
+    color: #050505;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -332,21 +350,21 @@
   .fus-avatar-empty {
     width: 44px; height: 44px;
     border-radius: 50%;
-    border: 2px dashed #d1d5db;
+    border: 2px dashed rgba(255,255,255,.15);
     flex-shrink: 0;
   }
   .fus-player-name {
     font-size: 14px;
     font-weight: 700;
-    color: #111;
+    color: #e8e8e8;
     text-decoration: none;
   }
-  .fus-player-name:hover { color: #555; }
+  .fus-player-name:hover { color: #a0a0a0; }
   .fus-badge-org {
     margin-left: 8px;
     font-size: 11px;
-    background: #eff6ff;
-    color: #1d4ed8;
+    background: rgba(37,99,235,.12);
+    color: #60a5fa;
     padding: 2px 9px;
     border-radius: 999px;
     font-weight: 700;
@@ -359,12 +377,12 @@
     margin-left: auto;
     flex-shrink: 0;
   }
-  .fus-result-win  { background: #f0fdf4; color: #16a34a; }
-  .fus-result-draw { background: #fffbeb; color: #b45309; }
-  .fus-result-loss { background: #fef2f2; color: #dc2626; }
+  .fus-result-win  { background: rgba(34,197,94,.1); color: #4ade80; }
+  .fus-result-draw { background: rgba(245,158,11,.08); color: #fbbf24; }
+  .fus-result-loss { background: rgba(229,57,53,.1); color: #f87171; }
   .fus-slot-text {
     font-size: 14px;
-    color: #aaa;
+    color: #555;
     font-style: italic;
   }
 
@@ -379,22 +397,22 @@
     align-items: center;
     gap: 3px;
   }
-  .fus-rep-good   { background: #f0fdf4; color: #15803d; }
-  .fus-rep-warn   { background: #fffbeb; color: #b45309; }
-  .fus-rep-bad    { background: #fef2f2; color: #dc2626; }
+  .fus-rep-good   { background: rgba(34,197,94,.1); color: #4ade80; }
+  .fus-rep-warn   { background: rgba(245,158,11,.08); color: #fbbf24; }
+  .fus-rep-bad    { background: rgba(229,57,53,.1); color: #f87171; }
   .fus-late-badge {
     font-size: 11px;
     font-weight: 700;
     padding: 2px 8px;
     border-radius: 999px;
-    background: #fff7ed;
-    color: #ea580c;
+    background: rgba(234,88,12,.1);
+    color: #fb923c;
     margin-left: 6px;
   }
   .fus-btn-kick {
     background: transparent;
-    border: 1px solid #fecaca;
-    color: #dc2626;
+    border: 1px solid rgba(229,57,53,.3);
+    color: #f87171;
     font-size: 11px;
     font-weight: 700;
     padding: 4px 10px;
@@ -405,14 +423,14 @@
     flex-shrink: 0;
     transition: background .15s, color .15s;
   }
-  .fus-btn-kick:hover { background: #fef2f2; }
+  .fus-btn-kick:hover { background: rgba(229,57,53,.1); }
   .fus-warning-org {
-    background: #fffbeb;
-    border: 1px solid #fde68a;
+    background: rgba(245,158,11,.08);
+    border: 1px solid rgba(245,158,11,.25);
     border-radius: 10px;
     padding: 6px 12px;
     font-size: 12px;
-    color: #92400e;
+    color: #fbbf24;
     font-weight: 600;
     margin-left: 6px;
     display: inline-flex;
@@ -420,30 +438,30 @@
     gap: 4px;
   }
   .fus-late-warning {
-    background: #fff7ed;
-    border: 1px solid #fed7aa;
+    background: rgba(234,88,12,.1);
+    border: 1px solid rgba(234,88,12,.25);
     border-radius: 10px;
     padding: 10px 14px;
     font-size: 13px;
-    color: #9a3412;
+    color: #fb923c;
     font-weight: 600;
     margin-top: 8px;
   }
   .fus-penalty-block {
-    background: #fef2f2;
-    border: 1px solid #fecaca;
+    background: rgba(229,57,53,.1);
+    border: 1px solid rgba(229,57,53,.25);
     border-radius: 12px;
     padding: 16px;
     text-align: center;
     font-size: 14px;
-    color: #991b1b;
+    color: #f87171;
     font-weight: 600;
   }
 
   /* ── Resultados ────────────────────────────────── */
   .fus-results-card {
-    background: #f0fdf4;
-    border: 1px solid #bbf7d0;
+    background: rgba(34,197,94,.06);
+    border: 1px solid rgba(34,197,94,.2);
     border-radius: 16px;
     padding: 24px;
   }
@@ -453,11 +471,11 @@
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: .08em;
-    color: #15803d;
+    color: #4ade80;
   }
   .fus-results-tiles { display: flex; gap: 16px; flex-wrap: wrap; }
   .fus-result-tile {
-    background: #fff;
+    background: #111;
     border-radius: 12px;
     padding: 16px 24px;
     text-align: center;
@@ -472,26 +490,26 @@
   }
   .fus-result-tile-label {
     font-size: 11px;
-    color: #888;
+    color: #666;
     font-weight: 700;
     text-transform: uppercase;
   }
 
   /* ── Rating inline ─────────────────────────────── */
   .fus-rate-card {
-    background: #fff;
-    border: 1px solid #ececec;
+    background: #111;
+    border: 1px solid rgba(255,255,255,.08);
     border-top: 4px solid #f59e0b;
     border-radius: 16px;
     padding: 24px;
   }
   .fus-rate-player {
-    background: #fff;
-    border: 1px solid #ececec;
+    background: #0a0a0a;
+    border: 1px solid rgba(255,255,255,.08);
     border-radius: 14px;
     padding: 16px 18px;
     margin-bottom: 10px;
-    box-shadow: 0 2px 6px rgba(0,0,0,.03);
+    box-shadow: 0 2px 6px rgba(0,0,0,.1);
   }
   .fus-rate-player-header {
     display: flex;
@@ -501,12 +519,12 @@
   }
   .fus-rate-avatar {
     width: 40px; height: 40px; border-radius: 50%;
-    background: #111; display: flex; align-items: center; justify-content: center;
-    font-size: 15px; font-weight: 800; color: #fff; overflow: hidden; flex-shrink: 0;
+    background: #22c55e; display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 800; color: #050505; overflow: hidden; flex-shrink: 0;
   }
   .fus-rate-avatar img { width: 100%; height: 100%; object-fit: cover; }
-  .fus-rate-name { font-size: 15px; font-weight: 800; color: #111; }
-  .fus-rate-cat { font-size: 12px; color: #888; font-weight: 600; }
+  .fus-rate-name { font-size: 15px; font-weight: 800; color: #e8e8e8; }
+  .fus-rate-cat { font-size: 12px; color: #666; font-weight: 600; }
 
   .fus-assess-row {
     display: grid;
@@ -516,46 +534,50 @@
   }
   .fus-assess-btn {
     padding: 10px 6px;
-    border: 2px solid #e5e7eb;
+    border: 2px solid rgba(255,255,255,.1);
     border-radius: 12px;
-    background: #fff;
+    background: #0a0a0a;
     cursor: pointer;
     text-align: center;
     transition: all .15s;
     font-family: inherit;
   }
-  .fus-assess-btn:hover { border-color: #9ca3af; }
-  .fus-assess-btn .fus-assess-icon { font-size: 18px; line-height: 1; display: block; margin-bottom: 3px; }
-  .fus-assess-btn .fus-assess-label { font-size: 12px; font-weight: 700; color: #555; display: block; }
-  .fus-assess-btn .fus-assess-desc { font-size: 10px; color: #aaa; line-height: 1.3; display: block; }
+  .fus-assess-btn:hover { border-color: rgba(255,255,255,.2); }
+  .fus-assess-btn .fus-assess-icon { font-size: 18px; line-height: 1; display: block; margin-bottom: 3px; color: #a0a0a0; }
+  .fus-assess-btn .fus-assess-label { font-size: 12px; font-weight: 700; color: #a0a0a0; display: block; }
+  .fus-assess-btn .fus-assess-desc { font-size: 10px; color: #555; line-height: 1.3; display: block; }
 
-  .fus-assess-btn.sel-below  { border-color: #ef4444; background: #fef2f2; }
-  .fus-assess-btn.sel-below .fus-assess-label  { color: #dc2626; }
-  .fus-assess-btn.sel-match  { border-color: #6b7280; background: #f3f4f6; }
-  .fus-assess-btn.sel-match .fus-assess-label  { color: #374151; }
-  .fus-assess-btn.sel-above  { border-color: #22c55e; background: #f0fdf4; }
-  .fus-assess-btn.sel-above .fus-assess-label  { color: #15803d; }
+  .fus-assess-btn.sel-below  { border-color: #ef4444; background: rgba(229,57,53,.1); }
+  .fus-assess-btn.sel-below .fus-assess-label  { color: #f87171; }
+  .fus-assess-btn.sel-below .fus-assess-icon   { color: #f87171; }
+  .fus-assess-btn.sel-match  { border-color: #6b7280; background: rgba(255,255,255,.06); }
+  .fus-assess-btn.sel-match .fus-assess-label  { color: #e8e8e8; }
+  .fus-assess-btn.sel-match .fus-assess-icon   { color: #e8e8e8; }
+  .fus-assess-btn.sel-above  { border-color: #22c55e; background: rgba(34,197,94,.1); }
+  .fus-assess-btn.sel-above .fus-assess-label  { color: #4ade80; }
+  .fus-assess-btn.sel-above .fus-assess-icon   { color: #4ade80; }
 
   .fus-rate-comment {
     width: 100%; padding: 8px 12px;
-    border: 1.5px solid #e0e0e0; border-radius: 10px;
+    border: 1.5px solid rgba(255,255,255,.1); border-radius: 10px;
     font-size: 13px; resize: vertical; min-height: 48px;
     outline: none; transition: border-color .15s;
     box-sizing: border-box; font-family: inherit;
+    background: #0a0a0a; color: #e8e8e8;
   }
-  .fus-rate-comment:focus { border-color: #111; }
+  .fus-rate-comment:focus { border-color: #22c55e; }
 
   .fus-rate-submit {
     width: 100%; padding: 14px;
-    background: #111; color: #fff; border: none; border-radius: 12px;
+    background: #22c55e; color: #050505; border: none; border-radius: 12px;
     font-size: 15px; font-weight: 700; cursor: pointer;
     margin-top: 8px; transition: background .15s; font-family: inherit;
   }
-  .fus-rate-submit:hover { background: #22c55e; color: #052e16; }
+  .fus-rate-submit:hover { background: #16a34a; color: #050505; }
 
   .fus-rated-done {
-    background: #f0fdf4;
-    border: 1px solid #bbf7d0;
+    background: rgba(34,197,94,.08);
+    border: 1px solid rgba(34,197,94,.2);
     border-radius: 14px;
     padding: 20px;
     text-align: center;
@@ -663,12 +685,12 @@
   {{-- Mensaje de no-show --}}
   @auth
   @if($wasNoShow)
-    <div class="fus-penalty-block" data-aos="fade-up" style="background:#fef2f2; border:1px solid #fecaca; border-radius:14px; padding:20px; text-align:center;">
+    <div class="fus-penalty-block" data-aos="fade-up" style="background:rgba(229,57,53,.1); border:1px solid rgba(229,57,53,.25); border-radius:14px; padding:20px; text-align:center;">
       <div style="margin-bottom:8px;">
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
       </div>
-      <div style="font-size:15px; font-weight:700; color:#991b1b; margin-bottom:4px;">Fuiste marcado como ausente</div>
-      <div style="font-size:13px; color:#b91c1c;">El organizador registró que no te presentaste a este partido. Se aplicó una penalización a tu cuenta.</div>
+      <div style="font-size:15px; font-weight:700; color:#f87171; margin-bottom:4px;">Fuiste marcado como ausente</div>
+      <div style="font-size:13px; color:#f87171;">El organizador registró que no te presentaste a este partido. Se aplicó una penalización a tu cuenta.</div>
     </div>
   @endif
   @endauth
@@ -681,6 +703,22 @@
     <div class="fus-actions-row">
 
       <a href="{{ route('falta-uno.chat', $game) }}" class="fus-btn fus-btn-chat" style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="message-circle" style="width:14px;height:14px;stroke:currentColor;"></i> Chat del partido</a>
+
+      @if($game->start_at->isFuture())
+        <a href="{{ route('calendar.falta-uno', $game) }}" class="fus-btn" style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="calendar-plus" style="width:14px;height:14px;stroke:currentColor;"></i> Agregar al calendario</a>
+      @endif
+
+      @php
+        $waFaltaUnoMsg = "Partido de *" . $sportLabel . "* en *" . $game->field->venue->name . "*\n"
+                       . "📅 " . $game->start_at->format('d/m/Y') . " a las " . $game->start_at->format('H:i') . " hs\n"
+                       . "👥 " . ($needed - $joined > 0 ? 'Faltan ' . ($needed - $joined) . ' jugador' . (($needed - $joined) > 1 ? 'es' : '') : '¡Completo!') . "\n\n"
+                       . "Sumate! " . route('falta-uno.show', $game);
+      @endphp
+      <a href="https://wa.me/?text={{ urlencode($waFaltaUnoMsg) }}" target="_blank" rel="noopener"
+         class="fus-btn" style="background:#25D366; color:#fff;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff" style="vertical-align:middle; margin-right:6px;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.611.611l4.458-1.495A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.34 0-4.508-.654-6.363-1.787l-.362-.222-3.75 1.257 1.257-3.75-.222-.362A9.935 9.935 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/></svg>
+        Compartir por WhatsApp
+      </a>
 
       @if($game->isFinished())
         <a href="{{ route('falta-uno.stats', $game) }}" class="fus-btn fus-btn-stats" style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="bar-chart-2" style="width:14px;height:14px;stroke:currentColor;"></i> Mis estadísticas</a>
@@ -724,10 +762,10 @@
   @auth
   @if(!$isParticipant && !$wasNoShow && $game->status === 'open' && !$game->isFinished())
     @if($wasKicked)
-      <div class="fus-penalty-block" data-aos="fade-up" style="background:#fef2f2; border:1px solid #fecaca; border-radius:14px; padding:20px; text-align:center;">
+      <div class="fus-penalty-block" data-aos="fade-up" style="background:rgba(229,57,53,.1); border:1px solid rgba(229,57,53,.25); border-radius:14px; padding:20px; text-align:center;">
         <div style="margin-bottom:8px;"><i data-lucide="user-x" style="width:32px;height:32px;stroke:#dc2626;stroke-width:1.5;"></i></div>
-        <div style="font-size:15px; font-weight:700; color:#991b1b; margin-bottom:4px;">Fuiste removido de este partido</div>
-        <div style="font-size:13px; color:#b91c1c;">El organizador te removio del partido. No podes volver a unirte.</div>
+        <div style="font-size:15px; font-weight:700; color:#f87171; margin-bottom:4px;">Fuiste removido de este partido</div>
+        <div style="font-size:13px; color:#f87171;">El organizador te removio del partido. No podes volver a unirte.</div>
       </div>
     @elseif(!$joinCheck['allowed'])
       <div class="fus-penalty-block" data-aos="fade-up">
@@ -736,14 +774,14 @@
     @elseif(auth()->user()->faltaUnoSportProfiles()->doesntExist())
       <div class="fus-join-card needs-profile" data-aos="fade-up">
         <div style="margin-bottom:12px;"><i data-lucide="alert-triangle" style="width:32px;height:32px;stroke:#92400e;stroke-width:1.5;"></i></div>
-        <div style="font-size:15px; font-weight:700; color:#92400e; margin-bottom:6px;">Necesitas completar tu perfil deportivo</div>
-        <div style="font-size:13px; color:#b45309; margin-bottom:18px;">Tu categoria y genero determinan a que partidos podes unirte.</div>
+        <div style="font-size:15px; font-weight:700; color:#fbbf24; margin-bottom:6px;">Necesitas completar tu perfil deportivo</div>
+        <div style="font-size:13px; color:#d97706; margin-bottom:18px;">Tu categoria y genero determinan a que partidos podes unirte.</div>
         <a href="{{ route('profile.edit') }}#sport-profile" class="fus-btn fus-btn-chat" style="display:inline-flex; border-radius:12px; padding:10px 22px;">Completar perfil</a>
       </div>
     @else
       <div class="fus-join-card" data-aos="fade-up">
         @if(!empty($joinCheck['warnings']))
-          <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:10px; padding:10px 14px; margin-bottom:14px; font-size:13px; color:#92400e; font-weight:600; text-align:left;">
+          <div style="background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.25); border-radius:10px; padding:10px 14px; margin-bottom:14px; font-size:13px; color:#fbbf24; font-weight:600; text-align:left;">
             @foreach($joinCheck['warnings'] as $w)
               <div>{{ $w }}</div>
             @endforeach
@@ -760,7 +798,7 @@
   @endauth
   @guest
     <div class="fus-join-card" data-aos="fade-up" style="text-align:center;">
-      <p style="margin:0 0 16px; color:#666; font-size:15px;">Iniciá sesión para unirte al partido</p>
+      <p style="margin:0 0 16px; color:#a0a0a0; font-size:15px;">Iniciá sesión para unirte al partido</p>
       <a href="{{ route('login') }}" class="fus-btn-outline">Iniciar sesión</a>
     </div>
   @endguest
@@ -829,7 +867,7 @@
 
   {{-- Jugadores --}}
   <div class="fus-players-card" data-aos="fade-up">
-    <h2 class="fus-section-title fus-players-title" style="font-size:16px; font-weight:800; text-transform:none; letter-spacing:0; color:#111;">
+    <h2 class="fus-section-title fus-players-title" style="font-size:16px; font-weight:800; text-transform:none; letter-spacing:0; color:#e8e8e8;">
       Jugadores (<span class="fus-players-count">{{ $joined + $game->initiator_players }}</span>/{{ $game->total_players }})
     </h2>
 
@@ -850,7 +888,7 @@
         </a>
         <span class="fus-badge-org">Organizador</span>
       </div>
-      <span style="font-size:12px; color:#888; font-weight:600; flex-shrink:0;">
+      <span style="font-size:12px; color:#666; font-weight:600; flex-shrink:0;">
         {{ $game->initiator_players }} lugar{{ $game->initiator_players > 1 ? 'es' : '' }}
       </span>
     </div>
@@ -861,7 +899,7 @@
         <span class="fus-slot-text">Organizador (iniciá sesión para ver)</span>
         <span class="fus-badge-org">Organizador</span>
       </div>
-      <span style="font-size:12px; color:#888; font-weight:600; flex-shrink:0;">
+      <span style="font-size:12px; color:#666; font-weight:600; flex-shrink:0;">
         {{ $game->initiator_players }} lugar{{ $game->initiator_players > 1 ? 'es' : '' }}
       </span>
     </div>
@@ -900,7 +938,7 @@
       @if($game->isFinished() && $p->stats_submitted_at)
         <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
           @if($p->goals !== null || $p->assists !== null)
-            <span style="font-size:11px; color:#888; white-space:nowrap;">
+            <span style="font-size:11px; color:#666; white-space:nowrap;">
               @if($p->goals !== null){{ $p->goals }}G @endif
               @if($p->assists !== null){{ $p->assists }}A @endif
             </span>
@@ -965,17 +1003,17 @@
       </div>
     </div>
     @if($totalGoals > 0 || $totalAssists > 0)
-      <div style="display:flex; justify-content:center; gap:20px; margin-top:12px; padding-top:12px; border-top:1px solid rgba(0,0,0,.06);">
+      <div style="display:flex; justify-content:center; gap:20px; margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,255,255,.08);">
         @if($totalGoals > 0)
           <div style="text-align:center;">
-            <div style="font-size:20px; font-weight:800; color:#111;">{{ $totalGoals }}</div>
-            <div style="font-size:11px; color:#888; font-weight:600;">Goles</div>
+            <div style="font-size:20px; font-weight:800; color:#e8e8e8;">{{ $totalGoals }}</div>
+            <div style="font-size:11px; color:#666; font-weight:600;">Goles</div>
           </div>
         @endif
         @if($totalAssists > 0)
           <div style="text-align:center;">
-            <div style="font-size:20px; font-weight:800; color:#111;">{{ $totalAssists }}</div>
-            <div style="font-size:11px; color:#888; font-weight:600;">Asistencias</div>
+            <div style="font-size:20px; font-weight:800; color:#e8e8e8;">{{ $totalAssists }}</div>
+            <div style="font-size:11px; color:#666; font-weight:600;">Asistencias</div>
           </div>
         @endif
       </div>
@@ -994,16 +1032,16 @@
 
       @if($noShowParticipants->isNotEmpty())
         <div style="margin-bottom:16px;">
-          <p style="font-size:13px; font-weight:700; color:#991b1b; margin:0 0 8px;">Jugadores marcados como ausentes:</p>
+          <p style="font-size:13px; font-weight:700; color:#f87171; margin:0 0 8px;">Jugadores marcados como ausentes:</p>
           @foreach($noShowParticipants as $ns)
-            <div style="display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid #fef2f2;">
+            <div style="display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid rgba(229,57,53,.1);">
               @if($ns->user->avatar_path)
                 <img src="{{ \Illuminate\Support\Facades\Storage::url($ns->user->avatar_path) }}" class="fus-avatar" style="width:32px; height:32px;" alt="{{ $ns->user->name }}">
               @else
                 <div class="fus-avatar-initial" style="width:32px; height:32px; font-size:13px;">{{ mb_strtoupper(mb_substr($ns->user->name, 0, 1)) }}</div>
               @endif
-              <span style="font-size:13px; font-weight:600; color:#111;">{{ $ns->user->name }}</span>
-              <span style="font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px; background:#fef2f2; color:#dc2626; margin-left:auto;">Ausente</span>
+              <span style="font-size:13px; font-weight:600; color:#e8e8e8;">{{ $ns->user->name }}</span>
+              <span style="font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px; background:rgba(229,57,53,.1); color:#f87171; margin-left:auto;">Ausente</span>
             </div>
           @endforeach
         </div>
@@ -1018,14 +1056,14 @@
           @csrf
           <p style="font-size:13px; color:#666; margin:0 0 12px;">Seleccioná a quienes no vinieron al partido:</p>
           @foreach($confirmedParticipants as $p)
-            <label style="display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid #f4f4f4; cursor:pointer;">
+            <label style="display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,.06); cursor:pointer;">
               <input type="checkbox" name="no_show_user_ids[]" value="{{ $p->user_id }}" style="width:18px; height:18px; accent-color:#dc2626;">
               @if($p->user->avatar_path)
                 <img src="{{ \Illuminate\Support\Facades\Storage::url($p->user->avatar_path) }}" class="fus-avatar" style="width:32px; height:32px;" alt="{{ $p->user->name }}">
               @else
                 <div class="fus-avatar-initial" style="width:32px; height:32px; font-size:13px;">{{ mb_strtoupper(mb_substr($p->user->name, 0, 1)) }}</div>
               @endif
-              <span style="font-size:14px; font-weight:600; color:#111;">{{ $p->user->name }}</span>
+              <span style="font-size:14px; font-weight:600; color:#e8e8e8;">{{ $p->user->name }}</span>
             </label>
           @endforeach
           <button type="submit" class="fus-btn" style="margin-top:14px; background:#dc2626; color:#fff; width:100%; justify-content:center;">
@@ -1033,7 +1071,7 @@
           </button>
         </form>
       @elseif($noShowParticipants->isEmpty())
-        <p style="font-size:13px; color:#888;">No hay participantes para marcar.</p>
+        <p style="font-size:13px; color:#666;">No hay participantes para marcar.</p>
       @else
         <p style="font-size:13px; color:#15803d; font-weight:600;">Todos los ausentes ya fueron registrados.</p>
       @endif
@@ -1075,7 +1113,7 @@
                     $playerProfile = $player->sportProfileFor($game->field->sport);
                   @endphp
                   @if($playerProfile)
-                    <div class="fus-rate-cat">Categoría: <strong style="color:#111; text-transform:capitalize;">{{ $playerProfile->category }}</strong></div>
+                    <div class="fus-rate-cat">Categoría: <strong style="color:#e8e8e8; text-transform:capitalize;">{{ $playerProfile->category }}</strong></div>
                   @endif
                 </div>
               </div>

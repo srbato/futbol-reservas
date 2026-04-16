@@ -23,6 +23,12 @@ class CheckoutController extends Controller
                 ->with('success', 'Esta reserva ya fue pagada.');
         }
 
+        if ($reservation->status === 'PENDING_CASH') {
+            return redirect()
+                ->route('reservations.show', $reservation)
+                ->with('info', 'Esta reserva ya tiene pago pendiente en el complejo.');
+        }
+
         if (in_array($reservation->status, ['CANCELLED', 'EXPIRED'])) {
             return redirect()
                 ->route('reservations.show', $reservation)

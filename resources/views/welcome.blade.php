@@ -2,8 +2,11 @@
 
 @section('title', 'TuCancha — Reservá, jugá, encontrá jugadores')
 @section('meta_description', 'Reservá canchas de fútbol, tenis, pádel y más en Argentina. Encontrá el complejo más cercano, elegí el horario y confirmá tu turno online al instante.')
+@section('og_title', 'TuCancha — Reservá, jugá, encontrá jugadores')
+@section('og_description', 'La plataforma para reservar canchas, organizar torneos y encontrar jugadores en Argentina.')
 
 @push('styles')
+<style>
 /* ── Smooth scroll global ────────────────────────── */
 html { scroll-behavior: smooth; }
 
@@ -120,7 +123,7 @@ html { scroll-behavior: smooth; }
   font-size: 68px;
   line-height: 1.0;
   letter-spacing: -0.035em;
-  color: var(--color-text-inverse);
+  color: #fff;
   font-weight: 900;
 }
 
@@ -160,7 +163,7 @@ html { scroll-behavior: smooth; }
 .hero-stat-num {
   font-size: 28px;
   font-weight: 900;
-  color: var(--color-text-inverse);
+  color: #fff;
   letter-spacing: -0.03em;
   line-height: 1;
 }
@@ -175,10 +178,11 @@ html { scroll-behavior: smooth; }
 
 /* Search card */
 .search-card {
-  background: rgba(255,255,255,.97);
+  background: rgba(17,17,17,.97);
   border-radius: 24px;
   padding: 28px 28px 24px 28px;
-  box-shadow: 0 20px 60px rgba(0,0,0,.35), 0 4px 16px rgba(0,0,0,.15);
+  box-shadow: 0 20px 60px rgba(0,0,0,.55), 0 4px 16px rgba(0,0,0,.35);
+  border: 1px solid rgba(255,255,255,.08);
 }
 
 .search-card-title {
@@ -201,7 +205,7 @@ html { scroll-behavior: smooth; }
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .07em;
-  color: #888;
+  color: #666;
 }
 
 .search-field select,
@@ -211,7 +215,7 @@ html { scroll-behavior: smooth; }
   border-radius: 12px;
   font: inherit;
   font-size: 14px;
-  background: #fafafa;
+  background: #0a0a0a;
   color: var(--color-text);
   outline: none;
   transition: border-color .15s, background .15s;
@@ -229,8 +233,8 @@ html { scroll-behavior: smooth; }
   width: 100%;
   padding: 14px;
   border-radius: 14px;
-  background: var(--color-bg-dark);
-  color: var(--color-text-inverse);
+  background: #22c55e;
+  color: #050505;
   font-size: 15px;
   font-weight: 800;
   border: none;
@@ -241,7 +245,7 @@ html { scroll-behavior: smooth; }
   margin-top: 6px;
 }
 
-.search-btn-full:hover { background: #1a7a45; transform: translateY(-1px); }
+.search-btn-full:hover { background: #16a34a; transform: translateY(-1px); }
 
 /* ── Sports strip ────────────────────────────────── */
 .sports-strip {
@@ -268,7 +272,7 @@ html { scroll-behavior: smooth; }
   border: 1.5px solid var(--color-border);
   font-size: 14px;
   font-weight: 700;
-  color: #333;
+  color: #e8e8e8;
   background: var(--color-bg);
   transition: border-color .15s, color .15s, background .15s, transform .15s;
   text-decoration: none;
@@ -276,8 +280,8 @@ html { scroll-behavior: smooth; }
 
 .sport-pill:hover {
   border-color: var(--color-primary);
-  color: #15803d;
-  background: #f0fdf4;
+  color: #22c55e;
+  background: rgba(34,197,94,.1);
   transform: translateY(-2px);
 }
 
@@ -303,11 +307,11 @@ html { scroll-behavior: smooth; }
 
 .why-card {
   background: var(--color-bg-card);
-  border: 1px solid #d9d9d9;
+  border: 1px solid rgba(255,255,255,.08);
   border-left: 4px solid var(--color-primary);
   border-radius: 20px;
   padding: 28px 26px;
-  box-shadow: 0 2px 12px rgba(0,0,0,.05);
+  box-shadow: 0 2px 12px rgba(0,0,0,.2);
   transition: transform .2s, box-shadow .2s, border-left-color .2s;
   position: relative;
   overflow: hidden;
@@ -315,7 +319,7 @@ html { scroll-behavior: smooth; }
 
 .why-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 36px rgba(34,197,94,.1), 0 4px 16px rgba(0,0,0,.06);
+  box-shadow: 0 12px 36px rgba(34,197,94,.15), 0 4px 16px rgba(0,0,0,.2);
   border-left-color: var(--color-primary-hover);
 }
 
@@ -325,7 +329,7 @@ html { scroll-behavior: smooth; }
   right: 22px;
   font-size: 52px;
   font-weight: 900;
-  color: rgba(0,0,0,.04);
+  color: rgba(255,255,255,.04);
   line-height: 1;
   letter-spacing: -0.04em;
   user-select: none;
@@ -400,10 +404,10 @@ html { scroll-behavior: smooth; }
   display: inline-block;
   padding: 4px 12px;
   border-radius: var(--radius-full);
-  background: #dcfce7;
+  background: rgba(34,197,94,.1);
   font-size: 12px;
   font-weight: 700;
-  color: #166534;
+  color: #22c55e;
   text-transform: uppercase;
   letter-spacing: .07em;
   margin-bottom: 18px;
@@ -424,7 +428,7 @@ html { scroll-behavior: smooth; }
 }
 
 .split-copy > p {
-  color: #555;
+  color: #a0a0a0;
   font-size: 16px;
   line-height: 1.7;
   margin: 0 0 28px 0;
@@ -446,7 +450,7 @@ html { scroll-behavior: smooth; }
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: #dcfce7;
+  background: rgba(34,197,94,.1);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -464,7 +468,7 @@ html { scroll-behavior: smooth; }
 
 .split-feature-text {
   font-size: 14px;
-  color: #444;
+  color: #a0a0a0;
   line-height: 1.55;
   font-weight: 500;
 }
@@ -524,7 +528,7 @@ html { scroll-behavior: smooth; }
   font-weight: 900;
   letter-spacing: -0.03em;
   line-height: 1.05;
-  color: var(--color-text-inverse);
+  color: #e8e8e8;
   margin: 0 0 16px 0;
   max-width: 620px;
 }
@@ -745,13 +749,13 @@ html { scroll-behavior: smooth; }
 .faq-col-header h2 {
   font-size: 36px;
   font-weight: 800;
-  color: #0a0a0a;
+  color: #e8e8e8;
   line-height: 1.2;
   margin: 0 0 14px 0;
 }
 
 .faq-col-header p {
-  color: #6b7280;
+  color: #666;
   font-size: 16px;
   line-height: 1.65;
   margin: 0;
@@ -769,12 +773,12 @@ html { scroll-behavior: smooth; }
 
 .faq-item:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 28px rgba(0,0,0,.07);
+  box-shadow: 0 8px 28px rgba(0,0,0,.25);
 }
 
 .faq-item.open {
   box-shadow: 0 8px 32px rgba(34,197,94,.12);
-  border-color: #86efac;
+  border-color: rgba(34,197,94,.4);
   transform: translateY(-2px);
 }
 
@@ -818,7 +822,7 @@ html { scroll-behavior: smooth; }
 .faq-icon svg {
   width: 14px;
   height: 14px;
-  stroke: #6b7280;
+  stroke: #666;
   transition: stroke .25s;
 }
 
@@ -828,7 +832,7 @@ html { scroll-behavior: smooth; }
 }
 
 .faq-item.open .faq-icon svg {
-  stroke: var(--color-text-inverse);
+  stroke: #e8e8e8;
 }
 
 .faq-body {
@@ -836,10 +840,10 @@ html { scroll-behavior: smooth; }
   overflow: hidden;
   transition: max-height .4s cubic-bezier(.4,0,.2,1), padding .3s ease;
   padding: 0 22px;
-  color: #4b5563;
+  color: #a0a0a0;
   font-size: 15px;
   line-height: 1.75;
-  border-top: 0px solid #f0fdf4;
+  border-top: 0px solid rgba(34,197,94,.1);
 }
 
 .faq-item.open .faq-body {
@@ -855,12 +859,12 @@ html { scroll-behavior: smooth; }
   width: 22px;
   height: 22px;
   border-radius: 6px;
-  background: #f0fdf4;
+  background: rgba(34,197,94,.1);
   color: var(--color-primary-hover);
   font-size: 11px;
   font-weight: 800;
   flex-shrink: 0;
-  border: 1px solid #bbf7d0;
+  border: 1px solid rgba(34,197,94,.25);
   margin-right: 4px;
 }
 
@@ -958,7 +962,7 @@ html { scroll-behavior: smooth; }
   font-weight: 900;
   letter-spacing: -0.035em;
   line-height: 1.06;
-  color: var(--color-text-inverse);
+  color: #e8e8e8;
   margin: 0 0 16px 0;
 }
 
@@ -1018,7 +1022,7 @@ html { scroll-behavior: smooth; }
 .faltauno-card h3 {
   font-size: 22px;
   font-weight: 900;
-  color: var(--color-text-inverse);
+  color: #e8e8e8;
   letter-spacing: -0.02em;
   margin: 0 0 12px 0;
 }
@@ -1099,6 +1103,7 @@ html { scroll-behavior: smooth; }
   .faltauno-head p { font-size: 15px; }
   .faltauno-card { padding: 28px 24px; }
 }
+</style>
 @endpush
 
 @section('content')

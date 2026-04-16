@@ -57,10 +57,10 @@ echo json_encode([
   }
 
   .faq-hero-shell {
-    background: rgba(0,0,0,0.03);
+    background: rgba(255,255,255,0.04);
     border-radius: 2rem;
     padding: 5px;
-    border: 1px solid rgba(0,0,0,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
   }
 
   .faq-hero-inner {
@@ -176,20 +176,20 @@ echo json_encode([
 
   /* Accordion item (double-bezel) */
   .faq-item-shell {
-    background: rgba(0,0,0,0.02);
+    background: rgba(255,255,255,0.04);
     border-radius: 1.25rem;
     padding: 3px;
-    border: 1px solid rgba(0,0,0,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
     margin-bottom: 10px;
     transition: box-shadow 400ms var(--ease-out-expo);
   }
 
   .faq-item-shell.open {
-    box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
   }
 
   .faq-item {
-    background: #fff;
+    background: #111;
     border-radius: calc(1.25rem - 3px);
     overflow: hidden;
   }
@@ -258,7 +258,7 @@ echo json_encode([
   .faq-answer p {
     font-size: 15px;
     line-height: 1.7;
-    color: #5a5a5a;
+    color: #a0a0a0;
     margin: 0;
   }
 

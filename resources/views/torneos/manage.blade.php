@@ -13,8 +13,8 @@
 
   /* ── Cards ───────────────────────────────────────── */
   .tm-card {
-    background: #fff;
-    border: 1px solid #ececec;
+    background: #111;
+    border: 1px solid rgba(255,255,255,.08);
     border-radius: 20px;
     padding: 28px;
     margin-bottom: 24px;
@@ -22,7 +22,7 @@
   .tm-card-title {
     font-size: 18px;
     font-weight: 800;
-    color: #111;
+    color: #e8e8e8;
     margin: 0 0 20px;
     display: flex;
     align-items: center;
@@ -57,7 +57,7 @@
   .tm-name {
     font-size: 28px;
     font-weight: 900;
-    color: #111;
+    color: #e8e8e8;
     letter-spacing: -.02em;
     margin: 0;
     line-height: 1.15;
@@ -88,24 +88,24 @@
     border-radius: 50%;
   }
   /* Status badges */
-  .tm-badge-draft         { background: #f3f4f6; color: #6b7280; border-color: #e5e7eb; }
-  .tm-badge-draft .tm-badge-dot { background: #9ca3af; }
-  .tm-badge-open_registration { background: #dcfce7; color: #15803d; border-color: #bbf7d0; }
+  .tm-badge-draft         { background: rgba(255,255,255,.06); color: #a0a0a0; border-color: rgba(255,255,255,.1); }
+  .tm-badge-draft .tm-badge-dot { background: #666; }
+  .tm-badge-open_registration { background: rgba(34,197,94,.12); color: #22c55e; border-color: rgba(34,197,94,.3); }
   .tm-badge-open_registration .tm-badge-dot { background: #22c55e; }
-  .tm-badge-registration_closed { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+  .tm-badge-registration_closed { background: rgba(245,158,11,.1); color: #fbbf24; border-color: rgba(245,158,11,.3); }
   .tm-badge-registration_closed .tm-badge-dot { background: #f59e0b; }
-  .tm-badge-in_progress   { background: #dbeafe; color: #1e40af; border-color: #bfdbfe; }
+  .tm-badge-in_progress   { background: rgba(59,130,246,.12); color: #60a5fa; border-color: rgba(59,130,246,.3); }
   .tm-badge-in_progress .tm-badge-dot { background: #3b82f6; }
-  .tm-badge-finished      { background: #d1fae5; color: #065f46; border-color: #a7f3d0; }
+  .tm-badge-finished      { background: rgba(16,185,129,.12); color: #34d399; border-color: rgba(16,185,129,.3); }
   .tm-badge-finished .tm-badge-dot { background: #10b981; }
-  .tm-badge-cancelled     { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
+  .tm-badge-cancelled     { background: rgba(239,68,68,.1); color: #f87171; border-color: rgba(239,68,68,.3); }
   .tm-badge-cancelled .tm-badge-dot { background: #ef4444; }
   /* Sport badges */
-  .tm-badge-football      { background: #dcfce7; color: #166534; border-color: #bbf7d0; }
-  .tm-badge-padel         { background: #f3e8ff; color: #6b21a8; border-color: #e9d5ff; }
-  .tm-badge-tennis        { background: #fef9c3; color: #854d0e; border-color: #fef08a; }
-  .tm-badge-basketball    { background: #ffedd5; color: #9a3412; border-color: #fed7aa; }
-  .tm-badge-volleyball    { background: #dbeafe; color: #1e40af; border-color: #bfdbfe; }
+  .tm-badge-football      { background: rgba(34,197,94,.12); color: #4ade80; border-color: rgba(34,197,94,.3); }
+  .tm-badge-padel         { background: rgba(124,58,237,.12); color: #a78bfa; border-color: rgba(124,58,237,.3); }
+  .tm-badge-tennis        { background: rgba(212,184,150,.12); color: #e8d5b7; border-color: rgba(212,184,150,.3); }
+  .tm-badge-basketball    { background: rgba(249,115,22,.12); color: #fb923c; border-color: rgba(249,115,22,.3); }
+  .tm-badge-volleyball    { background: rgba(59,130,246,.12); color: #60a5fa; border-color: rgba(59,130,246,.3); }
 
   /* ── Buttons ─────────────────────────────────────── */
   .tm-btn {
@@ -132,16 +132,16 @@
   .tm-btn-primary:hover { background: var(--color-primary-hover); box-shadow: 0 6px 20px rgba(34,197,94,.4); }
   .tm-btn-outline {
     background: transparent;
-    color: #374151;
-    border: 1.5px solid #d1d5db;
+    color: #a0a0a0;
+    border: 1.5px solid rgba(255,255,255,.12);
   }
-  .tm-btn-outline:hover { border-color: #9ca3af; background: #f9fafb; }
+  .tm-btn-outline:hover { border-color: rgba(255,255,255,.2); background: #1a1a1a; }
   .tm-btn-danger {
-    background: #fee2e2;
-    color: #991b1b;
-    border: 1px solid #fecaca;
+    background: rgba(239,68,68,.1);
+    color: #f87171;
+    border: 1px solid rgba(239,68,68,.25);
   }
-  .tm-btn-danger:hover { background: #fecaca; }
+  .tm-btn-danger:hover { background: rgba(239,68,68,.2); }
   .tm-btn-sm {
     padding: 6px 14px;
     font-size: 12px;
@@ -156,8 +156,8 @@
     border-radius: 12px;
     font-size: 13px;
     font-weight: 700;
-    background: #f3f4f6;
-    color: #6b7280;
+    background: rgba(255,255,255,.06);
+    color: #a0a0a0;
   }
   .tm-status-indicator svg { width: 16px; height: 16px; }
 
@@ -175,14 +175,14 @@
   .tm-info-label {
     font-size: 11px;
     font-weight: 700;
-    color: #9ca3af;
+    color: #666;
     text-transform: uppercase;
     letter-spacing: .06em;
   }
   .tm-info-value {
     font-size: 15px;
     font-weight: 600;
-    color: #111;
+    color: #e8e8e8;
   }
 
   /* ── Teams table ─────────────────────────────────── */
@@ -195,23 +195,23 @@
     text-align: left;
     font-size: 11px;
     font-weight: 700;
-    color: #9ca3af;
+    color: #666;
     text-transform: uppercase;
     letter-spacing: .06em;
     padding: 0 12px 12px;
-    border-bottom: 1px solid #f3f4f6;
+    border-bottom: 1px solid rgba(255,255,255,.06);
   }
   .tm-teams-table td {
     padding: 14px 12px;
     font-size: 14px;
-    color: #374151;
-    border-bottom: 1px solid #f9fafb;
+    color: #a0a0a0;
+    border-bottom: 1px solid rgba(255,255,255,.04);
     vertical-align: middle;
   }
   .tm-teams-table tr:last-child td { border-bottom: none; }
   .tm-team-name {
     font-weight: 700;
-    color: #111;
+    color: #e8e8e8;
   }
   .tm-team-status {
     display: inline-flex;
@@ -221,9 +221,9 @@
     font-weight: 700;
     text-transform: uppercase;
   }
-  .tm-team-status-confirmed { background: #dcfce7; color: #15803d; }
-  .tm-team-status-disqualified { background: #fee2e2; color: #991b1b; }
-  .tm-team-status-withdrawn { background: #f3f4f6; color: #6b7280; }
+  .tm-team-status-confirmed { background: rgba(34,197,94,.12); color: #22c55e; }
+  .tm-team-status-disqualified { background: rgba(239,68,68,.1); color: #f87171; }
+  .tm-team-status-withdrawn { background: rgba(255,255,255,.06); color: #a0a0a0; }
   .tm-team-actions {
     display: flex;
     gap: 8px;
@@ -232,14 +232,14 @@
   .tm-teams-empty {
     text-align: center;
     padding: 40px 20px;
-    color: #9ca3af;
+    color: #666;
     font-size: 14px;
   }
   .tm-teams-empty svg {
     width: 40px;
     height: 40px;
     margin-bottom: 12px;
-    color: #d1d5db;
+    color: #444;
   }
 
   /* ── Matches / Bracket ───────────────────────────── */
@@ -250,7 +250,7 @@
   .tm-round-title {
     font-size: 14px;
     font-weight: 800;
-    color: #6b7280;
+    color: #a0a0a0;
     text-transform: uppercase;
     letter-spacing: .06em;
     margin: 0 0 14px;
@@ -262,17 +262,17 @@
     content: '';
     flex: 1;
     height: 1px;
-    background: #f3f4f6;
+    background: rgba(255,255,255,.06);
   }
   .tm-match-card {
-    background: #fafafa;
-    border: 1px solid #f0f0f0;
+    background: #0a0a0a;
+    border: 1px solid rgba(255,255,255,.06);
     border-radius: 14px;
     padding: 16px 20px;
     margin-bottom: 10px;
     transition: border-color .15s;
   }
-  .tm-match-card:hover { border-color: #e0e0e0; }
+  .tm-match-card:hover { border-color: rgba(255,255,255,.12); }
   .tm-match-card:last-child { margin-bottom: 0; }
   .tm-match-header {
     display: flex;
@@ -283,7 +283,7 @@
   .tm-match-number {
     font-size: 11px;
     font-weight: 700;
-    color: #9ca3af;
+    color: #666;
     text-transform: uppercase;
     letter-spacing: .04em;
   }
@@ -294,10 +294,10 @@
     padding: 2px 8px;
     border-radius: 6px;
   }
-  .tm-match-status-scheduled { background: #f3f4f6; color: #6b7280; }
-  .tm-match-status-finished { background: #dcfce7; color: #15803d; }
-  .tm-match-status-walkover { background: #fef3c7; color: #92400e; }
-  .tm-match-status-cancelled { background: #fee2e2; color: #991b1b; }
+  .tm-match-status-scheduled { background: rgba(255,255,255,.06); color: #a0a0a0; }
+  .tm-match-status-finished { background: rgba(34,197,94,.12); color: #22c55e; }
+  .tm-match-status-walkover { background: rgba(245,158,11,.1); color: #fbbf24; }
+  .tm-match-status-cancelled { background: rgba(239,68,68,.1); color: #f87171; }
   .tm-match-teams {
     display: flex;
     align-items: center;
@@ -309,24 +309,24 @@
     text-align: center;
     font-size: 15px;
     font-weight: 700;
-    color: #111;
+    color: #e8e8e8;
   }
   .tm-match-team-tbd {
-    color: #d1d5db;
+    color: #444;
     font-style: italic;
     font-weight: 500;
   }
   .tm-match-vs {
     font-size: 12px;
     font-weight: 800;
-    color: #d1d5db;
+    color: #444;
     text-transform: uppercase;
     flex-shrink: 0;
   }
   .tm-match-score {
     font-size: 22px;
     font-weight: 900;
-    color: #111;
+    color: #e8e8e8;
     text-align: center;
     margin-top: 8px;
     letter-spacing: .02em;
@@ -334,7 +334,7 @@
   .tm-match-score-pen {
     font-size: 12px;
     font-weight: 600;
-    color: #9ca3af;
+    color: #666;
     display: block;
     margin-top: 2px;
   }
@@ -364,13 +364,13 @@
     width: 60px;
     padding: 8px;
     text-align: center;
-    border: 1.5px solid #e5e7eb;
+    border: 1.5px solid rgba(255,255,255,.1);
     border-radius: 10px;
     font-size: 16px;
     font-weight: 700;
     font-family: inherit;
-    color: #111;
-    background: #fff;
+    color: #e8e8e8;
+    background: #0a0a0a;
     transition: border-color .15s;
   }
   .tm-result-input:focus {
@@ -381,7 +381,7 @@
   .tm-result-sep {
     font-size: 18px;
     font-weight: 800;
-    color: #d1d5db;
+    color: #444;
   }
   .tm-result-pen-wrap {
     display: flex;
@@ -394,20 +394,20 @@
   .tm-result-pen-label {
     font-size: 11px;
     font-weight: 700;
-    color: #9ca3af;
+    color: #666;
     text-transform: uppercase;
   }
   .tm-result-pen-input {
     width: 52px;
     padding: 6px;
     text-align: center;
-    border: 1.5px solid #e5e7eb;
+    border: 1.5px solid rgba(255,255,255,.1);
     border-radius: 8px;
     font-size: 14px;
     font-weight: 700;
     font-family: inherit;
-    color: #111;
-    background: #fff;
+    color: #e8e8e8;
+    background: #0a0a0a;
     transition: border-color .15s;
   }
   .tm-result-pen-input:focus {
@@ -427,11 +427,11 @@
     flex: 1;
     min-width: 200px;
     padding: 10px 14px;
-    border: 1.5px solid #e5e7eb;
+    border: 1.5px solid rgba(255,255,255,.1);
     border-radius: 10px;
     font-size: 13px;
-    color: #6b7280;
-    background: #f9fafb;
+    color: #a0a0a0;
+    background: #0a0a0a;
     font-family: monospace;
     word-break: break-all;
   }
@@ -441,11 +441,11 @@
   }
   .tm-btn-whatsapp:hover { background: #1eb851; }
   .tm-btn-copy {
-    background: #f3f4f6;
-    color: #374151;
-    border: 1px solid #e5e7eb;
+    background: rgba(255,255,255,.06);
+    color: #a0a0a0;
+    border: 1px solid rgba(255,255,255,.1);
   }
-  .tm-btn-copy:hover { background: #e5e7eb; }
+  .tm-btn-copy:hover { background: rgba(255,255,255,.1); }
 
   /* ── Flash ───────────────────────────────────────── */
   .tm-flash {
@@ -459,8 +459,8 @@
     gap: 10px;
   }
   .tm-flash svg { width: 18px; height: 18px; flex-shrink: 0; }
-  .tm-flash-success { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
-  .tm-flash-error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+  .tm-flash-success { background: rgba(34,197,94,.1); color: #22c55e; border: 1px solid rgba(34,197,94,.25); }
+  .tm-flash-error { background: rgba(239,68,68,.1); color: #f87171; border: 1px solid rgba(239,68,68,.25); }
 
   /* ── Responsive ──────────────────────────────────── */
   @media (max-width: 640px) {
@@ -536,29 +536,31 @@
 
       <div class="tm-actions">
         @if($tournament->status === 'draft')
-          @if($tournament->venue_approval_status === 'pending' || $tournament->venue_approval_status === 'rejected')
-            @php
+          @php
               $pendingReqs = collect($venueRequestsData)->where('status', 'pending');
               $rejectedReqs = collect($venueRequestsData)->where('status', 'rejected');
               $approvedReqs = collect($venueRequestsData)->where('status', 'approved');
               $hasPending = $pendingReqs->isNotEmpty();
               $hasRejected = $rejectedReqs->isNotEmpty();
-            @endphp
+              $hasSchedulesPending = $approvedReqs->contains(fn($r) => !isset($r['schedule']) || !$r['schedule'] || $r['schedule']['status'] !== 'approved');
+              $showVenueSection = $hasPending || $hasRejected || $hasSchedulesPending;
+          @endphp
+          @if($showVenueSection)
 
             {{-- Pending requests --}}
             @if($hasPending)
-            <div style="display:flex;flex-direction:column;gap:8px;padding:14px 18px;background:#fef3c7;border:1px solid #fbbf24;border-radius:12px;font-size:13px;color:#92400e;">
+            <div style="display:flex;flex-direction:column;gap:8px;padding:14px 18px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:12px;font-size:13px;color:#fbbf24;">
               <div style="display:flex;align-items:center;gap:8px;">
                 <svg style="width:16px;height:16px;flex-shrink:0;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
                 <span style="font-weight:700;">{{ $pendingReqs->count() }} cancha(s) pendiente(s) de aprobacion</span>
               </div>
               @foreach($pendingReqs as $pReq)
-                <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:#fff;border-radius:8px;">
+                <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:#1a1a1a;border-radius:8px;">
                   @if($pReq['contact_method'] === 'whatsapp' && $pReq['contact_value'])
                     <svg style="width:18px;height:18px;color:#25d366;flex-shrink:0;" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.612.638l4.603-1.209A11.95 11.95 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.352 0-4.55-.764-6.332-2.058l-.182-.137-3.223.846.862-3.149-.15-.237A9.935 9.935 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
                     <div style="flex:1;min-width:0;">
                       <span style="font-weight:700;">{{ $pReq['field_name'] }}</span>
-                      <span style="color:#78716c;"> — {{ $pReq['venue_name'] }}</span>
+                      <span style="color:#666;"> — {{ $pReq['venue_name'] }}</span>
                       <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $pReq['contact_value']) }}?text={{ urlencode('Hola! Soy organizador del torneo ' . $tournament->name . ' en TuCancha. Quería consultar sobre la solicitud para usar la cancha.') }}"
                          target="_blank" rel="noopener"
                          style="display:inline-flex;align-items:center;gap:4px;margin-left:6px;font-weight:700;color:#25d366;text-decoration:none;">
@@ -567,47 +569,47 @@
                       </a>
                     </div>
                   @elseif($pReq['contact_method'] === 'phone' && $pReq['contact_value'])
-                    <svg style="width:16px;height:16px;color:#92400e;flex-shrink:0;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                    <svg style="width:16px;height:16px;color:#fbbf24;flex-shrink:0;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
                     <div style="flex:1;min-width:0;">
                       <span style="font-weight:700;">{{ $pReq['field_name'] }}</span>
-                      <span style="color:#78716c;"> — {{ $pReq['venue_name'] }}</span>
-                      <a href="tel:{{ $pReq['contact_value'] }}" style="margin-left:6px;font-weight:700;color:#92400e;text-decoration:none;">{{ $pReq['contact_value'] }}</a>
+                      <span style="color:#666;"> — {{ $pReq['venue_name'] }}</span>
+                      <a href="tel:{{ $pReq['contact_value'] }}" style="margin-left:6px;font-weight:700;color:#fbbf24;text-decoration:none;">{{ $pReq['contact_value'] }}</a>
                     </div>
                   @elseif($pReq['contact_method'] === 'email' && $pReq['contact_value'])
-                    <svg style="width:16px;height:16px;color:#92400e;flex-shrink:0;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                    <svg style="width:16px;height:16px;color:#fbbf24;flex-shrink:0;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                     <div style="flex:1;min-width:0;">
                       <span style="font-weight:700;">{{ $pReq['field_name'] }}</span>
-                      <span style="color:#78716c;"> — {{ $pReq['venue_name'] }}</span>
+                      <span style="color:#666;"> — {{ $pReq['venue_name'] }}</span>
                     </div>
                     <span style="position:relative;">
                       <button type="button"
                          onclick="navigator.clipboard.writeText('{{ $pReq['contact_value'] }}');var b=this;b.querySelector('.tc-copy-label').textContent='Copiado!';setTimeout(function(){b.querySelector('.tc-copy-label').textContent='{{ $pReq['contact_value'] }}'},2000);"
-                         style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:#92400e;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;font-family:inherit;transition:background .15s;"
-                         onmouseover="this.style.background='#78350f';this.parentElement.querySelector('.tc-tooltip').style.display='block'"
-                         onmouseout="this.style.background='#92400e';this.parentElement.querySelector('.tc-tooltip').style.display='none'">
+                         style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:#d97706;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;font-family:inherit;transition:background .15s;"
+                         onmouseover="this.style.background='#b45309';this.parentElement.querySelector('.tc-tooltip').style.display='block'"
+                         onmouseout="this.style.background='#d97706';this.parentElement.querySelector('.tc-tooltip').style.display='none'">
                         <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                         <span class="tc-copy-label">{{ $pReq['contact_value'] }}</span>
                       </button>
-                      <span class="tc-tooltip" style="display:none;position:absolute;bottom:calc(100% + 8px);right:0;background:#111;color:#fff;font-size:11px;font-weight:600;padding:8px 12px;border-radius:8px;white-space:nowrap;pointer-events:none;z-index:10;box-shadow:0 4px 12px rgba(0,0,0,.15);">
+                      <span class="tc-tooltip" style="display:none;position:absolute;bottom:calc(100% + 8px);right:0;background:#22c55e;color:#050505;font-size:11px;font-weight:600;padding:8px 12px;border-radius:8px;white-space:nowrap;pointer-events:none;z-index:10;box-shadow:0 4px 12px rgba(0,0,0,.15);">
                         Hace click para copiar el email y escribile al complejo
                         <span style="position:absolute;bottom:-4px;right:16px;width:8px;height:8px;background:#111;transform:rotate(45deg);"></span>
                       </span>
                     </span>
                   @else
                     {{-- Internal chat --}}
-                    <svg style="width:16px;height:16px;color:#92400e;flex-shrink:0;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                    <svg style="width:16px;height:16px;color:#fbbf24;flex-shrink:0;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
                     <div style="flex:1;min-width:0;">
                       <span style="font-weight:700;">{{ $pReq['field_name'] }}</span>
-                      <span style="color:#78716c;"> — {{ $pReq['venue_name'] }}</span>
+                      <span style="color:#666;"> — {{ $pReq['venue_name'] }}</span>
                     </div>
                     <button type="button" onclick="openTcChat({{ $pReq['id'] }})"
-                            style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;font-size:12px;font-weight:700;color:#16a34a;cursor:pointer;font-family:inherit;transition:all .15s;"
-                            onmouseover="this.style.background='#dcfce7';this.style.borderColor='#86efac'"
-                            onmouseout="this.style.background='#f0fdf4';this.style.borderColor='#bbf7d0'">
+                            style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.25);border-radius:10px;font-size:12px;font-weight:700;color:#22c55e;cursor:pointer;font-family:inherit;transition:all .15s;"
+                            onmouseover="this.style.background='rgba(34,197,94,.15)';this.style.borderColor='rgba(34,197,94,.4)'"
+                            onmouseout="this.style.background='rgba(34,197,94,.08)';this.style.borderColor='rgba(34,197,94,.25)'">
                       <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
                       Abrir chat
                       @if(($pReq['unread_count'] ?? 0) > 0)
-                        <span id="tc-unread-badge-{{ $pReq['id'] }}" style="background:#16a34a;color:#fff;font-size:10px;font-weight:800;min-width:18px;height:18px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;padding:0 5px;">{{ $pReq['unread_count'] }}</span>
+                        <span id="tc-unread-badge-{{ $pReq['id'] }}" style="background:#22c55e;color:#052e16;font-size:10px;font-weight:800;min-width:18px;height:18px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;padding:0 5px;">{{ $pReq['unread_count'] }}</span>
                       @endif
                     </button>
                   @endif
@@ -618,25 +620,111 @@
 
             {{-- Rejected requests --}}
             @if($hasRejected)
-            <div style="display:flex;flex-direction:column;gap:8px;padding:14px 18px;background:#fee2e2;border:1px solid #f87171;border-radius:12px;font-size:13px;color:#991b1b;">
+            <div style="display:flex;flex-direction:column;gap:8px;padding:14px 18px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:12px;font-size:13px;color:#f87171;">
               <div style="display:flex;align-items:center;gap:8px;">
                 <svg style="width:16px;height:16px;flex-shrink:0;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                 <span style="font-weight:700;">{{ $rejectedReqs->count() }} cancha(s) rechazada(s)</span>
               </div>
               @foreach($rejectedReqs as $rReq)
-                <div style="padding:6px 12px;background:#fff;border-radius:8px;">
+                <div style="padding:6px 12px;background:#1a1a1a;border-radius:8px;">
                   <span style="font-weight:700;">{{ $rReq['field_name'] }}</span>
-                  <span style="color:#78716c;"> — {{ $rReq['venue_name'] }}</span>
+                  <span style="color:#666;"> — {{ $rReq['venue_name'] }}</span>
                   @if($rReq['response_message'])
-                    <span style="color:#991b1b;"> — {{ $rReq['response_message'] }}</span>
+                    <span style="color:#f87171;"> — {{ $rReq['response_message'] }}</span>
                   @endif
                 </div>
               @endforeach
               <span style="font-size:12px;">Edita el torneo para quitar canchas rechazadas o elegir otras.</span>
             </div>
             @endif
+
+            {{-- Approved requests — schedule phase --}}
+            @if($approvedReqs->isNotEmpty())
+            @foreach($approvedReqs as $aReq)
+              @php $schedule = $aReq['schedule'] ?? null; @endphp
+
+              @if($schedule && $schedule['status'] === 'approved')
+                {{-- Schedule confirmed --}}
+                <div style="display:flex;flex-direction:column;gap:8px;padding:14px 18px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);border-radius:12px;font-size:13px;color:#22c55e;">
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <svg style="width:16px;height:16px;flex-shrink:0;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span style="font-weight:700;">{{ $aReq['field_name'] }} — {{ $aReq['venue_name'] }}</span>
+                    <span style="font-size:11px;padding:2px 8px;background:rgba(34,197,94,.12);border-radius:6px;font-weight:700;">Horarios confirmados</span>
+                  </div>
+                  <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                    @foreach($schedule['slots'] as $slot)
+                      <span style="padding:4px 10px;background:#1a1a1a;border:1px solid rgba(34,197,94,.25);border-radius:8px;font-size:12px;font-weight:600;">
+                        {{ \Carbon\Carbon::parse($slot['date'])->format('d/m') }} {{ $slot['start_time'] }}–{{ $slot['end_time'] }}
+                      </span>
+                    @endforeach
+                  </div>
+                </div>
+
+              @elseif($schedule && $schedule['status'] === 'pending')
+                {{-- Schedule sent, waiting for approval --}}
+                <div style="display:flex;flex-direction:column;gap:8px;padding:14px 18px;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.25);border-radius:12px;font-size:13px;color:#60a5fa;">
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <svg style="width:16px;height:16px;flex-shrink:0;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <span style="font-weight:700;">{{ $aReq['field_name'] }} — {{ $aReq['venue_name'] }}</span>
+                    <span style="font-size:11px;padding:2px 8px;background:rgba(59,130,246,.15);border-radius:6px;font-weight:700;">Esperando aprobacion de horarios</span>
+                  </div>
+                  <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                    @foreach($schedule['slots'] as $slot)
+                      <span style="padding:4px 10px;background:#1a1a1a;border:1px solid rgba(59,130,246,.25);border-radius:8px;font-size:12px;font-weight:600;">
+                        {{ \Carbon\Carbon::parse($slot['date'])->format('d/m') }} {{ $slot['start_time'] }}–{{ $slot['end_time'] }}
+                      </span>
+                    @endforeach
+                  </div>
+                </div>
+
+              @elseif($schedule && $schedule['status'] === 'rejected')
+                {{-- Schedule rejected — can resend --}}
+                <div style="display:flex;flex-direction:column;gap:8px;padding:14px 18px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:12px;font-size:13px;color:#fbbf24;" x-data="{ showForm: false }">
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <svg style="width:16px;height:16px;flex-shrink:0;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
+                    <span style="font-weight:700;">{{ $aReq['field_name'] }} — {{ $aReq['venue_name'] }}</span>
+                    <span style="font-size:11px;padding:2px 8px;background:rgba(245,158,11,.2);border-radius:6px;font-weight:700;">Horarios rechazados</span>
+                  </div>
+                  @if($schedule['response_message'])
+                    <p style="font-size:12px;margin:0;">Motivo: {{ $schedule['response_message'] }}</p>
+                  @endif
+                  <button type="button" @click="showForm = !showForm"
+                          style="align-self:flex-start;display:inline-flex;align-items:center;gap:5px;padding:6px 14px;background:#d97706;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">
+                    <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    Enviar nuevos horarios
+                  </button>
+                  <div x-show="showForm" x-transition style="margin-top:4px;">
+                    @include('torneos._schedule-form', ['tournament' => $tournament, 'venueRequestId' => $aReq['id'], 'fieldName' => $aReq['field_name'], 'venueName' => $aReq['venue_name']])
+                  </div>
+                </div>
+
+              @else
+                {{-- Approved but no schedule sent yet — show form directly --}}
+                <div style="display:flex;flex-direction:column;gap:8px;padding:14px 18px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);border-radius:12px;font-size:13px;color:#22c55e;">
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <svg style="width:16px;height:16px;flex-shrink:0;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span style="font-weight:700;">{{ $aReq['field_name'] }} — {{ $aReq['venue_name'] }}</span>
+                    <span style="font-size:11px;padding:2px 8px;background:rgba(34,197,94,.12);border-radius:6px;font-weight:700;">Cancha aprobada</span>
+                  </div>
+                  <p style="margin:0;font-size:12px;">Envia los horarios que necesitas para que el complejo los confirme.</p>
+                  @include('torneos._schedule-form', ['tournament' => $tournament, 'venueRequestId' => $aReq['id'], 'fieldName' => $aReq['field_name'], 'venueName' => $aReq['venue_name']])
+                </div>
+              @endif
+            @endforeach
+            @endif
+
+            {{-- Show Publish button if all venues approved even if schedules pending --}}
+            @if($tournament->venue_approval_status === 'approved')
+            <form method="POST" action="{{ route('torneos.publish', $tournament) }}">
+              @csrf
+              <button type="submit" class="tm-btn tm-btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                Publicar
+              </button>
+            </form>
+            @endif
           @elseif($tournament->venue_approval_status === 'rejected' && empty($venueRequestsData))
-            <div style="display:flex;align-items:center;gap:8px;padding:10px 16px;background:#fee2e2;border:1px solid #f87171;border-radius:10px;font-size:13px;color:#991b1b;">
+            <div style="display:flex;align-items:center;gap:8px;padding:10px 16px;background:rgba(239,68,68,.1);border:1px solid #f87171;border-radius:10px;font-size:13px;color:#f87171;">
               <svg style="width:16px;height:16px;flex-shrink:0;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
               <span>El complejo rechazo la solicitud{{ $tournament->venue_rejection_reason ? ': ' . $tournament->venue_rejection_reason : '' }}. Edita el torneo para elegir otra cancha.</span>
             </div>
@@ -677,19 +765,19 @@
           </form>
 
         @elseif($tournament->status === 'in_progress')
-          <span class="tm-status-indicator" style="background: #dbeafe; color: #1e40af;">
+          <span class="tm-status-indicator" style="background: rgba(59,130,246,.1); color: #1e40af;">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             En curso
           </span>
 
         @elseif($tournament->status === 'finished')
-          <span class="tm-status-indicator" style="background: #d1fae5; color: #065f46;">
+          <span class="tm-status-indicator" style="background: rgba(34,197,94,.1); color: #22c55e;">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             Torneo finalizado
           </span>
 
         @elseif($tournament->status === 'cancelled')
-          <span class="tm-status-indicator" style="background: #fee2e2; color: #991b1b;">
+          <span class="tm-status-indicator" style="background: rgba(239,68,68,.08); color: #f87171;">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
             Cancelado
           </span>
@@ -837,7 +925,7 @@
                 @if($tournament->inscription_price > 0)
                   <td>
                     @if($team->payment_confirmed)
-                      <span class="tm-team-status" style="background: #dcfce7; color: #15803d; display: inline-flex; align-items: center; gap: 4px;">
+                      <span class="tm-team-status" style="background: rgba(34,197,94,.1); color: #22c55e; display: inline-flex; align-items: center; gap: 4px;">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;"><polyline points="20 6 9 17 4 12"/></svg>
                         Pagado
                       </span>
@@ -851,7 +939,7 @@
                       @endif
                     @else
                       <div style="display: flex; align-items: center; gap: 6px;">
-                        <span class="tm-team-status" style="background: #fef3c7; color: #92400e;">Pendiente</span>
+                        <span class="tm-team-status" style="background: rgba(245,158,11,.08); color: #fbbf24;">Pendiente</span>
                         <form method="POST" action="{{ route('torneos.teams.confirm_payment', [$tournament, $team]) }}" style="margin:0;" onsubmit="return confirm('Confirmar pago manual de {{ addslashes($team->name) }}?')">
                           @csrf
                           <button type="submit" class="tm-btn tm-btn-primary tm-btn-sm" style="padding: 4px 10px; font-size: 11px;">
@@ -978,7 +1066,96 @@
   @endif
 
   {{-- ══════════════════════════════════════════════ --}}
-  {{-- 5. SHARE SECTION                               --}}
+  {{-- 5. STATS SECTION (Pro only)                    --}}
+  {{-- ══════════════════════════════════════════════ --}}
+  @if($hasStats && !empty($statsData))
+  <div class="tm-card">
+    <h2 class="tm-card-title">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+      Estadisticas
+      <span style="font-size:10px;padding:2px 8px;background:rgba(59,130,246,.15);color:#60a5fa;border-radius:6px;font-weight:700;margin-left:8px;">PRO</span>
+    </h2>
+
+    <div style="overflow-x:auto;">
+      <table class="tm-teams-table">
+        <thead>
+          <tr>
+            <th style="text-align:left;">Equipo</th>
+            <th>PJ</th>
+            <th>PG</th>
+            <th>PP</th>
+            <th>GF</th>
+            <th>GC</th>
+            <th>DG</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach($statsData as $i => $s)
+            <tr>
+              <td>
+                <span style="display:inline-flex;align-items:center;gap:6px;">
+                  @if($i === 0 && $s['played'] > 0)
+                    <span style="font-size:14px;">🥇</span>
+                  @elseif($i === 1 && $s['played'] > 0)
+                    <span style="font-size:14px;">🥈</span>
+                  @elseif($i === 2 && $s['played'] > 0)
+                    <span style="font-size:14px;">🥉</span>
+                  @endif
+                  <span class="tm-team-name">{{ $s['name'] }}</span>
+                </span>
+              </td>
+              <td style="text-align:center;">{{ $s['played'] }}</td>
+              <td style="text-align:center;color:#22c55e;font-weight:700;">{{ $s['won'] }}</td>
+              <td style="text-align:center;color:#f87171;font-weight:700;">{{ $s['lost'] }}</td>
+              <td style="text-align:center;">{{ $s['goals_for'] }}</td>
+              <td style="text-align:center;">{{ $s['goals_against'] }}</td>
+              <td style="text-align:center;font-weight:700;{{ $s['goal_diff'] > 0 ? 'color:#22c55e;' : ($s['goal_diff'] < 0 ? 'color:#f87171;' : '') }}">
+                {{ $s['goal_diff'] > 0 ? '+' : '' }}{{ $s['goal_diff'] }}
+              </td>
+            </tr>
+          @endforeach
+        </tbody>
+      </table>
+    </div>
+
+    {{-- Quick summary --}}
+    @php
+      $finishedMatches = $tournament->matches->where('status', 'finished');
+      $totalGoals = $finishedMatches->sum('home_score') + $finishedMatches->sum('away_score');
+      $matchesWithPenalties = $finishedMatches->filter(fn($m) => $m->home_penalties !== null)->count();
+    @endphp
+    <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.06);">
+      <div style="flex:1;min-width:120px;padding:12px 16px;background:#1a1a1a;border-radius:12px;text-align:center;">
+        <div style="font-size:24px;font-weight:900;color:#e8e8e8;">{{ $finishedMatches->count() }}</div>
+        <div style="font-size:11px;font-weight:600;color:#666;text-transform:uppercase;">Partidos jugados</div>
+      </div>
+      <div style="flex:1;min-width:120px;padding:12px 16px;background:#1a1a1a;border-radius:12px;text-align:center;">
+        <div style="font-size:24px;font-weight:900;color:#e8e8e8;">{{ $totalGoals }}</div>
+        <div style="font-size:11px;font-weight:600;color:#666;text-transform:uppercase;">Goles totales</div>
+      </div>
+      <div style="flex:1;min-width:120px;padding:12px 16px;background:#1a1a1a;border-radius:12px;text-align:center;">
+        <div style="font-size:24px;font-weight:900;color:#e8e8e8;">{{ $finishedMatches->count() > 0 ? round($totalGoals / $finishedMatches->count(), 1) : 0 }}</div>
+        <div style="font-size:11px;font-weight:600;color:#666;text-transform:uppercase;">Goles/partido</div>
+      </div>
+      @if($matchesWithPenalties > 0)
+      <div style="flex:1;min-width:120px;padding:12px 16px;background:#1a1a1a;border-radius:12px;text-align:center;">
+        <div style="font-size:24px;font-weight:900;color:#e8e8e8;">{{ $matchesWithPenalties }}</div>
+        <div style="font-size:11px;font-weight:600;color:#666;text-transform:uppercase;">Definidos x penales</div>
+      </div>
+      @endif
+    </div>
+  </div>
+  @elseif(!$hasStats && $tournament->matches->where('status', 'finished')->count() > 0)
+  <div class="tm-card" style="text-align:center;padding:24px;">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;margin:0 auto 8px;"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+    <p style="font-size:14px;font-weight:700;color:#64748b;margin:0 0 4px;">Estadisticas del torneo</p>
+    <p style="font-size:13px;color:#94a3b8;margin:0 0 12px;">Con el plan Pro podes ver tabla de posiciones, goles y mas.</p>
+    <a href="{{ route('organizador.planes') }}" class="tm-btn tm-btn-outline tm-btn-sm">Ver planes</a>
+  </div>
+  @endif
+
+  {{-- ══════════════════════════════════════════════ --}}
+  {{-- 6. SHARE SECTION                               --}}
   {{-- ══════════════════════════════════════════════ --}}
   <div class="tm-card">
     <h2 class="tm-card-title">
@@ -1012,14 +1189,14 @@
 <div id="tc-chat-overlay-{{ $iReq['id'] }}"
      style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;align-items:center;justify-content:center;padding:16px;"
      onclick="if(event.target===this)closeTcChat({{ $iReq['id'] }})">
-  <div style="background:#fff;border-radius:20px;width:100%;max-width:480px;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 25px 60px rgba(0,0,0,.25);">
-    <div style="padding:18px 20px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">
+  <div style="background:#111;border-radius:20px;width:100%;max-width:480px;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 25px 60px rgba(0,0,0,.5);">
+    <div style="padding:18px 20px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;">
       <div>
-        <h3 style="font-size:15px;font-weight:800;color:#111;margin:0;">Chat — {{ $iReq['venue_name'] }}</h3>
-        <div style="font-size:12px;color:#94a3b8;margin-top:2px;">{{ $iReq['field_name'] }}</div>
+        <h3 style="font-size:15px;font-weight:800;color:#e8e8e8;margin:0;">Chat — {{ $iReq['venue_name'] }}</h3>
+        <div style="font-size:12px;color:#666;margin-top:2px;">{{ $iReq['field_name'] }}</div>
       </div>
       <button type="button" onclick="closeTcChat({{ $iReq['id'] }})"
-              style="width:32px;height:32px;border-radius:10px;border:none;background:#f1f5f9;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+              style="width:32px;height:32px;border-radius:10px;border:none;background:rgba(255,255,255,.06);cursor:pointer;display:flex;align-items:center;justify-content:center;color:#a0a0a0;">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
     </div>
@@ -1033,7 +1210,7 @@
       @else
         @foreach($iReq['messages'] as $msg)
         <div style="display:flex;flex-direction:column;{{ $msg['is_mine'] ? 'align-items:flex-end' : 'align-items:flex-start' }}">
-          <div style="max-width:80%;padding:10px 14px;font-size:13px;line-height:1.5;word-break:break-word;{{ $msg['is_mine'] ? 'background:#16a34a;color:#fff;border-radius:16px 16px 4px 16px;' : 'background:#f1f5f9;color:#1e293b;border-radius:16px 16px 16px 4px;' }}">
+          <div style="max-width:80%;padding:10px 14px;font-size:13px;line-height:1.5;word-break:break-word;{{ $msg['is_mine'] ? 'background:#22c55e;color:#052e16;border-radius:16px 16px 4px 16px;' : 'background:#1a1a1a;color:#e8e8e8;border-radius:16px 16px 16px 4px;' }}">
             {{ $msg['message'] }}
           </div>
           <span style="font-size:10px;color:#94a3b8;margin-top:3px;padding:0 4px;">{{ $msg['user_name'] }} &middot; {{ $msg['created_at'] }}</span>
@@ -1041,13 +1218,13 @@
         @endforeach
       @endif
     </div>
-    <div style="padding:12px 16px;border-top:1px solid #f1f5f9;">
+    <div style="padding:12px 16px;border-top:1px solid rgba(255,255,255,.06);">
       <form method="POST" action="{{ route('torneos.request_message', $iReq['id']) }}" data-chat-form="tc-chat-body-{{ $iReq['id'] }}" style="display:flex;gap:8px;width:100%;">
         @csrf
         <input type="text" name="message" placeholder="Escribi un mensaje..." required maxlength="1000" autocomplete="off"
-               style="flex:1;padding:10px 14px;border:1px solid #e2e8f0;border-radius:12px;font-size:13px;font-family:inherit;outline:none;">
+               style="flex:1;padding:10px 14px;border:1px solid rgba(255,255,255,.1);border-radius:12px;font-size:13px;font-family:inherit;outline:none;background:#0a0a0a;color:#e8e8e8;">
         <button type="submit"
-                style="width:40px;height:40px;border-radius:12px;border:none;background:#16a34a;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                style="width:40px;height:40px;border-radius:12px;border:none;background:#22c55e;color:#052e16;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
           <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/></svg>
         </button>
       </form>
@@ -1125,7 +1302,7 @@
           var bubble = document.createElement('div');
           bubble.style.cssText = 'display:flex;flex-direction:column;align-items:flex-end;';
           bubble.innerHTML =
-            '<div style="max-width:80%;padding:10px 14px;font-size:13px;line-height:1.5;word-break:break-word;background:#16a34a;color:#fff;border-radius:16px 16px 4px 16px;">' +
+            '<div style="max-width:80%;padding:10px 14px;font-size:13px;line-height:1.5;word-break:break-word;background:#22c55e;color:#052e16;border-radius:16px 16px 4px 16px;">' +
               data.message.replace(/</g,'&lt;').replace(/>/g,'&gt;') +
             '</div>' +
             '<span style="font-size:10px;color:#94a3b8;margin-top:3px;padding:0 4px;">' +
@@ -1149,7 +1326,7 @@
     var bubble = document.createElement('div');
     bubble.style.cssText = 'display:flex;flex-direction:column;align-items:flex-start;';
     bubble.innerHTML =
-      '<div style="max-width:80%;padding:10px 14px;font-size:13px;line-height:1.5;word-break:break-word;background:#f1f5f9;color:#1e293b;border-radius:16px 16px 16px 4px;">' +
+      '<div style="max-width:80%;padding:10px 14px;font-size:13px;line-height:1.5;word-break:break-word;background:#1a1a1a;color:#e8e8e8;border-radius:16px 16px 16px 4px;">' +
         data.message.replace(/</g,'&lt;').replace(/>/g,'&gt;') +
       '</div><span style="font-size:10px;color:#94a3b8;margin-top:3px;padding:0 4px;">' +
         data.user_name + ' &middot; ahora</span>';

@@ -15,12 +15,12 @@
   <div class="page-card" style="margin-bottom:20px; padding:28px;">
     <div style="display:grid; grid-template-columns:1fr auto; gap:20px; align-items:center; flex-wrap:wrap;">
       <div>
-        <div style="font-size:12px; color:#999; text-transform:uppercase; letter-spacing:.06em; font-weight:700; margin-bottom:10px;">
+        <div style="font-size:12px; color:#a0a0a0; text-transform:uppercase; letter-spacing:.06em; font-weight:700; margin-bottom:10px;">
           Tu código de referido
         </div>
         <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
           <div id="referralCodeText"
-               style="font-family:monospace; font-size:32px; font-weight:800; letter-spacing:.08em; color:#111; background:#f7f7f8; border:2px dashed #d1d5db; border-radius:12px; padding:14px 24px; user-select:all;">
+               style="font-family:monospace; font-size:32px; font-weight:800; letter-spacing:.08em; color:#e8e8e8; background:#0a0a0a; border:2px dashed rgba(255,255,255,.15); border-radius:12px; padding:14px 24px; user-select:all;">
             {{ $referralCode->code }}
           </div>
           <button
@@ -39,10 +39,10 @@
 
       @if($availableCount > 0)
         <div style="text-align:center; min-width:120px;">
-          <div style="font-size:48px; font-weight:800; color:#166534; line-height:1;">
+          <div style="font-size:48px; font-weight:800; color:#6ee7a0; line-height:1;">
             {{ $availableCount }}
           </div>
-          <div style="font-size:13px; color:#166534; font-weight:700; margin-top:4px;">
+          <div style="font-size:13px; color:#6ee7a0; font-weight:700; margin-top:4px;">
             {{ $availableCount === 1 ? 'recompensa disponible' : 'recompensas disponibles' }}
           </div>
         </div>
@@ -55,7 +55,7 @@
     <h2 style="margin:0 0 20px 0; font-size:22px; font-weight:800; letter-spacing:-0.01em;">¿Cómo funciona?</h2>
     <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:16px;">
 
-      <div style="text-align:center; padding:20px 16px; background:#f7f7f8; border-radius:14px; border:1px solid #ececec;">
+      <div style="text-align:center; padding:20px 16px; background:rgba(255,255,255,.04); border-radius:14px; border:1px solid rgba(255,255,255,.08);">
         <div style="font-size:36px; margin-bottom:12px;">📤</div>
         <div style="font-weight:700; font-size:15px; margin-bottom:6px;">1. Compartí tu código</div>
         <div class="muted" style="font-size:13px; line-height:1.6;">
@@ -63,7 +63,7 @@
         </div>
       </div>
 
-      <div style="text-align:center; padding:20px 16px; background:#f7f7f8; border-radius:14px; border:1px solid #ececec;">
+      <div style="text-align:center; padding:20px 16px; background:rgba(255,255,255,.04); border-radius:14px; border:1px solid rgba(255,255,255,.08);">
         <div style="font-size:36px; margin-bottom:12px;">🤝</div>
         <div style="font-weight:700; font-size:15px; margin-bottom:6px;">2. Tu amigo se suscribe</div>
         <div class="muted" style="font-size:13px; line-height:1.6;">
@@ -71,10 +71,10 @@
         </div>
       </div>
 
-      <div style="text-align:center; padding:20px 16px; background:#f0fdf4; border-radius:14px; border:2px solid #4ade80;">
+      <div style="text-align:center; padding:20px 16px; background:rgba(34,197,94,.1); border-radius:14px; border:2px solid rgba(34,197,94,.3);">
         <div style="font-size:36px; margin-bottom:12px;">🎁</div>
-        <div style="font-weight:700; font-size:15px; margin-bottom:6px; color:#166534;">3. ¡Ganás una recompensa!</div>
-        <div style="font-size:13px; line-height:1.6; color:#166534;">
+        <div style="font-weight:700; font-size:15px; margin-bottom:6px; color:#6ee7a0;">3. ¡Ganás una recompensa!</div>
+        <div style="font-size:13px; line-height:1.6; color:#6ee7a0;">
           Recibís una <strong>reserva gratis</strong> o un <strong>mes gratis</strong> de membresía para canjear cuando quieras.
         </div>
       </div>
@@ -92,14 +92,14 @@
         </div>
       </div>
       @if($availableCount > 0)
-        <span class="badge" style="background:#e8f7ee; color:#157347; border:1px solid #cfe9d7; font-size:13px; padding:8px 14px;">
+        <span class="badge" style="background:rgba(34,197,94,.1); color:#6ee7a0; border:1px solid rgba(34,197,94,.2); font-size:13px; padding:8px 14px;">
           {{ $availableCount }} disponible{{ $availableCount > 1 ? 's' : '' }}
         </span>
       @endif
     </div>
 
     @if($rewards->isEmpty())
-      <div style="padding:32px; text-align:center; background:#f7f7f8; border-radius:14px; border:1px dashed #ddd;">
+      <div style="padding:32px; text-align:center; background:rgba(255,255,255,.04); border-radius:14px; border:1px dashed rgba(255,255,255,.1);">
         <div style="font-size:36px; margin-bottom:12px;">📭</div>
         <div style="font-weight:700; font-size:16px; margin-bottom:6px;">Todavía no tenés referidos</div>
         <div class="muted" style="font-size:14px; line-height:1.6;">
@@ -110,46 +110,46 @@
       <div style="overflow-x:auto;">
         <table style="width:100%; border-collapse:collapse; min-width:640px;">
           <thead>
-            <tr style="background:#fafafa;">
-              <th style="text-align:left; padding:12px 14px; border-bottom:1px solid #eee; font-size:13px; color:#666; font-weight:700;">Referido</th>
-              <th style="text-align:left; padding:12px 14px; border-bottom:1px solid #eee; font-size:13px; color:#666; font-weight:700;">Fecha</th>
-              <th style="text-align:left; padding:12px 14px; border-bottom:1px solid #eee; font-size:13px; color:#666; font-weight:700;">Estado</th>
-              <th style="text-align:left; padding:12px 14px; border-bottom:1px solid #eee; font-size:13px; color:#666; font-weight:700;">Tipo</th>
-              <th style="text-align:left; padding:12px 14px; border-bottom:1px solid #eee; font-size:13px; color:#666; font-weight:700;">Acciones</th>
+            <tr style="background:rgba(255,255,255,.02);">
+              <th style="text-align:left; padding:12px 14px; border-bottom:1px solid rgba(255,255,255,.08); font-size:13px; color:#a0a0a0; font-weight:700;">Referido</th>
+              <th style="text-align:left; padding:12px 14px; border-bottom:1px solid rgba(255,255,255,.08); font-size:13px; color:#a0a0a0; font-weight:700;">Fecha</th>
+              <th style="text-align:left; padding:12px 14px; border-bottom:1px solid rgba(255,255,255,.08); font-size:13px; color:#a0a0a0; font-weight:700;">Estado</th>
+              <th style="text-align:left; padding:12px 14px; border-bottom:1px solid rgba(255,255,255,.08); font-size:13px; color:#a0a0a0; font-weight:700;">Tipo</th>
+              <th style="text-align:left; padding:12px 14px; border-bottom:1px solid rgba(255,255,255,.08); font-size:13px; color:#a0a0a0; font-weight:700;">Acciones</th>
             </tr>
           </thead>
           <tbody>
             @foreach($rewards as $reward)
               <tr>
-                <td style="padding:14px; border-bottom:1px solid #f1f1f1;">
+                <td style="padding:14px; border-bottom:1px solid rgba(255,255,255,.06);">
                   <div style="font-weight:700; font-size:14px;">{{ $reward->referred->name }}</div>
                   <div class="muted" style="font-size:12px;">{{ $reward->referred->email }}</div>
                 </td>
 
-                <td style="padding:14px; border-bottom:1px solid #f1f1f1;">
+                <td style="padding:14px; border-bottom:1px solid rgba(255,255,255,.06);">
                   <div style="font-size:14px;">{{ $reward->created_at->format('d/m/Y') }}</div>
                   <div class="muted" style="font-size:12px;">{{ $reward->created_at->format('H:i') }}</div>
                 </td>
 
-                <td style="padding:14px; border-bottom:1px solid #f1f1f1;">
+                <td style="padding:14px; border-bottom:1px solid rgba(255,255,255,.06);">
                   @if($reward->status === 'available')
-                    <span class="badge" style="background:#e8f7ee; color:#157347; border:1px solid #cfe9d7;">
+                    <span class="badge" style="background:rgba(34,197,94,.1); color:#6ee7a0; border:1px solid rgba(34,197,94,.2);">
                       Disponible
                     </span>
                   @else
-                    <span class="badge" style="background:#f3f3f3; color:#666; border:1px solid #e2e2e2;">
+                    <span class="badge" style="background:rgba(255,255,255,.04); color:#666; border:1px solid rgba(255,255,255,.08);">
                       Canjeada
                     </span>
                   @endif
                 </td>
 
-                <td style="padding:14px; border-bottom:1px solid #f1f1f1;">
+                <td style="padding:14px; border-bottom:1px solid rgba(255,255,255,.06);">
                   @if($reward->reward_type === 'free_reservation')
-                    <span class="badge" style="background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe;">
+                    <span class="badge" style="background:rgba(59,130,246,.08); color:#93c5fd; border:1px solid rgba(59,130,246,.2);">
                       Reserva gratis
                     </span>
                   @elseif($reward->reward_type === 'free_month')
-                    <span class="badge" style="background:#faf5ff; color:#6d28d9; border:1px solid #e9d5ff;">
+                    <span class="badge" style="background:rgba(139,92,246,.08); color:#c4b5fd; border:1px solid rgba(139,92,246,.2);">
                       Mes gratis
                     </span>
                   @else
@@ -157,7 +157,7 @@
                   @endif
                 </td>
 
-                <td style="padding:14px; border-bottom:1px solid #f1f1f1;">
+                <td style="padding:14px; border-bottom:1px solid rgba(255,255,255,.06);">
                   @if($reward->status === 'available')
                     <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
                       <a href="{{ route('my_reservations') }}"
@@ -210,7 +210,7 @@
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(code).then(() => {
           btn.innerText = '¡Copiado!';
-          btn.style.background = '#157347';
+          btn.style.background = '#16a34a';
           btn.style.borderColor = '#157347';
           setTimeout(() => {
             btn.innerText = 'Copiar código';

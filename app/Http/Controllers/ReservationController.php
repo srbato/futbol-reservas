@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\VenueBlockedException;
 use App\Models\Field;
 use App\Services\ReservationService;
 use Carbon\Carbon;
@@ -20,11 +21,15 @@ class ReservationController extends Controller
             ->with(['venue', 'price', 'schedules', 'exceptions', 'discounts'])
             ->findOrFail($data['field_id']);
 
-        $reservation = $reservationService->createSingle(
-            $field,
-            Carbon::parse($data['start_at']),
-            $request->user()->id
-        );
+        try {
+            $reservation = $reservationService->createSingle(
+                $field,
+                Carbon::parse($data['start_at']),
+                $request->user()->id
+            );
+        } catch (VenueBlockedException $e) {
+            return response()->json(['error' => $e->getMessage()], 403);
+        }
 
         return response()->json($reservation, 201);
     }

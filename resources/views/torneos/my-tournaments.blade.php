@@ -20,7 +20,7 @@
   .mt-title {
     font-size: 28px;
     font-weight: 900;
-    color: #111;
+    color: #e8e8e8;
     letter-spacing: -.02em;
     margin: 0;
   }
@@ -46,8 +46,8 @@
     display: flex;
     align-items: center;
     gap: 16px;
-    background: #fff;
-    border: 1px solid #ececec;
+    background: #111;
+    border: 1px solid rgba(255,255,255,.08);
     border-radius: 16px;
     padding: 16px 20px;
     text-decoration: none;
@@ -90,7 +90,7 @@
   .mt-item-name {
     font-size: 16px;
     font-weight: 800;
-    color: #111;
+    color: #e8e8e8;
     margin: 0 0 4px;
     white-space: nowrap;
     overflow: hidden;
@@ -120,13 +120,13 @@
     letter-spacing: .02em;
     flex-shrink: 0;
   }
-  .mt-badge-draft        { background: #f3f4f6; color: #6b7280; }
-  .mt-badge-pending      { background: #fef3c7; color: #92400e; }
-  .mt-badge-open         { background: #dcfce7; color: #166534; }
-  .mt-badge-closed       { background: #fee2e2; color: #991b1b; }
-  .mt-badge-in_progress  { background: #dbeafe; color: #1e40af; }
-  .mt-badge-finished     { background: #e5e7eb; color: #374151; }
-  .mt-badge-cancelled    { background: #fee2e2; color: #991b1b; }
+  .mt-badge-draft        { background: rgba(255,255,255,.06); color: #a0a0a0; }
+  .mt-badge-pending      { background: rgba(245,158,11,.1); color: #fbbf24; }
+  .mt-badge-open         { background: rgba(34,197,94,.12); color: #22c55e; }
+  .mt-badge-closed       { background: rgba(239,68,68,.1); color: #f87171; }
+  .mt-badge-in_progress  { background: rgba(59,130,246,.12); color: #60a5fa; }
+  .mt-badge-finished     { background: rgba(255,255,255,.06); color: #a0a0a0; }
+  .mt-badge-cancelled    { background: rgba(239,68,68,.1); color: #f87171; }
 
   .mt-item-arrow {
     flex-shrink: 0;
@@ -142,8 +142,8 @@
   .mt-empty {
     text-align: center;
     padding: 60px 20px;
-    background: #fff;
-    border: 1px solid #ececec;
+    background: #111;
+    border: 1px solid rgba(255,255,255,.08);
     border-radius: 20px;
   }
   .mt-empty h3 { font-size: 18px; font-weight: 800; margin: 0 0 8px; }
@@ -251,7 +251,7 @@
           $manageUrl = route('torneos.show', $tournament);
         @endphp
 
-        <div style="border:1px solid #ececec; border-radius:16px; overflow:hidden; transition:box-shadow .15s;">
+        <div style="border:1px solid rgba(255,255,255,.08); border-radius:16px; overflow:hidden; transition:box-shadow .15s;">
           <a href="{{ $manageUrl }}" class="mt-item" style="border:none; border-radius:0;">
             <div class="mt-item-cover">
               @if($tournament->cover_image_path)
@@ -287,18 +287,18 @@
 
           {{-- MercadoPago connection status --}}
           @if($tournament->inscription_price && $tournament->inscription_price > 0)
-            <div style="padding:10px 20px; border-top:1px solid #f3f4f6; display:flex; align-items:center; justify-content:space-between; gap:10px; background:#fafafa;">
+            <div style="padding:10px 20px; border-top:1px solid rgba(255,255,255,.06); display:flex; align-items:center; justify-content:space-between; gap:10px; background:#0a0a0a;">
               @if(auth()->user()->mp_access_token)
-                <span style="display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:#15803d;">
+                <span style="display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:#22c55e;">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                   MercadoPago conectado
                 </span>
                 <form action="{{ route('organizador.mp_oauth.disconnect') }}" method="POST" style="margin:0;">
                   @csrf
-                  <button type="submit" style="background:none; border:none; font-size:12px; font-weight:600; color:#991b1b; cursor:pointer; text-decoration:underline;">Desconectar</button>
+                  <button type="submit" style="background:none; border:none; font-size:12px; font-weight:600; color:#f87171; cursor:pointer; text-decoration:underline;">Desconectar</button>
                 </form>
               @else
-                <span style="display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:#92400e;">
+                <span style="display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:#fbbf24;">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                   Conecta MP para cobrar inscripciones
                 </span>

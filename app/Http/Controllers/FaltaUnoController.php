@@ -12,6 +12,7 @@ use App\Models\FaltaUnoGame;
 use App\Models\FaltaUnoParticipant;
 use App\Models\FaltaUnoSportProfile;
 use App\Models\Field;
+use App\Models\Reservation;
 use App\Models\User;
 use App\Models\Venue;
 use App\Notifications\FaltaUnoCancelledNotification;
@@ -22,7 +23,9 @@ use App\Mail\FaltaUnoKickedMail;
 use App\Notifications\FaltaUnoKickedNotification;
 use App\Notifications\FaltaUnoNoShowNotification;
 use App\Services\FaltaUnoPenaltyService;
+use App\Services\MatchmakingService;
 use App\Services\MercadoPagoRefundService;
+use App\Models\VenueUserBlock;
 use App\Services\ReservationService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -34,6 +37,7 @@ class FaltaUnoController extends Controller
     public function __construct(
         private ReservationService $reservationService,
         private FaltaUnoPenaltyService $penaltyService,
+        private MatchmakingService $matchmakingService,
     ) {}
 
     /**
@@ -53,7 +57,10 @@ class FaltaUnoController extends Controller
                 'reservation',
             ])
             ->whereIn('status', ['open', 'full'])
-            ->whereHas('reservation', fn($q) => $q->where('status', 'PAID'))
+            ->where(function ($q) {
+                $q->whereHas('reservation', fn($rq) => $rq->where('status', 'PAID'))
+                  ->orWhereNull('reservation_id');
+            })
             ->where('start_at', '>', now())
             ->when($sport, fn($q) => $q->whereHas('field', fn($q2) => $q2->where('sport', $sport)))
             ->when($gender, fn($q) => $q->where(fn($q2) => $q2->where('gender_filter', $gender)->orWhere('gender_filter', 'mixed')))
@@ -65,7 +72,7 @@ class FaltaUnoController extends Controller
         // Zonas disponibles: solo las de venues con partidos abiertos activos
         $zones = Venue::whereHas('fields.faltaUnoGames', function ($q) {
                 $q->whereIn('status', ['open', 'full'])
-                  ->whereHas('reservation', fn($r) => $r->where('status', 'PAID'))
+                  ->where(fn($q) => $q->whereHas('reservation', fn($r) => $r->where('status', 'PAID'))->orWhereNull('reservation_id'))
                   ->where('start_at', '>', now());
             })
             ->whereNotNull('zone')
@@ -81,7 +88,13 @@ class FaltaUnoController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('falta-uno.index', compact('games', 'sport', 'gender', 'category', 'zone', 'zones', 'faltaUnoFields'));
+        // Matchmaking recommendations for authenticated users with sport profiles
+        $recommendations = collect();
+        if (auth()->check() && auth()->user()->faltaUnoSportProfiles()->exists()) {
+            $recommendations = $this->matchmakingService->getRecommendations(auth()->user(), 4);
+        }
+
+        return view('falta-uno.index', compact('games', 'sport', 'gender', 'category', 'zone', 'zones', 'faltaUnoFields', 'recommendations'));
     }
 
     /**
@@ -189,6 +202,11 @@ class FaltaUnoController extends Controller
 
         if (!$field->faltaUnoSetting?->enabled) {
             abort(404);
+        }
+
+        // Verificar si el usuario esta bloqueado en el venue
+        if ($field->venue && VenueUserBlock::isBlocked($request->user()->id, $field->venue->id)) {
+            return back()->with('error', 'No podés reservar en este complejo. Contactá al complejo para más información.');
         }
 
         $data = $request->validate([
@@ -336,11 +354,17 @@ class FaltaUnoController extends Controller
             return back()->with('error', $penaltyCheck['reason']);
         }
 
+        // Verificar si el usuario esta bloqueado en el venue
+        $game->loadMissing('field.venue');
+        if ($game->field && $game->field->venue && VenueUserBlock::isBlocked($user->id, $game->field->venue->id)) {
+            return back()->with('error', 'No podés reservar en este complejo. Contactá al complejo para más información.');
+        }
+
         if ($game->status !== 'open') {
             return back()->with('error', 'Este partido ya no está disponible.');
         }
 
-        if ($game->reservation?->status !== 'PAID') {
+        if ($game->reservation_id && $game->reservation?->status !== 'PAID') {
             return back()->with('error', 'Este partido no está disponible aún.');
         }
 
@@ -701,5 +725,183 @@ class FaltaUnoController extends Controller
         }
 
         return back()->with('success', "Se marcaron {$markedCount} jugador(es) como ausente(s).");
+    }
+
+    /**
+     * Formulario para convertir una reserva existente (PAID) en un partido Falta Uno.
+     */
+    public function convertForm(Reservation $reservation)
+    {
+        $user = auth()->user();
+
+        if ($reservation->user_id !== $user->id) {
+            abort(403);
+        }
+
+        if ($reservation->status !== 'PAID') {
+            return redirect()->route('reservations.show', $reservation)
+                ->with('error', 'Solo se pueden convertir reservas que esten pagadas.');
+        }
+
+        if ($reservation->faltaUnoGame) {
+            return redirect()->route('falta-uno.show', $reservation->faltaUnoGame)
+                ->with('error', 'Esta reserva ya tiene un partido de Falta Uno asociado.');
+        }
+
+        if ($reservation->start_at->lte(now())) {
+            return redirect()->route('reservations.show', $reservation)
+                ->with('error', 'No se puede convertir una reserva cuyo horario ya paso.');
+        }
+
+        $reservation->load(['field.venue', 'field.faltaUnoSetting', 'field.price']);
+
+        if (!$reservation->field->faltaUnoSetting?->enabled) {
+            return redirect()->route('reservations.show', $reservation)
+                ->with('error', 'Esta cancha no tiene Falta Uno habilitado.');
+        }
+
+        $field = $reservation->field;
+
+        return view('reservations.convert-falta-uno', compact('reservation', 'field'));
+    }
+
+    /**
+     * Convierte una reserva existente (PAID) en un partido de Falta Uno.
+     */
+    public function convertStore(Request $request, Reservation $reservation)
+    {
+        $user = $request->user();
+
+        if ($reservation->user_id !== $user->id) {
+            abort(403);
+        }
+
+        if ($reservation->status !== 'PAID') {
+            return redirect()->route('reservations.show', $reservation)
+                ->with('error', 'Solo se pueden convertir reservas que esten pagadas.');
+        }
+
+        if ($reservation->faltaUnoGame) {
+            return redirect()->route('falta-uno.show', $reservation->faltaUnoGame)
+                ->with('error', 'Esta reserva ya tiene un partido de Falta Uno asociado.');
+        }
+
+        if ($reservation->start_at->lte(now())) {
+            return redirect()->route('reservations.show', $reservation)
+                ->with('error', 'No se puede convertir una reserva cuyo horario ya paso.');
+        }
+
+        $reservation->load(['field.venue', 'field.faltaUnoSetting']);
+
+        if (!$reservation->field->faltaUnoSetting?->enabled) {
+            return redirect()->route('reservations.show', $reservation)
+                ->with('error', 'Esta cancha no tiene Falta Uno habilitado.');
+        }
+
+        $data = $request->validate([
+            'total_players'     => ['required', 'integer', 'min:2', 'max:100'],
+            'initiator_players' => ['required', 'integer', 'min:1'],
+            'gender_filter'     => ['nullable', 'in:male,female,mixed'],
+            'category_min'      => ['nullable', 'string'],
+            'category_max'      => ['nullable', 'string'],
+            'age_group_min'     => ['nullable', 'string', 'in:sub10,sub12,sub14,sub16,sub18,19a25,26a34,open,mas35,mas40,mas45,mas50,mas55,mas60'],
+            'age_group_max'     => ['nullable', 'string', 'in:sub10,sub12,sub14,sub16,sub18,19a25,26a34,open,mas35,mas40,mas45,mas50,mas55,mas60'],
+        ]);
+
+        $totalPlayers     = (int) $data['total_players'];
+        $initiatorPlayers = (int) $data['initiator_players'];
+
+        if ($initiatorPlayers >= $totalPlayers) {
+            return back()->withErrors(['initiator_players' => 'Los jugadores que traes deben ser menos que el total.'])->withInput();
+        }
+
+        $field = $reservation->field;
+        $sport = $field->sport;
+
+        // Validar categoria del iniciador
+        if ($sport && ($data['category_min'] || $data['category_max'])) {
+            $profile = $user->sportProfileFor($sport);
+            if ($profile) {
+                $cats    = FaltaUnoSportProfile::getCategoriesForSport($sport);
+                $userIdx = array_search($profile->category, $cats);
+                if ($userIdx !== false) {
+                    $minSearch = $data['category_min'] ? array_search($data['category_min'], $cats) : false;
+                    $maxSearch = $data['category_max'] ? array_search($data['category_max'], $cats) : false;
+                    $minIdx    = $minSearch !== false ? $minSearch : 0;
+                    $maxIdx    = $maxSearch !== false ? $maxSearch : count($cats) - 1;
+                    if ($userIdx < $minIdx || $userIdx > $maxIdx) {
+                        $range = ucfirst($data['category_min'] ?? 'cualquiera') . ' - ' . ucfirst($data['category_max'] ?? 'cualquiera');
+                        return back()->withErrors(['category_min' => "Tu categoria ({$profile->category}) esta fuera del rango que definiste ({$range})."])->withInput();
+                    }
+                }
+            }
+        }
+
+        // Validar grupo de edad del iniciador
+        if ($data['age_group_min'] || $data['age_group_max']) {
+            $userAgeGroup = $user->age_group;
+            if (!$userAgeGroup) {
+                return redirect('/profile#personal-info')
+                    ->with('error', 'Necesitas completar tu grupo de edad en tu perfil para crear un partido con filtro de edad.');
+            }
+            $ageOrder = FaltaUnoGame::getAgeGroupOrder();
+            $userAgeIdx = array_search($userAgeGroup, $ageOrder);
+            if ($userAgeIdx !== false) {
+                $minAgeSearch = $data['age_group_min'] ? array_search($data['age_group_min'], $ageOrder) : false;
+                $maxAgeSearch = $data['age_group_max'] ? array_search($data['age_group_max'], $ageOrder) : false;
+                $minAgeIdx = $minAgeSearch !== false ? $minAgeSearch : 0;
+                $maxAgeIdx = $maxAgeSearch !== false ? $maxAgeSearch : count($ageOrder) - 1;
+                if ($userAgeIdx < $minAgeIdx || $userAgeIdx > $maxAgeIdx) {
+                    $ageLabelMap = [
+                        'sub10' => 'Sub 10', 'sub12' => 'Sub 12', 'sub14' => 'Sub 14',
+                        'sub16' => 'Sub 16', 'sub18' => 'Sub 18', '19a25' => '19 a 25',
+                        'mas35' => '+35', 'mas40' => '+40', 'mas45' => '+45', 'mas50' => '+50',
+                        'mas55' => '+55', 'mas60' => '+60', '26a34' => '26 a 34', 'open' => 'Open',
+                    ];
+                    $range = ($ageLabelMap[$data['age_group_min']] ?? 'cualquiera') . ' - ' . ($ageLabelMap[$data['age_group_max']] ?? 'cualquiera');
+                    $userAgeLabel = $ageLabelMap[$userAgeGroup] ?? $userAgeGroup;
+                    return back()->withErrors(['age_group_min' => "Tu grupo de edad ({$userAgeLabel}) esta fuera del rango que definiste ({$range})."])->withInput();
+                }
+            }
+        }
+
+        $playersNeeded = $totalPlayers - $initiatorPlayers;
+
+        try {
+            DB::beginTransaction();
+
+            $game = FaltaUnoGame::create([
+                'field_id'          => $field->id,
+                'reservation_id'    => $reservation->id,
+                'initiator_user_id' => $user->id,
+                'total_players'     => $totalPlayers,
+                'initiator_players' => $initiatorPlayers,
+                'players_needed'    => $playersNeeded,
+                'status'            => 'open',
+                'start_at'          => $reservation->start_at,
+                'amount_paid'       => $reservation->total_amount,
+                'gender_filter'     => $data['gender_filter'] ?? 'mixed',
+                'category_min'      => $data['category_min'] ?: null,
+                'category_max'      => $data['category_max'] ?: null,
+                'age_group_min'     => $data['age_group_min'] ?: null,
+                'age_group_max'     => $data['age_group_max'] ?: null,
+            ]);
+
+            DB::commit();
+
+            NotifyFaltaUnoCreated::dispatch($game);
+
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            \Illuminate\Support\Facades\Log::error('Error al convertir reserva a Falta Uno', [
+                'user_id'        => $user->id,
+                'reservation_id' => $reservation->id,
+                'error'          => $e->getMessage(),
+            ]);
+            return back()->with('error', 'Ocurrio un error al convertir la reserva. Por favor intenta nuevamente.')->withInput();
+        }
+
+        return redirect()->route('falta-uno.show', $game)
+            ->with('success', 'Tu reserva fue convertida en un partido de Falta Uno. Los jugadores ya pueden unirse.');
     }
 }

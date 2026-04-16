@@ -28,10 +28,10 @@ echo json_encode([
   }
 
   .blog-hero-shell {
-    background: rgba(0,0,0,0.03);
+    background: rgba(255,255,255,0.04);
     border-radius: 2rem;
     padding: 5px;
-    border: 1px solid rgba(0,0,0,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
   }
 
   .blog-hero-inner {
@@ -189,16 +189,16 @@ echo json_encode([
 
   /* Card shell (double-bezel) */
   .blog-card-shell {
-    background: rgba(0,0,0,0.02);
+    background: rgba(255,255,255,0.04);
     border-radius: 1.5rem;
     padding: 4px;
-    border: 1px solid rgba(0,0,0,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
     transition: transform 500ms var(--ease-out-expo), box-shadow 500ms var(--ease-out-expo);
   }
 
   .blog-card-shell:hover {
     transform: translateY(-6px);
-    box-shadow: 0 24px 48px rgba(0,0,0,0.06), 0 8px 16px rgba(34,197,94,0.04);
+    box-shadow: 0 24px 48px rgba(0,0,0,0.25), 0 8px 16px rgba(34,197,94,0.08);
   }
 
   .blog-card-shell:active {
@@ -206,7 +206,7 @@ echo json_encode([
   }
 
   .blog-card {
-    background: #fff;
+    background: #111;
     border-radius: calc(1.5rem - 4px);
     overflow: hidden;
     text-decoration: none;
@@ -239,7 +239,7 @@ echo json_encode([
   .blog-card-img-placeholder {
     width: 100%;
     height: 200px;
-    background: linear-gradient(135deg, #f0fdf4, #f7f7f8);
+    background: linear-gradient(135deg, rgba(34,197,94,.06), #0a0a0a);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -284,7 +284,7 @@ echo json_encode([
 
   .blog-card-excerpt {
     font-size: 14px;
-    color: #5a5a5a;
+    color: #a0a0a0;
     line-height: 1.65;
     margin: 0;
     display: -webkit-box;
@@ -387,14 +387,14 @@ echo json_encode([
 
   /* ── Empty State ────────────────────────────────── */
   .blog-empty-shell {
-    background: rgba(0,0,0,0.02);
+    background: rgba(255,255,255,0.04);
     border-radius: 1.5rem;
     padding: 4px;
-    border: 1px solid rgba(0,0,0,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
   }
 
   .blog-empty {
-    background: #fff;
+    background: #111;
     border-radius: calc(1.5rem - 4px);
     text-align: center;
     padding: 72px 24px;
@@ -403,7 +403,7 @@ echo json_encode([
   .blog-empty-icon {
     width: 48px;
     height: 48px;
-    color: #ccc;
+    color: #444;
     margin: 0 auto 16px;
   }
 

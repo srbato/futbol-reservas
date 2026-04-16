@@ -29,6 +29,7 @@ class Venue extends Model
         'modification_hours',
         'recurring_payment_mode',
         'amenities',
+        'accepts_cash_payment',
     ];
 
     protected $hidden = [
@@ -40,8 +41,9 @@ class Venue extends Model
     protected $casts = [
         'mp_access_token'  => 'encrypted',
         'mp_refresh_token' => 'encrypted',
-        'is_active'        => 'boolean',
-        'amenities'           => 'array',
+        'is_active'              => 'boolean',
+        'accepts_cash_payment'   => 'boolean',
+        'amenities'              => 'array',
         'cancellation_hours'  => 'integer',
         'modification_hours'  => 'integer',
     ];

@@ -19,6 +19,7 @@ echo json_encode([
 @endpush
 
 @push('styles')
+<style>
   /* ── Hero ────────────────────────────────────────── */
   .pl-hero {
     padding: 40px 0 0 0;
@@ -95,8 +96,8 @@ echo json_encode([
 
   .billing-toggle {
     display: flex;
-    background: #fff;
-    border: 1px solid #e0e0e0;
+    background: #111;
+    border: 1px solid rgba(255,255,255,.1);
     border-radius: 999px;
     padding: 4px;
     gap: 4px;
@@ -116,8 +117,8 @@ echo json_encode([
   }
 
   .billing-opt.active {
-    background: #111;
-    color: #fff;
+    background: #22c55e;
+    color: #050505;
   }
 
   .annual-badge {
@@ -126,8 +127,8 @@ echo json_encode([
     gap: 4px;
     padding: 4px 12px;
     border-radius: 999px;
-    background: #dcfce7;
-    color: #166534;
+    background: rgba(34,197,94,.12);
+    color: #6eeaa0;
     font-size: 12px;
     font-weight: 700;
     letter-spacing: .03em;
@@ -146,8 +147,8 @@ echo json_encode([
   }
 
   .plan-card {
-    background: #fff;
-    border: 1px solid #e8e8e8;
+    background: #111;
+    border: 1px solid rgba(255,255,255,.08);
     border-radius: 24px;
     padding: 32px 28px;
     position: relative;
@@ -156,17 +157,17 @@ echo json_encode([
 
   .plan-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 36px rgba(0,0,0,.09);
+    box-shadow: 0 12px 36px rgba(0,0,0,.25);
   }
 
   /* Featured card */
   .plan-card.featured {
-    background: #111;
-    border-color: #111;
+    background: #1a1a1a;
+    border-color: rgba(34,197,94,.3);
     border-top: 4px solid #22c55e;
     color: #fff;
     transform: scale(1.03);
-    box-shadow: 0 16px 48px rgba(0,0,0,.22);
+    box-shadow: 0 16px 48px rgba(0,0,0,.35);
   }
 
   .plan-card.featured:hover {
@@ -193,11 +194,12 @@ echo json_encode([
     font-size: 20px;
     font-weight: 800;
     margin: 0 0 6px 0;
+    color: #e8e8e8;
   }
 
   .plan-limit {
     font-size: 14px;
-    color: #888;
+    color: #666;
     margin: 0 0 24px 0;
   }
 
@@ -213,11 +215,12 @@ echo json_encode([
     font-weight: 800;
     letter-spacing: -0.03em;
     line-height: 1;
+    color: #e8e8e8;
   }
 
   .plan-price-period {
     font-size: 14px;
-    color: #888;
+    color: #666;
     margin-top: 6px;
   }
 
@@ -225,7 +228,7 @@ echo json_encode([
 
   .plan-original-price {
     font-size: 15px;
-    color: #aaa;
+    color: #555;
     text-decoration: line-through;
     margin-bottom: 2px;
   }
@@ -240,7 +243,7 @@ echo json_encode([
     display: flex;
     flex-direction: column;
     gap: 11px;
-    border-top: 1px solid #efefef;
+    border-top: 1px solid rgba(255,255,255,.08);
     padding-top: 24px;
   }
 
@@ -252,7 +255,7 @@ echo json_encode([
     gap: 10px;
     font-size: 14px;
     line-height: 1.4;
-    color: #444;
+    color: #a0a0a0;
   }
 
   .plan-card.featured .plan-feature { color: rgba(255,255,255,.82); }
@@ -262,8 +265,8 @@ echo json_encode([
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: #dcfce7;
-    color: #157347;
+    background: rgba(34,197,94,.12);
+    color: #22c55e;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -279,7 +282,7 @@ echo json_encode([
   .plan-feature.disabled {
     opacity: 0.45;
     text-decoration: line-through;
-    color: #aaa;
+    color: #555;
   }
 
   .plan-card.featured .plan-feature.disabled {
@@ -287,8 +290,8 @@ echo json_encode([
   }
 
   .plan-feature.disabled .plan-feature-icon {
-    background: #f0f0f0;
-    color: #bbb;
+    background: rgba(255,255,255,.06);
+    color: #444;
   }
 
   .plan-card.featured .plan-feature.disabled .plan-feature-icon {
@@ -305,18 +308,19 @@ echo json_encode([
     font-size: 15px;
     font-weight: 700;
     text-align: center;
-    border: 2px solid #111;
-    background: #fff;
-    color: #111;
+    border: 2px solid rgba(255,255,255,.2);
+    background: transparent;
+    color: #e8e8e8;
     cursor: pointer;
-    transition: background .15s, color .15s, transform .15s;
+    transition: background .15s, color .15s, transform .15s, border-color .15s;
     font-family: inherit;
     text-decoration: none;
   }
 
   .plan-btn:hover {
-    background: #111;
-    color: #fff;
+    background: #22c55e;
+    color: #050505;
+    border-color: #22c55e;
     transform: translateY(-1px);
   }
 
@@ -338,8 +342,8 @@ echo json_encode([
   .faq-list { display: flex; flex-direction: column; gap: 10px; }
 
   .faq-item {
-    background: #fff;
-    border: 1px solid #e4e4e4;
+    background: #111;
+    border: 1px solid rgba(255,255,255,.08);
     border-radius: 20px;
     overflow: hidden;
     transition: box-shadow .2s, border-left-color .2s;
@@ -347,7 +351,7 @@ echo json_encode([
   }
 
   .faq-item.open {
-    box-shadow: 0 4px 20px rgba(0,0,0,.07);
+    box-shadow: 0 4px 20px rgba(0,0,0,.2);
     border-left-color: #22c55e;
   }
 
@@ -365,17 +369,17 @@ echo json_encode([
     font: inherit;
   }
 
-  .faq-trigger-text { font-size: 16px; font-weight: 700; color: #111; }
+  .faq-trigger-text { font-size: 16px; font-weight: 700; color: #e8e8e8; }
 
   .faq-icon {
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    background: #f3f3f3;
+    background: rgba(255,255,255,.08);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #555;
+    color: #a0a0a0;
     flex-shrink: 0;
     transition: transform .22s, background .22s, color .22s;
   }
@@ -389,10 +393,10 @@ echo json_encode([
   .faq-body {
     display: none;
     padding: 0 24px 20px 28px;
-    color: #555;
+    color: #a0a0a0;
     font-size: 15px;
     line-height: 1.7;
-    border-top: 1px solid #f0f0f0;
+    border-top: 1px solid rgba(255,255,255,.06);
     padding-top: 16px;
   }
 
@@ -420,6 +424,7 @@ echo json_encode([
     .pl-hero-inner h1 { font-size: 28px; }
     .plan-price { font-size: 38px; }
   }
+</style>
 @endpush
 
 @section('content')
@@ -519,7 +524,7 @@ echo json_encode([
           </ul>
 
           @if($plan->hasTrial())
-            <div class="trial-text" style="font-size:12px; color:#157347; font-weight:600; text-align:center; margin-bottom:10px;">
+            <div class="trial-text" style="font-size:12px; color:#6eeaa0; font-weight:600; text-align:center; margin-bottom:10px;">
               {{ $plan->trial_days }} días gratis · luego se cobra automáticamente
             </div>
           @endif

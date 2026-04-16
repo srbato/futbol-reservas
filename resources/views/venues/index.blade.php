@@ -11,7 +11,7 @@
 @endpush
 
 @push('styles')
-
+<style>
   /* ── AOS override ─────────────────────────────── */
   [data-aos] { pointer-events: auto !important; }
 
@@ -494,8 +494,8 @@
 
   /* ── Search results panel ─────────────────────── */
   .vi-search-results-panel {
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
+    background: #111;
+    border: 1px solid rgba(255,255,255,.08);
     border-radius: 20px;
     padding: 28px 28px 32px;
     margin-bottom: 28px;
@@ -538,14 +538,14 @@
 
   /* ── Featured section ─────────────────────────── */
   .vi-featured {
-    background: var(--color-bg);
-    border: 1px solid #e2e8f0;
+    background: #111;
+    border: 1px solid rgba(255,255,255,.08);
     border-radius: 24px;
     padding: 32px 32px 28px;
     margin-bottom: 28px;
     position: relative;
     overflow: hidden;
-    box-shadow: var(--shadow-md);
+    box-shadow: 0 4px 24px rgba(0,0,0,.4);
   }
 
   @media (max-width: 640px) {
@@ -562,7 +562,7 @@
     transform: translateY(-50%);
     font-size: 180px;
     font-weight: 900;
-    color: rgba(0,0,0,.04);
+    color: rgba(255,255,255,.04);
     line-height: 1;
     pointer-events: none;
     user-select: none;
@@ -597,8 +597,8 @@
 
   .feature-tabs {
     display: flex;
-    background: #f1f5f9;
-    border: 1px solid #e2e8f0;
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.08);
     border-radius: var(--radius-full);
     padding: 3px;
     gap: 2px;
@@ -630,15 +630,15 @@
     width: 34px;
     height: 34px;
     border-radius: 50%;
-    border: 1px solid #e2e8f0;
-    background: #f8fafc;
+    border: 1px solid rgba(255,255,255,.1);
+    background: #1a1a1a;
     font-size: 18px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: background .15s, border-color .15s, color .15s;
-    color: #555;
+    color: #a0a0a0;
   }
 
   .featured-nav-arrow:hover {
@@ -728,7 +728,7 @@
   .featured-card-placeholder {
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    background: linear-gradient(135deg, #1a1a1a, #111);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -797,11 +797,11 @@
 
   /* ── Favorites ────────────────────────────────── */
   .vi-favorites {
-    background: #f0fdf4;
+    background: rgba(34,197,94,.06);
     border-left: 4px solid var(--color-primary);
-    border-top: 1px solid #bbf7d0;
-    border-right: 1px solid #bbf7d0;
-    border-bottom: 1px solid #bbf7d0;
+    border-top: 1px solid rgba(34,197,94,.15);
+    border-right: 1px solid rgba(34,197,94,.15);
+    border-bottom: 1px solid rgba(34,197,94,.15);
     border-radius: 16px;
     padding: 20px 24px;
     margin-bottom: 28px;
@@ -811,7 +811,7 @@
     margin: 0 0 14px 0;
     font-size: 17px;
     font-weight: 800;
-    color: #14532d;
+    color: #4ade80;
   }
 
   .vi-fav-scroll {
@@ -831,11 +831,11 @@
     gap: 7px;
     padding: 8px 16px;
     border-radius: var(--radius-full);
-    background: var(--color-bg);
-    border: 1px solid #bbf7d0;
+    background: #1a1a1a;
+    border: 1px solid rgba(34,197,94,.2);
     font-size: 13px;
     font-weight: 700;
-    color: #15803d;
+    color: #4ade80;
     text-decoration: none;
     transition: background .15s, border-color .15s, color .15s;
   }
@@ -869,7 +869,7 @@
   .vi-map-skeleton {
     width: 100%;
     height: 380px;
-    background: #f1f5f9;
+    background: #1a1a1a;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -882,8 +882,8 @@
   }
 
   @keyframes vi-skeleton-pulse {
-    0%, 100% { background: #f1f5f9; }
-    50%       { background: #e8f0e8; }
+    0%, 100% { background: #1a1a1a; }
+    50%       { background: #222; }
   }
 
   #map {
@@ -964,8 +964,8 @@
   }
 
   .vi-venue-card {
-    background: var(--color-bg-card);
-    border: 1px solid #e2e8f0;
+    background: #111;
+    border: 1px solid rgba(255,255,255,.08);
     border-radius: 22px;
     overflow: hidden;
     transition: transform .3s ease, box-shadow .3s ease;
@@ -1010,7 +1010,7 @@
 
   /* Skeleton de imagen lazy */
   .vi-venue-img-wrap img.vi-img-loading {
-    background: linear-gradient(90deg, #e0e0e0 25%, #d0d0d0 50%, #e0e0e0 75%);
+    background: linear-gradient(90deg, #1a1a1a 25%, #222 50%, #1a1a1a 75%);
     background-size: 200% 100%;
     animation: vi-img-skeleton 1.4s linear infinite;
   }
@@ -1039,7 +1039,7 @@
   .vi-venue-img-placeholder {
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    background: linear-gradient(135deg, #1a1a1a 0%, #111 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1053,7 +1053,7 @@
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    background: rgba(255,255,255,.92);
+    background: rgba(0,0,0,.65);
     backdrop-filter: blur(4px);
     border: none;
     cursor: pointer;
@@ -1061,14 +1061,14 @@
     align-items: center;
     justify-content: center;
     font-size: 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,.15);
+    box-shadow: 0 2px 8px rgba(0,0,0,.3);
     transition: transform .15s, background .15s;
     line-height: 1;
     z-index: 3;
   }
 
-  .vi-venue-fav-btn:hover { transform: scale(1.15); background: #fff; }
-  .vi-venue-fav-btn.saved { background: #fee2e2; }
+  .vi-venue-fav-btn:hover { transform: scale(1.15); background: rgba(0,0,0,.8); }
+  .vi-venue-fav-btn.saved { background: rgba(127,29,29,.6); }
 
   /* Animación de corazón al clickear */
   @keyframes vi-heart-pop {
@@ -1210,32 +1210,32 @@
   .vi-tag-football {
     background: rgba(34,197,94,.12);
     border: 1px solid rgba(34,197,94,.3);
-    color: #16a34a;
+    color: #4ade80;
   }
   .vi-tag-padel {
     background: rgba(59,130,246,.12);
     border: 1px solid rgba(59,130,246,.3);
-    color: #2563eb;
+    color: #60a5fa;
   }
   .vi-tag-tennis {
     background: rgba(245,158,11,.12);
     border: 1px solid rgba(245,158,11,.3);
-    color: #d97706;
+    color: #fbbf24;
   }
   .vi-tag-basketball {
     background: rgba(249,115,22,.12);
     border: 1px solid rgba(249,115,22,.3);
-    color: #ea580c;
+    color: #fb923c;
   }
   .vi-tag-volleyball {
     background: rgba(139,92,246,.12);
     border: 1px solid rgba(139,92,246,.3);
-    color: #7c3aed;
+    color: #a78bfa;
   }
   .vi-tag-default {
-    background: #f0fdf4;
-    border: 1px solid #bbf7d0;
-    color: #15803d;
+    background: rgba(34,197,94,.1);
+    border: 1px solid rgba(34,197,94,.25);
+    color: #4ade80;
   }
 
   .vi-venue-desc {
@@ -1261,8 +1261,8 @@
     flex: 1;
     padding: 10px 16px;
     border-radius: 12px;
-    background: var(--color-bg-dark);
-    color: var(--color-text-inverse);
+    background: #22c55e;
+    color: #050505;
     font-size: 13px;
     font-weight: 700;
     text-align: center;
@@ -1279,8 +1279,8 @@
   }
 
   .vi-btn-primary:hover {
-    background: var(--color-primary);
-    color: #052e16;
+    background: #16a34a;
+    color: #050505;
     box-shadow: 0 4px 18px rgba(34,197,94,.35);
     transform: translateY(-1px);
   }
@@ -1426,12 +1426,12 @@
 
   /* ── Empty state ──────────────────────────────── */
   .vi-empty {
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
+    background: #111;
+    border: 1px solid rgba(255,255,255,.08);
     border-radius: 24px;
     padding: 56px 32px;
     text-align: center;
-    color: var(--color-text);
+    color: #e8e8e8;
   }
 
   .vi-empty-svg {
@@ -1532,8 +1532,8 @@
     right: calc(100% + 10px);
     top: 50%;
     transform: translateY(-50%);
-    background: var(--color-bg-dark);
-    color: var(--color-text-inverse);
+    background: #1a1a1a;
+    color: #e8e8e8;
     font-size: 12px;
     font-weight: 700;
     padding: 6px 12px;
@@ -1542,7 +1542,7 @@
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.2s ease;
-    border: 1px solid #e2e8f0;
+    border: 1px solid rgba(255,255,255,.1);
   }
 
   .vi-fab:hover .vi-fab-tooltip {
@@ -3394,7 +3394,7 @@
     @keyframes vi-futbol-float { 0%, 100% { transform: translateY(-55%); } }
     @keyframes vi-tenis-drift { 0%, 100% { transform: translateY(-50%); } }
   }
-
+</style>
 @endpush
 
 @section('content')
@@ -3643,13 +3643,13 @@
                   Aplicar filtros
                 </button>
                 <button type="button" id="geoBtn" onclick="requestGeolocation()"
-                  style="padding:9px 16px; background:{{ $sortByDistance ? '#052e16' : 'transparent' }}; color:{{ $sortByDistance ? '#22c55e' : '#555' }}; border:1px solid {{ $sortByDistance ? '#22c55e' : '#ccc' }}; border-radius:10px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; display:inline-flex; align-items:center; gap:6px;">
+                  style="padding:9px 16px; background:{{ $sortByDistance ? '#052e16' : 'transparent' }}; color:{{ $sortByDistance ? '#22c55e' : '#a0a0a0' }}; border:1px solid {{ $sortByDistance ? '#22c55e' : 'rgba(255,255,255,.15)' }}; border-radius:10px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; display:inline-flex; align-items:center; gap:6px;">
                   <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>
                   {{ $sortByDistance ? 'Ordenando por cercanía' : 'Ordenar por cercanía' }}
                 </button>
                 @if($sortByDistance)
                   <a href="{{ request()->fullUrlWithQuery(['user_lat' => '', 'user_lng' => '']) }}"
-                     style="font-size:12px; color:#888; text-decoration:underline;">Quitar</a>
+                     style="font-size:12px; color:#666; text-decoration:underline;">Quitar</a>
                 @endif
               </div>
             </div>
@@ -3663,7 +3663,7 @@
   {{-- ── ACTIVE FILTER TAGS ─────────────────────────────────────────────── --}}
   @if(($q ?? '') || ($zone ?? '') || ($sport ?? '') || ($date ?? '') || ($minPrice ?? '') || ($maxPrice ?? '') || ($availableAt ?? ''))
     <div class="vi-active-filters">
-      <span style="font-size:13px; color:#666; font-weight:600;">Filtros activos:</span>
+      <span style="font-size:13px; color:#888; font-weight:600;">Filtros activos:</span>
       @if($q ?? '')
         <span class="vi-active-filter-tag" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="search" style="width:12px;height:12px;stroke:currentColor;"></i> "{{ $q }}"</span>
       @endif
@@ -3699,13 +3699,13 @@
   {{-- ── SEARCH RESULTS PANEL (solo cuando hay filtros activos) ─────────── --}}
   @if($hasFilters)
     @if(($faltaUno ?? false))
-      <div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7); border:1px solid #bbf7d0; border-radius:16px; padding:14px 18px; margin-bottom:18px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-        <span><i data-lucide="zap" style="width:22px;height:22px;stroke:#15803d;"></i></span>
+      <div style="background:rgba(34,197,94,.08); border:1px solid rgba(34,197,94,.2); border-radius:16px; padding:14px 18px; margin-bottom:18px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+        <span><i data-lucide="zap" style="width:22px;height:22px;stroke:#4ade80;"></i></span>
         <div style="flex:1;">
-          <div style="font-size:14px; font-weight:800; color:#15803d;">Complejos con Falta Uno habilitado</div>
-          <div style="font-size:12px; color:#16a34a; margin-top:2px;">Estos complejos tienen al menos una cancha donde podés crear partidos Falta Uno.</div>
+          <div style="font-size:14px; font-weight:800; color:#4ade80;">Complejos con Falta Uno habilitado</div>
+          <div style="font-size:12px; color:#22c55e; margin-top:2px;">Estos complejos tienen al menos una cancha donde podés crear partidos Falta Uno.</div>
         </div>
-        <a href="{{ route('falta-uno.index') }}" style="font-size:13px; color:#15803d; font-weight:700; text-decoration:underline; display:inline-flex; align-items:center; gap:4px;">Ver partidos disponibles <i data-lucide="arrow-right" style="width:13px;height:13px;stroke:currentColor;"></i></a>
+        <a href="{{ route('falta-uno.index') }}" style="font-size:13px; color:#4ade80; font-weight:700; text-decoration:underline; display:inline-flex; align-items:center; gap:4px;">Ver partidos disponibles <i data-lucide="arrow-right" style="width:13px;height:13px;stroke:currentColor;"></i></a>
       </div>
     @endif
     <div class="vi-search-results-panel">
@@ -3745,7 +3745,7 @@
                 @if($venue->cover_image_path)
                   <img src="{{ \Illuminate\Support\Facades\Storage::url($venue->cover_image_path) }}" alt="{{ $venue->name }}" loading="lazy" class="vi-img-loading" onload="this.classList.remove('vi-img-loading')">
                 @else
-                  <div class="vi-venue-img-placeholder"><i data-lucide="building-2" style="width:32px;height:32px;stroke:#ccc;stroke-width:1.5;"></i></div>
+                  <div class="vi-venue-img-placeholder"><i data-lucide="building-2" style="width:32px;height:32px;stroke:#444;stroke-width:1.5;"></i></div>
                 @endif
                 <div class="vi-card-shine"></div>
                 @if($planSlug === 'pro')
@@ -3792,7 +3792,7 @@
                     <span class="vi-venue-rating-count">({{ $venue->reviews_count }} reseña{{ $venue->reviews_count > 1 ? 's' : '' }})</span>
                   </div>
                 @else
-                  <div style="font-size:13px; color:#aaa;">Sin reseñas todavía</div>
+                  <div style="font-size:13px; color:#555;">Sin reseñas todavía</div>
                 @endif
                 <p class="vi-venue-desc">
                   {{ $venue->description ?? 'Reservá online y encontrá disponibilidad en pocos pasos.' }}
@@ -3845,7 +3845,7 @@
               @if($venue->cover_image_path)
                 <img src="{{ \Illuminate\Support\Facades\Storage::url($venue->cover_image_path) }}" alt="{{ $venue->name }}" loading="lazy">
               @else
-                <div class="featured-card-placeholder"><i data-lucide="building-2" style="width:28px;height:28px;stroke:#aaa;stroke-width:1.5;"></i></div>
+                <div class="featured-card-placeholder"><i data-lucide="building-2" style="width:28px;height:28px;stroke:#555;stroke-width:1.5;"></i></div>
               @endif
               <div class="featured-card-overlay"></div>
               <div class="featured-card-body">
@@ -3861,9 +3861,9 @@
             </article>
           @empty
             <div style="padding:32px; text-align:center;">
-              <i data-lucide="calendar-off" style="width:36px;height:36px;stroke:#ccc;stroke-width:1.5;margin-bottom:10px;"></i>
-              <div style="font-weight:700; font-size:14px; color:#888;">No hay datos esta semana todavía</div>
-              <div style="font-size:13px; color:#aaa; margin-top:4px;">Las reservas de la semana aparecerán acá</div>
+              <i data-lucide="calendar-off" style="width:36px;height:36px;stroke:#444;stroke-width:1.5;margin-bottom:10px;"></i>
+              <div style="font-weight:700; font-size:14px; color:#666;">No hay datos esta semana todavía</div>
+              <div style="font-size:13px; color:#555; margin-top:4px;">Las reservas de la semana aparecerán acá</div>
             </div>
           @endforelse
         </div>
@@ -3879,7 +3879,7 @@
               @if($venue->cover_image_path)
                 <img src="{{ \Illuminate\Support\Facades\Storage::url($venue->cover_image_path) }}" alt="{{ $venue->name }}" loading="lazy">
               @else
-                <div class="featured-card-placeholder"><i data-lucide="tag" style="width:28px;height:28px;stroke:#aaa;stroke-width:1.5;"></i></div>
+                <div class="featured-card-placeholder"><i data-lucide="tag" style="width:28px;height:28px;stroke:#555;stroke-width:1.5;"></i></div>
               @endif
               <div class="featured-card-overlay"></div>
               <div class="featured-card-body">
@@ -3895,9 +3895,9 @@
             </article>
           @empty
             <div style="padding:32px; text-align:center;">
-              <i data-lucide="tag" style="width:36px;height:36px;stroke:#ccc;stroke-width:1.5;margin-bottom:10px;"></i>
-              <div style="font-weight:700; font-size:14px; color:#888;">No hay descuentos activos</div>
-              <div style="font-size:13px; color:#aaa; margin-top:4px;">Cuando un complejo tenga promociones, aparecerán acá</div>
+              <i data-lucide="tag" style="width:36px;height:36px;stroke:#444;stroke-width:1.5;margin-bottom:10px;"></i>
+              <div style="font-weight:700; font-size:14px; color:#666;">No hay descuentos activos</div>
+              <div style="font-size:13px; color:#555; margin-top:4px;">Cuando un complejo tenga promociones, aparecerán acá</div>
             </div>
           @endforelse
         </div>
@@ -3913,7 +3913,7 @@
               @if($venue->cover_image_path)
                 <img src="{{ \Illuminate\Support\Facades\Storage::url($venue->cover_image_path) }}" alt="{{ $venue->name }}" loading="lazy">
               @else
-                <div class="featured-card-placeholder"><i data-lucide="star" style="width:28px;height:28px;stroke:#aaa;stroke-width:1.5;"></i></div>
+                <div class="featured-card-placeholder"><i data-lucide="star" style="width:28px;height:28px;stroke:#555;stroke-width:1.5;"></i></div>
               @endif
               <div class="featured-card-overlay"></div>
               <div class="featured-card-body">
@@ -3929,9 +3929,9 @@
             </article>
           @empty
             <div style="padding:32px; text-align:center;">
-              <i data-lucide="star" style="width:36px;height:36px;stroke:#ccc;stroke-width:1.5;margin-bottom:10px;"></i>
-              <div style="font-weight:700; font-size:14px; color:#888;">Todavía no hay reseñas</div>
-              <div style="font-size:13px; color:#aaa; margin-top:4px;">Reservá y dejá tu opinión para ayudar a otros jugadores</div>
+              <i data-lucide="star" style="width:36px;height:36px;stroke:#444;stroke-width:1.5;margin-bottom:10px;"></i>
+              <div style="font-weight:700; font-size:14px; color:#666;">Todavía no hay reseñas</div>
+              <div style="font-size:13px; color:#555; margin-top:4px;">Reservá y dejá tu opinión para ayudar a otros jugadores</div>
             </div>
           @endforelse
         </div>
@@ -3960,7 +3960,7 @@
   <div class="vi-map-wrap" id="viMapWrap">
     {{-- Skeleton visible hasta que cargue el mapa --}}
     <div class="vi-map-skeleton" id="viMapSkeleton">
-      <span class="vi-map-skeleton-icon"><i data-lucide="map" style="width:32px;height:32px;stroke:#ccc;stroke-width:1.5;"></i></span>
+      <span class="vi-map-skeleton-icon"><i data-lucide="map" style="width:32px;height:32px;stroke:#444;stroke-width:1.5;"></i></span>
     </div>
     <div id="map" style="height: 380px; display:none;"></div>
   </div>
@@ -4059,7 +4059,7 @@
             @if($venue->cover_image_path)
               <img src="{{ \Illuminate\Support\Facades\Storage::url($venue->cover_image_path) }}" alt="{{ $venue->name }}" loading="lazy" class="vi-img-loading" onload="this.classList.remove('vi-img-loading')">
             @else
-              <div class="vi-venue-img-placeholder"><i data-lucide="building-2" style="width:32px;height:32px;stroke:#ccc;stroke-width:1.5;"></i></div>
+              <div class="vi-venue-img-placeholder"><i data-lucide="building-2" style="width:32px;height:32px;stroke:#444;stroke-width:1.5;"></i></div>
             @endif
 
             {{-- Shine overlay --}}
@@ -4116,7 +4116,7 @@
                 <span class="vi-venue-rating-count">({{ $venue->reviews_count }} reseña{{ $venue->reviews_count > 1 ? 's' : '' }})</span>
               </div>
             @else
-              <div style="font-size:13px; color:#aaa;">Sin reseñas todavía</div>
+              <div style="font-size:13px; color:#555;">Sin reseñas todavía</div>
             @endif
 
             <p class="vi-venue-desc">

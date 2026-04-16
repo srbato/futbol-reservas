@@ -121,8 +121,8 @@
 
   /* ── Card ── */
   .fav-card {
-    background: #fff;
-    border: 1px solid #e2e8f0;
+    background: #111;
+    border: 1px solid rgba(255,255,255,.08);
     border-radius: 20px;
     overflow: hidden;
     display: flex;
@@ -134,7 +134,7 @@
   .fav-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 12px 32px rgba(0,0,0,.10);
-    border-color: #cbd5e1;
+    border-color: rgba(255,255,255,.15);
   }
 
   .fav-card-img-wrap {
@@ -142,7 +142,7 @@
     width: 100%;
     height: 190px;
     overflow: hidden;
-    background: #f1f5f9;
+    background: rgba(255,255,255,.04);
     flex-shrink: 0;
   }
 
@@ -166,10 +166,10 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    color: #94a3b8;
+    color: #666;
     font-size: 13px;
     font-weight: 500;
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    background: linear-gradient(135deg, rgba(255,255,255,.02) 0%, rgba(255,255,255,.04) 100%);
   }
 
   .fav-card-img-fallback svg {
@@ -214,7 +214,7 @@
   }
 
   .fav-remove-btn:hover {
-    background: #fef2f2;
+    background: rgba(229,57,53,.1);
     transform: scale(1.1);
     color: #dc2626;
   }
@@ -232,7 +232,7 @@
     margin: 0;
     font-size: 17px;
     font-weight: 800;
-    color: #0f172a;
+    color: #e8e8e8;
     letter-spacing: -0.01em;
     line-height: 1.25;
   }
@@ -242,7 +242,7 @@
     align-items: flex-start;
     gap: 5px;
     font-size: 13px;
-    color: #64748b;
+    color: #a0a0a0;
     line-height: 1.45;
     margin: 0;
   }
@@ -269,25 +269,25 @@
   .fav-rating-val {
     font-size: 13px;
     font-weight: 700;
-    color: #0f172a;
+    color: #e8e8e8;
   }
 
   .fav-rating-count {
     font-size: 12px;
-    color: #94a3b8;
+    color: #666;
     font-weight: 400;
   }
 
   .fav-no-reviews {
     font-size: 12px;
-    color: #94a3b8;
+    color: #666;
     font-style: italic;
   }
 
   /* Divisor */
   .fav-card-divider {
     height: 1px;
-    background: #f1f5f9;
+    background: rgba(255,255,255,.04);
     margin: 2px 0;
   }
 
@@ -329,21 +329,21 @@
     align-items: center;
     justify-content: center;
     gap: 5px;
-    background: #fff;
-    color: #ef4444;
+    background: rgba(229,57,53,.1);
+    color: #f87171;
     font-size: 13px;
     font-weight: 600;
     padding: 10px 14px;
     border-radius: 12px;
-    border: 1px solid #fecaca;
+    border: 1px solid rgba(229,57,53,.2);
     cursor: pointer;
     transition: background .18s, border-color .18s, transform .14s;
     white-space: nowrap;
   }
 
   .fav-btn-ghost:hover {
-    background: #fef2f2;
-    border-color: #fca5a5;
+    background: rgba(229,57,53,.15);
+    border-color: rgba(229,57,53,.3);
     transform: translateY(-1px);
   }
 
@@ -355,8 +355,8 @@
     justify-content: center;
     text-align: center;
     padding: 64px 24px 80px;
-    background: #fff;
-    border: 1px solid #e2e8f0;
+    background: #111;
+    border: 1px solid rgba(255,255,255,.08);
     border-radius: 24px;
     box-shadow: 0 2px 10px rgba(0,0,0,.04);
   }
@@ -376,14 +376,14 @@
     margin: 0 0 10px 0;
     font-size: 26px;
     font-weight: 900;
-    color: #0f172a;
+    color: #e8e8e8;
     letter-spacing: -0.02em;
   }
 
   .fav-empty-sub {
     margin: 0 0 28px 0;
     font-size: 15px;
-    color: #64748b;
+    color: #a0a0a0;
     max-width: 360px;
     line-height: 1.6;
   }

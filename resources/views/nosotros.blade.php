@@ -19,6 +19,7 @@ echo json_encode([
 @endpush
 
 @push('styles')
+<style>
   /* Easings from design-tokens.css: --ease-out-expo, --ease-out-quart, --ease-in-out-expo, --ease-drawer */
 
   /* ── Focus Accessibility ────────────────────────── */
@@ -229,7 +230,7 @@ echo json_encode([
   /* ── Manifiesto ───────────────────────────────────── */
   .manifesto-section {
     padding: 100px 0;
-    background: #fff;
+    background: #050505;
   }
 
   .manifesto-grid {
@@ -243,14 +244,14 @@ echo json_encode([
     display: inline-block;
     padding: 5px 16px;
     border-radius: 999px;
-    background: #f0fdf4;
-    color: #166534;
+    background: rgba(34,197,94,.1);
+    color: #6eeaa0;
     font-size: 11px;
     font-weight: 800;
     letter-spacing: .08em;
     text-transform: uppercase;
     margin-bottom: 24px;
-    border: 1px solid #bbf7d0;
+    border: 1px solid rgba(74,222,128,.25);
   }
 
   .manifesto-text h2 {
@@ -260,23 +261,24 @@ echo json_encode([
     letter-spacing: -0.035em;
     font-weight: 900;
     text-wrap: balance;
+    color: #e8e8e8;
   }
 
   .manifesto-text p {
     margin: 0 0 18px 0;
     font-size: 16px;
     line-height: 1.8;
-    color: #4a4a4a;
+    color: #a0a0a0;
   }
 
   .manifesto-text p:last-child { margin: 0; }
 
   /* Double-bezel quote card */
   .manifesto-quote-shell {
-    background: rgba(17,17,17,0.04);
+    background: rgba(255,255,255,0.04);
     border-radius: 2rem;
     padding: 6px;
-    border: 1px solid rgba(0,0,0,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
   }
 
   .manifesto-quote {
@@ -348,15 +350,15 @@ echo json_encode([
   /* ── Stats band ──────────────────────────────────── */
   .ns-stats-section {
     padding: 0 0 80px 0;
-    background: #fff;
+    background: #050505;
   }
 
   /* Double-bezel stats */
   .ns-stats-shell {
-    background: rgba(17,17,17,0.03);
+    background: rgba(255,255,255,0.04);
     border-radius: 2rem;
     padding: 6px;
-    border: 1px solid rgba(0,0,0,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
   }
 
   .ns-stats-band {
@@ -453,7 +455,7 @@ echo json_encode([
   /* ── Timeline ────────────────────────────────────── */
   .ns-history-section {
     padding: 100px 0;
-    background: #fff;
+    background: #050505;
   }
 
   .ns-history-section .section-head {
@@ -508,12 +510,12 @@ echo json_encode([
     justify-content: center;
     position: relative;
     z-index: 1;
-    box-shadow: 0 0 0 4px #fff, 0 0 0 6px rgba(34,197,94,0.2);
+    box-shadow: 0 0 0 4px #050505, 0 0 0 6px rgba(34,197,94,0.2);
     transition: box-shadow 400ms var(--ease-out-expo);
   }
 
   .ns-tl-item:hover .ns-tl-dot {
-    box-shadow: 0 0 0 4px #fff, 0 0 0 8px rgba(34,197,94,0.35);
+    box-shadow: 0 0 0 4px #050505, 0 0 0 8px rgba(34,197,94,0.35);
   }
 
   .ns-tl-content {
@@ -527,9 +529,9 @@ echo json_encode([
     font-weight: 800;
     letter-spacing: .12em;
     text-transform: uppercase;
-    color: #166534;
-    background: #f0fdf4;
-    border: 1px solid #dcfce7;
+    color: #6eeaa0;
+    background: rgba(34,197,94,.1);
+    border: 1px solid rgba(74,222,128,.25);
     border-radius: 999px;
     padding: 4px 14px;
     margin-bottom: 12px;
@@ -540,11 +542,12 @@ echo json_encode([
     font-size: 20px;
     letter-spacing: -0.025em;
     font-weight: 800;
+    color: #e8e8e8;
   }
 
   .ns-tl-content p {
     margin: 0;
-    color: #5a5a5a;
+    color: #a0a0a0;
     font-size: 15px;
     line-height: 1.75;
   }
@@ -552,13 +555,13 @@ echo json_encode([
   /* Active/current timeline dot pulse */
   .ns-tl-dot-active {
     background: #22c55e;
-    box-shadow: 0 0 0 4px #fff, 0 0 0 8px rgba(34,197,94,0.3);
+    box-shadow: 0 0 0 4px #050505, 0 0 0 8px rgba(34,197,94,0.3);
     animation: ns-tl-pulse 2.4s var(--ease-out-quart) infinite;
   }
 
   @keyframes ns-tl-pulse {
-    0%, 100% { box-shadow: 0 0 0 4px #fff, 0 0 0 8px rgba(34,197,94,0.25); }
-    50% { box-shadow: 0 0 0 4px #fff, 0 0 0 12px rgba(34,197,94,0.45); }
+    0%, 100% { box-shadow: 0 0 0 4px #050505, 0 0 0 8px rgba(34,197,94,0.25); }
+    50% { box-shadow: 0 0 0 4px #050505, 0 0 0 12px rgba(34,197,94,0.45); }
   }
 
   @media (max-width: 768px) {
@@ -570,7 +573,7 @@ echo json_encode([
   /* ── Values ──────────────────────────────────────── */
   .ns-values-section {
     padding: 0 0 100px 0;
-    background: #fff;
+    background: #050505;
   }
 
   .ns-values-section .section-head {
@@ -618,16 +621,16 @@ echo json_encode([
 
   /* Double-bezel value card */
   .ns-value-shell {
-    background: rgba(0,0,0,0.02);
+    background: rgba(255,255,255,0.04);
     border-radius: 1.5rem;
     padding: 4px;
-    border: 1px solid rgba(0,0,0,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
     transition: transform 500ms var(--ease-out-expo), box-shadow 500ms var(--ease-out-expo);
   }
 
   .ns-value-shell:hover {
     transform: translateY(-6px);
-    box-shadow: 0 20px 48px rgba(34,197,94,0.08), 0 8px 16px rgba(0,0,0,0.03);
+    box-shadow: 0 20px 48px rgba(34,197,94,0.12), 0 8px 16px rgba(0,0,0,0.15);
   }
 
   .ns-value-shell:active {
@@ -635,7 +638,7 @@ echo json_encode([
   }
 
   .ns-value-card {
-    background: #fff;
+    background: #111;
     border-radius: calc(1.5rem - 4px);
     padding: 40px 32px;
     height: 100%;
@@ -658,7 +661,7 @@ echo json_encode([
     width: 52px;
     height: 52px;
     border-radius: 14px;
-    background: #f0fdf4;
+    background: rgba(34,197,94,.1);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -668,7 +671,7 @@ echo json_encode([
 
   .ns-value-shell:hover .ns-value-icon-wrap {
     transform: scale(1.08);
-    background: #dcfce7;
+    background: rgba(74,222,128,.18);
   }
 
   .ns-value-card h3 {
@@ -676,20 +679,20 @@ echo json_encode([
     font-size: 18px;
     letter-spacing: -0.025em;
     font-weight: 800;
-    color: #111;
+    color: #e8e8e8;
   }
 
   .ns-value-card p {
     margin: 0;
-    color: #5a5a5a;
+    color: #a0a0a0;
     font-size: 15px;
     line-height: 1.75;
   }
 
   /* Accent card (dark variant) */
   .ns-value-shell.ns-accent-shell {
-    background: rgba(17,17,17,0.06);
-    border-color: rgba(0,0,0,0.05);
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(255,255,255,0.08);
   }
 
   .ns-value-shell.ns-accent-shell:hover {
@@ -744,10 +747,10 @@ echo json_encode([
   }
 
   .ns-culture-shell {
-    background: rgba(17,17,17,0.03);
+    background: rgba(255,255,255,0.04);
     border-radius: 2.25rem;
     padding: 6px;
-    border: 1px solid rgba(0,0,0,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
   }
 
   .ns-culture-inner {
@@ -1005,6 +1008,7 @@ echo json_encode([
     .ns-value-shell:hover { transform: none; }
     .ns-culture-pill:hover { transform: none; }
   }
+</style>
 @endpush
 
 @section('content')

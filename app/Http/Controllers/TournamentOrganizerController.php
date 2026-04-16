@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Tournament;
 use App\Models\TournamentMatch;
+use App\Models\TournamentScheduleRequest;
+use App\Models\TournamentVenueRequest;
 use App\Services\TournamentService;
 use App\Services\TournamentFixtureService;
 use Illuminate\Http\Request;
@@ -39,7 +41,11 @@ class TournamentOrganizerController extends Controller
             })->where('is_active', true)->with('tournamentSetting');
         }])->get();
 
-        return view('torneos.create', compact('tier', 'maxTeams', 'formats', 'availableVenues'));
+        $planModel = \App\Models\OrganizerPlan::where('slug', $tier)->where('is_active', true)->first();
+        $canChargeMp = $planModel && $planModel->has_mp_payments;
+        $canBrand = $planModel && $planModel->has_custom_branding;
+
+        return view('torneos.create', compact('tier', 'maxTeams', 'formats', 'availableVenues', 'canChargeMp', 'canBrand'));
     }
 
     public function store(Request $request)
@@ -47,6 +53,7 @@ class TournamentOrganizerController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:100',
             'sport' => 'required|string|in:' . implode(',', Tournament::VALID_SPORTS),
+            'format' => 'nullable|string|in:single_elimination,round_robin,groups_elimination',
             'max_teams' => 'required|integer|min:2|max:64',
             'players_per_team' => 'required|integer|min:1|max:30',
             'gender_filter' => 'required|in:male,female,mixed',
@@ -57,7 +64,10 @@ class TournamentOrganizerController extends Controller
             'field_ids.*' => 'exists:fields,id',
             'description' => 'nullable|string|max:2000',
             'rules' => 'nullable|string|max:5000',
-            'cover_image' => 'nullable|image|max:5120',
+            'cover_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+            'primary_color' => 'nullable|string|regex:/^#[0-9a-fA-F]{6}$/',
+            'secondary_color' => 'nullable|string|regex:/^#[0-9a-fA-F]{6}$/',
+            'logo_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         $fieldIds = $data['field_ids'];
@@ -93,8 +103,29 @@ class TournamentOrganizerController extends Controller
             return back()->withErrors(['max_teams' => "Tu plan permite hasta {$maxAllowed} equipos."])->withInput();
         }
 
-        // Forzar formato en Fase 1
-        $data['format'] = 'single_elimination';
+        // Validar formato segun plan
+        $allowedFormats = $service->getAvailableFormats(auth()->user());
+        if (!in_array($data['format'] ?? 'single_elimination', $allowedFormats)) {
+            $data['format'] = 'single_elimination';
+        }
+
+        // Si el plan no permite cobrar con MP, forzar inscripcion gratuita
+        $plan = \App\Models\OrganizerPlan::where('slug', $service->getTier(auth()->user()))->where('is_active', true)->first();
+        if (!$plan || !$plan->has_mp_payments) {
+            $data['inscription_price'] = null;
+        }
+
+        // Handle branding (Pro only)
+        if (!$plan || !$plan->has_custom_branding) {
+            $data['primary_color'] = null;
+            $data['secondary_color'] = null;
+            unset($data['logo_image']);
+        } else {
+            if ($request->hasFile('logo_image')) {
+                $data['logo_image_path'] = $request->file('logo_image')->store('tournament-logos', 'public');
+            }
+            unset($data['logo_image']);
+        }
 
         // Handle cover image upload
         if ($request->hasFile('cover_image')) {
@@ -152,7 +183,11 @@ class TournamentOrganizerController extends Controller
         abort_if(!$tournament->isOrganizer(auth()->user()), 403);
         abort_if(in_array($tournament->status, [Tournament::STATUS_FINISHED, Tournament::STATUS_CANCELLED]), 403, 'No se puede editar un torneo finalizado o cancelado.');
 
-        return view('torneos.edit', compact('tournament'));
+        $service = app(\App\Services\OrganizerSubscriptionService::class);
+        $planModel = \App\Models\OrganizerPlan::where('slug', $service->getTier(auth()->user()))->where('is_active', true)->first();
+        $canBrand = $planModel && $planModel->has_custom_branding;
+
+        return view('torneos.edit', compact('tournament', 'canBrand'));
     }
 
     public function update(Request $request, Tournament $tournament)
@@ -169,7 +204,10 @@ class TournamentOrganizerController extends Controller
             'estimated_start_date' => 'required|date',
             'description' => 'nullable|string|max:2000',
             'rules' => 'nullable|string|max:5000',
-            'cover_image' => 'nullable|image|max:5120',
+            'cover_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+            'primary_color' => 'nullable|string|regex:/^#[0-9a-fA-F]{6}$/',
+            'secondary_color' => 'nullable|string|regex:/^#[0-9a-fA-F]{6}$/',
+            'logo_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         if ($request->hasFile('cover_image')) {
@@ -177,9 +215,24 @@ class TournamentOrganizerController extends Controller
         }
         unset($data['cover_image']);
 
-        // No permitir cambiar max_teams si ya hay equipos inscriptos
-        if ($tournament->confirmedTeams()->count() > 0) {
-            unset($data['max_teams']);
+        // Handle branding
+        $service = app(\App\Services\OrganizerSubscriptionService::class);
+        $plan = \App\Models\OrganizerPlan::where('slug', $service->getTier(auth()->user()))->where('is_active', true)->first();
+        if (!$plan || !$plan->has_custom_branding) {
+            unset($data['primary_color'], $data['secondary_color'], $data['logo_image']);
+        } else {
+            if ($request->hasFile('logo_image')) {
+                $data['logo_image_path'] = $request->file('logo_image')->store('tournament-logos', 'public');
+            }
+            unset($data['logo_image']);
+        }
+
+        // No permitir bajar max_teams por debajo de equipos ya inscriptos
+        if (isset($data['max_teams'])) {
+            $currentTeams = $tournament->confirmedTeams()->count();
+            if ($data['max_teams'] < $currentTeams) {
+                return back()->withErrors(['max_teams' => "Ya hay {$currentTeams} equipos inscriptos, no podes bajar de esa cantidad."])->withInput();
+            }
         }
 
         $tournament->update($data);
@@ -205,7 +258,7 @@ class TournamentOrganizerController extends Controller
         // Load all venue requests with field/venue/setting info
         $venueRequestsData = [];
         $pendingVenueRequests = $tournament->venueRequests()
-            ->with(['field.venue', 'field.tournamentSetting', 'messages.user'])
+            ->with(['field.venue', 'field.tournamentSetting', 'messages.user', 'scheduleRequest'])
             ->get();
 
         foreach ($pendingVenueRequests as $req) {
@@ -235,10 +288,59 @@ class TournamentOrganizerController extends Controller
                     ->when($lastRead, fn($c) => $c->where('created_at', '>', $lastRead))
                     ->count();
             }
+            // Schedule request data (second phase)
+            if ($req->status === 'approved') {
+                $schedule = $req->scheduleRequest;
+                if ($schedule) {
+                    $data['schedule'] = [
+                        'id' => $schedule->id,
+                        'status' => $schedule->status,
+                        'slots' => $schedule->slots,
+                        'response_message' => $schedule->response_message,
+                    ];
+                } else {
+                    $data['schedule'] = null; // approved but no schedule sent yet
+                }
+            }
+
             $venueRequestsData[] = $data;
         }
 
-        return view('torneos.manage', compact('tournament', 'rounds', 'totalRounds', 'venueRequestsData'));
+        // Check if organizer has stats feature
+        $orgPlan = \App\Models\OrganizerPlan::where('slug', $tournament->organizer->organizerTier())->where('is_active', true)->first();
+        $hasStats = $orgPlan && $orgPlan->has_stats;
+
+        // Compute stats from finished matches
+        $statsData = [];
+        if ($hasStats && $tournament->matches->isNotEmpty()) {
+            $teams = $tournament->confirmedTeams;
+            foreach ($teams as $team) {
+                $stats = [
+                    'name' => $team->name,
+                    'played' => 0, 'won' => 0, 'lost' => 0,
+                    'goals_for' => 0, 'goals_against' => 0,
+                ];
+                foreach ($tournament->matches->where('status', 'finished') as $m) {
+                    if ($m->home_team_id === $team->id) {
+                        $stats['played']++;
+                        $stats['goals_for'] += $m->home_score;
+                        $stats['goals_against'] += $m->away_score;
+                        $stats[$m->winner_team_id === $team->id ? 'won' : 'lost']++;
+                    } elseif ($m->away_team_id === $team->id) {
+                        $stats['played']++;
+                        $stats['goals_for'] += $m->away_score;
+                        $stats['goals_against'] += $m->home_score;
+                        $stats[$m->winner_team_id === $team->id ? 'won' : 'lost']++;
+                    }
+                }
+                $stats['goal_diff'] = $stats['goals_for'] - $stats['goals_against'];
+                $statsData[] = $stats;
+            }
+            // Sort by wins desc, then goal diff
+            usort($statsData, fn($a, $b) => $b['won'] <=> $a['won'] ?: $b['goal_diff'] <=> $a['goal_diff']);
+        }
+
+        return view('torneos.manage', compact('tournament', 'rounds', 'totalRounds', 'venueRequestsData', 'hasStats', 'statsData'));
     }
 
     public function publish(Tournament $tournament)
@@ -321,6 +423,18 @@ class TournamentOrganizerController extends Controller
         // Avanzar ganador en el bracket
         $this->fixtureService->advanceWinner($match);
 
+        // Notificar a capitanes si el plan tiene notificaciones
+        $orgPlan = \App\Models\OrganizerPlan::where('slug', $tournament->organizer->organizerTier())->where('is_active', true)->first();
+        if ($orgPlan && $orgPlan->has_notifications) {
+            $match->loadMissing(['homeTeam.captain', 'awayTeam.captain']);
+            $notification = new \App\Notifications\TournamentMatchResultNotification($tournament, $match);
+            foreach ([$match->homeTeam?->captain, $match->awayTeam?->captain] as $captain) {
+                if ($captain) {
+                    $captain->notify($notification);
+                }
+            }
+        }
+
         // Verificar si el torneo termino (la final tiene ganador)
         $finalMatch = $tournament->matches()->orderByDesc('round')->first();
         if ($finalMatch && $finalMatch->winner_team_id) {
@@ -381,5 +495,44 @@ class TournamentOrganizerController extends Controller
 
         return redirect()->route('torneos.manage', $tournament)
             ->with('info', "Solicitud enviada. {$contactMsg}");
+    }
+
+    public function storeScheduleRequest(Request $request, Tournament $tournament, TournamentVenueRequest $venueRequest)
+    {
+        abort_if(!$tournament->isOrganizer(auth()->user()), 403);
+        abort_if($venueRequest->tournament_id !== $tournament->id, 404);
+        abort_if($venueRequest->status !== 'approved', 422, 'La cancha debe estar aprobada primero.');
+        // If there's a rejected schedule, delete it so a new one can be sent
+        $existing = $venueRequest->scheduleRequest;
+        if ($existing && $existing->isRejected()) {
+            $existing->delete();
+        } elseif ($existing) {
+            abort(422, 'Ya enviaste una solicitud de horarios para esta cancha.');
+        }
+
+        $data = $request->validate([
+            'slots' => 'required|array|min:1',
+            'slots.*.date' => 'required|date|after_or_equal:today',
+            'slots.*.start_time' => 'nullable|date_format:H:i',
+            'slots.*.end_time' => 'nullable|date_format:H:i',
+        ]);
+
+        // Si no se pone hora, significa todo el dia
+        foreach ($data['slots'] as &$slot) {
+            $slot['start_time'] = $slot['start_time'] ?: '00:00';
+            $slot['end_time'] = $slot['end_time'] ?: '23:59';
+        }
+        unset($slot);
+
+        TournamentScheduleRequest::create([
+            'tournament_id' => $tournament->id,
+            'venue_request_id' => $venueRequest->id,
+            'field_id' => $venueRequest->field_id,
+            'slots' => $data['slots'],
+            'status' => 'pending',
+        ]);
+
+        return redirect()->route('torneos.manage', $tournament)
+            ->with('success', 'Solicitud de horarios enviada al complejo.');
     }
 }

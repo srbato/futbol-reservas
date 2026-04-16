@@ -100,7 +100,7 @@
     margin: 0 0 8px;
     font-size: 48px;
     font-weight: 900;
-    color: var(--color-text-inverse);
+    color: #fff;
     letter-spacing: -.03em;
     line-height: 1.05;
   }
@@ -133,7 +133,7 @@
 
   /* ── Banner perfil ─────────────────────────────── */
   .fui-profile-banner {
-    background: #fffbeb;
+    background: rgba(245,158,11,.08);
     border-left: 4px solid #f59e0b;
     border-radius: 14px;
     padding: 14px 18px;
@@ -180,7 +180,7 @@
     font-weight: 600;
     font-size: 13px;
     transition: border-color .15s, background .15s, color .15s;
-    color: #555;
+    color: #a0a0a0;
     text-decoration: none;
     display: inline-block;
     flex-shrink: 0;
@@ -211,7 +211,7 @@
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: #e8e8e8;
+    background: #1a1a1a;
     border: 2px solid var(--color-bg-card);
     display: flex;
     align-items: center;
@@ -251,7 +251,7 @@
   /* ── Games section ─────────────────────────────── */
   .fui-games-section {
     position: relative;
-    background: #f9fafb;
+    background: #0a0a0a;
     border-radius: 24px;
     padding: 28px 24px;
     overflow: hidden;
@@ -301,8 +301,8 @@
   }
   .fui-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 32px rgba(0,0,0,.10);
-    border-color: var(--color-primary);
+    box-shadow: 0 12px 32px rgba(0,0,0,.30);
+    border-color: rgba(34,197,94,.3);
   }
   .fui-card::before {
     content: '';
@@ -369,14 +369,14 @@
     font-family: inherit;
     transition: transform .15s, box-shadow .15s, background .15s;
   }
-  .fui-btn:hover { transform: translateY(-1px); box-shadow: 0 3px 10px rgba(0,0,0,.1); }
-  .fui-btn-black   { background: var(--color-bg-dark); color: var(--color-text-inverse); }
-  .fui-btn-black:hover { background: var(--color-primary); color: #052e16; }
-  .fui-btn-ghost   { background: transparent; border: 1.5px solid var(--color-border); color: #333; }
-  .fui-btn-cancel  { background: transparent; border: 1.5px solid #fecaca; color: #dc2626; }
-  .fui-btn-outline { background: transparent; border: 1.5px solid #d1d5db; color: #555; }
-  .fui-btn-stats   { background: var(--color-bg-hover); color: #333; }
-  .fui-btn-rate    { background: #fef3c7; color: #92400e; }
+  .fui-btn:hover { transform: translateY(-1px); box-shadow: 0 3px 10px rgba(0,0,0,.3); }
+  .fui-btn-black   { background: #22c55e; color: #050505; }
+  .fui-btn-black:hover { background: #16a34a; color: #050505; }
+  .fui-btn-ghost   { background: transparent; border: 1.5px solid rgba(255,255,255,.1); color: #e8e8e8; }
+  .fui-btn-cancel  { background: transparent; border: 1.5px solid rgba(229,57,53,.3); color: #f87171; }
+  .fui-btn-outline { background: transparent; border: 1.5px solid rgba(255,255,255,.1); color: #a0a0a0; }
+  .fui-btn-stats   { background: rgba(255,255,255,.06); color: #e8e8e8; }
+  .fui-btn-rate    { background: rgba(245,158,11,.08); color: #fbbf24; }
   .fui-badge-joined {
     display: inline-flex;
     align-items: center;
@@ -406,6 +406,90 @@
   }
   .fui-empty p { color: var(--color-text-muted); font-size: 14px; margin: 0 0 24px; }
   .fui-empty-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+  /* ── Recommendations ────────────────────────────── */
+  .fui-reco-section {
+    margin-bottom: 24px;
+  }
+  .fui-reco-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .fui-reco-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(34,197,94,.1);
+    border: 1.5px solid rgba(34,197,94,.3);
+    color: #4ade80;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 999px;
+  }
+  .fui-reco-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--color-text);
+    margin: 0;
+  }
+  .fui-reco-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+  @media (max-width: 1024px) { .fui-reco-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px) { .fui-reco-grid { grid-template-columns: 1fr; } }
+
+  .fui-reco-card {
+    background: var(--color-bg-card);
+    border: 1.5px solid rgba(34,197,94,.25);
+    border-radius: 16px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    position: relative;
+    box-shadow: 0 2px 12px rgba(34,197,94,.08);
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  }
+  .fui-reco-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(34,197,94,.15);
+    border-color: var(--color-primary);
+  }
+  .fui-reco-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    border-radius: 16px 16px 0 0;
+    background: linear-gradient(90deg, var(--color-primary), #86efac);
+    opacity: 1;
+  }
+  .fui-reco-tag {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(34,197,94,.1);
+    border: 1px solid rgba(34,197,94,.3);
+    color: #4ade80;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
 
   /* ── Mobile ────────────────────────────────────── */
   @media (max-width: 600px) {
@@ -439,13 +523,13 @@
 @auth
   @if(auth()->user()->faltaUnoSportProfiles()->doesntExist())
     <div class="fui-profile-banner" data-aos="fade-right">
-      <div style="flex-shrink:0;"><i data-lucide="alert-triangle" style="width:20px;height:20px;stroke:#92400e;stroke-width:2;"></i></div>
+      <div style="flex-shrink:0;"><i data-lucide="alert-triangle" style="width:20px;height:20px;stroke:#fbbf24;stroke-width:2;"></i></div>
       <div style="flex:1;">
-        <div style="font-size:14px; font-weight:700; color:#92400e;">Para unirte a partidos necesitás completar tu perfil deportivo</div>
-        <div style="font-size:12px; color:#b45309; margin-top:2px;">Tu categoría y género determinan a qué partidos podés unirte.</div>
+        <div style="font-size:14px; font-weight:700; color:#fbbf24;">Para unirte a partidos necesitás completar tu perfil deportivo</div>
+        <div style="font-size:12px; color:#d97706; margin-top:2px;">Tu categoría y género determinan a qué partidos podés unirte.</div>
       </div>
       <a href="{{ route('profile.edit') }}#sport-profile"
-         style="display:inline-block; background:#111; color:#fff; border-radius:10px; padding:8px 18px; font-size:13px; font-weight:700; text-decoration:none; white-space:nowrap;">
+         style="display:inline-block; background:#22c55e; color:#050505; border-radius:10px; padding:8px 18px; font-size:13px; font-weight:700; text-decoration:none; white-space:nowrap;">
         Completar perfil
       </a>
     </div>
@@ -455,10 +539,120 @@
 {{-- Link a mis partidos --}}
 @auth
   <div style="display:flex; justify-content:flex-end; margin-bottom:12px;" data-aos="fade-left">
-    <a href="{{ route('my_reservations', ['tab' => 'faltauno']) }}" style="display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:700; color:#16a34a; text-decoration:none; padding:6px 14px; border:1.5px solid #dcfce7; border-radius:999px; background:#f0fdf4; transition:all .15s;" onmouseover="this.style.background='#dcfce7'" onmouseout="this.style.background='#f0fdf4'">
+    <a href="{{ route('my_reservations', ['tab' => 'faltauno']) }}" style="display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:700; color:#4ade80; text-decoration:none; padding:6px 14px; border:1.5px solid rgba(34,197,94,.3); border-radius:999px; background:rgba(34,197,94,.1); transition:all .15s;" onmouseover="this.style.background='rgba(34,197,94,.18)'" onmouseout="this.style.background='rgba(34,197,94,.1)'">
       <i data-lucide="user" style="width:14px;height:14px;stroke:currentColor;"></i> Mis partidos
     </a>
   </div>
+@endauth
+
+{{-- Recomendados para vos --}}
+@auth
+  @if(isset($recommendations) && $recommendations->isNotEmpty())
+    <div class="fui-reco-section" data-aos="fade-up">
+      <div class="fui-reco-header">
+        <span class="fui-reco-badge">
+          <i data-lucide="sparkles" style="width:12px;height:12px;stroke:currentColor;stroke-width:2.5;"></i>
+          Para vos
+        </span>
+        <h2 class="fui-reco-title">Recomendados</h2>
+      </div>
+      <div class="fui-reco-grid">
+        @foreach($recommendations as $rIdx => $rGame)
+          @php
+            $rJoined  = $rGame->activeParticipants->count();
+            $rNeeded  = $rGame->players_needed;
+            $rRemaining = max(0, $rNeeded - $rJoined);
+            $rSportLabel = match($rGame->field->sport ?? '') {
+              'football'   => 'Futbol',
+              'padel'      => 'Padel',
+              'tennis'     => 'Tenis',
+              'basketball' => 'Basquet',
+              'volleyball' => 'Voley',
+              default      => ucfirst($rGame->field->sport ?? 'Cancha'),
+            };
+          @endphp
+          <div class="fui-reco-card" data-aos="fade-up" data-aos-delay="{{ $rIdx * 60 }}">
+            <span class="fui-reco-tag">
+              <i data-lucide="zap" style="width:10px;height:10px;stroke:currentColor;stroke-width:2.5;"></i>
+              Match
+            </span>
+
+            {{-- Sport + Venue --}}
+            <div style="display:flex; align-items:center; gap:10px; padding-right:60px;">
+              <div style="width:40px; height:40px; border-radius:10px; background:rgba(34,197,94,.1); display:flex; align-items:center; justify-content:center; flex-shrink:0; border:1px solid rgba(34,197,94,.2);">
+                @if($rGame->field->venue->cover_image_path)
+                  <img src="{{ Storage::url($rGame->field->venue->cover_image_path) }}" style="width:100%; height:100%; object-fit:cover; border-radius:9px;" alt="">
+                @else
+                  <i data-lucide="map-pin" style="width:18px;height:18px;stroke:#16a34a;stroke-width:2;"></i>
+                @endif
+              </div>
+              <div style="min-width:0;">
+                <div style="font-weight:800; font-size:14px; color:var(--color-primary-hover); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ $rSportLabel }}</div>
+                <div style="font-size:12px; color:var(--color-text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ $rGame->field->venue->name }}</div>
+              </div>
+            </div>
+
+            {{-- Date, time, slots --}}
+            <div style="display:flex; flex-wrap:wrap; gap:8px; font-size:12px;">
+              <span style="display:inline-flex; align-items:center; gap:4px; background:var(--color-bg-hover); padding:4px 10px; border-radius:8px; color:var(--color-text-secondary); font-weight:600;">
+                <i data-lucide="calendar" style="width:12px;height:12px;stroke:currentColor;flex-shrink:0;"></i>
+                {{ \Carbon\Carbon::parse($rGame->start_at)->format('d/m') }}
+              </span>
+              <span style="display:inline-flex; align-items:center; gap:4px; background:var(--color-bg-hover); padding:4px 10px; border-radius:8px; color:var(--color-text-secondary); font-weight:600;">
+                <i data-lucide="clock" style="width:12px;height:12px;stroke:currentColor;flex-shrink:0;"></i>
+                {{ \Carbon\Carbon::parse($rGame->start_at)->format('H:i') }}
+              </span>
+              <span style="display:inline-flex; align-items:center; gap:4px; background:rgba(34,197,94,.1); padding:4px 10px; border-radius:8px; color:#4ade80; font-weight:700;">
+                <i data-lucide="users" style="width:12px;height:12px;stroke:currentColor;flex-shrink:0;"></i>
+                {{ $rRemaining > 0 ? 'Faltan ' . $rRemaining : 'Completo' }}
+              </span>
+            </div>
+
+            {{-- Category + gender pills --}}
+            <div style="display:flex; flex-wrap:wrap; gap:6px; font-size:11px;">
+              <span style="padding:3px 9px; border-radius:6px; background:var(--color-bg-hover); color:var(--color-text-secondary); font-weight:600;">
+                {{ $rGame->gender_filter === 'male' ? 'Masculino' : ($rGame->gender_filter === 'female' ? 'Femenino' : 'Mixto') }}
+              </span>
+              @if($rGame->category_min || $rGame->category_max)
+                <span style="padding:3px 9px; border-radius:6px; background:var(--color-bg-hover); color:var(--color-text-secondary); font-weight:600;">
+                  @if($rGame->category_min && $rGame->category_max && $rGame->category_min === $rGame->category_max)
+                    {{ ucfirst($rGame->category_min) }}
+                  @elseif($rGame->category_min && $rGame->category_max)
+                    {{ ucfirst($rGame->category_min) }} - {{ ucfirst($rGame->category_max) }}
+                  @elseif($rGame->category_min)
+                    Desde {{ ucfirst($rGame->category_min) }}
+                  @else
+                    Hasta {{ ucfirst($rGame->category_max) }}
+                  @endif
+                </span>
+              @endif
+            </div>
+
+            {{-- Action --}}
+            <div style="margin-top:auto; display:flex; gap:8px; align-items:center;">
+              @if($rGame->status !== 'full')
+                <form method="POST" action="{{ route('falta-uno.join', $rGame) }}">
+                  @csrf
+                  <button type="submit" style="display:inline-flex; align-items:center; gap:5px; padding:7px 16px; border-radius:10px; font-size:12px; font-weight:700; background:#22c55e; color:#050505; border:none; cursor:pointer; font-family:inherit; transition:transform .15s, box-shadow .15s, background .15s;"
+                          onmouseover="this.style.background='#16a34a';this.style.transform='translateY(-1px)';this.style.boxShadow='0 3px 10px rgba(0,0,0,.3)'"
+                          onmouseout="this.style.background='#22c55e';this.style.transform='none';this.style.boxShadow='none'">
+                    <i data-lucide="plus" style="width:12px;height:12px;stroke:currentColor;stroke-width:2.5;"></i> Unirme
+                  </button>
+                </form>
+              @else
+                <span style="font-size:12px; font-weight:700; color:#22c55e;">Completo</span>
+              @endif
+              <a href="{{ route('falta-uno.show', $rGame) }}" style="display:inline-flex; align-items:center; gap:5px; padding:7px 14px; border-radius:10px; font-size:12px; font-weight:600; background:transparent; border:1.5px solid var(--color-border); color:var(--color-text-secondary); text-decoration:none; transition:all .15s;"
+                 onmouseover="this.style.borderColor='#16a34a';this.style.color='#16a34a'"
+                 onmouseout="this.style.borderColor='';this.style.color=''">
+                Ver
+              </a>
+            </div>
+          </div>
+        @endforeach
+      </div>
+    </div>
+  @endif
 @endauth
 
 {{-- Filtros --}}
@@ -574,7 +768,7 @@
           <svg class="fui-progress-circle" width="52" height="52" viewBox="0 0 52 52">
             <circle cx="26" cy="26" r="22" fill="none" stroke="rgba(34,197,94,.12)" stroke-width="5"/>
             <circle cx="26" cy="26" r="22" fill="none"
-                    stroke="{{ $game->status === 'full' ? '#22c55e' : '#111' }}" stroke-width="5"
+                    stroke="{{ $game->status === 'full' ? '#22c55e' : '#e8e8e8' }}" stroke-width="5"
                     stroke-dasharray="{{ $filled }} {{ $empty }}"
                     stroke-linecap="round"
                     stroke-dashoffset="0"
@@ -585,7 +779,7 @@
             @if($game->status === 'full')
               <span style="color:#22c55e;">¡Completo!</span>
             @else
-              <span style="color:#111;">Faltan {{ $needed - $joined }}</span>
+              <span style="color:#e8e8e8;">Faltan {{ $needed - $joined }}</span>
             @endif
           </div>
           <div class="fui-progress-sub game-counter-text">{{ $joined }}/{{ $needed }} anotados</div>
@@ -740,9 +934,9 @@
   function showFuToast(msg, type) {
     const el = document.getElementById('fuToast');
     el.textContent = msg;
-    el.style.background = type === 'up' ? '#111' : '#fff';
-    el.style.color       = type === 'up' ? '#fff' : '#111';
-    el.style.border      = type === 'up' ? 'none' : '1px solid #e0e0e0';
+    el.style.background = type === 'up' ? '#22c55e' : '#111';
+    el.style.color       = type === 'up' ? '#050505' : '#e8e8e8';
+    el.style.border      = type === 'up' ? 'none' : '1px solid rgba(255,255,255,.1)';
     el.style.display     = 'block';
     el.style.opacity     = '1';
     setTimeout(() => {
@@ -786,12 +980,12 @@
       const counterText = card.querySelector('.game-counter-text');
       if (arc) {
         arc.setAttribute('stroke-dasharray', `${filled} ${empty}`);
-        arc.setAttribute('stroke', isFull ? '#22c55e' : '#111');
+        arc.setAttribute('stroke', isFull ? '#22c55e' : '#e8e8e8');
       }
       if (statusText) {
         statusText.innerHTML = isFull
           ? '<span style="color:#22c55e;">¡Completo!</span>'
-          : `<span style="color:#111;">Faltan ${e.needed - e.joined}</span>`;
+          : `<span style="color:#e8e8e8;">Faltan ${e.needed - e.joined}</span>`;
       }
       if (counterText) {
         counterText.textContent = `${e.joined}/${e.needed} anotados`;
@@ -817,23 +1011,23 @@
 
 {{-- Modal selector de cancha para crear partido --}}
 <div id="fuiFieldModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,.5); align-items:center; justify-content:center; padding:20px;" onclick="if(event.target===this)this.style.display='none'">
-  <div style="background:#fff; border-radius:18px; max-width:520px; width:100%; max-height:80vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,.2);">
+  <div style="background:#111; border-radius:18px; max-width:520px; width:100%; max-height:80vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,.5);">
     <div style="padding:20px 24px 0; display:flex; justify-content:space-between; align-items:center;">
-      <h3 style="margin:0; font-size:20px; font-weight:800;">Elegir cancha</h3>
+      <h3 style="margin:0; font-size:20px; font-weight:800; color:#e8e8e8;">Elegir cancha</h3>
       <button onclick="document.getElementById('fuiFieldModal').style.display='none'" style="background:none; border:none; cursor:pointer; padding:4px;">
-        <i data-lucide="x" style="width:20px;height:20px;stroke:#999;"></i>
+        <i data-lucide="x" style="width:20px;height:20px;stroke:#666;"></i>
       </button>
     </div>
-    <p style="padding:0 24px; margin:8px 0 16px; font-size:14px; color:#666;">Selecciona una cancha con Falta Uno habilitado para crear tu partido.</p>
+    <p style="padding:0 24px; margin:8px 0 16px; font-size:14px; color:#a0a0a0;">Selecciona una cancha con Falta Uno habilitado para crear tu partido.</p>
 
     <div id="fuiFieldSearch" style="padding:0 24px 12px;">
-      <input type="text" id="fuiFieldSearchInput" placeholder="Buscar por cancha o complejo..." aria-label="Buscar por cancha o complejo" oninput="filterFuiFields()" style="width:100%; padding:10px 14px; border:1.5px solid #e5e7eb; border-radius:10px; font-size:14px; outline:none; box-sizing:border-box;" onfocus="this.style.borderColor='#16a34a'" onblur="this.style.borderColor='#e5e7eb'">
+      <input type="text" id="fuiFieldSearchInput" placeholder="Buscar por cancha o complejo..." aria-label="Buscar por cancha o complejo" oninput="filterFuiFields()" style="width:100%; padding:10px 14px; border:1.5px solid rgba(255,255,255,.1); border-radius:10px; font-size:14px; outline:none; box-sizing:border-box; background:#0a0a0a; color:#e8e8e8;" onfocus="this.style.borderColor='#22c55e'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
     </div>
 
     <div id="fuiFieldList" style="padding:0 24px 20px; display:grid; gap:8px;">
       @foreach($faltaUnoFields as $f)
-        <a href="{{ route('falta-uno.create', $f) }}" class="fui-field-option" data-search="{{ strtolower($f->name . ' ' . $f->venue->name) }}" style="display:flex; align-items:center; gap:12px; padding:12px 14px; border:1.5px solid #f0f0f0; border-radius:12px; text-decoration:none; color:inherit; transition:all .15s;" onmouseover="this.style.borderColor='#16a34a';this.style.background='#f0fdf4'" onmouseout="this.style.borderColor='#f0f0f0';this.style.background='transparent'">
-          <div style="width:40px; height:40px; border-radius:10px; background:#f1f5f9; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+        <a href="{{ route('falta-uno.create', $f) }}" class="fui-field-option" data-search="{{ strtolower($f->name . ' ' . $f->venue->name) }}" style="display:flex; align-items:center; gap:12px; padding:12px 14px; border:1.5px solid rgba(255,255,255,.06); border-radius:12px; text-decoration:none; color:#e8e8e8; transition:all .15s;" onmouseover="this.style.borderColor='#22c55e';this.style.background='rgba(34,197,94,.08)'" onmouseout="this.style.borderColor='rgba(255,255,255,.06)';this.style.background='transparent'">
+          <div style="width:40px; height:40px; border-radius:10px; background:#1a1a1a; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
             @php
               $sportIcon = match($f->sport) {
                 'football' => 'circle-dot', 'padel' => 'table-tennis-paddle',
@@ -844,18 +1038,18 @@
             <i data-lucide="{{ $sportIcon }}" style="width:18px;height:18px;stroke:#16a34a;stroke-width:2;"></i>
           </div>
           <div style="flex:1; min-width:0;">
-            <div style="font-weight:700; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ $f->name }}</div>
-            <div style="font-size:12px; color:#888; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ $f->venue->name }} · {{ ucfirst($f->sport) }}</div>
+            <div style="font-weight:700; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#e8e8e8;">{{ $f->name }}</div>
+            <div style="font-size:12px; color:#666; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ $f->venue->name }} · {{ ucfirst($f->sport) }}</div>
           </div>
-          <i data-lucide="chevron-right" style="width:16px;height:16px;stroke:#ccc;flex-shrink:0;"></i>
+          <i data-lucide="chevron-right" style="width:16px;height:16px;stroke:#555;flex-shrink:0;"></i>
         </a>
       @endforeach
 
       @if($faltaUnoFields->isEmpty())
         <div style="text-align:center; padding:28px 16px;">
-          <i data-lucide="map-pin-off" style="width:32px;height:32px;stroke:#ccc;stroke-width:1.5;margin-bottom:8px;"></i>
-          <div style="font-weight:700; font-size:14px; color:#888;">No hay canchas con Falta Uno habilitado</div>
-          <div style="font-size:13px; color:#aaa; margin-top:4px;">Cuando un complejo active esta función, sus canchas aparecerán acá</div>
+          <i data-lucide="map-pin-off" style="width:32px;height:32px;stroke:#555;stroke-width:1.5;margin-bottom:8px;"></i>
+          <div style="font-weight:700; font-size:14px; color:#a0a0a0;">No hay canchas con Falta Uno habilitado</div>
+          <div style="font-size:13px; color:#666; margin-top:4px;">Cuando un complejo active esta función, sus canchas aparecerán acá</div>
         </div>
       @endif
     </div>

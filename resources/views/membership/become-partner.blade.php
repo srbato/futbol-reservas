@@ -22,9 +22,9 @@
   @endphp
 
   @if(auth()->user()->isVenueStaff())
-    <div class="page-card" style="margin-bottom:24px; padding:28px; background:#fff4db; border-color:#f5d48a;">
-      <div style="color:#9a6700; font-weight:800; font-size:16px; margin-bottom:6px;">No disponible</div>
-      <div style="color:#9a6700; line-height:1.6;">
+    <div class="page-card" style="margin-bottom:24px; padding:28px; background:rgba(245,158,11,.08); border-color:rgba(251,191,36,.25);">
+      <div style="color:#fbbf24; font-weight:800; font-size:16px; margin-bottom:6px;">No disponible</div>
+      <div style="color:#fbbf24; line-height:1.6;">
         Actualmente sos empleado de un complejo en TuCancha. Para contratar una membresía de dueño, primero pedile al dueño que te quite del staff.
       </div>
     </div>
@@ -44,10 +44,10 @@
       </div>
 
       <div class="page-card" style="min-width:260px; padding:20px;">
-        <div style="font-size:12px; color:#666; margin-bottom:4px; text-transform:uppercase; letter-spacing:.04em; font-weight:700;">
+        <div style="font-size:12px; color:#a0a0a0; margin-bottom:4px; text-transform:uppercase; letter-spacing:.04em; font-weight:700;">
           Plan {{ $plan->name }}
         </div>
-        <div style="font-size:12px; color:#888; margin-bottom:8px;">
+        <div style="font-size:12px; color:#666; margin-bottom:8px;">
           Facturación {{ $billingCycle === 'annual' ? strtolower($plan->longTermLabel()) : 'mensual' }}
         </div>
         <div style="font-size:34px; font-weight:800; line-height:1.1;">
@@ -61,7 +61,7 @@
           @endif
         </div>
         <div style="margin-top:12px;">
-          <a href="{{ route('planes') }}" style="font-size:13px; color:#666; text-decoration:underline;">
+          <a href="{{ route('planes') }}" style="font-size:13px; color:#a0a0a0; text-decoration:underline;">
             Cambiar plan
           </a>
         </div>
@@ -96,7 +96,7 @@
 
       @if($activeSubscription)
         @if($isTrialActive)
-          <div style="padding:16px; border-radius:16px; background:#e8f0ff; color:#5b21b6; border:1px solid #c4b5fd; margin-bottom:14px;">
+          <div style="padding:16px; border-radius:16px; background:rgba(139,92,246,.08); color:#a78bfa; border:1px solid rgba(167,139,250,.25); margin-bottom:14px;">
             <strong><i data-lucide="gift" style="width:14px;height:14px;stroke:currentColor;vertical-align:middle;margin-right:4px;"></i> Período de prueba activo</strong>
             <div style="margin-top:6px;">
               Estás usando tu período de prueba gratuito. Tenés acceso hasta el
@@ -117,13 +117,13 @@
             <form method="POST" action="{{ route('membership.cancel_subscription') }}"
                   onsubmit="return confirm('¿Cancelar el período de prueba? Perderás el acceso al panel admin inmediatamente.')">
               @csrf
-              <button type="submit" class="btn" style="color:#842029; border-color:#f1b9c0;">
+              <button type="submit" class="btn" style="color:#f87171; border-color:rgba(248,113,113,.3);">
                 Cancelar prueba
               </button>
             </form>
           </div>
         @else
-          <div style="padding:16px; border-radius:16px; background:#e8f7ee; color:#157347; border:1px solid #cfe9d7; margin-bottom:14px;">
+          <div style="padding:16px; border-radius:16px; background:rgba(34,197,94,.1); color:#6eeaa0; border:1px solid rgba(74,222,128,.25); margin-bottom:14px;">
             <strong>Membresía activa</strong>
             <div style="margin-top:6px;">
               Tenés acceso como socio hasta el
@@ -141,7 +141,7 @@
           </div>
 
           @if($activeSubscription->mp_subscription_status === 'cancelled')
-            <div style="padding:12px 16px; border-radius:12px; background:#fff4db; color:#9a6700; border:1px solid #f5d48a; margin-bottom:14px; font-size:14px;">
+            <div style="padding:12px 16px; border-radius:12px; background:rgba(245,158,11,.08); color:#fbbf24; border:1px solid rgba(251,191,36,.25); margin-bottom:14px; font-size:14px;">
               <i data-lucide="alert-triangle" style="width:14px;height:14px;stroke:currentColor;vertical-align:middle;margin-right:4px;"></i> Tu suscripción está cancelada. Seguirás teniendo acceso hasta el <strong>{{ $activeSubscription->expires_at?->format('d/m/Y') }}</strong>, sin cobros adicionales.
             </div>
           @endif
@@ -155,7 +155,7 @@
               <form method="POST" action="{{ route('membership.cancel_subscription') }}"
                     onsubmit="return confirm('¿Cancelar la suscripción? Seguirás teniendo acceso hasta el fin del período actual, sin cobros futuros.')">
                 @csrf
-                <button type="submit" class="btn" style="color:#842029; border-color:#f1b9c0;">
+                <button type="submit" class="btn" style="color:#f87171; border-color:rgba(248,113,113,.3);">
                   Cancelar suscripción
                 </button>
               </form>
@@ -164,7 +164,7 @@
         @endif
       @else
         @if($latestSubscription && $latestStatus === 'PENDING_PAYMENT')
-          <div style="padding:16px; border-radius:16px; background:#fff4db; color:#9a6700; border:1px solid #f5d48a; margin-bottom:14px;">
+          <div style="padding:16px; border-radius:16px; background:rgba(245,158,11,.08); color:#fbbf24; border:1px solid rgba(251,191,36,.25); margin-bottom:14px;">
             <strong>Pago pendiente</strong>
             <div style="margin-top:6px;">
               Hay una solicitud de membresía pendiente de pago. Si ya completaste el pago, esperá a que
@@ -175,12 +175,12 @@
           <form method="POST" action="{{ route('membership.cancel_pending') }}" style="margin-bottom:14px;"
                 onsubmit="return confirm('¿Cancelar el intento de pago pendiente? Podrás iniciar uno nuevo a continuación.')">
             @csrf
-            <button type="submit" class="btn" style="font-size:14px; padding:9px 16px; border-color:#ddd; color:#842029;">
+            <button type="submit" class="btn" style="font-size:14px; padding:9px 16px; border-color:rgba(255,255,255,.1); color:#f87171;">
               Cancelar intento y volver a intentar
             </button>
           </form>
         @elseif($isTrialExpired)
-          <div style="padding:16px; border-radius:16px; background:#f8d7da; color:#842029; border:1px solid #f1b9c0; margin-bottom:14px;">
+          <div style="padding:16px; border-radius:16px; background:rgba(229,57,53,.1); color:#f87171; border:1px solid rgba(248,113,113,.25); margin-bottom:14px;">
             <strong>Período de prueba vencido</strong>
             <div style="margin-top:6px;">
               Tu período de prueba gratuito venció el
@@ -189,7 +189,7 @@
             </div>
           </div>
         @elseif($isExpired)
-          <div style="padding:16px; border-radius:16px; background:#f8d7da; color:#842029; border:1px solid #f1b9c0; margin-bottom:14px;">
+          <div style="padding:16px; border-radius:16px; background:rgba(229,57,53,.1); color:#f87171; border:1px solid rgba(248,113,113,.25); margin-bottom:14px;">
             <strong>Membresía vencida</strong>
             <div style="margin-top:6px;">
               Tu último acceso como socio venció el
@@ -198,14 +198,14 @@
             </div>
           </div>
         @elseif($latestSubscription && $latestStatus === 'CANCELLED')
-          <div style="padding:16px; border-radius:16px; background:#f8d7da; color:#842029; border:1px solid #f1b9c0; margin-bottom:14px;">
+          <div style="padding:16px; border-radius:16px; background:rgba(229,57,53,.1); color:#f87171; border:1px solid rgba(248,113,113,.25); margin-bottom:14px;">
             <strong>Pago cancelado</strong>
             <div style="margin-top:6px;">
               Tu último intento de pago no se completó. Podés volver a intentarlo cuando quieras.
             </div>
           </div>
         @else
-          <div style="padding:16px; border-radius:16px; background:#f3f3f3; color:#444; border:1px solid #e2e2e2; margin-bottom:14px;">
+          <div style="padding:16px; border-radius:16px; background:rgba(255,255,255,.04); color:#a0a0a0; border:1px solid rgba(255,255,255,.08); margin-bottom:14px;">
             <strong>Sin membresía activa</strong>
             <div style="margin-top:6px;">
               Todavía no tenés acceso como socio. Activá tu plan para ingresar al panel admin.
@@ -217,7 +217,7 @@
 
           @if($trialAvailable ?? false)
             {{-- Trial available: show a simple "start free trial" button, no payment required --}}
-            <div style="background:#e8f0ff; border:1px solid #c4b5fd; border-radius:12px; padding:14px 16px; margin-bottom:16px; font-size:14px; color:#5b21b6; line-height:1.6;">
+            <div style="background:rgba(139,92,246,.08); border:1px solid rgba(167,139,250,.25); border-radius:12px; padding:14px 16px; margin-bottom:16px; font-size:14px; color:#a78bfa; line-height:1.6;">
               <strong><i data-lucide="gift" style="width:14px;height:14px;stroke:currentColor;vertical-align:middle;margin-right:4px;"></i> {{ $plan->trial_days }} días gratis disponibles</strong><br>
               Activá el período de prueba <strong>sin tarjeta de crédito</strong>. Tenés {{ $plan->trial_days }} días de acceso completo al panel admin de forma gratuita.
               Al vencer, te avisamos por email para que contrates un plan si querés continuar.
@@ -244,14 +244,14 @@
               <input type="hidden" name="billing_cycle" value="{{ $billingCycle }}">
 
               <div style="margin-bottom:16px;">
-                <label style="display:block; font-size:13px; color:#666; margin-bottom:6px;">
-                  Email de tu cuenta MercadoPago <span style="color:#c00;">*</span>
+                <label style="display:block; font-size:13px; color:#a0a0a0; margin-bottom:6px;">
+                  Email de tu cuenta MercadoPago <span style="color:#f87171;">*</span>
                 </label>
                 <input type="email" name="mp_email" required
                   placeholder="tucuenta@email.com"
                   value="{{ old('mp_email') }}"
-                  style="padding:10px 14px; border:1px solid #ddd; border-radius:10px; font-size:14px; width:100%; max-width:320px;">
-                <div style="font-size:12px; color:#999; margin-top:5px; line-height:1.5;">
+                  style="padding:10px 14px; border:1px solid rgba(255,255,255,.1); border-radius:10px; font-size:14px; width:100%; max-width:320px; background:#0a0a0a; color:#e8e8e8;">
+                <div style="font-size:12px; color:#666; margin-top:5px; line-height:1.5;">
                   Necesitamos el email de tu cuenta MercadoPago para procesar el cobro automático.
                   Puede ser diferente al email de tu cuenta en TuCancha.
                 </div>
@@ -289,58 +289,58 @@
     </div>
 
     @if(($subscriptionHistory ?? collect())->isEmpty())
-      <div style="padding:16px; border-radius:16px; background:#f3f3f3; color:#444; border:1px solid #e2e2e2;">
+      <div style="padding:16px; border-radius:16px; background:rgba(255,255,255,.04); color:#a0a0a0; border:1px solid rgba(255,255,255,.08);">
         Todavía no tenés movimientos de membresía registrados.
       </div>
     @else
       <div style="overflow-x:auto;">
         <table style="width:100%; border-collapse:collapse; min-width:980px;">
           <thead>
-            <tr style="background:#fafafa;">
-              <th style="text-align:left; padding:12px; border-bottom:1px solid #eee;">ID</th>
-              <th style="text-align:left; padding:12px; border-bottom:1px solid #eee;">Estado</th>
-              <th style="text-align:left; padding:12px; border-bottom:1px solid #eee;">Monto</th>
-              <th style="text-align:left; padding:12px; border-bottom:1px solid #eee;">Proveedor</th>
-              <th style="text-align:left; padding:12px; border-bottom:1px solid #eee;">Pago externo</th>
-              <th style="text-align:left; padding:12px; border-bottom:1px solid #eee;">Inicio</th>
-              <th style="text-align:left; padding:12px; border-bottom:1px solid #eee;">Vencimiento</th>
-              <th style="text-align:left; padding:12px; border-bottom:1px solid #eee;">Creada</th>
+            <tr style="background:rgba(255,255,255,.04);">
+              <th style="text-align:left; padding:12px; border-bottom:1px solid rgba(255,255,255,.08);">ID</th>
+              <th style="text-align:left; padding:12px; border-bottom:1px solid rgba(255,255,255,.08);">Estado</th>
+              <th style="text-align:left; padding:12px; border-bottom:1px solid rgba(255,255,255,.08);">Monto</th>
+              <th style="text-align:left; padding:12px; border-bottom:1px solid rgba(255,255,255,.08);">Proveedor</th>
+              <th style="text-align:left; padding:12px; border-bottom:1px solid rgba(255,255,255,.08);">Pago externo</th>
+              <th style="text-align:left; padding:12px; border-bottom:1px solid rgba(255,255,255,.08);">Inicio</th>
+              <th style="text-align:left; padding:12px; border-bottom:1px solid rgba(255,255,255,.08);">Vencimiento</th>
+              <th style="text-align:left; padding:12px; border-bottom:1px solid rgba(255,255,255,.08);">Creada</th>
             </tr>
           </thead>
           <tbody>
             @foreach($subscriptionHistory as $subscription)
               <tr>
-                <td style="padding:12px; border-bottom:1px solid #f1f1f1;">
+                <td style="padding:12px; border-bottom:1px solid rgba(255,255,255,.06);">
                   {{ $subscription->id }}
                 </td>
 
-                <td style="padding:12px; border-bottom:1px solid #f1f1f1;">
+                <td style="padding:12px; border-bottom:1px solid rgba(255,255,255,.06);">
                   <span style="display:inline-flex; align-items:center; padding:7px 10px; border-radius:999px; font-size:12px; font-weight:700; {{ $subscription->statusStyles() }}">
                     {{ $subscription->statusLabel() }}
                   </span>
                 </td>
 
-                <td style="padding:12px; border-bottom:1px solid #f1f1f1; font-weight:600;">
+                <td style="padding:12px; border-bottom:1px solid rgba(255,255,255,.06); font-weight:600;">
                   {{ $subscription->currency }} {{ number_format((float) $subscription->monthly_price, 2, ',', '.') }}
                 </td>
 
-                <td style="padding:12px; border-bottom:1px solid #f1f1f1;">
+                <td style="padding:12px; border-bottom:1px solid rgba(255,255,255,.06);">
                   {{ $subscription->payment_provider ?? '-' }}
                 </td>
 
-                <td style="padding:12px; border-bottom:1px solid #f1f1f1;">
+                <td style="padding:12px; border-bottom:1px solid rgba(255,255,255,.06);">
                   {{ $subscription->payment_external_id ?? '-' }}
                 </td>
 
-                <td style="padding:12px; border-bottom:1px solid #f1f1f1;">
+                <td style="padding:12px; border-bottom:1px solid rgba(255,255,255,.06);">
                   {{ $subscription->starts_at?->format('d/m/Y H:i') ?? '-' }}
                 </td>
 
-                <td style="padding:12px; border-bottom:1px solid #f1f1f1;">
+                <td style="padding:12px; border-bottom:1px solid rgba(255,255,255,.06);">
                   {{ $subscription->expires_at?->format('d/m/Y H:i') ?? '-' }}
                 </td>
 
-                <td style="padding:12px; border-bottom:1px solid #f1f1f1;">
+                <td style="padding:12px; border-bottom:1px solid rgba(255,255,255,.06);">
                   {{ $subscription->created_at?->format('d/m/Y H:i') ?? '-' }}
                 </td>
               </tr>

@@ -15,40 +15,40 @@
     align-items: center;
     gap: 5px;
     font-size: 13px;
-    color: #888;
+    color: #666;
     text-decoration: none;
     font-weight: 600;
     transition: color .15s;
     margin-bottom: 14px;
   }
-  .tc-back:hover { color: #111; }
+  .tc-back:hover { color: #e8e8e8; }
 
   .tc-page-title {
     font-size: 26px;
     font-weight: 800;
-    color: #111;
+    color: #e8e8e8;
     letter-spacing: -.02em;
     margin: 0 0 6px 0;
   }
 
   .tc-page-sub {
     font-size: 14px;
-    color: #888;
+    color: #666;
     margin: 0 0 24px 0;
   }
 
   .tc-card {
-    background: #fff;
-    border: 1px solid #ececec;
+    background: #111;
+    border: 1px solid rgba(255,255,255,.08);
     border-radius: 20px;
-    box-shadow: 0 2px 12px rgba(0,0,0,.04);
+    box-shadow: 0 2px 12px rgba(0,0,0,.12);
     overflow: hidden;
     margin-bottom: 20px;
   }
 
   .tc-card-header {
     padding: 20px 24px 0;
-    border-bottom: 1px solid #f4f4f4;
+    border-bottom: 1px solid rgba(255,255,255,.06);
     padding-bottom: 16px;
     display: flex;
     align-items: center;
@@ -59,8 +59,8 @@
     width: 36px;
     height: 36px;
     border-radius: 10px;
-    background: #111;
-    color: #fff;
+    background: #22c55e;
+    color: #050505;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -77,7 +77,7 @@
 
   .tc-card-header-text p {
     font-size: 13px;
-    color: #999;
+    color: #666;
     margin: 1px 0 0 0;
   }
 
@@ -101,20 +101,20 @@
   .tc-label {
     font-size: 14px;
     font-weight: 600;
-    color: #374151;
+    color: #a0a0a0;
     display: flex;
     align-items: center;
     gap: 6px;
   }
 
   .tc-label .req {
-    color: #dc2626;
+    color: #f87171;
     font-weight: 700;
   }
 
   .tc-hint {
     font-size: 12px;
-    color: #aaa;
+    color: #555;
     margin: 0;
     line-height: 1.5;
   }
@@ -123,12 +123,12 @@
   .tc-select,
   .tc-textarea {
     width: 100%;
-    border: 1px solid #d1d5db;
+    border: 1px solid rgba(255,255,255,.1);
     border-radius: 12px;
     padding: 12px 16px;
     font-size: 15px;
-    color: #111;
-    background: #fff;
+    color: #e8e8e8;
+    background: #0a0a0a;
     transition: border-color .15s, box-shadow .15s;
     outline: none;
     font-family: inherit;
@@ -144,8 +144,8 @@
 
   .tc-input:disabled,
   .tc-select:disabled {
-    background: #f9fafb;
-    color: #9ca3af;
+    background: #0a0a0a;
+    color: #555;
     cursor: not-allowed;
   }
 
@@ -175,9 +175,9 @@
     cursor: pointer;
     font-size: 14px;
     font-weight: 500;
-    color: #555;
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
+    color: #a0a0a0;
+    background: #0a0a0a;
+    border: 1px solid rgba(255,255,255,.08);
     border-radius: 10px;
     padding: 10px 16px;
     transition: border-color .15s, background .15s;
@@ -185,7 +185,7 @@
 
   .tc-radio-label:hover {
     border-color: #22c55e;
-    background: #f0fdf4;
+    background: rgba(34,197,94,.1);
   }
 
   .tc-radio-label input[type="radio"] {
@@ -193,35 +193,35 @@
   }
 
   .tc-radio-label input[type="radio"]:checked ~ span {
-    color: #111;
+    color: #e8e8e8;
     font-weight: 600;
   }
 
   .tc-error-text {
     font-size: 12px;
-    color: #dc2626;
+    color: #f87171;
     margin: 0;
   }
 
   .tc-error-box {
-    background: #fef2f2;
-    border: 1px solid #fecaca;
+    background: rgba(229,57,53,.1);
+    border: 1px solid rgba(239,68,68,.3);
     border-radius: 12px;
     padding: 12px 16px;
     font-size: 13px;
-    color: #dc2626;
+    color: #f87171;
     margin-bottom: 16px;
   }
 
   .tc-divider {
     height: 1px;
-    background: #f4f4f4;
+    background: rgba(255,255,255,.06);
     margin: 0 -24px;
   }
 
   /* Image upload */
   .tc-upload-zone {
-    border: 2px dashed #d1d5db;
+    border: 2px dashed rgba(255,255,255,.1);
     border-radius: 14px;
     padding: 28px 20px;
     text-align: center;
@@ -232,7 +232,7 @@
 
   .tc-upload-zone:hover {
     border-color: #22c55e;
-    background: #f0fdf4;
+    background: rgba(34,197,94,.1);
   }
 
   .tc-upload-zone input[type="file"] {
@@ -244,19 +244,19 @@
 
   .tc-upload-icon {
     margin-bottom: 8px;
-    color: #9ca3af;
+    color: #555;
   }
 
   .tc-upload-text {
     font-size: 14px;
     font-weight: 600;
-    color: #374151;
+    color: #a0a0a0;
     margin: 0;
   }
 
   .tc-upload-hint {
     font-size: 12px;
-    color: #aaa;
+    color: #555;
     margin: 4px 0 0 0;
   }
 
@@ -282,7 +282,7 @@
   }
 
   .tc-field-card {
-    border: 2px solid #e5e7eb;
+    border: 2px solid rgba(255,255,255,.08);
     border-radius: 16px;
     padding: 16px 18px;
     cursor: pointer;
@@ -292,12 +292,12 @@
 
   .tc-field-card:hover {
     border-color: #22c55e;
-    background: #f0fdf4;
+    background: rgba(34,197,94,.1);
   }
 
   .tc-field-card.selected {
     border-color: #22c55e;
-    background: #f0fdf4;
+    background: rgba(34,197,94,.1);
     box-shadow: 0 0 0 3px rgba(34,197,94,.15);
   }
 
@@ -323,14 +323,14 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .04em;
-    color: #999;
+    color: #666;
     margin: 0 0 4px 0;
   }
 
   .tc-field-card-name {
     font-size: 15px;
     font-weight: 700;
-    color: #111;
+    color: #e8e8e8;
     margin: 0 0 6px 0;
     display: flex;
     align-items: center;
@@ -347,8 +347,8 @@
   .tc-field-card-tag {
     font-size: 12px;
     font-weight: 600;
-    color: #555;
-    background: #f3f4f6;
+    color: #a0a0a0;
+    background: rgba(255,255,255,.06);
     border-radius: 8px;
     padding: 4px 10px;
     display: inline-flex;
@@ -358,7 +358,7 @@
 
   .tc-field-card-address {
     font-size: 12px;
-    color: #888;
+    color: #666;
     margin: 6px 0 0 0;
   }
 
@@ -376,8 +376,8 @@
 
   /* Tier upsell */
   .tc-upsell-banner {
-    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-    border: 1px solid #fde68a;
+    background: rgba(245,158,11,.08);
+    border: 1px solid rgba(245,158,11,.25);
     border-radius: 16px;
     padding: 16px 20px;
     margin-bottom: 20px;
@@ -400,7 +400,7 @@
   .tc-upsell-banner-text {
     flex: 1;
     font-size: 13px;
-    color: #92400e;
+    color: #fbbf24;
     line-height: 1.5;
   }
 
@@ -415,8 +415,8 @@
     padding: 8px 16px;
     font-size: 12px;
     font-weight: 700;
-    color: #fff;
-    background: #111;
+    color: #050505;
+    background: #22c55e;
     border-radius: 10px;
     text-decoration: none;
     white-space: nowrap;
@@ -425,15 +425,15 @@
   }
 
   .tc-upsell-btn:hover {
-    background: #333;
+    background: #16a34a;
     color: #fff;
   }
 
   .tc-upsell-inline {
     font-size: 12px;
-    color: #92400e;
-    background: #fffbeb;
-    border: 1px solid #fde68a;
+    color: #fbbf24;
+    background: rgba(245,158,11,.08);
+    border: 1px solid rgba(245,158,11,.25);
     border-radius: 10px;
     padding: 8px 12px;
     margin-top: 6px;
@@ -441,13 +441,13 @@
   }
 
   .tc-upsell-inline a {
-    color: #b45309;
+    color: #fbbf24;
     font-weight: 700;
     text-decoration: underline;
   }
 
   .tc-upsell-inline a:hover {
-    color: #92400e;
+    color: #fbbf24;
   }
 
   /* Sport icon badge */
@@ -461,8 +461,8 @@
     letter-spacing: .03em;
     padding: 3px 8px;
     border-radius: 6px;
-    background: #e0f2fe;
-    color: #0369a1;
+    background: rgba(59,130,246,.15);
+    color: #60a5fa;
   }
 
   /* Submit */
@@ -489,7 +489,7 @@
     gap: 8px;
   }
 
-  .tc-submit:hover { background: #222; }
+  .tc-submit:hover { background: #16a34a; }
   .tc-submit:active { transform: scale(.98); }
 
   @media (max-width: 600px) {
@@ -593,16 +593,24 @@
             <label class="tc-label" for="format">
               Formato
             </label>
-            <select id="format" name="format" class="tc-select" disabled>
-              <option value="single_elimination" selected>Eliminacion directa</option>
-            </select>
-            <input type="hidden" name="format" value="single_elimination">
-            @if($tier === 'free')
-              <div class="tc-upsell-inline">
-                Liga y Grupos disponibles con <a href="{{ route('organizador.planes') }}">Plan Pro</a>
-              </div>
+            @if(count($formats) > 1)
+              <select id="format" name="format" class="tc-select" required>
+                @foreach($formats as $fmt)
+                  <option value="{{ $fmt }}" {{ old('format', 'single_elimination') === $fmt ? 'selected' : '' }}>
+                    {{ match($fmt) { 'single_elimination' => 'Eliminacion directa', 'round_robin' => 'Liga (todos contra todos)', 'groups_elimination' => 'Fase de grupos + eliminacion', default => ucfirst(str_replace('_', ' ', $fmt)) } }}
+                  </option>
+                @endforeach
+              </select>
             @else
-              <p class="tc-hint">Mas formatos proximamente</p>
+              <select id="format" class="tc-select" disabled>
+                <option value="single_elimination" selected>Eliminacion directa</option>
+              </select>
+              <input type="hidden" name="format" value="single_elimination">
+              @if($tier === 'free')
+                <div class="tc-upsell-inline">
+                  Liga y Grupos disponibles con <a href="{{ route('organizador.planes') }}">Plan Pro</a>
+                </div>
+              @endif
             @endif
           </div>
         </div>
@@ -705,13 +713,13 @@
         <div id="tcFieldsSelected" style="display:none;flex-direction:column;gap:8px;margin-bottom:12px;"></div>
 
         {{-- Add field button --}}
-        <button type="button" id="tcFieldBtn" style="display:flex;align-items:center;gap:12px;width:100%;padding:16px;border:2px dashed #d1d5db;border-radius:14px;background:#fafafa;cursor:pointer;transition:all .15s;font-family:inherit;" onclick="openTcFieldModal()" onmouseover="this.style.borderColor='#22c55e';this.style.background='#f0fdf4'" onmouseout="this.style.borderColor='#d1d5db';this.style.background='#fafafa'">
-          <div style="width:40px;height:40px;border-radius:10px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <button type="button" id="tcFieldBtn" style="display:flex;align-items:center;gap:12px;width:100%;padding:16px;border:2px dashed rgba(255,255,255,.1);border-radius:14px;background:#0a0a0a;cursor:pointer;transition:all .15s;font-family:inherit;" onclick="openTcFieldModal()" onmouseover="this.style.borderColor='#22c55e';this.style.background='rgba(34,197,94,.1)'" onmouseout="this.style.borderColor='rgba(255,255,255,.1)';this.style.background='#0a0a0a'"
+          <div style="width:40px;height:40px;border-radius:10px;background:#1a1a1a;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
             <i data-lucide="plus" style="width:18px;height:18px;stroke:#666;"></i>
           </div>
           <div style="text-align:left;">
-            <div style="font-weight:700;font-size:14px;color:#374151;">Agregar cancha</div>
-            <div style="font-size:12px;color:#888;">Elegi canchas de TuCancha con torneos habilitados</div>
+            <div style="font-weight:700;font-size:14px;color:#e8e8e8;">Agregar cancha</div>
+            <div style="font-size:12px;color:#666;">Elegi canchas de TuCancha con torneos habilitados</div>
           </div>
         </button>
 
@@ -740,13 +748,18 @@
         {{-- Precio inscripcion --}}
         <div class="tc-input-group">
           <label class="tc-label" for="inscription_price">
-            Precio inscripcion por equipo (informativo)
+            Precio inscripcion por equipo
           </label>
           <input type="number" id="inscription_price" name="inscription_price" class="tc-input"
                  min="0" step="0.01"
                  placeholder="Ej: 5000"
-                 value="{{ old('inscription_price') }}">
-          <p class="tc-hint">Solo informativo. El cobro se gestiona por fuera de la plataforma.</p>
+                 value="{{ old('inscription_price') }}"
+                 {{ !$canChargeMp ? 'disabled' : '' }}>
+          @if($canChargeMp)
+            <p class="tc-hint">Los equipos pagaran la inscripcion por MercadoPago al anotarse.</p>
+          @else
+            <p class="tc-hint">Necesitas el plan Pro para cobrar inscripcion por MercadoPago. <a href="{{ route('organizador.planes') }}" style="color:var(--color-primary);font-weight:700;text-decoration:underline;">Ver planes</a></p>
+          @endif
           @error('inscription_price')
             <p class="tc-error-text">{{ $message }}</p>
           @enderror
@@ -851,7 +864,7 @@
             <p class="tc-upload-hint" id="tcUploadHint">JPG, PNG o WebP. Maximo 5 MB.</p>
           </div>
 
-          <div id="tcImagePreview" style="display:none;margin-top:12px;border-radius:14px;overflow:hidden;border:1px solid #e2e8f0;">
+          <div id="tcImagePreview" style="display:none;margin-top:12px;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.1);">
             <img id="tcImagePreviewImg" src="" alt="Preview" style="width:100%;display:block;">
           </div>
 
@@ -862,6 +875,85 @@
       </div>
     </div>
 
+    {{-- ═══ PASO 7: Branding (Pro) ═══ --}}
+    <div class="tc-card">
+      <div class="tc-card-header">
+        <div class="tc-step-num">
+          <i data-lucide="palette" style="width:18px;height:18px;stroke:#22c55e;stroke-width:2;"></i>
+        </div>
+        <div class="tc-card-header-text">
+          <h2>Personalizar colores</h2>
+          <p>Dale identidad a tu torneo</p>
+        </div>
+        @if(!$canBrand)
+          <span style="margin-left:auto;font-size:11px;font-weight:700;background:rgba(255,255,255,.06);color:#a0a0a0;padding:3px 10px;border-radius:99px;">PRO</span>
+        @endif
+      </div>
+
+      <div class="tc-card-body">
+        @if($canBrand)
+          {{-- Color pickers --}}
+          <div class="tc-row">
+            <div class="tc-input-group">
+              <label class="tc-label" for="primary_color">Color principal</label>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <input type="color" id="primary_color" name="primary_color"
+                       value="{{ old('primary_color', '#22c55e') }}"
+                       style="width:48px;height:40px;border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:2px;cursor:pointer;background:#0a0a0a;">
+                <input type="text" id="primary_color_text"
+                       value="{{ old('primary_color', '#22c55e') }}"
+                       style="width:90px;font-family:monospace;font-size:14px;padding:8px 12px;border:1px solid rgba(255,255,255,.1);border-radius:10px;text-transform:uppercase;background:#0a0a0a;color:#e8e8e8;"
+                       maxlength="7"
+                       oninput="if(/^#[0-9a-fA-F]{6}$/.test(this.value))document.getElementById('primary_color').value=this.value">
+              </div>
+              <p class="tc-hint">Hero, badges, botones y acentos.</p>
+              @error('primary_color') <p class="tc-error-text">{{ $message }}</p> @enderror
+            </div>
+            <div class="tc-input-group">
+              <label class="tc-label" for="secondary_color">Color secundario</label>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <input type="color" id="secondary_color" name="secondary_color"
+                       value="{{ old('secondary_color', '#111111') }}"
+                       style="width:48px;height:40px;border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:2px;cursor:pointer;background:#0a0a0a;">
+                <input type="text" id="secondary_color_text"
+                       value="{{ old('secondary_color', '#111111') }}"
+                       style="width:90px;font-family:monospace;font-size:14px;padding:8px 12px;border:1px solid rgba(255,255,255,.1);border-radius:10px;text-transform:uppercase;background:#0a0a0a;color:#e8e8e8;"
+                       maxlength="7"
+                       oninput="if(/^#[0-9a-fA-F]{6}$/.test(this.value))document.getElementById('secondary_color').value=this.value">
+              </div>
+              <p class="tc-hint">Fondo del hero, tarjetas y degradados.</p>
+              @error('secondary_color') <p class="tc-error-text">{{ $message }}</p> @enderror
+            </div>
+          </div>
+
+          {{-- Logo --}}
+          <div class="tc-divider"></div>
+          <div class="tc-input-group">
+            <label class="tc-label">Logo del torneo</label>
+            <div class="tc-upload-zone" style="padding:16px 14px;">
+              <input type="file" name="logo_image" accept="image/jpeg,image/png,image/webp"
+                     onchange="var p=document.getElementById('tcLogoPreview'),i=document.getElementById('tcLogoImg');if(this.files[0]){var r=new FileReader();r.onload=function(e){i.src=e.target.result;p.style.display='block';};r.readAsDataURL(this.files[0]);}">
+              <div class="tc-upload-icon">
+                <i data-lucide="image-plus" style="width:24px;height:24px;stroke:currentColor;"></i>
+              </div>
+              <p class="tc-upload-text" style="font-size:13px;">Subir logo</p>
+              <p class="tc-upload-hint">PNG o JPG. Max 2 MB.</p>
+            </div>
+            <div id="tcLogoPreview" style="display:none;margin-top:8px;text-align:center;">
+              <img id="tcLogoImg" src="" alt="Logo preview" style="max-width:80px;max-height:80px;border-radius:12px;border:1px solid rgba(255,255,255,.1);">
+            </div>
+            @error('logo_image') <p class="tc-error-text">{{ $message }}</p> @enderror
+          </div>
+        @else
+          <div style="padding:12px 16px;background:#0a0a0a;border-radius:12px;border:1px solid rgba(255,255,255,.08);text-align:center;">
+            <p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#e8e8e8;">Personalizacion de colores y logo</p>
+            <p style="margin:0 0 10px;font-size:13px;color:#a0a0a0;">Disponible con el plan Pro. Dale identidad propia a tu torneo.</p>
+            <a href="{{ route('organizador.planes') }}" style="font-size:13px;font-weight:700;color:#22c55e;text-decoration:none;">Ver planes &rarr;</a>
+          </div>
+        @endif
+      </div>
+    </div>
+
     {{-- ═══ Submit ═══ --}}
     <div class="tc-card">
       <div class="tc-card-footer" style="border-top:none;">
@@ -869,7 +961,7 @@
           <i data-lucide="plus-circle" style="width:18px;height:18px;stroke:currentColor;"></i>
           Crear Torneo
         </button>
-        <p style="text-align:center; font-size:12px; color:#bbb; margin:10px 0 0 0;">
+        <p style="text-align:center; font-size:12px; color:#555; margin:10px 0 0 0;">
           El torneo se crea en borrador. Publicalo cuando estes listo.
         </p>
       </div>
@@ -881,17 +973,17 @@
 
 {{-- Modal selector de cancha para torneo --}}
 <div id="tcFieldModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)this.style.display='none'">
-  <div style="background:#fff;border-radius:18px;max-width:520px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+  <div style="background:#111;border-radius:18px;max-width:520px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.5);">
     <div style="padding:20px 24px 0;display:flex;justify-content:space-between;align-items:center;">
-      <h3 style="margin:0;font-size:20px;font-weight:800;">Agregar cancha</h3>
+      <h3 style="margin:0;font-size:20px;font-weight:800;color:#e8e8e8;">Agregar cancha</h3>
       <button onclick="document.getElementById('tcFieldModal').style.display='none'" style="background:none;border:none;cursor:pointer;padding:4px;">
         <i data-lucide="x" style="width:20px;height:20px;stroke:#999;"></i>
       </button>
     </div>
-    <p style="padding:0 24px;margin:8px 0 16px;font-size:14px;color:#666;">Podes elegir varias canchas, incluso de complejos distintos.</p>
+    <p style="padding:0 24px;margin:8px 0 16px;font-size:14px;color:#a0a0a0;">Podes elegir varias canchas, incluso de complejos distintos.</p>
 
     <div style="padding:0 24px 12px;">
-      <input type="text" id="tcFieldSearchInput" placeholder="Buscar por cancha o complejo..." aria-label="Buscar cancha" oninput="filterTcFields()" style="width:100%;padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;outline:none;box-sizing:border-box;" onfocus="this.style.borderColor='#16a34a'" onblur="this.style.borderColor='#e5e7eb'">
+      <input type="text" id="tcFieldSearchInput" placeholder="Buscar por cancha o complejo..." aria-label="Buscar cancha" oninput="filterTcFields()" style="width:100%;padding:10px 14px;border:1.5px solid rgba(255,255,255,.1);border-radius:10px;font-size:14px;outline:none;box-sizing:border-box;background:#0a0a0a;color:#e8e8e8;" onfocus="this.style.borderColor='#16a34a'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
     </div>
 
     <div id="tcFieldList" style="padding:0 24px 20px;display:grid;gap:8px;">
@@ -917,31 +1009,31 @@
            data-venue-name="{{ $f->venue->name }}"
            data-sport="{{ $f->sport }}"
            onclick="event.preventDefault();toggleTcField(this)"
-           style="display:flex;align-items:center;gap:12px;padding:14px;border:1.5px solid #f0f0f0;border-radius:12px;text-decoration:none;color:inherit;transition:all .15s;"
-           onmouseover="if(!this.classList.contains('tc-field-selected'))this.style.borderColor='#16a34a',this.style.background='#f0fdf4'"
-           onmouseout="if(!this.classList.contains('tc-field-selected'))this.style.borderColor='#f0f0f0',this.style.background='transparent'">
-          <div style="width:40px;height:40px;border-radius:10px;background:{{ $isAutoApprove ? '#dcfce7' : '#f1f5f9' }};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+           style="display:flex;align-items:center;gap:12px;padding:14px;border:1.5px solid rgba(255,255,255,.08);border-radius:12px;text-decoration:none;color:inherit;transition:all .15s;"
+           onmouseover="if(!this.classList.contains('tc-field-selected'))this.style.borderColor='#16a34a',this.style.background='rgba(34,197,94,.1)'"
+           onmouseout="if(!this.classList.contains('tc-field-selected'))this.style.borderColor='rgba(255,255,255,.08)',this.style.background='transparent'">
+          <div style="width:40px;height:40px;border-radius:10px;background:{{ $isAutoApprove ? 'rgba(34,197,94,.15)' : '#1a1a1a' }};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
             <i data-lucide="{{ $isAutoApprove ? 'zap' : 'map-pin' }}" style="width:18px;height:18px;stroke:{{ $isAutoApprove ? '#16a34a' : '#666' }};stroke-width:2;"></i>
           </div>
           <div style="flex:1;min-width:0;">
-            <div style="font-weight:700;font-size:14px;">{{ $f->name }}</div>
-            <div style="font-size:12px;color:#666;">{{ $f->venue->name }} · {{ $sportLabel }} · {{ $priceDisplay }}</div>
+            <div style="font-weight:700;font-size:14px;color:#e8e8e8;">{{ $f->name }}</div>
+            <div style="font-size:12px;color:#a0a0a0;">{{ $f->venue->name }} · {{ $sportLabel }} · {{ $priceDisplay }}</div>
             <div style="font-size:11px;margin-top:3px;">
               @if($isAutoApprove)
-                <span style="color:#16a34a;font-weight:600;">Se aprueba automaticamente</span>
+                <span style="color:#22c55e;font-weight:600;">Se aprueba automaticamente</span>
               @else
                 <span style="color:#b45309;font-weight:600;">Requiere aprobacion del complejo (via {{ $contactLabel }})</span>
               @endif
             </div>
           </div>
-          <div class="tc-field-check" style="width:24px;height:24px;border-radius:50%;border:2px solid #d1d5db;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;">
+          <div class="tc-field-check" style="width:24px;height:24px;border-radius:50%;border:2px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;">
           </div>
         </a>
       @empty
         <div style="text-align:center;padding:28px 16px;">
-          <i data-lucide="map-pin-off" style="width:32px;height:32px;stroke:#ccc;stroke-width:1.5;margin-bottom:8px;"></i>
-          <div style="font-weight:700;font-size:14px;color:#888;">No hay canchas con torneos habilitados</div>
-          <div style="font-size:13px;color:#aaa;margin-top:4px;">Cuando un complejo active torneos en sus canchas, apareceran aca.</div>
+          <i data-lucide="map-pin-off" style="width:32px;height:32px;stroke:#444;stroke-width:1.5;margin-bottom:8px;"></i>
+          <div style="font-weight:700;font-size:14px;color:#a0a0a0;">No hay canchas con torneos habilitados</div>
+          <div style="font-size:13px;color:#666;margin-top:4px;">Cuando un complejo active torneos en sus canchas, apareceran aca.</div>
         </div>
       @endforelse
     </div>
@@ -1026,15 +1118,15 @@ function updateFieldOptionStyle(el, selected) {
   if (selected) {
     el.classList.add('tc-field-selected');
     el.style.borderColor = '#22c55e';
-    el.style.background = '#f0fdf4';
+    el.style.background = 'rgba(34,197,94,.1)';
     check.style.borderColor = '#22c55e';
     check.style.background = '#22c55e';
     check.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
   } else {
     el.classList.remove('tc-field-selected');
-    el.style.borderColor = '#f0f0f0';
+    el.style.borderColor = 'rgba(255,255,255,.08)';
     el.style.background = 'transparent';
-    check.style.borderColor = '#d1d5db';
+    check.style.borderColor = 'rgba(255,255,255,.15)';
     check.style.background = 'transparent';
     check.innerHTML = '';
   }
@@ -1077,9 +1169,9 @@ function renderSelectedFields() {
 
     // Visual chip
     var chip = document.createElement('div');
-    chip.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid #22c55e;border-radius:12px;background:#f0fdf4;';
+    chip.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid #22c55e;border-radius:12px;background:rgba(34,197,94,.1);';
     chip.innerHTML =
-      '<div style="width:32px;height:32px;border-radius:8px;background:#dcfce7;display:flex;align-items:center;justify-content:center;flex-shrink:0;">' +
+      '<div style="width:32px;height:32px;border-radius:8px;background:rgba(34,197,94,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">' +
         '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>' +
       '</div>' +
       '<div style="flex:1;min-width:0;">' +
@@ -1102,6 +1194,13 @@ function filterTcFields() {
     el.style.display = (matchesSport && matchesSearch) ? 'flex' : 'none';
   });
 }
+
+// Sync color pickers <-> text inputs
+['primary_color', 'secondary_color'].forEach(function(id) {
+  var cp = document.getElementById(id);
+  var txt = document.getElementById(id + '_text');
+  if (cp && txt) cp.addEventListener('input', function() { txt.value = cp.value; });
+});
 </script>
 
 @endsection

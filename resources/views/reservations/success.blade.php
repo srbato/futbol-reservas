@@ -27,8 +27,8 @@
             <p class="muted" style="margin:0;">
                 Estamos esperando la confirmación de Mercado Pago. Esto puede tardar unos segundos.
             </p>
-            <div style="margin-top:16px; display:flex; align-items:center; justify-content:center; gap:10px; color:#9a6700; font-weight:600;">
-                <span id="pollingDot" style="width:10px; height:10px; border-radius:999px; background:#f0ad00; display:inline-block; animation:pulse 1s infinite;"></span>
+            <div style="margin-top:16px; display:flex; align-items:center; justify-content:center; gap:10px; color:#fbbf24; font-weight:600;">
+                <span id="pollingDot" style="width:10px; height:10px; border-radius:999px; background:#fbbf24; display:inline-block; animation:pulse 1s infinite;"></span>
                 <span id="pollingText">Verificando estado...</span>
             </div>
         </div>
@@ -61,8 +61,8 @@
     </div>
 
     @if($reservation->status === 'PENDING_PAYMENT')
-        <div class="page-card" style="margin-bottom:18px; background:#fff4db; border-color:#f5d48a;">
-            <p style="margin:0; color:#9a6700; line-height:1.6;">
+        <div class="page-card" style="margin-bottom:18px; background:rgba(245,158,11,.08); border-color:rgba(245,158,11,.2);">
+            <p style="margin:0; color:#fbbf24; line-height:1.6;">
                 Si el pago fue aprobado, la reserva se actualizará automáticamente en esta misma página.
             </p>
         </div>
@@ -181,7 +181,7 @@
     function checkStatus() {
         if (attempts >= maxAttempts) {
             document.getElementById('pollingText').innerText = 'No se pudo confirmar automáticamente. Revisá tus reservas.';
-            document.getElementById('pollingDot').style.background = '#842029';
+            document.getElementById('pollingDot').style.background = '#f87171';
             return;
         }
 
@@ -196,7 +196,7 @@
                 }
                 if (r.status === 403) {
                     document.getElementById('pollingText').innerText = 'No tenés permiso para ver esta reserva.';
-                    document.getElementById('pollingDot').style.background = '#842029';
+                    document.getElementById('pollingDot').style.background = '#f87171';
                     return null;
                 }
                 return r.json();

@@ -26,7 +26,8 @@
       "WebFetch(domain:www.empirepadel.com.ar)",
       "Skill(claude-api)",
       "Skill(claude-api:*)",
-      "mcp__Claude_Preview__preview_start"
+      "mcp__Claude_Preview__preview_start",
+      "mcp__13865fc8-f9f9-4ff2-b826-ef28e6c18fa9__create_markdown_text_document"
     ]
   }
 }

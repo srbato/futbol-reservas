@@ -99,6 +99,7 @@
       .admin-hamburger { display: none !important; }
     }
   </style>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="bg-slate-100 text-slate-900 antialiased">
 
@@ -199,6 +200,18 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
         </svg>
         Bloqueos
+      </a>
+      @endif
+
+      @if(!$isStaff || $navUser->hasStaffPermission('manage_blocks', $staffVenueId))
+      <a href="{{ route('va.user-blocks.index') }}"
+         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
+                {{ request()->routeIs('va.user-blocks.*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364L5.636 5.636" stroke-width="2.5"/>
+        </svg>
+        Bloqueo de usuarios
       </a>
       @endif
 

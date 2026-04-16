@@ -32,10 +32,10 @@
 
   /* ── Hero (Double-Bezel) ───────────────────────── */
   .fpp-hero-shell {
-    background: rgba(0,0,0,0.03);
+    background: rgba(255,255,255,0.025);
     border-radius: 2rem;
     padding: 5px;
-    border: 1px solid rgba(0,0,0,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
     margin-bottom: 32px;
     margin-top: 32px;
   }
@@ -158,7 +158,7 @@
   .fpp-section-line {
     flex: 1;
     height: 1px;
-    background: linear-gradient(90deg, #ececec, transparent);
+    background: linear-gradient(90deg, rgba(255,255,255,.08), transparent);
   }
 
   /* ── Sport Cards (Double-Bezel) ────────────────── */
@@ -170,20 +170,20 @@
   }
 
   .fpp-sport-shell {
-    background: rgba(0,0,0,0.02);
+    background: rgba(255,255,255,0.025);
     border-radius: 1.5rem;
     padding: 4px;
-    border: 1px solid rgba(0,0,0,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
     transition: transform 400ms var(--ease-out-expo), box-shadow 400ms var(--ease-out-expo);
   }
 
   .fpp-sport-shell:hover {
     transform: translateY(-4px);
-    box-shadow: 0 16px 40px rgba(0,0,0,0.06);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.3);
   }
 
   .fpp-sport-card {
-    background: #fff;
+    background: #111;
     border-radius: calc(1.5rem - 4px);
     padding: 24px 20px;
     position: relative;
@@ -212,7 +212,7 @@
   .fpp-sport-name {
     font-size: 18px;
     font-weight: 900;
-    color: #111;
+    color: #e8e8e8;
     margin-bottom: 8px;
     letter-spacing: -0.02em;
   }
@@ -249,7 +249,7 @@
 
   .fpp-stat-label {
     font-size: 9px;
-    color: #888;
+    color: #666;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: .04em;
@@ -262,12 +262,12 @@
     gap: 2px;
   }
 
-  .fpp-star { color: #e5e5e5; }
+  .fpp-star { color: rgba(255,255,255,.12); }
   .fpp-star.filled { color: #f59e0b; }
 
   .fpp-rating-num {
     font-size: 12px;
-    color: #999;
+    color: #666;
     margin-left: 6px;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
@@ -286,15 +286,15 @@
 
   /* ── Match History (Double-Bezel) ───────────────── */
   .fpp-matches-shell {
-    background: rgba(0,0,0,0.02);
+    background: rgba(255,255,255,0.025);
     border-radius: 1.25rem;
     padding: 4px;
-    border: 1px solid rgba(0,0,0,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
     margin-bottom: 40px;
   }
 
   .fpp-matches-wrap {
-    background: #fff;
+    background: #111;
     border-radius: calc(1.25rem - 4px);
     overflow: hidden;
   }
@@ -304,12 +304,12 @@
     align-items: center;
     gap: 14px;
     padding: 14px 20px;
-    border-bottom: 1px solid #f4f4f4;
+    border-bottom: 1px solid rgba(255,255,255,.06);
     transition: background 200ms var(--ease-out-expo);
   }
 
   .fpp-match-row:last-child { border-bottom: none; }
-  .fpp-match-row:hover { background: #fafafa; }
+  .fpp-match-row:hover { background: #1a1a1a; }
 
   .fpp-result-pill {
     padding: 4px 14px;
@@ -321,60 +321,60 @@
     flex-shrink: 0;
   }
 
-  .fpp-result-win  { background: #f0fdf4; color: #15803d; }
-  .fpp-result-draw { background: #fffbeb; color: #b45309; }
-  .fpp-result-loss { background: #fef2f2; color: #dc2626; }
-  .fpp-result-none { background: #f4f4f4; color: #888; }
+  .fpp-result-win  { background: rgba(34,197,94,.1); color: #4ade80; }
+  .fpp-result-draw { background: rgba(245,158,11,.08); color: #fbbf24; }
+  .fpp-result-loss { background: rgba(229,57,53,.1); color: #f87171; }
+  .fpp-result-none { background: rgba(255,255,255,.06); color: #666; }
 
   .fpp-match-info { flex: 1; min-width: 0; }
 
   .fpp-match-name {
     font-size: 14px;
     font-weight: 800;
-    color: #111;
+    color: #e8e8e8;
     letter-spacing: -0.01em;
   }
 
   .fpp-match-meta {
     font-size: 12px;
-    color: #999;
+    color: #666;
     margin-top: 2px;
     font-weight: 500;
   }
 
   .fpp-match-goals {
     font-size: 12px;
-    color: #5a5a5a;
+    color: #a0a0a0;
     font-weight: 700;
     flex-shrink: 0;
   }
 
   /* ── Chart Card (Double-Bezel) ──────────────────── */
   .fpp-chart-shell {
-    background: rgba(0,0,0,0.02);
+    background: rgba(255,255,255,0.025);
     border-radius: 1.25rem;
     padding: 4px;
-    border: 1px solid rgba(0,0,0,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
     margin-bottom: 40px;
   }
 
   .fpp-chart-card {
-    background: #fff;
+    background: #111;
     border-radius: calc(1.25rem - 4px);
     padding: 24px;
   }
 
   /* ── Conventional Reservations (Double-Bezel) ──── */
   .fpp-conv-shell {
-    background: rgba(0,0,0,0.02);
+    background: rgba(255,255,255,0.025);
     border-radius: 1.25rem;
     padding: 4px;
-    border: 1px solid rgba(0,0,0,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
     margin-bottom: 40px;
   }
 
   .fpp-conv-card {
-    background: #fff;
+    background: #111;
     border-radius: calc(1.25rem - 4px);
     padding: 24px;
   }
@@ -401,7 +401,7 @@
 
   .fpp-conv-label {
     font-size: 9px;
-    color: #888;
+    color: #666;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: .04em;
@@ -413,7 +413,7 @@
     align-items: center;
     gap: 14px;
     padding: 12px 0;
-    border-top: 1px solid #f4f4f4;
+    border-top: 1px solid rgba(255,255,255,.06);
   }
 
   .fpp-conv-row:first-of-type { border-top: none; }
@@ -421,39 +421,39 @@
   .fpp-conv-name {
     font-size: 13px;
     font-weight: 800;
-    color: #111;
+    color: #e8e8e8;
   }
 
   .fpp-conv-score {
     font-weight: 400;
-    color: #999;
+    color: #666;
     font-size: 12px;
     margin-left: 4px;
   }
 
   .fpp-conv-meta {
     font-size: 11px;
-    color: #999;
+    color: #666;
     margin-top: 2px;
   }
 
   /* ── Ratings Breakdown ─────────────────────────── */
   .fpp-ratings-shell {
-    background: rgba(0,0,0,0.02);
+    background: rgba(255,255,255,0.025);
     border-radius: 1.25rem;
     padding: 4px;
-    border: 1px solid rgba(0,0,0,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
     margin-bottom: 40px;
   }
   .fpp-ratings-card {
-    background: #fff;
+    background: #111;
     border-radius: calc(1.25rem - 4px);
     padding: 24px;
   }
   .fpp-ratings-sport-title {
     font-size: 15px;
     font-weight: 800;
-    color: #111;
+    color: #e8e8e8;
     margin: 0 0 16px;
     display: flex;
     align-items: center;
@@ -479,7 +479,7 @@
   .fpp-bar-track {
     flex: 1;
     height: 8px;
-    background: #f3f4f6;
+    background: rgba(255,255,255,.06);
     border-radius: 999px;
     overflow: hidden;
   }
@@ -491,7 +491,7 @@
   .fpp-bar-count {
     font-size: 12px;
     font-weight: 700;
-    color: #888;
+    color: #666;
     width: 28px;
     text-align: right;
     flex-shrink: 0;
@@ -499,7 +499,7 @@
   }
   .fpp-comment-item {
     padding: 12px 0;
-    border-top: 1px solid #f4f4f4;
+    border-top: 1px solid rgba(255,255,255,.06);
   }
   .fpp-comment-item:first-child { border-top: none; }
   .fpp-comment-header {
@@ -522,31 +522,31 @@
     flex-shrink: 0;
   }
   .fpp-comment-avatar img { width: 100%; height: 100%; object-fit: cover; }
-  .fpp-comment-name { font-size: 13px; font-weight: 700; color: #111; }
+  .fpp-comment-name { font-size: 13px; font-weight: 700; color: #e8e8e8; }
   .fpp-comment-text {
     font-size: 13px;
-    color: #555;
+    color: #a0a0a0;
     line-height: 1.5;
     margin: 0;
   }
   .fpp-ratings-total {
     font-size: 12px;
-    color: #888;
+    color: #666;
     font-weight: 600;
     margin-left: auto;
   }
 
   /* ── Empty State ───────────────────────────────── */
   .fpp-empty-shell {
-    background: rgba(0,0,0,0.02);
+    background: rgba(255,255,255,0.025);
     border-radius: 1.5rem;
     padding: 4px;
-    border: 1px solid rgba(0,0,0,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
     margin-bottom: 32px;
   }
 
   .fpp-empty {
-    background: #fff;
+    background: #111;
     border-radius: calc(1.5rem - 4px);
     text-align: center;
     padding: 56px 24px;
@@ -555,7 +555,7 @@
   .fpp-empty-icon {
     width: 40px;
     height: 40px;
-    color: #ccc;
+    color: #555;
     margin: 0 auto 14px;
     display: block;
   }
@@ -564,13 +564,105 @@
     font-size: 16px;
     font-weight: 800;
     margin: 0 0 6px;
-    color: #111;
+    color: #e8e8e8;
   }
 
   .fpp-empty-text {
-    color: #999;
+    color: #666;
     font-size: 13px;
     margin: 0;
+  }
+
+  /* ── Badges ─────────────────────────────────────── */
+  .fpp-badges-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .fpp-badge-pill {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px 5px 10px;
+    border-radius: 999px;
+    background: var(--badge-bg);
+    border: 1.5px solid var(--badge-border);
+    color: var(--badge-color);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: default;
+    opacity: 0;
+    animation: fpp-badge-fadein 0.5s ease forwards;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .fpp-badge-pill:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+
+  @keyframes fpp-badge-fadein {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .fpp-badge-icon {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .fpp-badge-icon svg {
+    stroke: var(--badge-color);
+  }
+
+  .fpp-badge-label {
+    white-space: nowrap;
+  }
+
+  .fpp-badge-tooltip {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 6px 12px;
+    background: #1f2937;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 8px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 10;
+  }
+
+  .fpp-badge-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #333;
+  }
+
+  .fpp-badge-pill:hover .fpp-badge-tooltip {
+    opacity: 1;
+  }
+
+  .fpp-badges-section {
+    margin-bottom: 32px;
   }
 
   /* ── Responsive ─────────────────────────────────── */
@@ -582,6 +674,7 @@
     .fpp-sports-grid { grid-template-columns: 1fr; }
     .fpp-conv-stats { grid-template-columns: repeat(2, 1fr); }
     .fpp-match-row { padding: 12px 16px; }
+    .fpp-badge-tooltip { display: none; }
   }
 
   /* ── Reduced Motion ─────────────────────────────── */
@@ -649,6 +742,17 @@
     </div>
   </div>
 
+  {{-- Reputation Badges --}}
+  @if(!empty($allBadges))
+    <div class="fpp-badges-section" data-aos="fade-up" data-aos-delay="100" data-aos-duration="600">
+      <div class="fpp-section-header">
+        <span class="fpp-section-label">Reputacion</span>
+        <div class="fpp-section-line"></div>
+      </div>
+      @include('components.badges', ['badges' => $allBadges, 'prefix' => 'fpp'])
+    </div>
+  @endif
+
   {{-- Sport Profiles --}}
   @if($profiles->isEmpty())
     <div class="fpp-empty-shell" data-aos="fade-up">
@@ -667,11 +771,11 @@
       @foreach($profiles as $pi => $profile)
       @php
         $catColors = match($profile->category) {
-          'recreativo', 'octava', 'septima'   => ['bg' => '#f3f4f6', 'color' => '#6b7280'],
-          'intermedio', 'sexta', 'quinta'      => ['bg' => '#dbeafe', 'color' => '#1d4ed8'],
-          'avanzado', 'cuarta', 'tercera'      => ['bg' => '#fef3c7', 'color' => '#d97706'],
-          'competitivo', 'segunda', 'primera'  => ['bg' => '#fce7f3', 'color' => '#db2777'],
-          default                              => ['bg' => '#f3f4f6', 'color' => '#6b7280'],
+          'recreativo', 'octava', 'septima'   => ['bg' => 'rgba(255,255,255,.06)', 'color' => '#a0a0a0'],
+          'intermedio', 'sexta', 'quinta'      => ['bg' => 'rgba(59,130,246,.1)', 'color' => '#60a5fa'],
+          'avanzado', 'cuarta', 'tercera'      => ['bg' => 'rgba(245,158,11,.1)', 'color' => '#fbbf24'],
+          'competitivo', 'segunda', 'primera'  => ['bg' => 'rgba(219,39,119,.1)', 'color' => '#f472b6'],
+          default                              => ['bg' => 'rgba(255,255,255,.06)', 'color' => '#a0a0a0'],
         };
         $stars = round($profile->average_rating);
       @endphp
@@ -685,19 +789,19 @@
 
           @php $rs = $realStats[$profile->sport] ?? null; @endphp
           <div class="fpp-stats-grid">
-            <div class="fpp-stat-cell" style="background:#f8f8f8;">
-              <div class="fpp-stat-num" style="color:#111;">{{ $rs ? $rs['games_played'] : $profile->games_played }}</div>
+            <div class="fpp-stat-cell" style="background:rgba(255,255,255,.04);">
+              <div class="fpp-stat-num" style="color:#e8e8e8;">{{ $rs ? $rs['games_played'] : $profile->games_played }}</div>
               <div class="fpp-stat-label">PJ</div>
             </div>
-            <div class="fpp-stat-cell" style="background:#f0fdf4;">
+            <div class="fpp-stat-cell" style="background:rgba(34,197,94,.08);">
               <div class="fpp-stat-num" style="color:#22c55e;">{{ $rs ? $rs['wins'] : $profile->wins }}</div>
               <div class="fpp-stat-label">PG</div>
             </div>
-            <div class="fpp-stat-cell" style="background:#fffbeb;">
+            <div class="fpp-stat-cell" style="background:rgba(245,158,11,.08);">
               <div class="fpp-stat-num" style="color:#f59e0b;">{{ $rs ? $rs['draws'] : $profile->draws }}</div>
               <div class="fpp-stat-label">PE</div>
             </div>
-            <div class="fpp-stat-cell" style="background:#fef2f2;">
+            <div class="fpp-stat-cell" style="background:rgba(229,57,53,.08);">
               <div class="fpp-stat-num" style="color:#ef4444;">{{ $rs ? $rs['losses'] : $profile->losses }}</div>
               <div class="fpp-stat-label">PP</div>
             </div>
@@ -712,8 +816,8 @@
 
           @if($profile->attendance_rate < 100)
             @php
-              $attColor = $profile->attendance_rate >= 90 ? '#15803d' : ($profile->attendance_rate >= 70 ? '#b45309' : '#dc2626');
-              $attBg    = $profile->attendance_rate >= 90 ? '#f0fdf4' : ($profile->attendance_rate >= 70 ? '#fffbeb' : '#fef2f2');
+              $attColor = $profile->attendance_rate >= 90 ? '#4ade80' : ($profile->attendance_rate >= 70 ? '#fbbf24' : '#f87171');
+              $attBg    = $profile->attendance_rate >= 90 ? 'rgba(34,197,94,.1)' : ($profile->attendance_rate >= 70 ? 'rgba(245,158,11,.08)' : 'rgba(229,57,53,.1)');
             @endphp
             <div class="fpp-attendance" style="background:{{ $attBg }};color:{{ $attColor }};">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
@@ -752,21 +856,21 @@
 
             <div class="fpp-ratings-bars">
               <div class="fpp-bar-row">
-                <span class="fpp-bar-label" style="color:#15803d;">Por encima</span>
+                <span class="fpp-bar-label" style="color:#4ade80;">Por encima</span>
                 <div class="fpp-bar-track">
                   <div class="fpp-bar-fill" style="width:{{ $pctAbove }}%; background:#22c55e;"></div>
                 </div>
                 <span class="fpp-bar-count">{{ $rd['above'] }}</span>
               </div>
               <div class="fpp-bar-row">
-                <span class="fpp-bar-label" style="color:#6b7280;">A la altura</span>
+                <span class="fpp-bar-label" style="color:#a0a0a0;">A la altura</span>
                 <div class="fpp-bar-track">
                   <div class="fpp-bar-fill" style="width:{{ $pctMatch }}%; background:#9ca3af;"></div>
                 </div>
                 <span class="fpp-bar-count">{{ $rd['match'] }}</span>
               </div>
               <div class="fpp-bar-row">
-                <span class="fpp-bar-label" style="color:#dc2626;">Por debajo</span>
+                <span class="fpp-bar-label" style="color:#f87171;">Por debajo</span>
                 <div class="fpp-bar-track">
                   <div class="fpp-bar-fill" style="width:{{ $pctBelow }}%; background:#ef4444;"></div>
                 </div>
@@ -776,7 +880,7 @@
 
             @if($rd['comments']->isNotEmpty())
               <div style="margin-top:4px;">
-                <div style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#aaa; margin-bottom:8px;">Comentarios recientes</div>
+                <div style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#666; margin-bottom:8px;">Comentarios recientes</div>
                 @foreach($rd['comments'] as $comment)
                   <div class="fpp-comment-item">
                     <div class="fpp-comment-header">
@@ -858,19 +962,19 @@
     <div class="fpp-conv-shell" data-aos="fade-up" data-aos-duration="600">
       <div class="fpp-conv-card">
         <div class="fpp-conv-stats">
-          <div class="fpp-conv-tile" style="background:#f8f8f8;">
-            <div class="fpp-conv-num" style="color:#111;">{{ $conventionalStats['total'] }}</div>
+          <div class="fpp-conv-tile" style="background:rgba(255,255,255,.04);">
+            <div class="fpp-conv-num" style="color:#e8e8e8;">{{ $conventionalStats['total'] }}</div>
             <div class="fpp-conv-label">Jugados</div>
           </div>
-          <div class="fpp-conv-tile" style="background:#f0fdf4;">
+          <div class="fpp-conv-tile" style="background:rgba(34,197,94,.08);">
             <div class="fpp-conv-num" style="color:#22c55e;">{{ $conventionalStats['wins'] }}</div>
             <div class="fpp-conv-label">Victorias</div>
           </div>
-          <div class="fpp-conv-tile" style="background:#fffbeb;">
+          <div class="fpp-conv-tile" style="background:rgba(245,158,11,.08);">
             <div class="fpp-conv-num" style="color:#f59e0b;">{{ $conventionalStats['draws'] }}</div>
             <div class="fpp-conv-label">Empates</div>
           </div>
-          <div class="fpp-conv-tile" style="background:#fef2f2;">
+          <div class="fpp-conv-tile" style="background:rgba(229,57,53,.08);">
             <div class="fpp-conv-num" style="color:#ef4444;">{{ $conventionalStats['losses'] }}</div>
             <div class="fpp-conv-label">Derrotas</div>
           </div>
@@ -913,6 +1017,7 @@
       height: 180,
       toolbar: { show: false },
       fontFamily: 'inherit',
+      background: 'transparent',
     },
     series: [{ name: 'Puntos', data: results.map(r => r.result) }],
     xaxis: {
@@ -929,10 +1034,10 @@
       },
     },
     stroke: { curve: 'smooth', width: 3 },
-    markers: { size: 5, colors: ['#22c55e'], strokeColors: '#fff', strokeWidth: 2 },
-    colors: ['#111'],
-    grid: { borderColor: '#f0f0f0', strokeDashArray: 4 },
-    theme: { mode: 'light' },
+    markers: { size: 5, colors: ['#22c55e'], strokeColors: '#111', strokeWidth: 2 },
+    colors: ['#22c55e'],
+    grid: { borderColor: 'rgba(255,255,255,.06)', strokeDashArray: 4 },
+    theme: { mode: 'dark' },
     tooltip: {
       y: { formatter: v => v === 3 ? 'Victoria' : v === 1 ? 'Empate' : 'Derrota' },
     },
