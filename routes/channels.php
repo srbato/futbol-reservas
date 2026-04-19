@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Broadcast;
 
+// Canal por defecto de Laravel para broadcasting notifications (notifiable->notify()
+// con ShouldBroadcast). No sacar, lo usa el framework automáticamente.
 Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });

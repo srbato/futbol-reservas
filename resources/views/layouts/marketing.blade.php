@@ -440,77 +440,215 @@
     @yield('content')
   </main>
 
-  <footer class="footer">
-    <div class="container">
-      <div class="footer-inner">
-        <span class="footer-brand"><img src="/images/logo-fondonegro-multicolor.svg" alt="TuCancha"></span>
-        <div class="footer-links">
-          <a href="{{ route('home') }}">Inicio</a>
-          <a href="{{ url('/como-funciona') }}">Como funciona</a>
-          <a href="{{ url('/planes') }}">Planes</a>
-          <a href="{{ route('venues.index') }}">Complejos</a>
-          <a href="{{ route('nosotros') }}">Nosotros</a>
-          <a href="{{ route('blog.index') }}">Blog</a>
-          <a href="{{ route('para-complejos') }}">Para complejos</a>
-          <a href="{{ route('faq') }}">FAQ</a>
-          <a href="mailto:tucancha10@gmail.com">tucancha10@gmail.com</a>
+  <style>
+    .tc-foot { border-top: 1px solid rgba(255,255,255,.06); background: #050505; margin-top: 64px; padding: 56px 24px 28px; color: #a0a0a0; }
+    .tc-foot-inner { max-width: 1360px; margin: 0 auto; }
+    .tc-foot-cols { display: grid; grid-template-columns: 1.6fr repeat(3, 1fr); gap: 48px; padding-bottom: 36px; border-bottom: 1px solid rgba(255,255,255,.06); }
+    .tc-foot-brand { display: flex; flex-direction: column; gap: 14px; max-width: 340px; }
+    .tc-foot-logo { display: inline-flex; align-items: center; text-decoration: none; }
+    .tc-foot-logo img { height: 56px; width: auto; display: block; }
+    .tc-foot-brand p { font-size: 13px; line-height: 1.6; color: #8a8a8a; margin: 0; font-weight: 400; }
+    .tc-foot-socials { display: flex; gap: 8px; margin-top: 6px; }
+    .tc-foot-social { width: 34px; height: 34px; border-radius: 10px; border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.02); display: flex; align-items: center; justify-content: center; color: #8a8a8a; text-decoration: none; transition: border-color .15s, color .15s, background .15s; }
+    .tc-foot-social:hover { border-color: rgba(34,197,94,.35); color: #22c55e; background: rgba(34,197,94,.06); }
+    .tc-foot-col h6 { font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #666; margin: 0 0 16px; }
+    .tc-foot-col ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+    .tc-foot-col li a { font-size: 13px; color: #a0a0a0; text-decoration: none; font-weight: 500; transition: color .15s; display: inline-flex; align-items: center; gap: 6px; }
+    .tc-foot-col li a:hover { color: #22c55e; }
+    /* Pre-footer feedback wrapper */
+    .tc-foot-fb-wrap { padding: 40px 24px 0; background: #050505; }
+    .tc-foot-fb-inner { max-width: 1360px; margin: 0 auto; display: flex; justify-content: flex-end; }
+    .tc-foot-fb-thanks {
+      padding: 12px 16px;
+      background: rgba(34,197,94,.1);
+      color: #6ee7a0;
+      border: 1px solid rgba(34,197,94,.2);
+      border-radius: 10px;
+      font-size: 13px; font-weight: 600;
+      max-width: 520px;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    @media (max-width: 860px) {
+      .tc-foot-fb-inner { justify-content: stretch; }
+    }
+
+    /* Compact feedback (details/summary) */
+    .tc-foot-fb { max-width: 420px; width: 100%; }
+    .tc-foot-fb > summary {
+      list-style: none; cursor: pointer;
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 12px;
+      transition: background .15s, border-color .15s;
+    }
+    .tc-foot-fb > summary::-webkit-details-marker { display: none; }
+    .tc-foot-fb > summary::marker { content: ''; }
+    .tc-foot-fb > summary:hover { background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.14); }
+    .tc-foot-fb[open] > summary { border-radius: 12px 12px 0 0; border-bottom-color: transparent; }
+    .tc-foot-fb-ico {
+      width: 32px; height: 32px; border-radius: 9px;
+      background: rgba(34,197,94,.1); color: #22c55e;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .tc-foot-fb-text { flex: 1; min-width: 0; line-height: 1.3; }
+    .tc-foot-fb-text { font-size: 13px; font-weight: 700; color: #e8e8e8; }
+    .tc-foot-fb-text small { display: block; font-size: 11px; color: #666; font-weight: 400; margin-top: 2px; }
+    .tc-foot-fb-chev { color: #666; transition: transform .25s, color .15s; flex-shrink: 0; }
+    .tc-foot-fb[open] .tc-foot-fb-chev { transform: rotate(180deg); color: #22c55e; }
+    .tc-foot-fb-form {
+      padding: 14px 16px 16px;
+      background: rgba(255,255,255,.02);
+      border: 1px solid rgba(255,255,255,.08);
+      border-top: 0;
+      border-radius: 0 0 12px 12px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .tc-foot-fb-from { font-size: 11px; color: #666; margin: 0; font-weight: 500; }
+    .tc-foot-fb-from strong { color: #a0a0a0; font-weight: 600; }
+    .tc-foot-fb-input, .tc-foot-fb-textarea {
+      padding: 9px 12px;
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 9px;
+      font-size: 13px; font-family: inherit;
+      background: #0a0a0a; color: #e8e8e8;
+      outline: none; resize: vertical;
+      transition: border-color .15s;
+    }
+    .tc-foot-fb-input:focus, .tc-foot-fb-textarea:focus { border-color: #22c55e; }
+    .tc-foot-fb-err { font-size: 12px; color: #f87171; }
+    .tc-foot-fb-btn {
+      padding: 9px 18px;
+      background: #22c55e; color: #050505;
+      border: none; border-radius: 9px;
+      font-size: 13px; font-weight: 800;
+      cursor: pointer; font-family: inherit;
+      transition: background .15s;
+      align-self: flex-start;
+    }
+    .tc-foot-fb-btn:hover { background: #4ade80; }
+    .tc-foot-base { padding-top: 24px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; font-size: 12px; color: #666; margin-top: 32px; border-top: 1px solid rgba(255,255,255,.06); }
+    .tc-foot-base-links { display: flex; gap: 18px; flex-wrap: wrap; }
+    .tc-foot-base-links a { color: #666; text-decoration: none; transition: color .15s; }
+    .tc-foot-base-links a:hover { color: #c8c8c8; }
+    @media (max-width: 860px) {
+      .tc-foot-cols { grid-template-columns: 1fr 1fr; gap: 32px; }
+      .tc-foot-brand { grid-column: 1 / -1; max-width: none; }
+    }
+    @media (max-width: 480px) {
+      .tc-foot-cols { grid-template-columns: 1fr; gap: 28px; }
+      .tc-foot { padding: 44px 20px 24px; }
+      .tc-foot-base { justify-content: center; text-align: center; }
+    }
+  </style>
+
+  {{-- Feedback pre-footer (compacto, colapsable) --}}
+  <section class="tc-foot-fb-wrap">
+    <div class="tc-foot-fb-inner">
+      @if(session('feedback_sent'))
+        <div id="feedback-section" class="tc-foot-fb-thanks">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>
+          Gracias por tu feedback. Lo revisaremos pronto.
         </div>
-        <span class="footer-copy">&copy; {{ date('Y') }} TuCancha</span>
-      </div>
-
-      {{-- Bloque de feedback publico --}}
-      <div id="feedback-section" style="margin-top: 28px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,.06);">
-        <p style="font-size:14px; color:#a0a0a0; margin:0 0 14px 0; font-weight:600;">
-          Tenes alguna sugerencia o comentario?
-        </p>
-
-        @if(session('feedback_sent'))
-          <div style="background:rgba(34,197,94,.1); color:#6ee7a0; border:1px solid rgba(34,197,94,.2); border-radius:10px; padding:12px 16px; font-size:14px; font-weight:600; max-width:560px;">
-            Gracias por tu feedback. Lo revisaremos pronto.
-          </div>
-        @else
-          <form method="POST" action="{{ route('feedback.store') }}" style="max-width:560px;">
+      @else
+        <details id="feedback-section" class="tc-foot-fb">
+          <summary>
+            <span class="tc-foot-fb-ico">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </span>
+            <span class="tc-foot-fb-text">
+              ¿Sugerencia o comentario?
+              <small>Contanos qué podemos mejorar</small>
+            </span>
+            <span class="tc-foot-fb-chev">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </span>
+          </summary>
+          <form method="POST" action="{{ route('feedback.store') }}" class="tc-foot-fb-form">
             @csrf
             <input type="text" name="website_url" style="position:absolute;left:-9999px;opacity:0;height:0;width:0;" tabindex="-1" autocomplete="off">
-            <div style="display:flex; flex-direction:column; gap:10px;">
-              @auth
-                <p style="font-size:13px; color:#666; margin:0;">
-                  Se enviara desde tu cuenta: <strong style="color:#a0a0a0;">{{ auth()->user()->email }}</strong>
-                </p>
-              @else
-                <input
-                  type="email"
-                  name="feedback_email"
-                  placeholder="Tu email (opcional)"
-                  style="padding:10px 14px; border:1px solid rgba(255,255,255,.1); border-radius:10px; font-size:14px; font-family:inherit; background:#0a0a0a; color:#e8e8e8; outline:none;"
-                >
-              @endauth
-              <textarea
-                name="feedback_message"
-                rows="3"
-                placeholder="Escribi tu sugerencia, error o comentario..."
-                required
-                minlength="10"
-                style="padding:10px 14px; border:1px solid rgba(255,255,255,.1); border-radius:10px; font-size:14px; font-family:inherit; resize:vertical; background:#0a0a0a; color:#e8e8e8; outline:none;"
-              ></textarea>
-              @error('feedback_message')
-                <span style="font-size:13px; color:#f87171;">{{ $message }}</span>
-              @enderror
-              <div>
-                <button
-                  type="submit"
-                  style="padding:10px 20px; background:#22c55e; color:#050505; border:none; border-radius:10px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; transition:background .15s;"
-                  onmouseover="this.style.background='#16a34a'"
-                  onmouseout="this.style.background='#22c55e'"
-                >
-                  Enviar feedback
-                </button>
-              </div>
-            </div>
+            @auth
+              <p class="tc-foot-fb-from">Desde <strong>{{ auth()->user()->email }}</strong></p>
+            @else
+              <input type="email" name="feedback_email" placeholder="Tu email (opcional)" class="tc-foot-fb-input">
+            @endauth
+            <textarea name="feedback_message" rows="2" placeholder="Tu comentario, sugerencia o error..." required minlength="10" class="tc-foot-fb-textarea"></textarea>
+            @error('feedback_message')
+              <span class="tc-foot-fb-err">{{ $message }}</span>
+            @enderror
+            <button type="submit" class="tc-foot-fb-btn">Enviar</button>
           </form>
-        @endif
+        </details>
+      @endif
+    </div>
+  </section>
+
+  <footer class="tc-foot">
+    <div class="tc-foot-inner">
+      <div class="tc-foot-cols">
+        <div class="tc-foot-brand">
+          <a href="{{ route('home') }}" class="tc-foot-logo" aria-label="TuCancha">
+            <img src="/images/logo-blanco.svg" alt="TuCancha">
+          </a>
+          <p>La plataforma para reservar canchas y completar equipos en Argentina. Nueva, en crecimiento, hecha por jugadores para jugadores.</p>
+          <div class="tc-foot-socials">
+            <a href="https://wa.me/5491127279757" target="_blank" rel="noopener" class="tc-foot-social" aria-label="WhatsApp">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.611.611l4.458-1.495A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.34 0-4.508-.654-6.363-1.787l-.362-.222-3.75 1.257 1.257-3.75-.222-.362A9.935 9.935 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/></svg>
+            </a>
+            <a href="mailto:tucancha10@gmail.com" class="tc-foot-social" aria-label="Email">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>
+            </a>
+            <a href="https://instagram.com/tucancha.web" target="_blank" rel="noopener" class="tc-foot-social" aria-label="Instagram">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="tc-foot-col">
+          <h6>Jugadores</h6>
+          <ul>
+            <li><a href="{{ route('venues.index') }}">Buscar complejos</a></li>
+            <li><a href="{{ route('falta-uno.index') }}">Falta Uno</a></li>
+            <li><a href="{{ route('ranking.index') }}">Ranking</a></li>
+            <li><a href="{{ url('/como-funciona') }}">Cómo funciona</a></li>
+            @auth
+              <li><a href="{{ url('/dashboard') }}">Mi panel</a></li>
+            @else
+              <li><a href="{{ route('register') }}">Crear cuenta</a></li>
+            @endauth
+          </ul>
+        </div>
+
+        <div class="tc-foot-col">
+          <h6>Complejos</h6>
+          <ul>
+            <li><a href="{{ route('para-complejos') }}">Sumá tu complejo</a></li>
+            <li><a href="{{ route('planes') }}">Planes</a></li>
+            <li><a href="{{ route('por-que-tucancha') }}">Por qué TuCancha</a></li>
+            <li><a href="https://wa.me/5491127279757?text={{ urlencode('Hola! Tengo una consulta sobre TuCancha para mi complejo.') }}" target="_blank" rel="noopener">Contactar ventas</a></li>
+          </ul>
+        </div>
+
+        <div class="tc-foot-col">
+          <h6>Empresa</h6>
+          <ul>
+            <li><a href="{{ url('/nosotros') }}">Nosotros</a></li>
+            <li><a href="{{ route('blog.index') }}">Blog</a></li>
+            <li><a href="{{ route('faq') }}">Preguntas frecuentes</a></li>
+            <li><a href="mailto:tucancha10@gmail.com">tucancha10@gmail.com</a></li>
+          </ul>
+        </div>
       </div>
 
+      <div class="tc-foot-base">
+        <span>&copy; {{ date('Y') }} TuCancha &middot; Hecho en Argentina &middot; Con pasión por el juego</span>
+        <div class="tc-foot-base-links">
+          <a href="{{ route('faq') }}">FAQ</a>
+          <a href="https://wa.me/5491127279757" target="_blank" rel="noopener">Soporte</a>
+        </div>
+      </div>
     </div>
   </footer>
 

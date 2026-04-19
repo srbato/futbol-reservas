@@ -104,34 +104,22 @@ class FaltaUnoProfilePublicController extends Controller
             ];
         }
 
-        // Datos de calificaciones recibidas por deporte
+        // Datos de calificaciones recibidas, agrupadas por deporte del partido.
+        // Se busca por TODAS las ratings del usuario (no solo deportes con perfil) — así no perdemos reseñas.
+        $allRatings = FaltaUnoRating::where('rated_user_id', $user->id)
+            ->with(['rater:id,name,avatar_path', 'game.field:id,sport'])
+            ->latest()
+            ->get()
+            ->filter(fn($r) => $r->game && $r->game->field); // Solo ratings con game y field válidos
+
         $ratingsData = [];
-        foreach ($profiles as $profile) {
-            $ratings = FaltaUnoRating::where('rated_user_id', $user->id)
-                ->whereHas('game', fn($q) => $q->whereHas('field', fn($q2) => $q2->where('sport', $profile->sport)))
-                ->get();
-
-            $totalRatings = $ratings->count();
-            $aboveCount = $ratings->where('assessment', 'above')->count();
-            $matchCount = $ratings->where('assessment', 'match')->count();
-            $belowCount = $ratings->where('assessment', 'below')->count();
-
-            // Últimos 5 comentarios
-            $recentComments = FaltaUnoRating::where('rated_user_id', $user->id)
-                ->whereHas('game', fn($q) => $q->whereHas('field', fn($q2) => $q2->where('sport', $profile->sport)))
-                ->whereNotNull('comment')
-                ->where('comment', '!=', '')
-                ->with('rater:id,name,avatar_path')
-                ->latest()
-                ->limit(5)
-                ->get();
-
-            $ratingsData[$profile->sport] = [
-                'total'    => $totalRatings,
-                'above'    => $aboveCount,
-                'match'    => $matchCount,
-                'below'    => $belowCount,
-                'comments' => $recentComments,
+        foreach ($allRatings->groupBy(fn($r) => $r->game->field->sport) as $sport => $ratings) {
+            $ratingsData[$sport] = [
+                'total'    => $ratings->count(),
+                'above'    => $ratings->where('assessment', 'above')->count(),
+                'match'    => $ratings->where('assessment', 'match')->count(),
+                'below'    => $ratings->where('assessment', 'below')->count(),
+                'comments' => $ratings->take(5)->values(),
             ];
         }
 

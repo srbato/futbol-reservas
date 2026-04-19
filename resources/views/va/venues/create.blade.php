@@ -225,6 +225,36 @@
       @enderror
     </div>
 
+    {{-- Galería (hasta 5 imágenes) --}}
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+      <div class="flex items-start justify-between mb-4 pb-3 border-b border-slate-100 gap-3">
+        <div>
+          <p class="text-sm font-bold text-slate-500 uppercase tracking-widest">
+            Galería (opcional)
+          </p>
+          <p class="text-xs text-slate-400 mt-1">Hasta 5 fotos adicionales que se muestran en la página pública.</p>
+        </div>
+        <span class="text-xs font-semibold text-slate-500 bg-slate-100 rounded-full px-3 py-1 whitespace-nowrap" id="galleryCounter">
+          0 / 5
+        </span>
+      </div>
+
+      <label class="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center cursor-pointer hover:border-indigo-400 hover:bg-indigo-50 transition-all duration-200 block">
+        <input type="file" name="gallery[]" accept="image/*" multiple class="hidden" id="galleryInput" onchange="previewGallery(this)">
+        <div id="galleryPreview" class="hidden grid grid-cols-5 gap-2 mb-3"></div>
+        <div class="flex flex-col items-center gap-2 text-slate-400">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4"/>
+          </svg>
+          <span class="text-sm font-medium text-slate-600">Agregar fotos</span>
+          <span class="text-xs text-slate-400">JPG, PNG o WEBP · máx. 4 MB cada una · hasta 5 en total</span>
+        </div>
+      </label>
+
+      @error('gallery') <p class="text-xs text-red-500 mt-2">{{ $message }}</p> @enderror
+      @error('gallery.*') <p class="text-xs text-red-500 mt-2">{{ $message }}</p> @enderror
+    </div>
+
     {{-- Acciones --}}
     <div class="flex items-center gap-3 flex-wrap">
       <button type="submit"
@@ -272,6 +302,43 @@
       placeholder.classList.add('hidden');
     };
     reader.readAsDataURL(file);
+  }
+
+  // Gallery preview + counter
+  function previewGallery(input) {
+    const preview = document.getElementById('galleryPreview');
+    const counter = document.getElementById('galleryCounter');
+    const files = Array.from(input.files || []);
+
+    if (files.length > 5) {
+      alert('Solo podés subir hasta 5 fotos.');
+      input.value = '';
+      preview.classList.add('hidden');
+      preview.innerHTML = '';
+      counter.textContent = '0 / 5';
+      return;
+    }
+
+    counter.textContent = files.length + ' / 5';
+
+    if (!files.length) {
+      preview.classList.add('hidden');
+      preview.innerHTML = '';
+      return;
+    }
+
+    preview.innerHTML = '';
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const div = document.createElement('div');
+        div.className = 'aspect-square rounded-lg overflow-hidden border border-slate-200';
+        div.innerHTML = '<img src="' + e.target.result + '" class="w-full h-full object-cover">';
+        preview.appendChild(div);
+      };
+      reader.readAsDataURL(file);
+    });
+    preview.classList.remove('hidden');
   }
 
 </script>

@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Events\NotificationCreated;
+use App\Models\FaltaUnoRating;
 use App\Models\Venue;
+use App\Observers\FaltaUnoRatingObserver;
 use App\Observers\VenueObserver;
 use GuzzleHttp\Client as GuzzleClient;
 use Illuminate\Routing\UrlGenerator;
@@ -39,15 +41,12 @@ class AppServiceProvider extends ServiceProvider
         if (str_starts_with(config('app.url'), 'https://')) {
             $url->forceScheme('https');
         }
-
-        // Redirigir www → sin www
-        if (app()->runningInConsole() === false && str_starts_with(request()->getHost(), 'www.')) {
-            $newUrl = 'https://' . substr(request()->getHost(), 4) . request()->getRequestUri();
-            redirect()->to($newUrl, 301)->send();
-            exit;
-        }
+        // Nota: el redirect www → apex ahora se maneja en
+        // App\Http\Middleware\RedirectWwwToApex (registrado en bootstrap/app.php)
+        // para no usar exit() dentro del service provider.
 
         Venue::observe(VenueObserver::class);
+        FaltaUnoRating::observe(FaltaUnoRatingObserver::class);
 
         Event::listen(Registered::class, \App\Listeners\SendNewUserWebhook::class);
 

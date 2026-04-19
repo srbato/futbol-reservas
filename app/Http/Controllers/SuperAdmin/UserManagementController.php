@@ -138,6 +138,19 @@ class UserManagementController extends Controller
         }
 
         $originalAdminId = $request->user()->id;
+        $originalAdminEmail = $request->user()->email;
+
+        // Audit log: impersonation start
+        \Illuminate\Support\Facades\Log::warning('Super-admin iniciando impersonación', [
+            'admin_id'       => $originalAdminId,
+            'admin_email'    => $originalAdminEmail,
+            'target_user_id' => $user->id,
+            'target_email'   => $user->email,
+            'target_role'    => $user->role,
+            'ip'             => $request->ip(),
+            'ua'             => substr((string) $request->userAgent(), 0, 200),
+            'at'             => now()->toDateTimeString(),
+        ]);
 
         auth()->login($user);
 
@@ -155,6 +168,7 @@ class UserManagementController extends Controller
     public function stopImpersonate(Request $request)
     {
         $originalAdminId = session('original_admin_id');
+        $impersonatedId  = session('impersonating_as');
 
         if (!$originalAdminId) {
             return redirect('/');
@@ -164,9 +178,22 @@ class UserManagementController extends Controller
 
         if (!$admin || $admin->role !== 'super_admin') {
             // El usuario guardado en sesión no es super_admin: destruir sesión y abortar
+            \Illuminate\Support\Facades\Log::error('stopImpersonate: session original_admin_id inválido', [
+                'claimed_id'       => $originalAdminId,
+                'impersonating_as' => $impersonatedId,
+                'ip'               => $request->ip(),
+            ]);
             session()->flush();
             abort(403);
         }
+
+        \Illuminate\Support\Facades\Log::warning('Super-admin finalizando impersonación', [
+            'admin_id'           => $admin->id,
+            'admin_email'        => $admin->email,
+            'impersonated_user_id' => $impersonatedId,
+            'ip'                 => $request->ip(),
+            'at'                 => now()->toDateTimeString(),
+        ]);
 
         auth()->login($admin);
 

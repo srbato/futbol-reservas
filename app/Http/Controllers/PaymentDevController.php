@@ -9,8 +9,18 @@ class PaymentDevController extends Controller
 {
     public function pay(Request $request, Reservation $reservation)
     {
-        // Only available in local/development environment
-        abort_if(!app()->isLocal(), 404);
+        // Only available in local/development environment.
+        // Triple check: isLocal, not production, and URL contains localhost/ngrok/trycloudflare
+        // para blindarse ante cualquier misconfiguración de APP_ENV en producción.
+        abort_if(!app()->isLocal() || app()->isProduction(), 404);
+
+        $appUrl = (string) config('app.url');
+        $isSafeUrl = str_contains($appUrl, 'localhost')
+            || str_contains($appUrl, '127.0.0.1')
+            || str_contains($appUrl, '.ngrok')
+            || str_contains($appUrl, '.trycloudflare')
+            || str_contains($appUrl, '.test');
+        abort_if(!$isSafeUrl, 404);
 
         // Ownership check
         if ($reservation->user_id !== $request->user()->id && $request->user()->role !== 'super_admin') {

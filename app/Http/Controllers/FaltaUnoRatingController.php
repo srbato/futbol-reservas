@@ -81,24 +81,15 @@ class FaltaUnoRatingController extends Controller
                 'assessment'    => $ratingData['assessment'],
                 'comment'       => $ratingData['comment'] ?? null,
             ]);
+            // El FaltaUnoRatingObserver se encarga de recalcular stats + category.
 
-            // Recalculate average_rating: below=1, match=3, above=5
+            // Si la category cambió, notificar al usuario
             $profile = FaltaUnoSportProfile::where('user_id', $ratedUserId)
                 ->where('sport', $sport)
                 ->first();
 
             if ($profile) {
-                $assessments = FaltaUnoRating::where('rated_user_id', $ratedUserId)
-                    ->whereHas('game', fn($q) => $q->whereHas('field', fn($q2) => $q2->where('sport', $sport)))
-                    ->pluck('assessment');
-
-                $scoreMap = ['below' => 1, 'match' => 3, 'above' => 5];
-                $avg = $assessments->avg(fn($a) => $scoreMap[$a] ?? 3);
-                $profile->average_rating = round($avg, 2);
-                $profile->save();
-
                 $change = $profile->recalculateCategory();
-
                 if ($change) {
                     $ratedUser = User::find($ratedUserId);
                     if ($ratedUser) {

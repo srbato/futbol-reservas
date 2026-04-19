@@ -10,11 +10,29 @@ class SitemapController extends Controller
 {
     public function index()
     {
-        $venues = Venue::where('is_active', true)->select('id', 'updated_at')->get();
-        $fields = Field::where('is_active', true)->select('id', 'updated_at')->get();
-        $blogPosts = BlogPost::published()->select('slug', 'updated_at')->get();
+        // Cacheado por 6hs — sitemap no necesita ser tiempo real.
+        // Limite de 50k entradas por grupo (Google recomienda máximo 50k URLs por sitemap).
+        return cache()->remember('sitemap.xml', now()->addHours(6), function () {
+            $venues = Venue::where('is_active', true)
+                ->select('id', 'updated_at')
+                ->orderByDesc('updated_at')
+                ->limit(50000)
+                ->get();
 
-        return response()->view('sitemap', compact('venues', 'fields', 'blogPosts'))
-            ->header('Content-Type', 'application/xml');
+            $fields = Field::where('is_active', true)
+                ->select('id', 'updated_at')
+                ->orderByDesc('updated_at')
+                ->limit(50000)
+                ->get();
+
+            $blogPosts = BlogPost::published()
+                ->select('slug', 'updated_at')
+                ->orderByDesc('updated_at')
+                ->limit(10000)
+                ->get();
+
+            return response()->view('sitemap', compact('venues', 'fields', 'blogPosts'))
+                ->header('Content-Type', 'application/xml');
+        });
     }
 }

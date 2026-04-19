@@ -254,6 +254,61 @@
       </label>
     </div>
 
+    {{-- Galería (hasta 5 imágenes) --}}
+    @php $currentGallery = is_array($venue->gallery_paths) ? $venue->gallery_paths : []; @endphp
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+      <div class="flex items-start justify-between mb-4 pb-3 border-b border-slate-100 gap-3">
+        <div>
+          <p class="text-sm font-bold text-slate-500 uppercase tracking-widest">
+            Galería del complejo
+          </p>
+          <p class="text-xs text-slate-400 mt-1">Hasta 5 fotos que se muestran en la página pública. La imagen de portada (arriba) es la principal.</p>
+        </div>
+        <span class="text-xs font-semibold text-slate-500 bg-slate-100 rounded-full px-3 py-1 whitespace-nowrap" id="galleryCounter">
+          {{ count($currentGallery) }} / 5
+        </span>
+      </div>
+
+      {{-- Fotos actuales --}}
+      @if(!empty($currentGallery))
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-4">
+          @foreach($currentGallery as $path)
+            <label class="relative group cursor-pointer aspect-square block rounded-xl overflow-hidden border-2 border-transparent has-[:checked]:border-indigo-500 transition-all">
+              <input type="checkbox" name="gallery_keep[]" value="{{ $path }}" checked class="absolute inset-0 opacity-0 peer">
+              <img src="{{ \Illuminate\Support\Facades\Storage::url($path) }}"
+                   alt="Foto del complejo"
+                   class="w-full h-full object-cover peer-checked:opacity-100 opacity-40 transition-opacity">
+              {{-- Check overlay --}}
+              <span class="absolute top-2 right-2 w-6 h-6 bg-white rounded-full shadow flex items-center justify-center text-indigo-500 text-xs peer-checked:bg-indigo-500 peer-checked:text-white transition-all font-bold">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </span>
+              {{-- Hint overlay when unchecked --}}
+              <span class="absolute inset-0 flex items-center justify-center bg-red-500/60 text-white text-xs font-semibold opacity-0 peer-not-checked:opacity-100 transition-opacity pointer-events-none">
+                Se eliminará
+              </span>
+            </label>
+          @endforeach
+        </div>
+        <p class="text-xs text-slate-400 mb-4">Destildá una foto para eliminarla al guardar.</p>
+      @endif
+
+      {{-- Subir nuevas --}}
+      <label class="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center cursor-pointer hover:border-indigo-400 hover:bg-indigo-50 transition-all duration-200 block">
+        <input type="file" name="gallery[]" accept="image/*" multiple class="hidden" id="galleryInput" onchange="previewGallery(this)">
+        <div id="galleryPreview" class="hidden grid grid-cols-5 gap-2 mb-3"></div>
+        <div class="flex flex-col items-center gap-2 text-slate-400">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4"/>
+          </svg>
+          <span class="text-sm font-medium text-slate-600">Agregar fotos</span>
+          <span class="text-xs text-slate-400">JPG, PNG o WEBP · máx. 4 MB cada una · hasta 5 en total</span>
+        </div>
+      </label>
+
+      @error('gallery') <p class="text-xs text-red-500 mt-2">{{ $message }}</p> @enderror
+      @error('gallery.*') <p class="text-xs text-red-500 mt-2">{{ $message }}</p> @enderror
+    </div>
+
     {{-- Acciones --}}
     <div class="flex items-center gap-3 flex-wrap">
       <button type="submit"
@@ -347,6 +402,57 @@
     };
     reader.readAsDataURL(file);
   }
+
+  // Gallery preview + counter
+  function previewGallery(input) {
+    const preview = document.getElementById('galleryPreview');
+    const counter = document.getElementById('galleryCounter');
+    const files = Array.from(input.files || []);
+
+    // Count how many existing kept + new
+    const kept = document.querySelectorAll('input[name="gallery_keep[]"]:checked').length;
+    const total = kept + files.length;
+
+    // Enforce 5 max
+    if (total > 5) {
+      alert('Solo podés subir hasta 5 fotos en total. Tenés ' + kept + ' guardadas y estás intentando agregar ' + files.length + '.');
+      input.value = '';
+      preview.classList.add('hidden');
+      preview.innerHTML = '';
+      return;
+    }
+
+    if (counter) counter.textContent = total + ' / 5';
+
+    if (!files.length) {
+      preview.classList.add('hidden');
+      preview.innerHTML = '';
+      return;
+    }
+
+    preview.innerHTML = '';
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const div = document.createElement('div');
+        div.className = 'aspect-square rounded-lg overflow-hidden border border-slate-200';
+        div.innerHTML = '<img src="' + e.target.result + '" class="w-full h-full object-cover">';
+        preview.appendChild(div);
+      };
+      reader.readAsDataURL(file);
+    });
+    preview.classList.remove('hidden');
+  }
+
+  // Recalcula el counter cuando el usuario destilda/tilda fotos actuales
+  document.querySelectorAll('input[name="gallery_keep[]"]').forEach(cb => {
+    cb.addEventListener('change', () => {
+      const kept = document.querySelectorAll('input[name="gallery_keep[]"]:checked').length;
+      const newFiles = (document.getElementById('galleryInput')?.files?.length) || 0;
+      const counter = document.getElementById('galleryCounter');
+      if (counter) counter.textContent = (kept + newFiles) + ' / 5';
+    });
+  });
 
 </script>
 @endsection

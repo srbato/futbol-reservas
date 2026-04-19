@@ -26,8 +26,22 @@ class MercadoPagoController extends Controller
         }
 
         // Cargamos el venue para obtener su token de MP
-        $reservation->loadMissing('field.venue');
-        $venue = $reservation->field->venue;
+        $reservation->loadMissing('field.venue.owner');
+        $field = $reservation->field;
+        $venue = $field?->venue;
+
+        // Revalidar que cancha, venue y owner estén activos
+        if (!$field || !$field->is_active) {
+            abort(422, 'La cancha ya no está disponible.');
+        }
+        if (!$venue || !$venue->is_active) {
+            abort(422, 'El complejo ya no está disponible.');
+        }
+        // Owner: si el owner perdió su suscripción venue_admin el complejo ya no debería operar
+        $owner = $venue->owner;
+        if ($owner && $owner->role !== 'super_admin' && method_exists($owner, 'hasActiveVenueAdminSubscription') && !$owner->hasActiveVenueAdminSubscription()) {
+            abort(422, 'Este complejo está temporalmente fuera de servicio.');
+        }
 
         // Si el venue tiene su propio token de MP, lo usamos (marketplace).
         // Si no, usamos el token de TuCancha como fallback.

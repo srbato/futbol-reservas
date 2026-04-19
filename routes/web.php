@@ -193,8 +193,13 @@ Route::get('/falta-uno', [FaltaUnoController::class, 'index'])->name('falta-uno.
 Route::get('/falta-uno/{game}', [FaltaUnoController::class, 'show'])->name('falta-uno.show');
 
 Route::get('/fields/{field}', [FieldController::class, 'show'])->name('fields.show');
-Route::get('/fields/{field}/availability', [AvailabilityController::class, 'show'])->name('fields.availability');
-Route::get('/fields/{field}/recurring-availability', [AvailabilityController::class, 'recurring'])->name('fields.recurring_availability');
+// Throttle para evitar scraping masivo (endpoint público con data de precios/disponibilidad)
+Route::get('/fields/{field}/availability', [AvailabilityController::class, 'show'])
+    ->middleware('throttle:120,1')
+    ->name('fields.availability');
+Route::get('/fields/{field}/recurring-availability', [AvailabilityController::class, 'recurring'])
+    ->middleware('throttle:60,1')
+    ->name('fields.recurring_availability');
 
 // Ranking de jugadores (publico)
 Route::get('/ranking', [\App\Http\Controllers\RankingController::class, 'index'])->name('ranking.index');
@@ -345,7 +350,9 @@ Route::post('/webhooks/mercadopago', [MercadoPagoWebhookController::class, 'hand
     ->middleware('throttle:120,1')
     ->name('webhooks.mercadopago');
 
-Route::middleware(['auth'])->group(function () {
+// Throttle en success URLs: hacen trabajo pesado (HTTP a MP API, emails, transacciones).
+// Si el usuario/browser/bot recarga, limita el hit rate.
+Route::middleware(['auth', 'throttle:20,1'])->group(function () {
     Route::get('/batch-success/{batch}', function (\App\Models\ReservationBatch $batch) {
         abort_if($batch->user_id !== auth()->id() && auth()->user()->role !== 'super_admin', 403);
         $batch->load(['field.venue', 'reservations' => fn($q) => $q->orderBy('start_at')]);
@@ -428,7 +435,8 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // Rutas de retorno de MercadoPago — requieren auth para proteger datos de la reserva
-Route::middleware(['auth'])->group(function () {
+// Throttle porque hacen trabajo pesado (HTTP a MP API, emails, DB writes)
+Route::middleware(['auth', 'throttle:20,1'])->group(function () {
 
 Route::get('/reservation-success/{reservation}', function (\App\Models\Reservation $reservation, \Illuminate\Http\Request $request) {
     // Verificación de pertenencia
@@ -572,13 +580,33 @@ Route::post('/contact', function (Request $request) {
         "Motivo: {$data['reason']}\n\n" .
         "Mensaje:\n{$data['message']}";
 
-    Mail::raw($text, function ($message) use ($data) {
-        $message->to('tucancha10@gmail.com')
-            ->subject('Nuevo contacto desde TuCancha')
-            ->replyTo($data['email'], $data['name']);
-    });
-    // Nota: se usa Mail::raw sincrono porque no hay un Mailable dedicado.
-    // Si se crea un Mailable, usar Mail::to(...)->queue(...) para mejor performance.
+    // Despachar el mail en background (Laravel 12: anonymous closure queueable)
+    // Si SMTP está caído, no bloquea al usuario.
+    try {
+        \Illuminate\Support\Facades\Queue::push(function () use ($text, $data) {
+            try {
+                \Illuminate\Support\Facades\Mail::raw($text, function ($message) use ($data) {
+                    $message->to('tucancha10@gmail.com')
+                        ->subject('Nuevo contacto desde TuCancha')
+                        ->replyTo($data['email'], $data['name']);
+                });
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('Contact form email failed', ['error' => $e->getMessage()]);
+            }
+        });
+    } catch (\Throwable $e) {
+        // Si queue no está configurado (driver sync), fallback sincrónico sin bloquear timeout
+        \Illuminate\Support\Facades\Log::warning('Queue no disponible, enviando sincrónicamente', ['error' => $e->getMessage()]);
+        try {
+            Mail::raw($text, function ($message) use ($data) {
+                $message->to('tucancha10@gmail.com')
+                    ->subject('Nuevo contacto desde TuCancha')
+                    ->replyTo($data['email'], $data['name']);
+            });
+        } catch (\Throwable $e2) {
+            \Illuminate\Support\Facades\Log::error('Contact form sync email failed', ['error' => $e2->getMessage()]);
+        }
+    }
 
     return redirect()
         ->route('home')

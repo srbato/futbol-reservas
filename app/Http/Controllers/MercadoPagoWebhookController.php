@@ -415,29 +415,53 @@ class MercadoPagoWebhookController extends Controller
             }
         }
 
-        // Verificar si la reserva ya fue cancelada o expiró antes de marcar como pagada
-        if (in_array($reservation->status, ['EXPIRED', 'CANCELLED'])) {
-            Log::warning('Webhook reserva: pago recibido para reserva ya expirada/cancelada', [
-                'reservation_id' => $reservation->id,
-                'status'         => $reservation->status,
-                'payment_id'     => $paymentId,
-                'payment_status' => $paymentStatus,
-            ]);
-            return response()->json(['ok' => true]);
-        }
+        $wasPaidBefore = false;
 
-        $reservation->payment_provider    = 'mercadopago';
-        $reservation->payment_external_id = (string) $paymentId;
-        $reservation->payment_status      = $paymentStatus;
+        // Wrapear en transacción con lockForUpdate para evitar race conditions
+        // cuando dos webhooks llegan simultáneamente.
+        \Illuminate\Support\Facades\DB::transaction(function () use ($reservation, $paymentId, $paymentStatus, &$wasPaidBefore) {
+            // Re-cargar con lock pesimista
+            $locked = Reservation::lockForUpdate()->find($reservation->id);
+            if (!$locked) return;
 
-        $wasPaidBefore = $reservation->status === 'PAID';
+            // Re-validar estado (puede haber cambiado entre lecturas)
+            if (in_array($locked->status, ['EXPIRED', 'CANCELLED'])) {
+                Log::warning('Webhook reserva: pago recibido para reserva ya expirada/cancelada', [
+                    'reservation_id' => $locked->id,
+                    'status'         => $locked->status,
+                    'payment_id'     => $paymentId,
+                    'payment_status' => $paymentStatus,
+                ]);
+                return;
+            }
 
-        if ($paymentStatus === 'approved') {
-            $reservation->status     = 'PAID';
-            $reservation->expires_at = null;
-        }
+            if ($locked->payment_external_id === (string) $paymentId && $locked->status === 'PAID') {
+                // Otro webhook ya lo procesó mientras esperábamos el lock
+                return;
+            }
 
-        $reservation->save();
+            $wasPaidBefore = $locked->status === 'PAID';
+
+            $locked->payment_provider = 'mercadopago';
+            // Solo escribir payment_external_id si está siendo aprobado (evita overwritear con pagos rechazados posteriores)
+            if ($paymentStatus === 'approved') {
+                $locked->payment_external_id = (string) $paymentId;
+                $locked->payment_status      = $paymentStatus;
+                $locked->status              = 'PAID';
+                $locked->expires_at          = null;
+            } else {
+                // Pago rejected/cancelled: solo actualizar status si no había uno aprobado antes
+                if ($locked->payment_status !== 'approved') {
+                    $locked->payment_external_id = (string) $paymentId;
+                    $locked->payment_status      = $paymentStatus;
+                }
+            }
+
+            $locked->save();
+
+            // Propagar cambios al objeto original para los emails abajo
+            $reservation->setRawAttributes($locked->getAttributes(), true);
+        });
 
         if ($paymentStatus === 'approved' && !$wasPaidBefore) {
             $reservation->loadMissing(['user', 'field.venue.owner']);

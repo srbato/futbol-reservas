@@ -17,6 +17,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Primero: redirigir www.* → apex con 301 (antes que cualquier otra cosa)
+        $middleware->prepend(\App\Http\Middleware\RedirectWwwToApex::class);
         $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
 
         $middleware->alias([

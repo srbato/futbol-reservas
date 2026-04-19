@@ -19,6 +19,7 @@ class Venue extends Model
         'name',
         'description',
         'cover_image_path',
+        'gallery_paths',
         'address',
         'zone',
         'phone',
@@ -44,6 +45,7 @@ class Venue extends Model
         'is_active'              => 'boolean',
         'accepts_cash_payment'   => 'boolean',
         'amenities'              => 'array',
+        'gallery_paths'          => 'array',
         'cancellation_hours'  => 'integer',
         'modification_hours'  => 'integer',
     ];

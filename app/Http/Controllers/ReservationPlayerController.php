@@ -16,17 +16,20 @@ class ReservationPlayerController extends Controller
         abort_if($reservation->status !== 'PAID', 422);
 
         $data = $request->validate([
-            'search' => ['required', 'string', 'max:255'],
+            'search' => ['required', 'string', 'email', 'max:255'],
         ]);
 
-        $search = trim($data['search']);
+        $search = strtolower(trim($data['search']));
 
-        $player = User::where('email', $search)
-            ->orWhere('name', $search)
+        // Buscar solo por email exacto (case-insensitive). Buscar por nombre permitiría
+        // agregar por error al usuario equivocado cuando hay nombres duplicados y
+        // habilita enumeration abuse.
+        $player = User::whereRaw('LOWER(email) = ?', [$search])
+            ->where('is_active', true)
             ->first();
 
         if (!$player) {
-            return back()->withErrors(['search' => 'No existe un usuario con ese nombre o email.']);
+            return back()->withErrors(['search' => 'No existe un usuario con ese email.']);
         }
 
         if ($player->id === auth()->id()) {

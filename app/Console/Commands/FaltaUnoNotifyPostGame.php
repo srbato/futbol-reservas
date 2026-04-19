@@ -39,7 +39,8 @@ class FaltaUnoNotifyPostGame extends Command
                 }
             }
 
-            // Incrementar games_played automáticamente para todos los participantes y el iniciador
+            // Recalcular stats completas para todos los participantes y el iniciador
+            // (fuente única de verdad: recalcula desde FaltaUnoParticipant + ReservationResult)
             $sport = $game->field->sport ?? null;
             if ($sport) {
                 $allUserIds = $game->activeParticipants
@@ -48,9 +49,13 @@ class FaltaUnoNotifyPostGame extends Command
                     ->unique()
                     ->filter();
 
-                FaltaUnoSportProfile::where('sport', $sport)
+                $profiles = FaltaUnoSportProfile::where('sport', $sport)
                     ->whereIn('user_id', $allUserIds)
-                    ->increment('games_played');
+                    ->get();
+
+                foreach ($profiles as $profile) {
+                    $profile->recalculateStats();
+                }
             }
 
             // Marcar el partido como finished

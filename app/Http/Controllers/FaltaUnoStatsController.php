@@ -56,22 +56,13 @@ class FaltaUnoStatsController extends Controller
             'stats_submitted_at' => now(),
         ]);
 
-        // Nota: games_played se incrementa en el command PostGame (FaltaUnoNotifyPostGame).
-        // Aqui solo actualizamos wins/draws/losses para evitar duplicar el conteo de partidos.
+        // Recalcular el perfil completo desde las tablas fuente (único source of truth).
         $game->loadMissing('field');
         $sport   = $game->field->sport;
         $profile = $user->sportProfileFor($sport);
 
         if ($profile) {
-            if ($data['result'] === 'win') {
-                $profile->wins += 1;
-            } elseif ($data['result'] === 'draw') {
-                $profile->draws += 1;
-            } else {
-                $profile->losses += 1;
-            }
-
-            $profile->save();
+            $profile->recalculateStats();
         }
 
         return redirect()->route('profile.edit')->with('success', 'Estadísticas guardadas. ¡Gracias!');

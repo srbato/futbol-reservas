@@ -261,12 +261,21 @@
 
   .fs-date-input-native {
     position: absolute;
-    inset: 0;
+    inset: -2px;
     opacity: 0;
-    width: 100%;
-    height: 100%;
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
     cursor: pointer;
-    z-index: 2;
+    z-index: 1;
+    pointer-events: none; /* click is handled by parent; input is just a data holder + fallback */
+    border: none;
+    background: transparent;
+    color: transparent;
+  }
+  /* Keyboard focus on the display */
+  .fs-date-display:focus-visible {
+    outline: 2px solid var(--color-primary, #22c55e);
+    outline-offset: 2px;
   }
 
   /* Legend */
@@ -1054,7 +1063,7 @@
     </div>
     <div>
       <label class="fs-modal-label" style="margin-bottom:6px;">Fecha</label>
-      <div class="fs-date-display" id="fsDateDisplay">
+      <div class="fs-date-display" id="fsDateDisplay" role="button" tabindex="0" onclick="fsOpenDatePicker(event)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();fsOpenDatePicker(event);}">
         <svg width="16" height="16" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         <span id="fsDateLabel">Hoy</span>
         <input type="date" id="datePicker" class="fs-date-input-native"
@@ -1286,6 +1295,33 @@
           </div>`;
         console.error(err);
       });
+  }
+
+  // ── Open native date picker (robust across browsers/mobile) ─────
+  function fsOpenDatePicker(e) {
+    if (e) { e.preventDefault(); e.stopPropagation(); }
+    const input = document.getElementById('datePicker');
+    if (!input) return;
+
+    // Allow input to receive events momentarily in case we need to fall back
+    input.style.pointerEvents = 'auto';
+
+    // Modern browsers (Chrome 99+, Edge, Safari 16.4+, Firefox 101+)
+    if (typeof input.showPicker === 'function') {
+      try {
+        input.showPicker();
+        // restore
+        setTimeout(() => { input.style.pointerEvents = 'none'; }, 0);
+        return;
+      } catch (err) {
+        // falls through
+      }
+    }
+
+    // Fallback for older browsers / in-app webviews: focus + click
+    try { input.focus(); } catch (e) {}
+    try { input.click(); } catch (e) {}
+    setTimeout(() => { input.style.pointerEvents = 'none'; }, 0);
   }
 
   // ── Date display update ─────────────────────────

@@ -27,6 +27,19 @@ class DatabaseSeeder extends Seeder
             return;
         }
 
+        // Segunda defensa: bloquear si el APP_URL parece productivo
+        $appUrl = (string) config('app.url');
+        $looksProd = !str_contains($appUrl, 'localhost')
+            && !str_contains($appUrl, '127.0.0.1')
+            && !str_contains($appUrl, '.ngrok')
+            && !str_contains($appUrl, '.trycloudflare')
+            && !str_contains($appUrl, '.test');
+        if ($looksProd) {
+            $this->command->error('Seeder bloqueado: APP_URL parece productivo (' . $appUrl . ')');
+            $this->command->error('Si realmente querés seedear, cambiá APP_URL a algo local primero.');
+            return;
+        }
+
         // Super admin
         User::create([
             'name' => 'Santiago',

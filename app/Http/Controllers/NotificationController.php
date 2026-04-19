@@ -30,11 +30,52 @@ class NotificationController extends Controller
 
         $actionUrl = $notification->data['action_url'] ?? '/';
 
-        if (!str_starts_with($actionUrl, '/') && !str_starts_with($actionUrl, config('app.url'))) {
-            $actionUrl = '/';
-        }
+        // Prevent open redirect attacks:
+        // - Reject protocol-relative URLs (starting with //)
+        // - Reject any URL with scheme except the configured app URL
+        // - Default to root on any failure
+        $actionUrl = $this->sanitizeRedirectUrl($actionUrl);
 
         return redirect($actionUrl);
+    }
+
+    /**
+     * Sanitize a URL to prevent open-redirect vulnerabilities.
+     * Accepts only same-origin paths (starting with / but NOT //) or
+     * absolute URLs under config('app.url').
+     */
+    private function sanitizeRedirectUrl(?string $url): string
+    {
+        if (!is_string($url) || $url === '') {
+            return '/';
+        }
+
+        // Reject protocol-relative (e.g. //evil.com) and backslash tricks
+        if (str_starts_with($url, '//') || str_starts_with($url, '\\\\') || str_starts_with($url, '\\/')) {
+            return '/';
+        }
+
+        // Relative path: safe
+        if (str_starts_with($url, '/')) {
+            return $url;
+        }
+
+        // Absolute URL: must match the app host exactly
+        $parsed = @parse_url($url);
+        if (!is_array($parsed) || empty($parsed['host'])) {
+            return '/';
+        }
+
+        $appHost = parse_url((string) config('app.url'), PHP_URL_HOST);
+        if (!$appHost || strtolower($parsed['host']) !== strtolower($appHost)) {
+            return '/';
+        }
+
+        // Same host: reconstruct just path + query + fragment to strip any userinfo
+        $path = $parsed['path'] ?? '/';
+        $query = isset($parsed['query']) ? '?' . $parsed['query'] : '';
+        $fragment = isset($parsed['fragment']) ? '#' . $parsed['fragment'] : '';
+        return $path . $query . $fragment;
     }
 
     public function markAllRead(Request $request)

@@ -1,2559 +1,1337 @@
 @extends('layouts.app')
 
-@section('title','Encontrá tu cancha — TuCancha')
-@section('meta_description', 'Explorá todos los complejos deportivos disponibles en TuCancha. Filtrá por deporte, zona y horario. Reservá tu cancha online en segundos.')
-
-@push('head')
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@800&display=swap" rel="stylesheet">
-@endpush
+@section('title', 'Complejos · TuCancha')
+@section('meta_description', 'Explorá todos los complejos deportivos disponibles en TuCancha. Filtrá por zona, deporte y horario. Reservá online en segundos.')
+@section('og_title', 'Complejos — TuCancha')
+@section('og_description', 'Encontrá canchas de fútbol, pádel, tenis y más. Reservá online en segundos.')
 
 @push('styles')
 <style>
-  /* ── AOS override ─────────────────────────────── */
-  [data-aos] { pointer-events: auto !important; }
+  /* ═══════════════════════════════════════════════════════════════
+     VENUES INDEX V2 — Editorial Dark Listing
+     Palette: TuCancha #22c55e · Font: Sora bold (from layout)
+     Scoped with .vi2 prefix to avoid collisions
+     ═══════════════════════════════════════════════════════════════ */
+  .vi2 {
+    --bg: #050505;
+    --bg-1: #0a0a0a;
+    --bg-2: #111;
+    --bg-3: #161616;
+    --bd: rgba(255,255,255,.07);
+    --bd-2: rgba(255,255,255,.14);
+    --tx: #f2f2f2;
+    --tx-2: #c8c8c8;
+    --tx-3: #8a8a8a;
+    --tx-4: #555;
+    --accent: #22c55e;
+    --accent-ink: #052010;
+    --accent-hover: #4ade80;
+    --accent-dim: rgba(34,197,94,.08);
+    --accent-bd: rgba(34,197,94,.25);
+    --gold: #d4b878;
+  }
+  .vi2 { background: var(--bg); color: var(--tx); font-family: 'Sora', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  .vi2 * { box-sizing: border-box; }
+  .vi2 a { color: inherit; text-decoration: none; }
+  .vi2 button, .vi2 select, .vi2 input { font-family: inherit; }
+  .vi2 ::selection { background: var(--accent); color: var(--accent-ink); }
 
-  /* ── Reset / base ─────────────────────────────── */
-  .vi-wrap { display: flex; flex-direction: column; gap: 0; }
-
-  /* ── Scroll progress bar ──────────────────────── */
-  .vi-scroll-progress {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 3px;
-    width: 0%;
-    background: var(--color-primary);
-    z-index: 9999;
-    transition: width 0.1s linear;
-    box-shadow: 0 0 8px rgba(34,197,94,.6);
+  /* Break out of layout's .site-main constraints */
+  .vi2 {
+    margin-inline: calc(50% - 50vw);
+    width: 100vw;
+    max-width: 100vw;
+    overflow-x: clip;
+    margin-top: -24px;
+    margin-bottom: -40px;
+  }
+  @media (max-width: 639px) {
+    .vi2 { margin-top: -16px; margin-bottom: -32px; }
   }
 
-  /* ── Hero ─────────────────────────────────────── */
-  .vi-hero {
+  /* ── Scroll reveal ── */
+  .vi2-rv { opacity: 0; transform: translateY(14px); transition: opacity .7s cubic-bezier(.2,.6,.2,1), transform .7s cubic-bezier(.2,.6,.2,1); }
+  .vi2-rv.in { opacity: 1; transform: translateY(0); }
+  .vi2-rv.d1 { transition-delay: .06s; }
+  .vi2-rv.d2 { transition-delay: .12s; }
+  .vi2-rv.d3 { transition-delay: .18s; }
+  .vi2-rv.d4 { transition-delay: .24s; }
+
+  /* ── HERO ── */
+  .vi2-hero {
     position: relative;
-    border-radius: 24px;
-    padding: 60px 52px 48px;
-    color: #fff;
-    margin-bottom: 28px;
-    overflow: hidden;
-    min-height: 340px;
-  }
-
-  .vi-hero-bg {
-    position: absolute;
-    inset: 0;
-    background-image: url('/images/hero-cancha.webp');
-    background-size: cover;
-    background-position: center;
-    opacity: 0.4;
-    z-index: 0;
-  }
-
-  .vi-hero-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(0,0,0,.88) 0%, rgba(0,0,0,.6) 60%, rgba(10,30,10,.5) 100%);
-    z-index: 1;
-  }
-
-  /* Líneas decorativas de campo — solo desktop */
-  @media (min-width: 769px) {
-    .vi-hero::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 50%;
-      width: 1px;
-      height: 100%;
-      border-left: 1px solid rgba(255,255,255,.04);
-      z-index: 1;
-      pointer-events: none;
-    }
-    .vi-hero-field-circle {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 180px;
-      height: 180px;
-      border-radius: 50%;
-      border: 1px solid rgba(255,255,255,.04);
-      z-index: 1;
-      pointer-events: none;
-    }
-  }
-  @media (max-width: 768px) {
-    .vi-hero-field-circle { display: none; }
-    .vi-hero { padding: 40px 20px 32px; }
-    .vi-hero-text h1 { font-size: 36px; }
-  }
-
-  /* Partículas */
-  .vi-particle {
-    position: absolute;
-    border-radius: 50%;
-    z-index: 1;
-    pointer-events: none;
-    animation: vi-float linear infinite;
-  }
-
-  @keyframes vi-float {
-    0%   { transform: translateY(0px) rotate(0deg); opacity: 0; }
-    10%  { opacity: 1; }
-    90%  { opacity: 1; }
-    100% { transform: translateY(-120px) rotate(360deg); opacity: 0; }
-  }
-
-  @media (max-width: 768px) {
-    .vi-particle { display: none; }
-  }
-
-  .vi-hero-content {
-    position: relative;
-    z-index: 4;
-  }
-
-  /* Badge pulsante */
-  .vi-hero-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 14px;
-    border-radius: var(--radius-full);
-    background: rgba(110,234,160,.12);
-    border: 1px solid rgba(110,234,160,.3);
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--color-primary-light);
-    margin-bottom: 20px;
-  }
-
-  .vi-hero-badge-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--color-primary);
-    flex-shrink: 0;
-    animation: vi-pulse 1.8s ease-in-out infinite;
-  }
-
-  @keyframes vi-pulse {
-    0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(34,197,94,.5); }
-    50% { opacity: .8; transform: scale(1.1); box-shadow: 0 0 0 6px rgba(34,197,94,.0); }
-  }
-
-  /* H1 con efecto de aparición por palabras */
-  .vi-hero-text h1 {
-    margin: 0 0 14px 0;
-    font-size: clamp(30px, 5vw + 10px, 60px);
-    font-weight: 900;
-    letter-spacing: -0.04em;
-    line-height: 1.02;
-  }
-
-  .vi-hero-text h1 em {
-    font-style: normal;
-    color: var(--color-primary-light);
-  }
-
-  .vi-word-reveal {
-    display: inline-block;
-    clip-path: inset(0 100% 0 0);
-    opacity: 0;
-    animation: vi-char-reveal 0.6s cubic-bezier(0.22,1,0.36,1) forwards;
-  }
-
-  @keyframes vi-char-reveal {
-    0%   { clip-path: inset(0 100% 0 0); opacity: 0; }
-    1%   { opacity: 1; }
-    100% { clip-path: inset(0 0% 0 0); opacity: 1; }
-  }
-
-  .vi-hero-text p {
-    margin: 0 0 20px 0;
-    color: rgba(255,255,255,.72);
-    font-size: 17px;
-    line-height: 1.6;
-    max-width: 520px;
-  }
-
-  /* Microstats */
-  .vi-hero-microstats {
-    display: flex;
-    gap: 24px;
-    flex-wrap: wrap;
-    margin-bottom: 28px;
-  }
-
-  .vi-hero-microstat {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .vi-hero-microstat-val {
-    font-size: 22px;
-    font-weight: 800;
-    color: var(--color-primary-light);
-    letter-spacing: -0.03em;
-    line-height: 1;
-  }
-
-  .vi-hero-microstat-label {
-    font-size: 11px;
-    color: rgba(255,255,255,.5);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: .05em;
-  }
-
-  .vi-hero-microstat-sep {
-    width: 1px;
-    height: 32px;
-    background: rgba(255,255,255,.12);
-    align-self: center;
-  }
-
-  /* ── Search bar ───────────────────────────────── */
-  .vi-search-bar {
-    position: relative;
-    display: flex;
-    align-items: center;
-    background: rgba(255,255,255,.09);
-    border: 1px solid rgba(255,255,255,.18);
-    border-radius: 16px;
-    padding: 6px 6px 6px 18px;
-    gap: 8px;
-    backdrop-filter: blur(8px);
-    transition: border-color .2s, background .2s;
+    padding: 140px 40px 80px;
+    min-height: 620px;
     overflow: hidden;
   }
-
-  /* Shimmer one-shot en load */
-  .vi-search-bar::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,.18) 50%, transparent 70%);
-    background-size: 200% 100%;
-    animation: vi-shimmer 1.2s ease 0.8s 1 forwards;
-    pointer-events: none;
-    z-index: 3;
-    opacity: 0;
-  }
-
-  @keyframes vi-shimmer {
-    0%   { background-position: 200% 0; opacity: 1; }
-    100% { background-position: -200% 0; opacity: 0; }
-  }
-
-  .vi-search-bar:focus-within {
-    border-color: rgba(110,234,160,.55);
-    background: rgba(255,255,255,.12);
-    box-shadow: 0 0 0 3px rgba(110,234,160,.1);
-  }
-
-  .vi-search-bar input {
-    flex: 1;
-    background: none;
-    border: none;
-    outline: none;
-    color: #fff;
-    font-size: 16px;
-    font-family: inherit;
-    min-width: 0;
-    position: relative;
-    z-index: 2;
-  }
-
-  .vi-search-bar input::placeholder { color: rgba(255,255,255,.45); }
-
-  .vi-search-btn {
-    background: var(--color-primary);
-    color: #052e16;
-    border: none;
-    border-radius: 12px;
-    padding: 11px 22px;
-    font-size: 14px;
-    font-weight: 800;
-    cursor: pointer;
-    font-family: inherit;
-    white-space: nowrap;
-    transition: background .15s, transform .15s, box-shadow .15s;
-    position: relative;
-    z-index: 2;
-  }
-
-  .vi-search-btn:hover {
-    background: var(--color-primary-hover);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 16px rgba(34,197,94,.35);
-  }
-
-  /* ── Quick filters row ────────────────────────── */
-  .vi-filters-row {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    align-items: center;
-    margin-top: 14px;
-    position: relative;
-  }
-
-  .vi-filter-chip {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 7px 14px;
-    border-radius: var(--radius-full);
-    background: rgba(255,255,255,.07);
-    border: 1px solid rgba(255,255,255,.14);
-    color: rgba(255,255,255,.8);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: inherit;
-    transition: transform .15s ease, background .15s, border-color .15s;
-    position: relative;
-  }
-
-  .vi-filter-chip:hover {
-    transform: translateY(-1px) scale(1.03);
-  }
-
-  .vi-filter-chip:active {
-    transform: translateY(0) scale(0.98);
-  }
-
-  .vi-filter-chip select,
-  .vi-filter-chip input {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    width: 100%;
-    cursor: pointer;
-  }
-
-  .vi-filter-chip:hover,
-  .vi-filter-chip:focus-within {
-    background: rgba(255,255,255,.13);
-    border-color: rgba(255,255,255,.25);
-  }
-
-  .vi-filter-chip.active {
-    background: rgba(110,234,160,.15);
-    border: 1px solid rgba(110,234,160,.4);
-    color: var(--color-primary-light);
-  }
-
-  .vi-chip-disabled {
+  .vi2-hero-bg {
+    position: absolute; inset: 0;
+    background: url('/images/hero-cancha.webp') center 40% / cover no-repeat;
     opacity: .35;
-    cursor: not-allowed;
-    pointer-events: none;
+    animation: vi2-kenburns 22s ease-in-out infinite alternate;
   }
-  .vi-chip-disabled input { pointer-events: none; }
+  @keyframes vi2-kenburns {
+    0% { transform: scale(1.04) translate(0, 0); }
+    100% { transform: scale(1.10) translate(-1.5%, -1%); }
+  }
+  .vi2-hero-grad {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 70% 50% at 30% 100%, rgba(0,0,0,.8), transparent 65%),
+      linear-gradient(180deg, rgba(5,5,5,.75) 0%, rgba(5,5,5,.4) 35%, rgba(5,5,5,.92) 100%);
+  }
+  .vi2-hero-inner { position: relative; z-index: 2; max-width: 1360px; margin: 0 auto; }
+  .vi2-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--tx-3); margin-bottom: 16px;
+  }
+  .vi2-eyebrow::before { content: ''; display: inline-block; width: 20px; height: 1px; background: var(--tx-3); }
+  .vi2-hero-h {
+    font-size: clamp(44px, 6.5vw, 80px);
+    font-weight: 800;
+    letter-spacing: -0.045em;
+    line-height: .98;
+    margin: 0 0 18px;
+    color: var(--tx);
+  }
+  .vi2-hero-h b { font-weight: 900; }
+  .vi2-hero-h i { font-style: italic; font-weight: 700; color: var(--accent); letter-spacing: -0.045em; }
+  .vi2-hero-sub {
+    font-size: 18px; font-weight: 500;
+    color: var(--tx-2); line-height: 1.55;
+    max-width: 560px; margin: 0 0 28px;
+  }
+  .vi2-hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 14px 6px 10px;
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 999px;
+    font-size: 12px; font-weight: 600; color: var(--tx);
+    margin-bottom: 18px;
+    backdrop-filter: blur(12px);
+  }
+  .vi2-hero-badge-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 3px rgba(34,197,94,.25);
+    animation: vi2-pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes vi2-pulse { 0%,100% { opacity: 1; } 50% { opacity: .5; } }
 
-  .vi-availability-banner {
-    display: flex;
+  /* ── Search bar ── */
+  .vi2-search {
+    display: flex; gap: 1px;
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 16px;
+    padding: 5px;
+    backdrop-filter: blur(16px);
+    max-width: 720px;
     align-items: center;
-    gap: 8px;
-    padding: 10px 16px;
-    border-radius: var(--radius-md);
-    background: rgba(34,197,94,.08);
-    border: 1px solid rgba(34,197,94,.25);
-    color: var(--color-primary-hover);
-    font-size: 13px;
-    font-weight: 600;
-    margin-bottom: 16px;
+    transition: border-color .2s, box-shadow .2s;
+    margin-top: 16px;
   }
-  .vi-availability-banner strong { color: var(--color-primary-hover); }
-
-  .vi-filter-sep {
-    width: 1px;
-    height: 20px;
-    background: rgba(255,255,255,.15);
+  .vi2-search:focus-within {
+    border-color: rgba(34,197,94,.4);
+    box-shadow: 0 0 0 3px rgba(34,197,94,.08);
   }
+  .vi2-search-ico { padding: 0 12px 0 16px; display: flex; align-items: center; color: var(--tx-3); }
+  .vi2-search-input {
+    flex: 1; padding: 13px 8px;
+    background: none; border: none;
+    color: var(--tx); font-size: 15px; font-weight: 500;
+    outline: none; min-width: 0;
+  }
+  .vi2-search-input::placeholder { color: var(--tx-4); }
+  .vi2-search-btn {
+    padding: 12px 22px;
+    background: var(--accent); color: var(--accent-ink);
+    border: none; border-radius: 12px;
+    font-size: 14px; font-weight: 800;
+    cursor: pointer;
+    transition: background .15s, transform .15s;
+    white-space: nowrap;
+  }
+  .vi2-search-btn:hover { background: var(--accent-hover); transform: translateY(-1px); }
 
-  .vi-clear-btn {
-    background: none;
-    border: none;
-    color: rgba(255,255,255,.5);
-    font-size: 13px;
+  /* ── Filter chips ── */
+  .vi2-filters {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    margin-top: 16px; align-items: center;
+  }
+  .vi2-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px;
+    background: rgba(255,255,255,.05);
+    border: 1px solid var(--bd-2);
+    border-radius: 999px;
+    font-size: 12px; font-weight: 600;
+    color: var(--tx-2);
+    cursor: pointer;
+    transition: background .15s, border-color .15s, color .15s, transform .15s;
+    position: relative;
+    white-space: nowrap;
+  }
+  .vi2-chip:hover {
+    background: rgba(255,255,255,.08);
+    border-color: rgba(255,255,255,.2);
+    color: var(--tx);
+    transform: translateY(-1px);
+  }
+  .vi2-chip.active {
+    background: var(--accent-dim);
+    border-color: var(--accent-bd);
+    color: var(--accent);
+  }
+  .vi2-chip svg { width: 13px; height: 13px; }
+  .vi2-chip select,
+  .vi2-chip input[type="date"],
+  .vi2-chip input[type="time"] {
+    position: absolute; inset: 0;
+    opacity: 0; width: 100%; height: 100%;
     cursor: pointer;
     font-family: inherit;
-    padding: 7px 10px;
-    border-radius: var(--radius-full);
-    transition: color .15s;
-    text-decoration: none;
+    background: transparent;
+    border: none;
+    color: transparent;
   }
-
-  .vi-clear-btn:hover { color: rgba(255,255,255,.85); }
-
-  /* Advanced filter panel — glass effect */
-  .vi-adv-panel {
-    max-height: 0;
-    overflow: hidden;
-    margin-top: 0;
-    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), margin-top 0.3s ease, opacity 0.3s ease;
-    opacity: 0;
+  .vi2-filter-sep { width: 1px; height: 20px; background: rgba(255,255,255,.12); }
+  .vi2-chip-clear {
+    background: none; border: none;
+    color: var(--tx-3); font-size: 12px;
+    cursor: pointer; padding: 8px 10px; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 4px;
   }
-
-  .vi-adv-panel.open {
-    max-height: 400px;
-    margin-top: 12px;
-    opacity: 1;
+  .vi2-chip-clear:hover { color: var(--tx); }
+  .vi2-chip-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent);
+    margin-left: 2px;
   }
+  .vi2-chip-disabled { opacity: .4; cursor: not-allowed; }
+  .vi2-chip-disabled * { pointer-events: none; }
 
-  .vi-adv-panel-inner {
-    background: rgba(0,0,0,.6);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(110,234,160,.18);
+  /* ── Advanced filter panel ── */
+  .vi2-adv {
+    max-width: 720px; margin-top: 12px;
+    background: rgba(255,255,255,.04);
+    border: 1px solid var(--bd);
     border-radius: 16px;
-    padding: 18px 20px;
+    padding: 0 20px;
+    max-height: 0; overflow: hidden;
+    transition: max-height .35s cubic-bezier(.2,.6,.2,1), padding .3s, margin-top .3s;
   }
-
-  .vi-adv-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 12px;
+  .vi2-adv.open { max-height: 280px; padding: 20px; margin-top: 14px; }
+  .vi2-adv-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+    margin-bottom: 14px;
   }
-
-  .vi-adv-field label {
+  .vi2-adv label {
     display: block;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .06em;
-    color: rgba(255,255,255,.5);
+    font-size: 11px; font-weight: 700; color: var(--tx-3);
+    letter-spacing: .08em; text-transform: uppercase;
     margin-bottom: 6px;
   }
-
-  .vi-adv-field input,
-  .vi-adv-field select {
+  .vi2-adv input[type="number"] {
     width: 100%;
-    background: rgba(255,255,255,.08);
-    border: 1px solid rgba(255,255,255,.15);
+    padding: 10px 14px;
+    background: rgba(255,255,255,.04);
+    border: 1px solid var(--bd-2);
     border-radius: 10px;
-    padding: 9px 12px;
-    color: #fff;
-    font-size: 14px;
-    font-family: inherit;
+    color: var(--tx);
+    font-size: 14px; font-weight: 600;
     outline: none;
     transition: border-color .15s;
   }
-
-  .vi-adv-field input:focus,
-  .vi-adv-field select:focus { border-color: rgba(110,234,160,.5); }
-
-  .vi-adv-field select option { background: var(--color-bg-dark); color: var(--color-text-inverse); }
-
-  .vi-adv-actions {
-    display: flex;
-    gap: 8px;
-    margin-top: 14px;
+  .vi2-adv input[type="number"]:focus { border-color: var(--accent); }
+  .vi2-adv-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .vi2-btn-apply {
+    padding: 9px 20px;
+    background: var(--accent); color: var(--accent-ink);
+    border: none; border-radius: 10px;
+    font-size: 13px; font-weight: 800;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .vi2-btn-apply:hover { background: var(--accent-hover); }
+  .vi2-btn-geo {
+    padding: 9px 16px;
+    background: transparent;
+    border: 1px solid var(--bd-2);
+    color: var(--tx-2);
+    border-radius: 10px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+    transition: border-color .15s, color .15s, background .15s;
+  }
+  .vi2-btn-geo:hover { border-color: var(--tx-3); color: var(--tx); }
+  .vi2-btn-geo.on {
+    background: var(--accent-dim); color: var(--accent);
+    border-color: var(--accent-bd);
   }
 
-  /* ── Active filter tags ───────────────────────── */
-  .vi-active-filters {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    align-items: center;
-    margin-bottom: 20px;
+  /* ── Active filter tags ── */
+  .vi2-active-tags {
+    max-width: 1360px; margin: 0 auto; padding: 20px 40px 0;
+    display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
   }
-
-  @media (max-width: 640px) {
-    .vi-active-filters {
-      flex-wrap: nowrap;
-      overflow-x: auto;
-    }
+  .vi2-active-tags-label {
+    font-size: 12px; font-weight: 700; color: var(--tx-3);
+    letter-spacing: .06em; text-transform: uppercase;
   }
-
-  .vi-active-filter-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
+  .vi2-active-tag {
+    display: inline-flex; align-items: center; gap: 6px;
     padding: 5px 12px;
-    border-radius: var(--radius-full);
-    background: #052e16;
-    color: #4ade80;
-    font-size: 12px;
-    font-weight: 700;
-    border: 1px solid var(--color-primary-hover);
+    background: var(--accent-dim);
+    border: 1px solid var(--accent-bd);
+    color: var(--accent);
+    border-radius: 999px;
+    font-size: 12px; font-weight: 600;
+  }
+  .vi2-active-tag svg { width: 11px; height: 11px; }
+
+  /* ── Availability banner ── */
+  .vi2-avail-banner {
+    max-width: 1360px; margin: 14px auto 0; padding: 0 40px;
+  }
+  .vi2-avail-banner-inner {
+    background: var(--accent-dim);
+    border: 1px solid var(--accent-bd);
+    border-radius: 14px;
+    padding: 12px 18px;
+    display: flex; align-items: center; gap: 10px;
+    color: var(--accent);
+    font-size: 13px; font-weight: 600;
+  }
+  .vi2-avail-banner-inner strong { color: var(--tx); font-weight: 800; }
+
+  /* ── Falta Uno banner (when ?falta_uno=1) ── */
+  .vi2-falta-banner {
+    max-width: 1360px; margin: 14px auto 0; padding: 0 40px;
+  }
+  .vi2-falta-banner-inner {
+    background: var(--accent-dim);
+    border: 1px solid var(--accent-bd);
+    border-radius: 14px;
+    padding: 14px 20px;
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  }
+  .vi2-falta-banner-ico {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: rgba(34,197,94,.18);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--accent); flex-shrink: 0;
+  }
+  .vi2-falta-banner-text { flex: 1; min-width: 220px; }
+  .vi2-falta-banner-text b { display: block; color: var(--accent); font-size: 14px; font-weight: 800; }
+  .vi2-falta-banner-text span { color: var(--tx-2); font-size: 12px; }
+  .vi2-falta-banner-link {
+    color: var(--accent); font-weight: 700; font-size: 13px;
+    text-decoration: underline;
+    display: inline-flex; align-items: center; gap: 4px;
   }
 
-  /* ── Search results panel ─────────────────────── */
-  .vi-search-results-panel {
-    background: #111;
-    border: 1px solid rgba(255,255,255,.08);
-    border-radius: 20px;
-    padding: 28px 28px 32px;
+  /* ── Sections ── */
+  .vi2-sec-w { max-width: 1360px; margin: 0 auto; padding: 0 40px; }
+  .vi2-sec-head {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    gap: 20px; flex-wrap: wrap;
     margin-bottom: 28px;
-    position: relative;
-    overflow: visible;
+    padding-top: 64px;
   }
-
-  @media (max-width: 640px) {
-    .vi-search-results-panel {
-      padding: 16px 14px 20px;
-    }
+  .vi2-sec-title {
+    font-size: 28px; font-weight: 700;
+    letter-spacing: -0.03em; margin: 0;
+    color: var(--tx);
   }
+  .vi2-sec-title b { font-weight: 900; }
+  .vi2-sec-sub { font-size: 13px; color: var(--tx-3); margin: 4px 0 0; font-weight: 500; }
+  .vi2-sec-count { font-size: 12px; color: var(--tx-3); font-weight: 600; }
 
-  .vi-search-results-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-
-  .vi-search-results-header h2 {
-    margin: 0;
-    font-size: 20px;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    color: var(--color-text);
-  }
-
-  .vi-search-results-count {
-    font-size: 13px;
-    color: #4ade80;
-    font-weight: 700;
-    background: rgba(74,222,128,.1);
-    border: 1px solid rgba(74,222,128,.2);
-    padding: 4px 14px;
-    border-radius: var(--radius-full);
-  }
-
-  /* ── Featured section ─────────────────────────── */
-  .vi-featured {
-    background: #111;
-    border: 1px solid rgba(255,255,255,.08);
-    border-radius: 24px;
-    padding: 32px 32px 28px;
-    margin-bottom: 28px;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 4px 24px rgba(0,0,0,.4);
-  }
-
-  @media (max-width: 640px) {
-    .vi-featured {
-      padding: 18px 14px;
-    }
-  }
-
-  /* Número decorativo grande en el fondo */
-  .vi-featured-bg-num {
-    position: absolute;
-    right: 24px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 180px;
-    font-weight: 900;
-    color: rgba(255,255,255,.04);
-    line-height: 1;
-    pointer-events: none;
-    user-select: none;
-    transition: opacity 0.4s ease;
-    z-index: 0;
-  }
-
-  .vi-featured-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-    flex-wrap: wrap;
-    margin-bottom: 10px;
-    position: relative;
-    z-index: 1;
-  }
-
-  .vi-featured-header h2 {
-    margin: 0;
-    font-size: 20px;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    color: var(--color-text);
-  }
-
-  .vi-featured-header .carousel-subtitle {
-    font-size: 13px;
-    color: var(--color-text-muted);
-    margin-top: 3px;
-  }
-
-  .feature-tabs {
-    display: flex;
+  /* ── Featured tabs ── */
+  .vi2-feat-tabs {
+    display: flex; gap: 4px;
     background: rgba(255,255,255,.04);
-    border: 1px solid rgba(255,255,255,.08);
-    border-radius: var(--radius-full);
+    border: 1px solid var(--bd);
+    border-radius: 12px;
     padding: 3px;
-    gap: 2px;
   }
-
-  .feature-tab {
-    padding: 7px 18px;
-    border-radius: var(--radius-full);
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--color-text-secondary);
+  .vi2-feat-tab {
+    padding: 8px 16px;
+    font-size: 12px; font-weight: 600;
+    color: var(--tx-3);
+    border-radius: 10px;
     cursor: pointer;
-    transition: background .15s, color .15s;
+    transition: all .2s;
+    display: inline-flex; align-items: center; gap: 6px;
     white-space: nowrap;
-    user-select: none;
+    border: none; background: none;
   }
-
-  .feature-tab.active {
-    background: var(--color-primary);
-    color: #052e16;
+  .vi2-feat-tab:hover { color: var(--tx-2); }
+  .vi2-feat-tab.active {
+    background: rgba(255,255,255,.08);
+    color: var(--tx);
   }
+  .vi2-feat-tab svg { width: 12px; height: 12px; }
 
-  .featured-nav-arrows {
-    display: flex;
-    gap: 6px;
-  }
-
-  .featured-nav-arrow {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    border: 1px solid rgba(255,255,255,.1);
-    background: #1a1a1a;
-    font-size: 18px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background .15s, border-color .15s, color .15s;
-    color: #a0a0a0;
-  }
-
-  .featured-nav-arrow:hover {
-    background: var(--color-primary);
-    border-color: var(--color-primary);
-    color: #052e16;
-  }
-
-  /* Barra de progreso del autoplay */
-  .vi-featured-progress {
-    height: 3px;
-    background: var(--color-border);
-    border-radius: var(--radius-full);
-    margin-bottom: 16px;
-    overflow: hidden;
+  /* ── Featured carousel ── */
+  .vi2-feat-track-wrap {
     position: relative;
-    z-index: 1;
-  }
-
-  .vi-featured-progress-bar {
-    height: 100%;
-    background: var(--color-primary);
-    border-radius: var(--radius-full);
-    width: 0%;
-    animation: vi-progress 3.5s linear forwards;
-    box-shadow: 0 0 6px rgba(34,197,94,.5);
-  }
-
-  @keyframes vi-progress {
-    from { width: 0%; }
-    to   { width: 100%; }
-  }
-
-  .feature-carousel { display: none; position: relative; z-index: 1; }
-  .feature-carousel.active { display: block; }
-
-  .feature-carousel-shell {
     overflow: hidden;
-    border-radius: 16px;
+    padding-bottom: 8px;
   }
-
-  .carousel-track {
-    display: flex;
-    gap: 14px;
+  .vi2-feat-track {
+    display: flex; gap: 16px;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
-    cursor: grab;
+    -ms-overflow-style: none;
+    padding: 8px 0 12px;
   }
+  .vi2-feat-track::-webkit-scrollbar { display: none; }
+  .vi2-feat-pane { display: none; }
+  .vi2-feat-pane.active { display: block; }
 
-  .carousel-track::-webkit-scrollbar { display: none; }
-  .carousel-track.dragging { cursor: grabbing; }
-
-  /* Featured card — tall with image overlay */
-  .featured-card {
-    flex: 0 0 300px;
+  .vi2-feat-card {
+    flex: 0 0 320px;
     scroll-snap-align: start;
+    position: relative;
     border-radius: 18px;
     overflow: hidden;
-    position: relative;
-    height: 260px;
-    border: none;
-    box-shadow: 0 4px 20px rgba(0,0,0,.25);
-    transition: transform .3s ease, box-shadow .3s ease, opacity .3s ease;
-  }
-
-  @media (max-width: 640px) {
-    .featured-card {
-      flex: 0 0 85vw;
-    }
-  }
-
-  .featured-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 32px rgba(34,197,94,.2);
-  }
-
-  .featured-card img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    position: absolute;
-    inset: 0;
-  }
-
-  .featured-card-placeholder {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, #1a1a1a, #111);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 40px;
-  }
-
-  .featured-card-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to top, rgba(0,0,0,.88) 0%, rgba(0,0,0,.2) 55%, transparent 100%);
-  }
-
-  .featured-card-body {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 16px;
-    color: #fff;
-  }
-
-  .featured-card-body h3 {
-    margin: 0 0 6px 0;
-    font-size: 15px;
-    font-weight: 800;
-    line-height: 1.3;
-    text-shadow: 0 1px 4px rgba(0,0,0,.4);
-  }
-
-  .featured-card-meta {
-    font-size: 12px;
-    color: rgba(255,255,255,.8);
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex-wrap: wrap;
-  }
-
-  .featured-card-badge {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: var(--radius-full);
-    background: rgba(255,255,255,.15);
-    border: 1px solid rgba(255,255,255,.2);
-    font-size: 11px;
-    font-weight: 700;
-  }
-
-  .featured-card-btn {
-    display: inline-block;
-    padding: 7px 14px;
-    border-radius: 10px;
-    background: var(--color-primary);
-    color: #052e16;
-    font-size: 12px;
-    font-weight: 800;
-    text-decoration: none;
-    transition: background .15s, box-shadow .15s;
-  }
-
-  .featured-card-btn:hover {
-    background: var(--color-primary-hover);
-    box-shadow: 0 4px 14px rgba(34,197,94,.4);
-  }
-
-  /* ── Favorites ────────────────────────────────── */
-  .vi-favorites {
-    background: rgba(34,197,94,.06);
-    border-left: 4px solid var(--color-primary);
-    border-top: 1px solid rgba(34,197,94,.15);
-    border-right: 1px solid rgba(34,197,94,.15);
-    border-bottom: 1px solid rgba(34,197,94,.15);
-    border-radius: 16px;
-    padding: 20px 24px;
-    margin-bottom: 28px;
-  }
-
-  .vi-favorites h2 {
-    margin: 0 0 14px 0;
-    font-size: 17px;
-    font-weight: 800;
-    color: #4ade80;
-  }
-
-  .vi-fav-scroll {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    scrollbar-width: none;
-    padding-bottom: 2px;
-  }
-
-  .vi-fav-scroll::-webkit-scrollbar { display: none; }
-
-  .vi-fav-chip {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    padding: 8px 16px;
-    border-radius: var(--radius-full);
-    background: #1a1a1a;
-    border: 1px solid rgba(34,197,94,.2);
-    font-size: 13px;
-    font-weight: 700;
-    color: #4ade80;
-    text-decoration: none;
-    transition: background .15s, border-color .15s, color .15s;
-  }
-
-  .vi-fav-chip:hover {
-    background: var(--color-primary);
-    color: #052e16;
-    border-color: var(--color-primary);
-  }
-
-  /* ── Map ──────────────────────────────────────── */
-  .vi-map-wrap {
-    border-radius: 24px;
-    overflow: hidden;
-    border: 1px solid rgba(74,222,94,.2);
-    margin-bottom: 28px;
-    position: relative;
-  }
-
-  .vi-map-label {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 10px;
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--color-text);
-  }
-
-  /* Mapa skeleton antes de carga */
-  .vi-map-skeleton {
-    width: 100%;
-    height: 380px;
-    background: #1a1a1a;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: vi-skeleton-pulse 1.6s ease-in-out infinite;
-  }
-
-  .vi-map-skeleton-icon {
-    font-size: 40px;
-    opacity: 0.4;
-  }
-
-  @keyframes vi-skeleton-pulse {
-    0%, 100% { background: #1a1a1a; }
-    50%       { background: #222; }
-  }
-
-  #map {
-    height: 380px;
-    opacity: 0;
-    transition: opacity 0.6s ease;
-  }
-
-  #map.vi-map-loaded {
-    opacity: 1;
-  }
-
-  /* ── Results header ───────────────────────────── */
-  .vi-results-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-bottom: 18px;
-  }
-
-  .vi-results-header h2 {
-    margin: 0;
-    font-size: 22px;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-  }
-
-  .vi-results-count {
-    font-size: 14px;
-    color: var(--color-text-muted);
-    font-weight: 600;
-  }
-
-  /* Section title con línea animada */
-  .vi-section-title {
-    position: relative;
-    display: inline-block;
-  }
-
-  .vi-section-title::after {
-    content: '';
-    position: absolute;
-    bottom: -6px;
-    left: 0;
-    height: 3px;
-    width: 0;
-    background: var(--color-primary);
-    border-radius: var(--radius-full);
-    transition: width 0.5s cubic-bezier(0.22,1,0.36,1);
-    box-shadow: 0 0 8px rgba(34,197,94,.4);
-  }
-
-  .vi-section-title.vi-title-visible::after {
-    width: 60px;
-  }
-
-  /* Contador de complejos pill */
-  .vi-count-pill {
-    font-size: 13px;
-    font-weight: 800;
-    background: var(--color-primary);
-    color: #052e16;
-    padding: 4px 14px;
-    border-radius: var(--radius-full);
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  /* ── Venue cards grid ─────────────────────────── */
-  .vi-venues-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 18px;
-    margin-bottom: 32px;
-  }
-
-  .vi-venue-card {
-    background: #111;
-    border: 1px solid rgba(255,255,255,.08);
-    border-radius: 22px;
-    overflow: hidden;
-    transition: transform .3s ease, box-shadow .3s ease;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    transform-style: preserve-3d;
+    aspect-ratio: 4/3;
     cursor: pointer;
+    border: 1px solid var(--bd);
+    transition: border-color .3s, transform .3s;
+    text-decoration: none;
   }
-
-
-  .vi-venue-card:hover {
-    box-shadow: 0 16px 48px rgba(34,197,94,.18);
+  .vi2-feat-card:hover { border-color: var(--accent-bd); transform: translateY(-3px); }
+  .vi2-feat-img {
+    position: absolute; inset: 0;
+    background-size: cover; background-position: center;
+    transition: transform .5s, filter .3s;
+    filter: brightness(.55);
   }
-
-  .vi-venue-img-wrap {
-    position: relative;
-    height: 190px;
-    overflow: hidden;
-    flex-shrink: 0;
+  .vi2-feat-img-placeholder {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,.2);
   }
-
-  .vi-venue-img-wrap img {
-    width: 100%;
+  .vi2-feat-card:hover .vi2-feat-img { transform: scale(1.05); filter: brightness(.7); }
+  .vi2-feat-img::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(0deg, rgba(5,5,5,.92) 0%, rgba(5,5,5,.3) 50%, transparent);
+  }
+  .vi2-feat-body {
+    position: relative; z-index: 2;
     height: 100%;
-    object-fit: cover;
-    transition: transform .4s ease;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 22px;
   }
-
-  .vi-venue-card:hover .vi-venue-img-wrap img {
-    transform: scale(1.06);
-  }
-
-  /* Skeleton de imagen lazy */
-  .vi-venue-img-wrap img.vi-img-loading {
-    background: linear-gradient(90deg, #1a1a1a 25%, #222 50%, #1a1a1a 75%);
-    background-size: 200% 100%;
-    animation: vi-img-skeleton 1.4s linear infinite;
-  }
-
-  @keyframes vi-img-skeleton {
-    0%   { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-  }
-
-  /* Shine / glare overlay dentro de la imagen */
-  .vi-card-shine {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 2;
-    border-radius: 0;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    background: radial-gradient(circle at 50% 50%, rgba(255,255,255,.15) 0%, transparent 60%);
-  }
-
-  .vi-venue-card:hover .vi-card-shine {
-    opacity: 1;
-  }
-
-  .vi-venue-img-placeholder {
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, #1a1a1a 0%, #111 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 48px;
-  }
-
-  .vi-venue-fav-btn {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: rgba(0,0,0,.65);
-    backdrop-filter: blur(4px);
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,.3);
-    transition: transform .15s, background .15s;
-    line-height: 1;
-    z-index: 3;
-  }
-
-  .vi-venue-fav-btn:hover { transform: scale(1.15); background: rgba(0,0,0,.8); }
-  .vi-venue-fav-btn.saved { background: rgba(127,29,29,.6); }
-
-  /* Animación de corazón al clickear */
-  @keyframes vi-heart-pop {
-    0%   { transform: scale(1); }
-    30%  { transform: scale(1.4); }
-    60%  { transform: scale(0.9); }
-    80%  { transform: scale(1.15); }
-    100% { transform: scale(1); }
-  }
-
-  .vi-venue-fav-btn.vi-heart-animating {
-    animation: vi-heart-pop 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
-  }
-
-  /* Badge zona (bottom-left) */
-  .vi-venue-zone-badge {
-    position: absolute;
-    bottom: 12px;
-    left: 12px;
-    padding: 4px 10px;
-    border-radius: var(--radius-full);
-    background: #052e16;
-    color: #4ade80;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .04em;
-    border: 1px solid rgba(74,222,128,.2);
-    z-index: 3;
-  }
-
-  /* Badge Falta Uno con punto pulsante y contador */
-  .vi-venue-faltauno-badge {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    background: var(--color-primary);
-    color: #052e16;
-    font-size: 11px;
-    font-weight: 800;
-    padding: 3px 10px 3px 8px;
-    border-radius: var(--radius-full);
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    z-index: 5;
-  }
-
-  .vi-faltauno-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #052e16;
-    flex-shrink: 0;
-    animation: vi-pulse-dot 1.4s ease-in-out infinite;
-  }
-
-  @keyframes vi-pulse-dot {
-    0%, 100% { transform: scale(1); opacity: 1; }
-    50%       { transform: scale(1.5); opacity: 0.7; }
-  }
-
-  .vi-venue-body {
-    padding: 18px 20px 20px;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .vi-venue-name {
-    margin: 0;
-    font-size: 17px;
-    font-weight: 800;
+  .vi2-feat-name {
+    font-size: 18px; font-weight: 800;
     letter-spacing: -0.02em;
-    line-height: 1.3;
+    color: var(--tx);
+    margin: 0 0 8px;
   }
-
-  .vi-venue-rating {
-    display: flex;
-    align-items: center;
-    gap: 6px;
+  .vi2-feat-meta {
+    display: flex; gap: 10px;
+    font-size: 12px; color: var(--tx-2);
+    flex-wrap: wrap; align-items: center;
+    margin-bottom: 14px;
+    font-weight: 500;
   }
-
-  /* Estrellas con animación en hover de la card */
-  .vi-venue-stars {
-    color: #f59e0b;
-    font-size: 13px;
-    letter-spacing: 1px;
-    display: inline-flex;
-    gap: 1px;
-  }
-
-  .vi-star {
-    display: inline-block;
-    transition: filter 0.2s ease, transform 0.2s ease;
-  }
-
-  .vi-venue-card:hover .vi-star:nth-child(1) { animation: vi-star-glow 0.3s ease 0ms forwards; }
-  .vi-venue-card:hover .vi-star:nth-child(2) { animation: vi-star-glow 0.3s ease 50ms forwards; }
-  .vi-venue-card:hover .vi-star:nth-child(3) { animation: vi-star-glow 0.3s ease 100ms forwards; }
-  .vi-venue-card:hover .vi-star:nth-child(4) { animation: vi-star-glow 0.3s ease 150ms forwards; }
-  .vi-venue-card:hover .vi-star:nth-child(5) { animation: vi-star-glow 0.3s ease 200ms forwards; }
-
-  @keyframes vi-star-glow {
-    0%   { filter: none; transform: scale(1); }
-    50%  { filter: drop-shadow(0 0 4px #f59e0b); transform: scale(1.2); }
-    100% { filter: drop-shadow(0 0 4px #f59e0b); transform: scale(1); }
-  }
-
-  .vi-venue-rating-text {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--color-text);
-  }
-
-  .vi-venue-rating-count {
-    font-size: 12px;
-    color: var(--color-text-muted);
-  }
-
-  .vi-venue-meta {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-  }
-
-  /* Pills deportes con colores por deporte */
-  .vi-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
+  .vi2-feat-meta svg { width: 12px; height: 12px; }
+  .vi2-feat-badge {
+    display: inline-flex; align-items: center; gap: 4px;
     padding: 3px 10px;
-    border-radius: var(--radius-full);
-    font-size: 12px;
-    font-weight: 600;
+    background: rgba(255,255,255,.08);
+    border-radius: 999px;
+    font-size: 11px;
+    backdrop-filter: blur(6px);
+  }
+  .vi2-feat-cta {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px;
+    background: var(--accent); color: var(--accent-ink);
+    border-radius: 999px;
+    font-size: 12px; font-weight: 800;
+    width: fit-content;
+    transition: background .15s;
+  }
+  .vi2-feat-cta:hover { background: var(--accent-hover); }
+
+  .vi2-feat-empty {
+    padding: 32px; text-align: center; width: 100%;
+    border: 1px dashed var(--bd-2);
+    border-radius: 16px;
+    color: var(--tx-3);
+  }
+  .vi2-feat-empty svg { margin-bottom: 10px; color: var(--tx-4); }
+  .vi2-feat-empty b { display: block; font-weight: 700; color: var(--tx-2); font-size: 14px; margin-bottom: 4px; }
+  .vi2-feat-empty span { font-size: 13px; color: var(--tx-3); }
+
+  /* ── Venues grid ── */
+  .vi2-venues-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    padding-bottom: 40px;
   }
 
-  .vi-tag-football {
-    background: rgba(34,197,94,.12);
+  .vi2-card {
+    border: 1px solid var(--bd);
+    border-radius: 18px;
+    overflow: hidden;
+    background: var(--bg-1);
+    transition: border-color .3s, transform .3s, box-shadow .3s;
+    display: block;
+  }
+  .vi2-card:hover {
+    border-color: rgba(255,255,255,.15);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(0,0,0,.4);
+  }
+  .vi2-card.pro { border-color: rgba(212,184,120,.16); }
+  .vi2-card.pro:hover { border-color: rgba(212,184,120,.36); }
+  .vi2-card.full { border-color: rgba(34,197,94,.18); }
+  .vi2-card.full:hover { border-color: rgba(34,197,94,.38); }
+
+  .vi2-card-img {
+    position: relative;
+    aspect-ratio: 16/10;
+    overflow: hidden;
+    background: var(--bg-2);
+    display: block;
+  }
+  .vi2-card-img img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform .5s;
+  }
+  .vi2-card:hover .vi2-card-img img { transform: scale(1.05); }
+  .vi2-card-img-placeholder {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--tx-4);
+    background: linear-gradient(135deg, #141414, #0a0a0a);
+  }
+
+  .vi2-badges {
+    position: absolute; top: 12px; left: 12px;
+    display: flex; gap: 6px; flex-wrap: wrap;
+    max-width: calc(100% - 80px);
+  }
+  .vi2-badge {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 10px; font-weight: 700;
+    letter-spacing: .04em;
+    backdrop-filter: blur(12px);
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .vi2-badge svg { width: 10px; height: 10px; }
+  .vi2-badge-zone {
+    background: rgba(0,0,0,.6);
+    color: var(--tx-2);
+    border: 1px solid rgba(255,255,255,.1);
+  }
+  .vi2-badge-falta {
+    background: rgba(34,197,94,.15);
+    color: var(--accent);
     border: 1px solid rgba(34,197,94,.3);
-    color: #4ade80;
   }
-  .vi-tag-padel {
-    background: rgba(59,130,246,.12);
-    border: 1px solid rgba(59,130,246,.3);
-    color: #60a5fa;
-  }
-  .vi-tag-tennis {
-    background: rgba(245,158,11,.12);
-    border: 1px solid rgba(245,158,11,.3);
-    color: #fbbf24;
-  }
-  .vi-tag-basketball {
-    background: rgba(249,115,22,.12);
-    border: 1px solid rgba(249,115,22,.3);
-    color: #fb923c;
-  }
-  .vi-tag-volleyball {
-    background: rgba(139,92,246,.12);
-    border: 1px solid rgba(139,92,246,.3);
-    color: #a78bfa;
-  }
-  .vi-tag-default {
-    background: rgba(34,197,94,.1);
-    border: 1px solid rgba(34,197,94,.25);
-    color: #4ade80;
+  .vi2-falta-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--accent);
+    animation: vi2-pulse 1.4s ease-in-out infinite;
   }
 
-  .vi-venue-desc {
-    font-size: 13px;
-    color: var(--color-text-secondary);
-    line-height: 1.55;
-    flex: 1;
+  .vi2-card-plan { position: absolute; top: 12px; right: 54px; }
+  .vi2-badge-pro {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 10px; font-weight: 700;
+    background: rgba(212,184,120,.15);
+    color: #d4b878;
+    border: 1px solid rgba(212,184,120,.3);
+    display: inline-flex; align-items: center; gap: 4px;
+    backdrop-filter: blur(12px);
+  }
+  .vi2-badge-pro svg { width: 10px; height: 10px; }
+  .vi2-badge-full {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 10px; font-weight: 700;
+    background: rgba(34,197,94,.15);
+    color: var(--accent);
+    border: 1px solid rgba(34,197,94,.3);
+    display: inline-flex; align-items: center; gap: 4px;
+    backdrop-filter: blur(12px);
+  }
+
+  .vi2-card-fav {
+    position: absolute; top: 12px; right: 12px;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: rgba(0,0,0,.55);
+    border: 1px solid rgba(255,255,255,.1);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: background .15s, transform .15s;
+    padding: 0;
+  }
+  .vi2-card-fav:hover { background: rgba(0,0,0,.85); transform: scale(1.08); }
+  .vi2-card-fav svg { width: 14px; height: 14px; stroke: var(--tx-3); fill: none; stroke-width: 2; transition: stroke .15s, fill .15s; }
+  .vi2-card-fav.saved svg { stroke: #ef4444; fill: #ef4444; }
+
+  .vi2-card-body { padding: 18px 20px 20px; }
+  .vi2-card-name {
+    font-size: 17px; font-weight: 800;
+    letter-spacing: -0.015em;
+    color: var(--tx);
+    margin: 0 0 8px;
+    white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
+  }
+  .vi2-card-rating {
+    display: flex; align-items: center; gap: 6px;
+    margin-bottom: 10px;
+  }
+  .vi2-card-stars { color: var(--accent); font-size: 12px; letter-spacing: 1px; }
+  .vi2-card-rating-num { font-size: 13px; font-weight: 800; color: var(--tx); }
+  .vi2-card-rating-count { font-size: 12px; color: var(--tx-3); font-weight: 500; }
+  .vi2-card-no-reviews { font-size: 12px; color: var(--tx-4); margin-bottom: 10px; font-weight: 500; }
+  .vi2-card-desc {
+    font-size: 13px; color: var(--tx-3);
+    line-height: 1.55; font-weight: 400;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    margin: 0 0 16px;
+    min-height: 40px;
   }
-
-  .vi-venue-actions {
-    display: flex;
-    gap: 8px;
-    margin-top: auto;
-    padding-top: 4px;
-  }
-
-  /* Botón "Ver complejo" */
-  .vi-btn-primary {
-    flex: 1;
-    padding: 10px 16px;
-    border-radius: 12px;
-    background: #22c55e;
-    color: #050505;
-    font-size: 13px;
-    font-weight: 700;
-    text-align: center;
-    border: none;
-    cursor: pointer;
-    font-family: inherit;
-    text-decoration: none;
-    transition: background .15s, box-shadow .15s, transform .15s;
-    display: inline-block;
-  }
-
-  .vi-btn-primary:active {
-    transform: scale(0.96);
-  }
-
-  .vi-btn-primary:hover {
-    background: #16a34a;
-    color: #050505;
-    box-shadow: 0 4px 18px rgba(34,197,94,.35);
-    transform: translateY(-1px);
-  }
-
-  /* ── Plan badges (Destacado / Premium) ─────────── */
-  .vi-plan-badge {
-    position: absolute;
-    top: 10px;
-    left: 10px;
+  .vi2-card-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+  .vi2-card-tag {
     padding: 4px 10px;
-    border-radius: var(--radius-full);
+    background: rgba(255,255,255,.04);
+    border: 1px solid var(--bd);
+    border-radius: 999px;
     font-size: 11px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .04em;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    z-index: 4;
-    backdrop-filter: blur(4px);
+    color: var(--tx-3);
+    font-weight: 600;
   }
-
-  .vi-plan-badge-pro {
-    background: rgba(34,197,94,.9);
-    color: #052e16;
-    border: 1px solid rgba(34,197,94,.6);
-  }
-
-  .vi-plan-badge-full {
-    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-    color: #1a1a1a;
-    border: 1px solid rgba(251,191,36,.6);
-    font-weight: 800;
-    text-shadow: 0 1px 0 rgba(255,255,255,.2);
-    box-shadow: 0 2px 8px rgba(251,191,36,.35);
-  }
-
-  /* Card diferenciada por plan */
-  .vi-venue-card.vi-card-pro {
-    border-top: 3px solid var(--color-primary);
-    box-shadow: 0 4px 20px rgba(34,197,94,.12);
-  }
-
-  .vi-venue-card.vi-card-pro:hover {
-    box-shadow: 0 16px 48px rgba(34,197,94,.22);
-  }
-
-  /* ── FULL / PREMIUM card ─────────────────────── */
-  .vi-venue-card.vi-card-full {
-    background: linear-gradient(160deg, #1a1a1a 0%, #111111 50%, #1a1a1a 100%);
-    border: 1.5px solid rgba(251,191,36,.3);
-    box-shadow:
-      0 6px 24px rgba(0,0,0,.35),
-      0 0 0 1px rgba(251,191,36,.08),
-      0 2px 20px rgba(251,191,36,.1);
-    position: relative;
-  }
-
-  /* Borde dorado sutil brillante en top */
-  .vi-venue-card.vi-card-full::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, transparent 0%, #fbbf24 20%, #f59e0b 50%, #fbbf24 80%, transparent 100%);
-    z-index: 5;
-    border-radius: 22px 22px 0 0;
-  }
-
-  .vi-venue-card.vi-card-full:hover {
-    box-shadow:
-      0 20px 56px rgba(0,0,0,.45),
-      0 0 0 1px rgba(251,191,36,.15),
-      0 4px 30px rgba(251,191,36,.18);
-    border-color: rgba(251,191,36,.45);
-  }
-
-  /* Textos claros dentro de card Full */
-  .vi-venue-card.vi-card-full .vi-venue-name {
-    color: #fff;
-  }
-
-  .vi-venue-card.vi-card-full .vi-venue-desc {
-    color: #a1a1aa;
-  }
-
-  .vi-venue-card.vi-card-full .vi-venue-rating-text {
-    color: #fbbf24;
-  }
-
-  .vi-venue-card.vi-card-full .vi-venue-rating-count {
-    color: #71717a;
-  }
-
-  /* Tags deportes en card Full */
-  .vi-venue-card.vi-card-full .vi-tag {
-    background: rgba(255,255,255,.07);
-    border-color: rgba(255,255,255,.12);
-    color: #d4d4d8;
-  }
-
-  /* Boton "Ver complejo" en card Full */
-  .vi-venue-card.vi-card-full .vi-btn-primary {
-    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-    color: #1a1a1a;
-    font-weight: 800;
-  }
-
-  .vi-venue-card.vi-card-full .vi-btn-primary:hover {
-    background: linear-gradient(135deg, #fcd34d 0%, #fbbf24 100%);
-  }
-
-  /* Placeholder de imagen en card Full */
-  .vi-venue-card.vi-card-full .vi-venue-img-placeholder {
-    background: linear-gradient(135deg, #1a1a1a 0%, #262626 100%);
-  }
-
-  /* Shine overlay en card Full: tono dorado */
-  .vi-venue-card.vi-card-full .vi-card-shine {
-    background: radial-gradient(circle at 50% 50%, rgba(251,191,36,.1) 0%, transparent 60%);
-  }
-
-  /* Hover shadow en card Full */
-  .vi-venue-card.vi-card-full:hover .vi-card-shine {
-    opacity: 1;
-  }
-
-  /* Falta Uno badge se mueve a la derecha cuando hay plan badge */
-  .vi-venue-card.vi-card-pro .vi-venue-faltauno-badge,
-  .vi-venue-card.vi-card-full .vi-venue-faltauno-badge {
-    left: auto;
-    right: 50px;
-  }
-
-  /* Plan badge en featured cards del carousel */
-  .featured-card .vi-plan-badge {
-    top: 10px;
-    left: 10px;
-    z-index: 4;
-  }
-
-  /* ── Empty state ──────────────────────────────── */
-  .vi-empty {
-    background: #111;
-    border: 1px solid rgba(255,255,255,.08);
-    border-radius: 24px;
-    padding: 56px 32px;
-    text-align: center;
-    color: #e8e8e8;
-  }
-
-  .vi-empty-svg {
-    margin-bottom: 20px;
-  }
-
-  .vi-empty h3 {
-    margin: 0 0 8px 0;
-    font-size: 20px;
-    font-weight: 800;
-    color: var(--color-text);
-  }
-
-  .vi-empty p {
-    margin: 0 0 24px 0;
-    color: var(--color-text-secondary);
-    font-size: 15px;
-  }
-
-  .vi-empty-clear-btn {
-    display: inline-block;
-    padding: 11px 24px;
-    border-radius: 12px;
-    background: var(--color-primary);
-    color: #052e16;
-    font-size: 14px;
-    font-weight: 800;
-    text-decoration: none;
-    transition: background .15s, box-shadow .15s;
-  }
-
-  .vi-empty-clear-btn:hover {
-    background: var(--color-primary-hover);
-    box-shadow: 0 4px 18px rgba(34,197,94,.35);
-  }
-
-  /* ── Floating Action Button ───────────────────── */
-  .vi-fab {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    background: var(--color-primary);
-    color: #052e16;
-    border: none;
+  .vi2-card-cta {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    width: 100%;
+    padding: 10px 16px;
+    background: var(--accent); color: var(--accent-ink);
+    border: none; border-radius: 12px;
+    font-size: 13px; font-weight: 800;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-    box-shadow: 0 8px 32px rgba(34,197,94,.4);
-    z-index: 9000;
-    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease, box-shadow 0.2s ease;
-    opacity: 0;
-    transform: translateY(20px) scale(0.8);
+    transition: background .15s, transform .15s;
+    text-decoration: none;
+  }
+  .vi2-card-cta:hover { background: var(--accent-hover); transform: translateY(-1px); color: var(--accent-ink); }
+  .vi2-card-cta svg { width: 13px; height: 13px; }
+
+  /* ── Empty state ── */
+  .vi2-empty {
+    padding: 80px 40px;
+    text-align: center;
+    border: 1px dashed var(--bd-2);
+    border-radius: 20px;
+    margin-bottom: 40px;
+  }
+  .vi2-empty-ico {
+    width: 64px; height: 64px; margin: 0 auto 16px;
+    border-radius: 18px;
+    background: rgba(255,255,255,.04);
+    border: 1px solid var(--bd);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--tx-4);
+  }
+  .vi2-empty h4 { font-size: 18px; font-weight: 800; margin: 0 0 6px; color: var(--tx); }
+  .vi2-empty p { font-size: 13px; color: var(--tx-3); font-weight: 500; margin: 0 0 18px; }
+  .vi2-empty-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 10px 20px;
+    background: var(--accent); color: var(--accent-ink);
+    border-radius: 12px;
+    font-size: 13px; font-weight: 800;
+    text-decoration: none;
+  }
+  .vi2-empty-btn:hover { background: var(--accent-hover); }
+
+  /* ── Map ── */
+  .vi2-map-sec { padding-bottom: 80px; }
+  .vi2-map-wrap {
+    position: relative;
+    border: 1px solid var(--bd);
+    border-radius: 20px;
+    overflow: hidden;
+    background: var(--bg-1);
+  }
+  #vi2Map { height: 440px; display: none; }
+  .vi2-map-skeleton {
+    height: 440px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--tx-4);
+    background:
+      radial-gradient(circle at 30% 40%, rgba(34,197,94,.04), transparent 60%),
+      linear-gradient(135deg, #0e1412 0%, #0a0f0a 100%);
   }
 
-  .vi-fab.vi-fab-visible {
-    opacity: 1;
-    transform: translateY(0) scale(1);
+  /* ── Responsive ── */
+  @media (max-width: 1024px) {
+    .vi2-venues-grid { grid-template-columns: repeat(2, 1fr); }
   }
-
-  .vi-fab:hover {
-    background: var(--color-primary-hover);
-    box-shadow: 0 12px 40px rgba(34,197,94,.55);
-    transform: scale(1.1);
-  }
-
-  .vi-fab-tooltip {
-    position: absolute;
-    right: calc(100% + 10px);
-    top: 50%;
-    transform: translateY(-50%);
-    background: #1a1a1a;
-    color: #e8e8e8;
-    font-size: 12px;
-    font-weight: 700;
-    padding: 6px 12px;
-    border-radius: 8px;
-    white-space: nowrap;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s ease;
-    border: 1px solid rgba(255,255,255,.1);
-  }
-
-  .vi-fab:hover .vi-fab-tooltip {
-    opacity: 1;
-  }
-
-  /* ── Responsive ───────────────────────────────── */
-  @media (max-width: 900px) {
-    .vi-hero { padding: 40px 28px 32px; }
-    .vi-hero-text h1 { font-size: 40px; }
-    .vi-hero-microstats { gap: 16px; }
-    .feature-tabs { display: none; }
-    .vi-featured { padding: 24px 20px; }
-  }
-
-  @media (max-width: 640px) {
-    .vi-hero-text h1 { font-size: 30px; }
-    .vi-hero-badge { font-size: 12px; }
-    .vi-venues-grid { grid-template-columns: 1fr; }
-    .vi-adv-grid { grid-template-columns: 1fr 1fr; }
-    .vi-adv-field input,
-    .vi-adv-field select { font-size: 16px; }
-    .vi-search-bar input { font-size: 16px; }
-    .vi-filter-chip { font-size: 12px; padding: 6px 11px; }
-    .vi-filters-row { gap: 6px; }
-  }
-
-  @media (max-width: 400px) {
-    .vi-adv-grid { grid-template-columns: 1fr; }
-  }
-
-
-
-
-  /* ── Reduced motion ────────────────────────────── */
-  @media (prefers-reduced-motion: reduce) {
-    .vi-particle,
-    .vi-scroll-progress,
-    [data-aos] {
-      animation: none !important;
-      transition: none !important;
-    }
-    .vi-venue-card { transition: none !important; }
-    .vi-filter-chip { transition: none !important; transform: none !important; }
-    @keyframes vi-shimmer { 0%, 100% { opacity: 0; } }
+  @media (max-width: 720px) {
+    .vi2-hero { padding: 120px 20px 56px; min-height: 540px; }
+    .vi2-sec-w { padding: 0 20px; }
+    .vi2-sec-head { padding-top: 48px; margin-bottom: 20px; }
+    .vi2-venues-grid { grid-template-columns: 1fr; }
+    .vi2-feat-card { flex: 0 0 280px; }
+    .vi2-active-tags { padding: 20px 20px 0; }
+    .vi2-avail-banner, .vi2-falta-banner { padding: 0 20px; }
+    .vi2-adv-grid { grid-template-columns: 1fr; }
+    .vi2-adv.open { max-height: 400px; }
+    .vi2-search-btn { padding: 10px 18px; font-size: 13px; }
   }
 </style>
 @endpush
 
 @section('content')
+<div class="vi2">
 
-{{-- Scroll progress bar --}}
-<div class="vi-scroll-progress" id="viScrollProgress"></div>
+{{-- ═══════════════════════════════════════════════════════
+     HERO + SEARCH FORM
+     ═══════════════════════════════════════════════════════ --}}
+<form method="GET" action="{{ route('venues.index') }}" id="vi2Form">
+  <input type="hidden" name="user_lat" id="vi2UserLat" value="{{ $userLat ?? '' }}">
+  <input type="hidden" name="user_lng" id="vi2UserLng" value="{{ $userLng ?? '' }}">
 
-{{-- Floating Action Button --}}
-<button class="vi-fab" id="viFab" onclick="document.querySelector('.vi-hero').scrollIntoView({behavior:'smooth'})" title="Buscar cancha">
-  <span class="vi-fab-tooltip">Buscar cancha</span>
-  <i data-lucide="search" style="width:20px;height:20px;stroke:currentColor;"></i>
-</button>
+  <section class="vi2-hero">
+    <div class="vi2-hero-bg"></div>
+    <div class="vi2-hero-grad"></div>
 
-<div class="vi-wrap">
+    <div class="vi2-hero-inner">
+      <span class="vi2-hero-badge vi2-rv">
+        <span class="vi2-hero-badge-dot"></span>
+        {{ $allVenues->count() }} {{ $allVenues->count() === 1 ? 'complejo disponible' : 'complejos disponibles' }}
+      </span>
 
-  {{-- ── HERO + SEARCH ─────────────────────────────────────────────────── --}}
-  <form method="GET" action="{{ route('venues.index') }}" id="venueSearchForm">
-    <input type="hidden" name="user_lat" id="userLat" value="{{ $userLat ?? '' }}">
-    <input type="hidden" name="user_lng" id="userLng" value="{{ $userLng ?? '' }}">
-    <div class="vi-hero">
-      {{-- Background image + overlay --}}
-      <div class="vi-hero-bg"></div>
-      <div class="vi-hero-overlay"></div>
+      <div class="vi2-eyebrow vi2-rv">Explorar complejos</div>
+      <h1 class="vi2-hero-h vi2-rv d1">Encontrá <i>tu cancha</i></h1>
+      <p class="vi2-hero-sub vi2-rv d2">Filtrá por zona, deporte, fecha y precio. Reservá online en segundos, sin llamar.</p>
 
-      {{-- Línea del campo de fútbol --}}
-      <div class="vi-hero-field-circle"></div>
+      {{-- Search bar --}}
+      <div class="vi2-search vi2-rv d3">
+        <span class="vi2-search-ico">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        </span>
+        <input class="vi2-search-input" name="q" value="{{ $q ?? '' }}" placeholder="Buscá por nombre, zona o descripción…" autocomplete="off">
+        <button type="submit" class="vi2-search-btn">Buscar</button>
+      </div>
 
-      {{-- Partículas flotantes (12) --}}
-        <div class="vi-particle" style="width:8px;height:8px;background:rgba(34,197,94,.4);left:8%;bottom:20%;animation-duration:9s;animation-delay:0s;"></div>
-        <div class="vi-particle" style="width:5px;height:5px;background:rgba(110,234,160,.5);left:15%;bottom:35%;animation-duration:12s;animation-delay:1.2s;"></div>
-        <div class="vi-particle" style="width:10px;height:10px;background:rgba(34,197,94,.25);left:25%;bottom:15%;animation-duration:7s;animation-delay:2.5s;"></div>
-        <div class="vi-particle" style="width:6px;height:6px;background:rgba(110,234,160,.6);left:40%;bottom:28%;animation-duration:11s;animation-delay:0.8s;"></div>
-        <div class="vi-particle" style="width:4px;height:4px;background:rgba(34,197,94,.5);left:55%;bottom:10%;animation-duration:8s;animation-delay:3.1s;"></div>
-        <div class="vi-particle" style="width:12px;height:12px;background:rgba(110,234,160,.3);left:62%;bottom:40%;animation-duration:14s;animation-delay:1.7s;"></div>
-        <div class="vi-particle" style="width:7px;height:7px;background:rgba(34,197,94,.35);left:72%;bottom:22%;animation-duration:10s;animation-delay:4.0s;"></div>
-        <div class="vi-particle" style="width:5px;height:5px;background:rgba(110,234,160,.55);left:80%;bottom:48%;animation-duration:6s;animation-delay:0.4s;"></div>
-        <div class="vi-particle" style="width:9px;height:9px;background:rgba(34,197,94,.3);left:88%;bottom:18%;animation-duration:13s;animation-delay:2.2s;"></div>
-        <div class="vi-particle" style="width:4px;height:4px;background:rgba(110,234,160,.6);left:32%;bottom:55%;animation-duration:9s;animation-delay:5.5s;"></div>
-        <div class="vi-particle" style="width:11px;height:11px;background:rgba(34,197,94,.2);left:48%;bottom:62%;animation-duration:11s;animation-delay:3.8s;"></div>
-        <div class="vi-particle" style="width:6px;height:6px;background:rgba(110,234,160,.45);left:92%;bottom:38%;animation-duration:8s;animation-delay:1.0s;"></div>
-
-
-
-      <div class="vi-hero-content">
-
-        {{-- Badge pulsante --}}
-        <div class="vi-hero-badge" data-aos="fade-up" data-aos-delay="0">
-          <span class="vi-hero-badge-dot"></span>
-          {{ $allVenues->count() }} {{ $allVenues->count() === 1 ? 'complejo disponible' : 'complejos disponibles' }}
+      {{-- Filter chips --}}
+      <div class="vi2-filters vi2-rv d4">
+        {{-- Zona --}}
+        <div class="vi2-chip {{ ($zone ?? '') ? 'active' : '' }}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+          {{ ($zone ?? '') ?: 'Zona' }}
+          <select name="zone" onchange="document.getElementById('vi2Form').submit()">
+            <option value="">Todas las zonas</option>
+            @foreach($zones as $z)
+              <option value="{{ $z }}" {{ ($zone ?? '') === $z ? 'selected' : '' }}>{{ $z }}</option>
+            @endforeach
+          </select>
         </div>
 
-        {{-- H1 con efecto de aparición por palabras --}}
-        <div class="vi-hero-text" data-aos="fade-up" data-aos-delay="100">
-          <h1>
-            <span class="vi-word-reveal" style="animation-delay:0.2s;">Encontrá</span>&nbsp;<span class="vi-word-reveal" style="animation-delay:0.35s;">tu</span><br>
-            <span class="vi-word-reveal" style="animation-delay:0.5s;">cancha</span>&nbsp;<em><span class="vi-word-reveal" style="animation-delay:0.65s;">perfecta</span></em>
-          </h1>
-          <p>Filtrá por zona, deporte, precio y fecha. Reservá online en segundos.</p>
+        {{-- Deporte --}}
+        <div class="vi2-chip {{ ($sport ?? '') ? 'active' : '' }}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15 15 0 0 1 0 20M2 12h20"/></svg>
+          {{ match($sport ?? '') { 'football' => 'Fútbol', 'padel' => 'Pádel', 'tennis' => 'Tenis', 'basketball' => 'Básquet', 'volleyball' => 'Vóley', default => 'Deporte' } }}
+          <select name="sport" onchange="document.getElementById('vi2Form').submit()">
+            <option value="">Todos los deportes</option>
+            <option value="football" {{ ($sport ?? '') === 'football' ? 'selected' : '' }}>Fútbol</option>
+            <option value="padel" {{ ($sport ?? '') === 'padel' ? 'selected' : '' }}>Pádel</option>
+            <option value="tennis" {{ ($sport ?? '') === 'tennis' ? 'selected' : '' }}>Tenis</option>
+            <option value="basketball" {{ ($sport ?? '') === 'basketball' ? 'selected' : '' }}>Básquet</option>
+            <option value="volleyball" {{ ($sport ?? '') === 'volleyball' ? 'selected' : '' }}>Vóley</option>
+          </select>
         </div>
 
-        {{-- Microstats con contador animado --}}
-        <div class="vi-hero-microstats" data-aos="fade-up" data-aos-delay="200">
-          <div class="vi-hero-microstat">
-            <span class="vi-hero-microstat-val vi-count-anim" data-target="{{ $allVenues->count() }}">{{ $allVenues->count() }}</span>
-            <span class="vi-hero-microstat-label">Complejos</span>
-          </div>
-          <div class="vi-hero-microstat-sep"></div>
-          <div class="vi-hero-microstat">
-            @php $sportCount = \App\Models\Field::where('is_active', true)->distinct('sport')->count('sport'); @endphp
-            <span class="vi-hero-microstat-val vi-count-anim" data-target="{{ $sportCount }}">{{ $sportCount }}</span>
-            <span class="vi-hero-microstat-label">Deportes</span>
-          </div>
-          <div class="vi-hero-microstat-sep"></div>
-          <div class="vi-hero-microstat">
-            <span class="vi-hero-microstat-val">24/7</span>
-            <span class="vi-hero-microstat-label">Reservas online</span>
-          </div>
+        {{-- Fecha --}}
+        <div class="vi2-chip {{ ($date ?? '') ? 'active' : '' }}" role="button" tabindex="0" onclick="vi2OpenDate()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();vi2OpenDate();}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          {{ ($date ?? '') ? \Carbon\Carbon::parse($date)->format('d/m') : 'Fecha' }}
+          <input type="date" id="vi2DateInput" name="date" value="{{ $date ?? '' }}" min="{{ date('Y-m-d') }}" onchange="document.getElementById('vi2Form').submit()">
         </div>
 
-        {{-- Search bar con shimmer --}}
-        <div data-aos="fade-up" data-aos-delay="300">
-          <div class="vi-search-bar" id="viSearchBar">
-            <span style="flex-shrink:0; position:relative; z-index:2;display:flex;align-items:center;"><i data-lucide="search" style="width:18px;height:18px;stroke:#888;"></i></span>
-            <input
-              type="text"
-              name="q"
-              value="{{ $q ?? '' }}"
-              placeholder="Buscá por nombre, zona o descripción..."
-              autocomplete="off"
-            >
-            <button type="submit" class="vi-search-btn">Buscar</button>
-          </div>
-
-          {{-- Quick filter chips --}}
-          <div class="vi-filters-row">
-
-            {{-- Zona --}}
-            <label class="vi-filter-chip {{ ($zone ?? '') ? 'active' : '' }}">
-              <i data-lucide="map-pin" style="width:13px;height:13px;stroke:currentColor;vertical-align:middle;margin-right:3px;"></i> {{ ($zone ?? '') ?: 'Zona' }}
-              <select name="zone" onchange="document.getElementById('venueSearchForm').submit()">
-                <option value="">Todas las zonas</option>
-                @foreach($zones as $z)
-                  <option value="{{ $z }}" {{ ($zone ?? '') === $z ? 'selected' : '' }}>{{ $z }}</option>
-                @endforeach
-              </select>
-            </label>
-
-            {{-- Deporte --}}
-            <label class="vi-filter-chip {{ ($sport ?? '') ? 'active' : '' }}" style="display:inline-flex;align-items:center;gap:4px;">
-              <i data-lucide="activity" style="width:13px;height:13px;stroke:currentColor;"></i> {{ match($sport ?? '') { 'football' => 'Fútbol', 'padel' => 'Pádel', 'tennis' => 'Tenis', 'basketball' => 'Básquet', 'volleyball' => 'Vóley', default => 'Deporte' } }}
-              <select name="sport" onchange="document.getElementById('venueSearchForm').submit()">
-                <option value="">Todos los deportes</option>
-                <option value="football" {{ ($sport ?? '') === 'football' ? 'selected' : '' }}>Fútbol</option>
-                <option value="padel" {{ ($sport ?? '') === 'padel' ? 'selected' : '' }}>Pádel</option>
-                <option value="tennis" {{ ($sport ?? '') === 'tennis' ? 'selected' : '' }}>Tenis</option>
-                <option value="basketball" {{ ($sport ?? '') === 'basketball' ? 'selected' : '' }}>Básquet</option>
-                <option value="volleyball" {{ ($sport ?? '') === 'volleyball' ? 'selected' : '' }}>Vóley</option>
-              </select>
-            </label>
-
-            {{-- Fecha --}}
-            <label class="vi-filter-chip {{ ($date ?? '') ? 'active' : '' }}" onclick="event.preventDefault(); document.getElementById('dateFilterInput').showPicker()">
-              <i data-lucide="calendar" style="width:13px;height:13px;stroke:currentColor;vertical-align:middle;margin-right:3px;"></i> {{ ($date ?? '') ? \Carbon\Carbon::parse($date)->format('d/m') : 'Fecha' }}
-              <input
-                id="dateFilterInput"
-                type="date"
-                name="date"
-                value="{{ $date ?? '' }}"
-                min="{{ date('Y-m-d') }}"
-                onchange="onDateFilterChange(this)"
-              >
-            </label>
-
-            {{-- Horario (requiere fecha) --}}
-            <label class="vi-filter-chip {{ ($availableAt ?? '') ? 'active' : '' }} {{ !($date ?? '') ? 'vi-chip-disabled' : '' }}" id="timeChip" onclick="event.preventDefault(); if(document.getElementById('dateFilterInput').value) document.getElementById('timeFilterInput').showPicker();">
-              <i data-lucide="clock" style="width:13px;height:13px;stroke:currentColor;vertical-align:middle;margin-right:3px;"></i> {{ ($availableAt ?? '') ?: 'Horario' }}
-              <input
-                id="timeFilterInput"
-                type="time"
-                name="available_at"
-                value="{{ $availableAt ?? '' }}"
-                onchange="document.getElementById('venueSearchForm').submit()"
-                {{ !($date ?? '') ? 'disabled' : '' }}
-              >
-            </label>
-
-            <div class="vi-filter-sep"></div>
-
-            {{-- Más filtros --}}
-            <button type="button" class="vi-filter-chip" id="advToggleBtn" onclick="toggleAdv()">
-              <i data-lucide="sliders-horizontal" style="width:13px;height:13px;stroke:currentColor;vertical-align:middle;margin-right:3px;"></i> Más filtros
-              @if(($minPrice ?? '') || ($maxPrice ?? ''))
-                <span style="background:var(--color-primary); color:#052e16; border-radius:var(--radius-full); width:18px; height:18px; display:inline-flex; align-items:center; justify-content:center; font-size:10px;">●</span>
-              @endif
-            </button>
-
-            @if(($q ?? '') || ($zone ?? '') || ($sport ?? '') || ($date ?? '') || ($minPrice ?? '') || ($maxPrice ?? '') || ($availableAt ?? ''))
-              <a href="{{ route('venues.index') }}" class="vi-clear-btn" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="x" style="width:12px;height:12px;stroke:currentColor;"></i> Limpiar filtros</a>
-            @endif
-          </div>
-
-          {{-- Advanced filter panel — glass effect --}}
-          <div class="vi-adv-panel {{ (($minPrice ?? '') || ($maxPrice ?? '')) ? 'open' : '' }}" id="advPanel">
-            <div class="vi-adv-panel-inner">
-              <div class="vi-adv-grid">
-                <div class="vi-adv-field">
-                  <label>Precio mínimo (ARS)</label>
-                  <input type="number" name="min_price" min="0" step="1" value="{{ $minPrice ?? '' }}" placeholder="Ej: 5000">
-                </div>
-                <div class="vi-adv-field">
-                  <label>Precio máximo (ARS)</label>
-                  <input type="number" name="max_price" min="0" step="1" value="{{ $maxPrice ?? '' }}" placeholder="Ej: 20000">
-                </div>
-              </div>
-              <div class="vi-adv-actions" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-                <button type="submit" style="padding:9px 20px; background:#22c55e; color:#052e16; border:none; border-radius:10px; font-size:13px; font-weight:800; cursor:pointer; font-family:inherit;">
-                  Aplicar filtros
-                </button>
-                <button type="button" id="geoBtn" onclick="requestGeolocation()"
-                  style="padding:9px 16px; background:{{ $sortByDistance ? '#052e16' : 'transparent' }}; color:{{ $sortByDistance ? '#22c55e' : '#a0a0a0' }}; border:1px solid {{ $sortByDistance ? '#22c55e' : 'rgba(255,255,255,.15)' }}; border-radius:10px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; display:inline-flex; align-items:center; gap:6px;">
-                  <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>
-                  {{ $sortByDistance ? 'Ordenando por cercanía' : 'Ordenar por cercanía' }}
-                </button>
-                @if($sortByDistance)
-                  <a href="{{ request()->fullUrlWithQuery(['user_lat' => '', 'user_lng' => '']) }}"
-                     style="font-size:12px; color:#666; text-decoration:underline;">Quitar</a>
-                @endif
-              </div>
-            </div>
-          </div>
+        {{-- Horario (requires date) --}}
+        <div class="vi2-chip {{ ($availableAt ?? '') ? 'active' : '' }} {{ !($date ?? '') ? 'vi2-chip-disabled' : '' }}" role="button" tabindex="0" onclick="if(document.getElementById('vi2DateInput').value) vi2OpenTime()" onkeydown="if((event.key==='Enter'||event.key===' ')&&document.getElementById('vi2DateInput').value){event.preventDefault();vi2OpenTime();}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          {{ ($availableAt ?? '') ?: 'Horario' }}
+          <input type="time" id="vi2TimeInput" name="available_at" value="{{ $availableAt ?? '' }}" {{ !($date ?? '') ? 'disabled' : '' }} onchange="document.getElementById('vi2Form').submit()">
         </div>
 
+        <div class="vi2-filter-sep"></div>
+
+        {{-- Más filtros --}}
+        <button type="button" class="vi2-chip" id="vi2AdvToggle" onclick="vi2ToggleAdv()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21V14M4 10V3M12 21V12M12 8V3M20 21V16M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>
+          Más filtros
+          @if(($minPrice ?? '') || ($maxPrice ?? '') || ($sortByDistance ?? false))
+            <span class="vi2-chip-dot"></span>
+          @endif
+        </button>
+
+        {{-- Clear filters --}}
+        @if(($q ?? '') || ($zone ?? '') || ($sport ?? '') || ($date ?? '') || ($minPrice ?? '') || ($maxPrice ?? '') || ($availableAt ?? ''))
+          <a href="{{ route('venues.index') }}" class="vi2-chip-clear">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            Limpiar
+          </a>
+        @endif
+      </div>
+
+      {{-- Advanced panel --}}
+      <div class="vi2-adv {{ (($minPrice ?? '') || ($maxPrice ?? '')) ? 'open' : '' }}" id="vi2AdvPanel">
+        <div class="vi2-adv-grid">
+          <div>
+            <label>Precio mínimo (ARS)</label>
+            <input type="number" name="min_price" min="0" step="1" value="{{ $minPrice ?? '' }}" placeholder="Ej: 5000">
+          </div>
+          <div>
+            <label>Precio máximo (ARS)</label>
+            <input type="number" name="max_price" min="0" step="1" value="{{ $maxPrice ?? '' }}" placeholder="Ej: 20000">
+          </div>
+        </div>
+        <div class="vi2-adv-actions">
+          <button type="submit" class="vi2-btn-apply">Aplicar filtros</button>
+          <button type="button" id="vi2GeoBtn" onclick="vi2RequestGeo()" class="vi2-btn-geo {{ ($sortByDistance ?? false) ? 'on' : '' }}">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>
+            {{ ($sortByDistance ?? false) ? 'Ordenando por cercanía' : 'Ordenar por cercanía' }}
+          </button>
+          @if($sortByDistance ?? false)
+            <a href="{{ request()->fullUrlWithQuery(['user_lat' => '', 'user_lng' => '']) }}" style="font-size:12px; color:var(--tx-3); text-decoration:underline;">Quitar</a>
+          @endif
+        </div>
       </div>
     </div>
-  </form>
+  </section>
+</form>
 
-  {{-- ── ACTIVE FILTER TAGS ─────────────────────────────────────────────── --}}
-  @if(($q ?? '') || ($zone ?? '') || ($sport ?? '') || ($date ?? '') || ($minPrice ?? '') || ($maxPrice ?? '') || ($availableAt ?? ''))
-    <div class="vi-active-filters">
-      <span style="font-size:13px; color:#888; font-weight:600;">Filtros activos:</span>
-      @if($q ?? '')
-        <span class="vi-active-filter-tag" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="search" style="width:12px;height:12px;stroke:currentColor;"></i> "{{ $q }}"</span>
-      @endif
-      @if($zone ?? '')
-        <span class="vi-active-filter-tag" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="map-pin" style="width:12px;height:12px;stroke:currentColor;"></i> {{ $zone }}</span>
-      @endif
-      @if($sport ?? '')
-        <span class="vi-active-filter-tag" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="activity" style="width:12px;height:12px;stroke:currentColor;"></i> {{ match($sport) { 'football' => 'Fútbol', 'padel' => 'Pádel', 'tennis' => 'Tenis', 'basketball' => 'Básquet', 'volleyball' => 'Vóley', default => $sport } }}</span>
-      @endif
-      @if($date ?? '')
-        <span class="vi-active-filter-tag" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="calendar" style="width:12px;height:12px;stroke:currentColor;"></i> {{ \Carbon\Carbon::parse($date)->format('d/m/Y') }}</span>
-      @endif
-      @if($minPrice ?? '')
-        <span class="vi-active-filter-tag" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="dollar-sign" style="width:12px;height:12px;stroke:currentColor;"></i> Desde ${{ number_format($minPrice, 0, ',', '.') }}</span>
-      @endif
-      @if($maxPrice ?? '')
-        <span class="vi-active-filter-tag" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="dollar-sign" style="width:12px;height:12px;stroke:currentColor;"></i> Hasta ${{ number_format($maxPrice, 0, ',', '.') }}</span>
-      @endif
-      @if($availableAt ?? '')
-        <span class="vi-active-filter-tag" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="clock" style="width:12px;height:12px;stroke:currentColor;"></i> {{ $availableAt }}</span>
-      @endif
-    </div>
-  @endif
-
-  {{-- Indicador de filtro por disponibilidad --}}
-  @if(($date ?? '') && ($availableAt ?? ''))
-    <div class="vi-availability-banner">
-      <i data-lucide="check-circle" style="width:16px;height:16px;stroke:currentColor;flex-shrink:0;"></i>
-      <span>Mostrando solo canchas disponibles el <strong>{{ \Carbon\Carbon::parse($date)->format('d/m') }}</strong> a las <strong>{{ $availableAt }}hs</strong></span>
-    </div>
-  @endif
-
-  {{-- ── SEARCH RESULTS PANEL (solo cuando hay filtros activos) ─────────── --}}
-  @if($hasFilters)
-    @if(($faltaUno ?? false))
-      <div style="background:rgba(34,197,94,.08); border:1px solid rgba(34,197,94,.2); border-radius:16px; padding:14px 18px; margin-bottom:18px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-        <span><i data-lucide="zap" style="width:22px;height:22px;stroke:#4ade80;"></i></span>
-        <div style="flex:1;">
-          <div style="font-size:14px; font-weight:800; color:#4ade80;">Complejos con Falta Uno habilitado</div>
-          <div style="font-size:12px; color:#22c55e; margin-top:2px;">Estos complejos tienen al menos una cancha donde podés crear partidos Falta Uno.</div>
-        </div>
-        <a href="{{ route('falta-uno.index') }}" style="font-size:13px; color:#4ade80; font-weight:700; text-decoration:underline; display:inline-flex; align-items:center; gap:4px;">Ver partidos disponibles <i data-lucide="arrow-right" style="width:13px;height:13px;stroke:currentColor;"></i></a>
-      </div>
+{{-- ═══════════════════════════════════════════════════════
+     ACTIVE FILTER TAGS
+     ═══════════════════════════════════════════════════════ --}}
+@if(($q ?? '') || ($zone ?? '') || ($sport ?? '') || ($date ?? '') || ($minPrice ?? '') || ($maxPrice ?? '') || ($availableAt ?? ''))
+  <div class="vi2-active-tags">
+    <span class="vi2-active-tags-label">Filtros activos</span>
+    @if($q ?? '')
+      <span class="vi2-active-tag">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        "{{ $q }}"
+      </span>
     @endif
-    <div class="vi-search-results-panel">
-      <div class="vi-search-results-header">
-        <h2 style="display:inline-flex;align-items:center;gap:8px;"><i data-lucide="search" style="width:18px;height:18px;stroke:currentColor;"></i> Resultados de búsqueda</h2>
-        <span class="vi-search-results-count">{{ $venues->count() }} resultado{{ $venues->count() !== 1 ? 's' : '' }}</span>
-      </div>
+    @if($zone ?? '')
+      <span class="vi2-active-tag">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+        {{ $zone }}
+      </span>
+    @endif
+    @if($sport ?? '')
+      <span class="vi2-active-tag">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15 15 0 0 1 0 20M2 12h20"/></svg>
+        {{ match($sport) { 'football' => 'Fútbol', 'padel' => 'Pádel', 'tennis' => 'Tenis', 'basketball' => 'Básquet', 'volleyball' => 'Vóley', default => $sport } }}
+      </span>
+    @endif
+    @if($date ?? '')
+      <span class="vi2-active-tag">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        {{ \Carbon\Carbon::parse($date)->format('d/m/Y') }}
+      </span>
+    @endif
+    @if($availableAt ?? '')
+      <span class="vi2-active-tag">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        {{ $availableAt }}
+      </span>
+    @endif
+    @if($minPrice ?? '')
+      <span class="vi2-active-tag">Desde ${{ number_format($minPrice, 0, ',', '.') }}</span>
+    @endif
+    @if($maxPrice ?? '')
+      <span class="vi2-active-tag">Hasta ${{ number_format($maxPrice, 0, ',', '.') }}</span>
+    @endif
+  </div>
+@endif
 
-      @if($venues->isEmpty())
-        <div class="vi-empty">
-          <div class="vi-empty-svg">
-            <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="4" y="8" width="56" height="48" rx="6" stroke="#22c55e" stroke-width="2.5" fill="none"/>
-              <line x1="4" y1="24" x2="60" y2="24" stroke="#22c55e" stroke-width="2"/>
-              <line x1="4" y1="40" x2="60" y2="40" stroke="#22c55e" stroke-width="2"/>
-              <line x1="32" y1="8" x2="32" y2="56" stroke="#22c55e" stroke-width="2"/>
-              <circle cx="32" cy="32" r="8" stroke="#22c55e" stroke-width="2" fill="none"/>
-            </svg>
-          </div>
-          <h3>Sin resultados</h3>
-          <p>No encontramos complejos con esos filtros. Probá ajustando la búsqueda.</p>
-          <a href="{{ route('venues.index') }}" class="vi-empty-clear-btn">Limpiar filtros</a>
-        </div>
-      @else
-        <div class="vi-venues-grid">
-          @foreach($venues as $index => $venue)
-            @php
-              $delay = min($index * 50, 300);
-              $planSlug = $venue->owner_plan_slug ?? 'starter';
-              $cardClass = match($planSlug) { 'pro' => 'vi-card-pro', 'full' => 'vi-card-full', default => '' };
-            @endphp
-            <article class="vi-venue-card {{ $cardClass }}" data-aos="fade-up" data-aos-delay="{{ $delay }}">
-              <div class="vi-venue-img-wrap">
-                @if($venue->cover_image_path)
-                  <img src="{{ \Illuminate\Support\Facades\Storage::url($venue->cover_image_path) }}" alt="{{ $venue->name }}" loading="lazy" class="vi-img-loading" onload="this.classList.remove('vi-img-loading')">
-                @else
-                  <div class="vi-venue-img-placeholder"><i data-lucide="building-2" style="width:32px;height:32px;stroke:#444;stroke-width:1.5;"></i></div>
-                @endif
-                <div class="vi-card-shine"></div>
-                @if($planSlug === 'pro')
-                  <div class="vi-plan-badge vi-plan-badge-pro">
-                    <i data-lucide="star" style="width:12px;height:12px;stroke:currentColor;fill:currentColor;"></i> Destacado
-                  </div>
-                @elseif($planSlug === 'full')
-                  <div class="vi-plan-badge vi-plan-badge-full">
-                    <i data-lucide="shield-check" style="width:12px;height:12px;stroke:currentColor;"></i> Premium
-                  </div>
-                @endif
-                @auth
-                  @if(in_array($venue->id, $favoriteVenueIds ?? []))
-                    <form method="POST" action="{{ route('venues.unfavorite', $venue) }}" style="margin:0;">
-                      @csrf
-                      <button type="submit" class="vi-venue-fav-btn saved" title="Quitar de favoritos"><i data-lucide="heart" style="width:16px;height:16px;stroke:#ef4444;fill:#ef4444;"></i></button>
-                    </form>
-                  @else
-                    <form method="POST" action="{{ route('venues.favorite', $venue) }}" style="margin:0;">
-                      @csrf
-                      <button type="submit" class="vi-venue-fav-btn" title="Guardar en favoritos"><i data-lucide="heart" style="width:16px;height:16px;stroke:#999;"></i></button>
-                    </form>
-                  @endif
-                @endauth
-                @if(($venue->falta_uno_count ?? 0) > 0)
-                  <div class="vi-venue-faltauno-badge" style="display:inline-flex;align-items:center;gap:4px;">
-                    <span class="vi-faltauno-dot"></span>
-                    <i data-lucide="zap" style="width:12px;height:12px;stroke:currentColor;"></i> Falta Uno · {{ $venue->falta_uno_count }} partido{{ $venue->falta_uno_count > 1 ? 's' : '' }}
-                  </div>
-                @endif
-                @if($venue->zone)
-                  <div class="vi-venue-zone-badge" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="map-pin" style="width:11px;height:11px;stroke:currentColor;"></i> {{ $venue->zone }}</div>
-                @endif
-              </div>
-              <div class="vi-venue-body">
-                <h3 class="vi-venue-name">{{ $venue->name }}</h3>
-                @if($venue->reviews_count > 0)
-                  <div class="vi-venue-rating">
-                    @php $rounded = round($venue->reviews_avg_rating); @endphp
-                    <span class="vi-venue-stars">
-                      @for($i = 1; $i <= 5; $i++)<span class="vi-star">{{ $i <= $rounded ? '★' : '☆' }}</span>@endfor
-                    </span>
-                    <span class="vi-venue-rating-text">{{ number_format($venue->reviews_avg_rating, 1) }}</span>
-                    <span class="vi-venue-rating-count">({{ $venue->reviews_count }} reseña{{ $venue->reviews_count > 1 ? 's' : '' }})</span>
-                  </div>
-                @else
-                  <div style="font-size:13px; color:#555;">Sin reseñas todavía</div>
-                @endif
-                <p class="vi-venue-desc">
-                  {{ $venue->description ?? 'Reservá online y encontrá disponibilidad en pocos pasos.' }}
-                </p>
-                <div class="vi-venue-actions">
-                  <a href="{{ route('venues.show', $venue) }}" class="vi-btn-primary" style="display:inline-flex;align-items:center;gap:5px;">Ver complejo <i data-lucide="arrow-right" style="width:14px;height:14px;stroke:currentColor;"></i></a>
-                </div>
-              </div>
-            </article>
-          @endforeach
-        </div>
-      @endif
+{{-- Availability banner --}}
+@if(($date ?? '') && ($availableAt ?? ''))
+  <div class="vi2-avail-banner">
+    <div class="vi2-avail-banner-inner">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10M12 6v6l4 2M22 6l-10 10-3-3"/></svg>
+      Mostrando solo canchas disponibles el <strong>{{ \Carbon\Carbon::parse($date)->format('d/m') }}</strong> a las <strong>{{ $availableAt }}hs</strong>
     </div>
-  @endif
+  </div>
+@endif
 
-  {{-- ── FEATURED CAROUSEL ──────────────────────────────────────────────── --}}
-  <div class="vi-featured" id="viFeatured">
-    {{-- Número decorativo de fondo --}}
-    <div class="vi-featured-bg-num" id="viFeaturedBgNum">01</div>
+{{-- Falta Uno banner --}}
+@if($faltaUno ?? false)
+  <div class="vi2-falta-banner">
+    <div class="vi2-falta-banner-inner">
+      <div class="vi2-falta-banner-ico">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      </div>
+      <div class="vi2-falta-banner-text">
+        <b>Complejos con Falta Uno habilitado</b>
+        <span>Estos complejos tienen al menos una cancha donde podés crear partidos Falta Uno.</span>
+      </div>
+      <a href="{{ route('falta-uno.index') }}" class="vi2-falta-banner-link">
+        Ver partidos disponibles
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+    </div>
+  </div>
+@endif
 
-    <div class="vi-featured-header">
+{{-- ═══════════════════════════════════════════════════════
+     FEATURED (Destacados)
+     ═══════════════════════════════════════════════════════ --}}
+<section style="border-top:1px solid var(--bd); margin-top: 40px;">
+  <div class="vi2-sec-w">
+    <div class="vi2-sec-head">
       <div>
-        <h2 class="vi-section-title">Destacados</h2>
-        <div class="carousel-subtitle">Los complejos más activos, con descuentos y mejor valorados.</div>
+        <h2 class="vi2-sec-title vi2-rv"><b>Destacados</b></h2>
+        <p class="vi2-sec-sub vi2-rv d1">Los complejos con mejor actividad y valoraciones.</p>
       </div>
-      <div style="display:flex; align-items:center; gap:10px;">
-        <div class="feature-tabs">
-          <div class="feature-tab active" data-tab="top" data-tab-num="01" style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="flame" style="width:13px;height:13px;stroke:currentColor;"></i> Más reservados</div>
-          <div class="feature-tab" data-tab="discounts" data-tab-num="02" style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="tag" style="width:13px;height:13px;stroke:currentColor;"></i> Descuentos</div>
-          <div class="feature-tab" data-tab="rated" data-tab-num="03" style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="star" style="width:13px;height:13px;stroke:currentColor;"></i> Mejor valorados</div>
-        </div>
-        <div class="featured-nav-arrows">
-          <button type="button" class="featured-nav-arrow" data-carousel-move="prev" aria-label="Anterior">&#8249;</button>
-          <button type="button" class="featured-nav-arrow" data-carousel-move="next" aria-label="Siguiente">&#8250;</button>
-        </div>
+      <div class="vi2-feat-tabs vi2-rv d2">
+        <button type="button" class="vi2-feat-tab active" data-tab="top">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14 0-5.5 3-7 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.5-2.85 2.5-3.5Z"/></svg>
+          Más reservados
+        </button>
+        <button type="button" class="vi2-feat-tab" data-tab="disc">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82Z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+          Descuentos
+        </button>
+        <button type="button" class="vi2-feat-tab" data-tab="rated">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Mejor valorados
+        </button>
       </div>
     </div>
 
-    {{-- Barra de progreso del autoplay --}}
-    <div class="vi-featured-progress">
-      <div class="vi-featured-progress-bar" id="viFeaturedProgressBar"></div>
-    </div>
-
-    {{-- Tab: Más reservados --}}
-    <div class="feature-carousel active" id="tab-top">
-      <div class="feature-carousel-shell">
-        <div class="carousel-track featured-track" data-carousel-track>
+    <div class="vi2-feat-track-wrap">
+      {{-- Pane: Más reservados --}}
+      <div class="vi2-feat-pane active" data-pane="top">
+        <div class="vi2-feat-track">
           @forelse($topReservedVenues as $venue)
-            <article class="featured-card">
+            <a href="{{ route('venues.show', $venue) }}" class="vi2-feat-card vi2-rv">
               @if($venue->cover_image_path)
-                <img src="{{ \Illuminate\Support\Facades\Storage::url($venue->cover_image_path) }}" alt="{{ $venue->name }}" loading="lazy">
+                <div class="vi2-feat-img" style="background-image:url('{{ \Illuminate\Support\Facades\Storage::url($venue->cover_image_path) }}')"></div>
               @else
-                <div class="featured-card-placeholder"><i data-lucide="building-2" style="width:28px;height:28px;stroke:#555;stroke-width:1.5;"></i></div>
-              @endif
-              <div class="featured-card-overlay"></div>
-              <div class="featured-card-body">
-                <h3>{{ $venue->name }}</h3>
-                <div class="featured-card-meta">
-                  @if($venue->zone)
-                    <span class="featured-card-badge" style="display:inline-flex;align-items:center;gap:3px;"><i data-lucide="map-pin" style="width:11px;height:11px;stroke:currentColor;"></i> {{ $venue->zone }}</span>
-                  @endif
-                  <span style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="flame" style="width:13px;height:13px;stroke:currentColor;"></i> {{ $venue->weekly_reservations_count }} esta semana</span>
+                <div class="vi2-feat-img-placeholder">
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/></svg>
                 </div>
-                <a href="{{ route('venues.show', $venue) }}" class="featured-card-btn" style="display:inline-flex;align-items:center;gap:5px;">Ver complejo <i data-lucide="arrow-right" style="width:14px;height:14px;stroke:currentColor;"></i></a>
-              </div>
-            </article>
-          @empty
-            <div style="padding:32px; text-align:center;">
-              <i data-lucide="calendar-off" style="width:36px;height:36px;stroke:#444;stroke-width:1.5;margin-bottom:10px;"></i>
-              <div style="font-weight:700; font-size:14px; color:#666;">No hay datos esta semana todavía</div>
-              <div style="font-size:13px; color:#555; margin-top:4px;">Las reservas de la semana aparecerán acá</div>
-            </div>
-          @endforelse
-        </div>
-      </div>
-    </div>
-
-    {{-- Tab: Descuentos --}}
-    <div class="feature-carousel" id="tab-discounts">
-      <div class="feature-carousel-shell">
-        <div class="carousel-track featured-track" data-carousel-track>
-          @forelse($discountedVenues as $venue)
-            <article class="featured-card">
-              @if($venue->cover_image_path)
-                <img src="{{ \Illuminate\Support\Facades\Storage::url($venue->cover_image_path) }}" alt="{{ $venue->name }}" loading="lazy">
-              @else
-                <div class="featured-card-placeholder"><i data-lucide="tag" style="width:28px;height:28px;stroke:#555;stroke-width:1.5;"></i></div>
               @endif
-              <div class="featured-card-overlay"></div>
-              <div class="featured-card-body">
-                <h3>{{ $venue->name }}</h3>
-                <div class="featured-card-meta">
+              <div class="vi2-feat-body">
+                <h3 class="vi2-feat-name">{{ $venue->name }}</h3>
+                <div class="vi2-feat-meta">
                   @if($venue->zone)
-                    <span class="featured-card-badge" style="display:inline-flex;align-items:center;gap:3px;"><i data-lucide="map-pin" style="width:11px;height:11px;stroke:currentColor;"></i> {{ $venue->zone }}</span>
+                    <span class="vi2-feat-badge">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                      {{ $venue->zone }}
+                    </span>
                   @endif
-                  <span style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="tag" style="width:13px;height:13px;stroke:currentColor;"></i> Descuentos activos</span>
+                  <span style="display:inline-flex; align-items:center; gap:4px;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14 0-5.5 3-7 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.5-2.85 2.5-3.5Z"/></svg>
+                    {{ $venue->weekly_reservations_count ?? 0 }} esta semana
+                  </span>
                 </div>
-                <a href="{{ route('venues.show', $venue) }}" class="featured-card-btn" style="display:inline-flex;align-items:center;gap:5px;">Ver complejo <i data-lucide="arrow-right" style="width:14px;height:14px;stroke:currentColor;"></i></a>
+                <span class="vi2-feat-cta">Ver complejo <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
               </div>
-            </article>
-          @empty
-            <div style="padding:32px; text-align:center;">
-              <i data-lucide="tag" style="width:36px;height:36px;stroke:#444;stroke-width:1.5;margin-bottom:10px;"></i>
-              <div style="font-weight:700; font-size:14px; color:#666;">No hay descuentos activos</div>
-              <div style="font-size:13px; color:#555; margin-top:4px;">Cuando un complejo tenga promociones, aparecerán acá</div>
-            </div>
-          @endforelse
-        </div>
-      </div>
-    </div>
-
-    {{-- Tab: Mejor valorados --}}
-    <div class="feature-carousel" id="tab-rated">
-      <div class="feature-carousel-shell">
-        <div class="carousel-track featured-track" data-carousel-track>
-          @forelse($bestRatedVenues as $venue)
-            <article class="featured-card">
-              @if($venue->cover_image_path)
-                <img src="{{ \Illuminate\Support\Facades\Storage::url($venue->cover_image_path) }}" alt="{{ $venue->name }}" loading="lazy">
-              @else
-                <div class="featured-card-placeholder"><i data-lucide="star" style="width:28px;height:28px;stroke:#555;stroke-width:1.5;"></i></div>
-              @endif
-              <div class="featured-card-overlay"></div>
-              <div class="featured-card-body">
-                <h3>{{ $venue->name }}</h3>
-                <div class="featured-card-meta">
-                  @if($venue->zone)
-                    <span class="featured-card-badge" style="display:inline-flex;align-items:center;gap:3px;"><i data-lucide="map-pin" style="width:11px;height:11px;stroke:currentColor;"></i> {{ $venue->zone }}</span>
-                  @endif
-                  <span style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="star" style="width:13px;height:13px;stroke:currentColor;"></i> {{ number_format($venue->reviews_avg_rating, 1) }} / 5 ({{ $venue->reviews_count }} reseña{{ $venue->reviews_count > 1 ? 's' : '' }})</span>
-                </div>
-                <a href="{{ route('venues.show', $venue) }}" class="featured-card-btn" style="display:inline-flex;align-items:center;gap:5px;">Ver complejo <i data-lucide="arrow-right" style="width:14px;height:14px;stroke:currentColor;"></i></a>
-              </div>
-            </article>
-          @empty
-            <div style="padding:32px; text-align:center;">
-              <i data-lucide="star" style="width:36px;height:36px;stroke:#444;stroke-width:1.5;margin-bottom:10px;"></i>
-              <div style="font-weight:700; font-size:14px; color:#666;">Todavía no hay reseñas</div>
-              <div style="font-size:13px; color:#555; margin-top:4px;">Reservá y dejá tu opinión para ayudar a otros jugadores</div>
-            </div>
-          @endforelse
-        </div>
-      </div>
-    </div>
-  </div>
-
-  {{-- ── FAVORITES ───────────────────────────────────────────────────────── --}}
-  @auth
-    @if(($favorites ?? collect())->isNotEmpty())
-      <div class="vi-favorites">
-        <h2 class="vi-section-title" style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="star" style="width:16px;height:16px;stroke:currentColor;"></i> Tus favoritos</h2>
-        <div class="vi-fav-scroll" style="margin-top:14px;">
-          @foreach($favorites as $fav)
-            <a href="{{ route('venues.show', $fav) }}" class="vi-fav-chip" style="display:inline-flex;align-items:center;gap:5px;">
-              <i data-lucide="building-2" style="width:13px;height:13px;stroke:currentColor;"></i> {{ $fav->name }}
             </a>
-          @endforeach
+          @empty
+            <div class="vi2-feat-empty">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+              <b>Sin datos esta semana</b>
+              <span>Las reservas de la semana aparecerán acá</span>
+            </div>
+          @endforelse
         </div>
       </div>
-    @endif
-  @endauth
 
-  {{-- ── MAP ───────────────────────────────────────────────────────────── --}}
-  <div class="vi-map-label" style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="map" style="width:16px;height:16px;stroke:currentColor;"></i> <span class="vi-section-title">Mapa de complejos</span></div>
-  <div class="vi-map-wrap" id="viMapWrap">
-    {{-- Skeleton visible hasta que cargue el mapa --}}
-    <div class="vi-map-skeleton" id="viMapSkeleton">
-      <span class="vi-map-skeleton-icon"><i data-lucide="map" style="width:32px;height:32px;stroke:#444;stroke-width:1.5;"></i></span>
+      {{-- Pane: Descuentos --}}
+      <div class="vi2-feat-pane" data-pane="disc">
+        <div class="vi2-feat-track">
+          @forelse($discountedVenues as $venue)
+            <a href="{{ route('venues.show', $venue) }}" class="vi2-feat-card vi2-rv">
+              @if($venue->cover_image_path)
+                <div class="vi2-feat-img" style="background-image:url('{{ \Illuminate\Support\Facades\Storage::url($venue->cover_image_path) }}')"></div>
+              @else
+                <div class="vi2-feat-img-placeholder">
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82Z"/></svg>
+                </div>
+              @endif
+              <div class="vi2-feat-body">
+                <h3 class="vi2-feat-name">{{ $venue->name }}</h3>
+                <div class="vi2-feat-meta">
+                  @if($venue->zone)
+                    <span class="vi2-feat-badge">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                      {{ $venue->zone }}
+                    </span>
+                  @endif
+                  <span style="display:inline-flex; align-items:center; gap:4px;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82Z"/></svg>
+                    Descuentos activos
+                  </span>
+                </div>
+                <span class="vi2-feat-cta">Ver complejo <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+              </div>
+            </a>
+          @empty
+            <div class="vi2-feat-empty">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82Z"/></svg>
+              <b>No hay descuentos activos</b>
+              <span>Cuando un complejo tenga promociones, aparecerán acá</span>
+            </div>
+          @endforelse
+        </div>
+      </div>
+
+      {{-- Pane: Mejor valorados --}}
+      <div class="vi2-feat-pane" data-pane="rated">
+        <div class="vi2-feat-track">
+          @forelse($bestRatedVenues as $venue)
+            <a href="{{ route('venues.show', $venue) }}" class="vi2-feat-card vi2-rv">
+              @if($venue->cover_image_path)
+                <div class="vi2-feat-img" style="background-image:url('{{ \Illuminate\Support\Facades\Storage::url($venue->cover_image_path) }}')"></div>
+              @else
+                <div class="vi2-feat-img-placeholder">
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                </div>
+              @endif
+              <div class="vi2-feat-body">
+                <h3 class="vi2-feat-name">{{ $venue->name }}</h3>
+                <div class="vi2-feat-meta">
+                  @if($venue->zone)
+                    <span class="vi2-feat-badge">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                      {{ $venue->zone }}
+                    </span>
+                  @endif
+                  <span style="display:inline-flex; align-items:center; gap:4px;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    {{ number_format($venue->reviews_avg_rating ?? 0, 1) }} / 5 ({{ $venue->reviews_count ?? 0 }} reseña{{ ($venue->reviews_count ?? 0) !== 1 ? 's' : '' }})
+                  </span>
+                </div>
+                <span class="vi2-feat-cta">Ver complejo <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+              </div>
+            </a>
+          @empty
+            <div class="vi2-feat-empty">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <b>Todavía no hay reseñas</b>
+              <span>Reservá y dejá tu opinión para ayudar a otros jugadores</span>
+            </div>
+          @endforelse
+        </div>
+      </div>
     </div>
-    <div id="map" style="height: 380px; display:none;"></div>
   </div>
+</section>
 
-  {{-- ── COMPLEJOS PREMIUM CAROUSEL ──────────────────────────────────────── --}}
-  @if(($premiumVenues ?? collect())->isNotEmpty())
-    <div class="vi-featured" style="margin-bottom:28px;">
-      <div class="vi-featured-header">
-        <div>
-          <h2 class="vi-section-title" style="display:inline-flex;align-items:center;gap:8px;">
-            <i data-lucide="crown" style="width:20px;height:20px;stroke:#fbbf24;"></i> Complejos Premium
-          </h2>
-          <div class="carousel-subtitle">Los mejores complejos deportivos de la plataforma.</div>
-        </div>
-        <div class="featured-nav-arrows">
-          <button type="button" class="featured-nav-arrow" onclick="document.getElementById('premiumTrack').scrollBy({left:-314,behavior:'smooth'})" aria-label="Anterior">&#8249;</button>
-          <button type="button" class="featured-nav-arrow" onclick="document.getElementById('premiumTrack').scrollBy({left:314,behavior:'smooth'})" aria-label="Siguiente">&#8250;</button>
-        </div>
+{{-- ═══════════════════════════════════════════════════════
+     ALL VENUES GRID
+     ═══════════════════════════════════════════════════════ --}}
+<section style="border-top:1px solid var(--bd); margin-top: 40px;">
+  <div class="vi2-sec-w">
+    <div class="vi2-sec-head">
+      <div>
+        <h2 class="vi2-sec-title vi2-rv">
+          @if($hasFilters ?? false)
+            Resultados de <b>búsqueda</b>
+          @else
+            Todos los <b>complejos</b>
+          @endif
+        </h2>
+        @if($hasFilters ?? false)
+          <p class="vi2-sec-sub vi2-rv d1">
+            @if($zone ?? '') Mostrando resultados en {{ $zone }} @else Según tus filtros @endif
+          </p>
+        @else
+          <p class="vi2-sec-sub vi2-rv d1">Explorá la red completa de complejos disponibles.</p>
+        @endif
       </div>
-      <div class="feature-carousel-shell">
-        <div class="carousel-track featured-track" id="premiumTrack">
-          @foreach($premiumVenues as $venue)
-            @php $planSlug = $venue->owner_plan_slug ?? 'starter'; @endphp
-            <article class="featured-card" style="{{ $planSlug === 'full' ? 'border:2px solid #22c55e;' : 'border-top:3px solid #22c55e;' }}">
+      <div class="vi2-sec-count vi2-rv d2">{{ $venues->count() }} resultado{{ $venues->count() !== 1 ? 's' : '' }}</div>
+    </div>
+
+    @if($venues->isEmpty())
+      <div class="vi2-empty">
+        <div class="vi2-empty-ico">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="8" width="56" height="48" rx="6" style="transform: scale(.4); transform-origin: center;"/><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        </div>
+        <h4>No encontramos complejos</h4>
+        <p>Probá ajustando los filtros o limpiando la búsqueda.</p>
+        <a href="{{ route('venues.index') }}" class="vi2-empty-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          Limpiar filtros
+        </a>
+      </div>
+    @else
+      <div class="vi2-venues-grid">
+        @foreach($venues as $venue)
+          @php
+            $planSlug = $venue->owner_plan_slug ?? 'starter';
+            $cardClass = match($planSlug) { 'pro' => 'pro', 'full' => 'full', default => '' };
+          @endphp
+          <article class="vi2-card {{ $cardClass }} vi2-rv">
+            <a href="{{ route('venues.show', $venue) }}" class="vi2-card-img" aria-label="Ver {{ $venue->name }}">
               @if($venue->cover_image_path)
                 <img src="{{ \Illuminate\Support\Facades\Storage::url($venue->cover_image_path) }}" alt="{{ $venue->name }}" loading="lazy">
               @else
-                <div class="featured-card-placeholder"><i data-lucide="crown" style="width:28px;height:28px;stroke:#fbbf24;stroke-width:1.5;"></i></div>
+                <div class="vi2-card-img-placeholder">
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/></svg>
+                </div>
               @endif
-              <div class="featured-card-overlay"></div>
+
+              <div class="vi2-badges">
+                @if($venue->zone)
+                  <span class="vi2-badge vi2-badge-zone">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                    {{ $venue->zone }}
+                  </span>
+                @endif
+                @if(($venue->falta_uno_count ?? 0) > 0)
+                  <span class="vi2-badge vi2-badge-falta">
+                    <span class="vi2-falta-dot"></span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    Falta Uno
+                  </span>
+                @endif
+              </div>
+
               @if($planSlug === 'pro')
-                <div class="vi-plan-badge vi-plan-badge-pro">
-                  <i data-lucide="star" style="width:12px;height:12px;stroke:currentColor;fill:currentColor;"></i> Destacado
-                </div>
+                <span class="vi2-card-plan">
+                  <span class="vi2-badge-pro">
+                    <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    Destacado
+                  </span>
+                </span>
               @elseif($planSlug === 'full')
-                <div class="vi-plan-badge vi-plan-badge-full">
-                  <i data-lucide="shield-check" style="width:12px;height:12px;stroke:currentColor;"></i> Premium
-                </div>
+                <span class="vi2-card-plan">
+                  <span class="vi2-badge-full">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 3 6v6c0 5 4 9 9 10 5-1 9-5 9-10V6l-9-4Z"/><path d="m9 12 2 2 4-4"/></svg>
+                    Premium
+                  </span>
+                </span>
               @endif
-              <div class="featured-card-body">
-                <h3>{{ $venue->name }}</h3>
-                <div class="featured-card-meta">
-                  @if($venue->zone)
-                    <span class="featured-card-badge" style="display:inline-flex;align-items:center;gap:3px;"><i data-lucide="map-pin" style="width:11px;height:11px;stroke:currentColor;"></i> {{ $venue->zone }}</span>
-                  @endif
-                  @if(($venue->reviews_count ?? 0) > 0)
-                    <span style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="star" style="width:13px;height:13px;stroke:currentColor;"></i> {{ number_format($venue->reviews_avg_rating, 1) }}</span>
-                  @endif
-                </div>
-                <a href="{{ route('venues.show', $venue) }}" class="featured-card-btn" style="display:inline-flex;align-items:center;gap:5px;">Ver complejo <i data-lucide="arrow-right" style="width:14px;height:14px;stroke:currentColor;"></i></a>
-              </div>
-            </article>
-          @endforeach
-        </div>
-      </div>
-    </div>
-  @endif
+            </a>
 
-  {{-- ── ALL VENUES ───────────────────────────────────────────────────────── --}}
-  <div class="vi-results-header" id="complejos">
-    <h2 class="vi-section-title">
-      Todos los complejos
-    </h2>
-    <span class="vi-count-pill">
-      <span class="vi-count-anim-pill" data-target="{{ $allVenues->count() }}">{{ $allVenues->count() }}</span>
-      complejo{{ $allVenues->count() !== 1 ? 's' : '' }}
-    </span>
-  </div>
-
-  @if($allVenues->isEmpty())
-    <div class="vi-empty">
-      <div class="vi-empty-svg">
-        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="4" y="8" width="56" height="48" rx="6" stroke="#22c55e" stroke-width="2.5" fill="none"/>
-          <line x1="4" y1="24" x2="60" y2="24" stroke="#22c55e" stroke-width="2"/>
-          <line x1="4" y1="40" x2="60" y2="40" stroke="#22c55e" stroke-width="2"/>
-          <line x1="32" y1="8" x2="32" y2="56" stroke="#22c55e" stroke-width="2"/>
-          <circle cx="32" cy="32" r="8" stroke="#22c55e" stroke-width="2" fill="none"/>
-        </svg>
-      </div>
-      <h3>No hay complejos todavía</h3>
-      <p>Pronto habrá complejos disponibles para reservar.</p>
-    </div>
-  @else
-    <div class="vi-venues-grid">
-      @foreach($allVenues as $index => $venue)
-        @php
-          $delay = min($index * 50, 300);
-          $planSlug = $venue->owner_plan_slug ?? 'starter';
-          $cardClass = match($planSlug) { 'pro' => 'vi-card-pro', 'full' => 'vi-card-full', default => '' };
-        @endphp
-        <article class="vi-venue-card {{ $cardClass }}" data-aos="fade-up" data-aos-delay="{{ $delay }}">
-
-          {{-- Image --}}
-          <div class="vi-venue-img-wrap">
-            @if($venue->cover_image_path)
-              <img src="{{ \Illuminate\Support\Facades\Storage::url($venue->cover_image_path) }}" alt="{{ $venue->name }}" loading="lazy" class="vi-img-loading" onload="this.classList.remove('vi-img-loading')">
-            @else
-              <div class="vi-venue-img-placeholder"><i data-lucide="building-2" style="width:32px;height:32px;stroke:#444;stroke-width:1.5;"></i></div>
-            @endif
-
-            {{-- Shine overlay --}}
-            <div class="vi-card-shine"></div>
-
-            {{-- Plan badge --}}
-            @if($planSlug === 'pro')
-              <div class="vi-plan-badge vi-plan-badge-pro">
-                <i data-lucide="star" style="width:12px;height:12px;stroke:currentColor;fill:currentColor;"></i> Destacado
-              </div>
-            @elseif($planSlug === 'full')
-              <div class="vi-plan-badge vi-plan-badge-full">
-                <i data-lucide="shield-check" style="width:12px;height:12px;stroke:currentColor;"></i> Premium
-              </div>
-            @endif
-
-            {{-- Favorite button --}}
             @auth
               @if(in_array($venue->id, $favoriteVenueIds ?? []))
-                <form method="POST" action="{{ route('venues.unfavorite', $venue) }}" style="margin:0;">
+                <form method="POST" action="{{ route('venues.unfavorite', $venue) }}" style="margin:0; position: absolute; top: 12px; right: 12px;">
                   @csrf
-                  <button type="submit" class="vi-venue-fav-btn saved" title="Quitar de favoritos"><i data-lucide="heart" style="width:16px;height:16px;stroke:#ef4444;fill:#ef4444;"></i></button>
+                  <button type="submit" class="vi2-card-fav saved" title="Quitar de favoritos">
+                    <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78Z"/></svg>
+                  </button>
                 </form>
               @else
-                <form method="POST" action="{{ route('venues.favorite', $venue) }}" style="margin:0;">
+                <form method="POST" action="{{ route('venues.favorite', $venue) }}" style="margin:0; position: absolute; top: 12px; right: 12px;">
                   @csrf
-                  <button type="submit" class="vi-venue-fav-btn" title="Guardar en favoritos"><i data-lucide="heart" style="width:16px;height:16px;stroke:#999;"></i></button>
+                  <button type="submit" class="vi2-card-fav" title="Guardar en favoritos">
+                    <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78Z"/></svg>
+                  </button>
                 </form>
               @endif
             @endauth
 
-            @if(($venue->falta_uno_count ?? 0) > 0)
-              <div class="vi-venue-faltauno-badge" style="display:inline-flex;align-items:center;gap:4px;">
-                <span class="vi-faltauno-dot"></span>
-                <i data-lucide="zap" style="width:12px;height:12px;stroke:currentColor;"></i> Falta Uno · {{ $venue->falta_uno_count }} partido{{ $venue->falta_uno_count > 1 ? 's' : '' }}
-              </div>
-            @endif
-            @if($venue->zone)
-              <div class="vi-venue-zone-badge" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="map-pin" style="width:11px;height:11px;stroke:currentColor;"></i> {{ $venue->zone }}</div>
-            @endif
-          </div>
+            <div class="vi2-card-body">
+              <h3 class="vi2-card-name">{{ $venue->name }}</h3>
+              @if(($venue->reviews_count ?? 0) > 0)
+                <div class="vi2-card-rating">
+                  @php $rounded = round($venue->reviews_avg_rating); @endphp
+                  <span class="vi2-card-stars">
+                    @for($i = 1; $i <= 5; $i++){!! $i <= $rounded ? '&#9733;' : '&#9734;' !!}@endfor
+                  </span>
+                  <span class="vi2-card-rating-num">{{ number_format($venue->reviews_avg_rating, 1) }}</span>
+                  <span class="vi2-card-rating-count">({{ $venue->reviews_count }} reseña{{ $venue->reviews_count !== 1 ? 's' : '' }})</span>
+                </div>
+              @else
+                <div class="vi2-card-no-reviews">Sin reseñas todavía</div>
+              @endif
 
-          {{-- Body --}}
-          <div class="vi-venue-body">
-            <h3 class="vi-venue-name">{{ $venue->name }}</h3>
+              <p class="vi2-card-desc">
+                {{ $venue->description ?? 'Reservá online y encontrá disponibilidad en pocos pasos.' }}
+              </p>
 
-            @if($venue->reviews_count > 0)
-              <div class="vi-venue-rating">
-                @php $rounded = round($venue->reviews_avg_rating); @endphp
-                <span class="vi-venue-stars">
-                  @for($i = 1; $i <= 5; $i++)<span class="vi-star">{{ $i <= $rounded ? '★' : '☆' }}</span>@endfor
-                </span>
-                <span class="vi-venue-rating-text">{{ number_format($venue->reviews_avg_rating, 1) }}</span>
-                <span class="vi-venue-rating-count">({{ $venue->reviews_count }} reseña{{ $venue->reviews_count > 1 ? 's' : '' }})</span>
-              </div>
-            @else
-              <div style="font-size:13px; color:#555;">Sin reseñas todavía</div>
-            @endif
-
-            <p class="vi-venue-desc">
-              {{ $venue->description ?? 'Reservá online y encontrá disponibilidad en pocos pasos.' }}
-            </p>
-
-            <div class="vi-venue-actions">
-              <a href="{{ route('venues.show', $venue) }}" class="vi-btn-primary">Ver complejo →</a>
+              <a href="{{ route('venues.show', $venue) }}" class="vi2-card-cta">
+                Ver complejo
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </a>
             </div>
-          </div>
-        </article>
-      @endforeach
+          </article>
+        @endforeach
+      </div>
+    @endif
+  </div>
+</section>
+
+{{-- ═══════════════════════════════════════════════════════
+     MAP
+     ═══════════════════════════════════════════════════════ --}}
+<section class="vi2-map-sec" style="border-top:1px solid var(--bd); margin-top: 40px;">
+  <div class="vi2-sec-w">
+    <div class="vi2-sec-head">
+      <div>
+        <h2 class="vi2-sec-title vi2-rv">Mapa de <b>complejos</b></h2>
+        <p class="vi2-sec-sub vi2-rv d1">Visualizá todos los complejos en el mapa.</p>
+      </div>
     </div>
-  @endif
+    <div class="vi2-map-wrap" id="vi2MapWrap">
+      <div class="vi2-map-skeleton" id="vi2MapSkeleton">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+      </div>
+      <div id="vi2Map"></div>
+    </div>
+  </div>
+</section>
 
-</div>
-
-{{-- ── SCRIPTS ──────────────────────────────────────────────────────────── --}}
-<script>
-  // ── Advanced filters toggle ─────────────────────
-  function toggleAdv() {
-    const panel = document.getElementById('advPanel');
-    panel.classList.toggle('open');
-  }
-
-  function onDateFilterChange(dateInput) {
-    const timeChip = document.getElementById('timeChip');
-    const timeInput = document.getElementById('timeFilterInput');
-    if (dateInput.value) {
-      timeChip.classList.remove('vi-chip-disabled');
-      timeInput.disabled = false;
-    } else {
-      timeChip.classList.add('vi-chip-disabled');
-      timeInput.disabled = true;
-      timeInput.value = '';
-    }
-    document.getElementById('venueSearchForm').submit();
-  }
-
-  // ── Carousel + tabs ─────────────────────────────
-  const featureTabs     = Array.from(document.querySelectorAll('.feature-tab'));
-  const featureCarousels = Array.from(document.querySelectorAll('.feature-carousel'));
-  const featuredSection  = document.querySelector('.vi-featured');
-  const carouselMovePrevBtn = document.querySelector('[data-carousel-move="prev"]');
-  const carouselMoveNextBtn = document.querySelector('[data-carousel-move="next"]');
-
-  let autoplayInterval = null;
-
-  function getActiveCarousel() {
-    return document.querySelector('.feature-carousel.active');
-  }
-
-  function getActiveTrack() {
-    return getActiveCarousel()?.querySelector('[data-carousel-track]') ?? null;
-  }
-
-  function getTrackStep(track) {
-    if (!track) return 314;
-    const firstCard = track.querySelector('.featured-card');
-    if (!firstCard) return 314;
-    const cardWidth = firstCard.getBoundingClientRect().width;
-    const styles = window.getComputedStyle(track);
-    const gap = parseFloat(styles.columnGap || styles.gap || 14);
-    return cardWidth + gap;
-  }
-
-  function resetProgressBar() {
-    const bar = document.getElementById('viFeaturedProgressBar');
-    if (!bar) return;
-    bar.style.animation = 'none';
-    bar.offsetHeight; // reflow
-    bar.style.animation = 'vi-progress 3.5s linear forwards';
-  }
-
-  function updateBgNum(tab) {
-    const bgNum = document.getElementById('viFeaturedBgNum');
-    if (!bgNum) return;
-    const num = tab.dataset.tabNum || '01';
-    bgNum.textContent = num;
-  }
-
-  function activateFeatureTab(index) {
-    if (!featureTabs.length) return;
-    const safeIndex = (index + featureTabs.length) % featureTabs.length;
-    const tab = featureTabs[safeIndex];
-    const target = tab.dataset.tab;
-    featureTabs.forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    featureCarousels.forEach(c => c.classList.remove('active'));
-    const activeCarousel = document.getElementById('tab-' + target);
-    if (activeCarousel) activeCarousel.classList.add('active');
-    updateBgNum(tab);
-    resetProgressBar();
-    restartAutoplay();
-  }
-
-  function moveActiveTrack(direction) {
-    const track = getActiveTrack();
-    if (!track) return;
-    const step = getTrackStep(track);
-    track.scrollBy({ left: step * direction, behavior: 'smooth' });
-  }
-
-  function attachDragToTrack(track) {
-    if (!track) return;
-    let isDragging = false, startX = 0, startScrollLeft = 0;
-    const stop = () => { isDragging = false; track.classList.remove('dragging'); };
-    track.addEventListener('mousedown', e => { isDragging = true; startX = e.pageX; startScrollLeft = track.scrollLeft; track.classList.add('dragging'); });
-    track.addEventListener('mouseleave', stop);
-    track.addEventListener('mouseup', stop);
-    track.addEventListener('mousemove', e => { if (!isDragging) return; e.preventDefault(); track.scrollLeft = startScrollLeft - (e.pageX - startX); });
-  }
-
-  function getActiveFeatureIndex() {
-    const i = featureTabs.findIndex(t => t.classList.contains('active'));
-    return i >= 0 ? i : 0;
-  }
-
-  function startAutoplay() {
-    stopAutoplay();
-    autoplayInterval = setInterval(() => activateFeatureTab(getActiveFeatureIndex() + 1), 3500);
-  }
-
-  function stopAutoplay() { if (autoplayInterval) { clearInterval(autoplayInterval); autoplayInterval = null; } }
-  function restartAutoplay() { startAutoplay(); }
-
-  featureTabs.forEach((tab, index) => tab.addEventListener('click', () => activateFeatureTab(index)));
-  carouselMovePrevBtn?.addEventListener('click', () => { activateFeatureTab(getActiveFeatureIndex() - 1); restartAutoplay(); });
-  carouselMoveNextBtn?.addEventListener('click', () => { activateFeatureTab(getActiveFeatureIndex() + 1); restartAutoplay(); });
-  document.querySelectorAll('[data-carousel-track]').forEach(attachDragToTrack);
-  // Drag para el carousel premium
-  const premiumTrack = document.getElementById('premiumTrack');
-  if (premiumTrack) attachDragToTrack(premiumTrack);
-
-  if (featuredSection) {
-    featuredSection.addEventListener('mouseenter', stopAutoplay);
-    featuredSection.addEventListener('mouseleave', startAutoplay);
-    featuredSection.addEventListener('touchstart', stopAutoplay, { passive: true });
-    featuredSection.addEventListener('touchend', startAutoplay);
-  }
-
-  startAutoplay();
-
-  // ── Google Maps con lazy load ────────────────────
-  const VENUES = [
-    @foreach($allVenues as $v)
-      { id: {{ $v->id }}, name: @json($v->name), lat: {{ $v->lat ?? 'null' }}, lng: {{ $v->lng ?? 'null' }}, url: @json(route('venues.show', $v)) }@if(!$loop->last),@endif
-    @endforeach
-  ];
-
-  const DEFAULT_CENTER = { lat: -34.6037, lng: -58.3816 };
-
-  function initMap() {
-    const mapEl = document.getElementById('map');
-    const skeleton = document.getElementById('viMapSkeleton');
-    if (!mapEl) return;
-    mapEl.style.display = 'block';
-    if (skeleton) skeleton.style.display = 'none';
-
-    const first = VENUES.find(v => v.lat !== null && v.lng !== null);
-    const map = new google.maps.Map(mapEl, {
-      zoom: first ? 13 : 12,
-      center: first ? { lat: Number(first.lat), lng: Number(first.lng) } : DEFAULT_CENTER,
-    });
-    function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-    VENUES.forEach(v => {
-      if (v.lat === null || v.lng === null) return;
-      const marker = new google.maps.Marker({ map, position: { lat: Number(v.lat), lng: Number(v.lng) }, title: v.name });
-      const info = new google.maps.InfoWindow({ content: `<div style="font-family:system-ui;"><strong>${escHtml(v.name)}</strong><br><a href="${escHtml(v.url)}" style="color:#166534;font-weight:700;">Ver complejo →</a></div>` });
-      marker.addListener('click', () => info.open({ map, anchor: marker }));
-    });
-
-    setTimeout(() => mapEl.classList.add('vi-map-loaded'), 100);
-  }
-
-  // Lazy load del mapa — carga el script solo cuando el wrapper entra en viewport
-  let mapScriptLoaded = false;
-  const mapWrapObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting && !mapScriptLoaded) {
-        mapScriptLoaded = true;
-        const script = document.createElement('script');
-        script.src = 'https://maps.googleapis.com/maps/api/js?key={{ config("services.google_maps.key") }}&callback=initMap';
-        script.async = true;
-        script.defer = true;
-        document.head.appendChild(script);
-        mapWrapObserver.disconnect();
-      }
-    });
-  }, { threshold: 0.1 });
-
-  const mapWrap = document.getElementById('viMapWrap');
-  if (mapWrap) mapWrapObserver.observe(mapWrap);
-</script>
+</div>{{-- /.vi2 --}}
 
 @push('scripts')
-  {{-- AOS --}}
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
-  <script>
-    if (typeof AOS === 'undefined') { document.querySelectorAll('[data-aos]').forEach(el => { el.removeAttribute('data-aos'); el.style.opacity = '1'; }); }
-    else AOS.init({
-      duration: 520,
-      easing: 'ease-out-quad',
-      once: true,
-      offset: 40,
-    });
-
-    // ── 1+2. Scroll progress bar + FAB (unified, rAF-throttled) ──
-    const viScrollProgressBar = document.getElementById('viScrollProgress');
-    const viFab = document.getElementById('viFab');
-    let scrollTicking = false;
-    window.addEventListener('scroll', () => {
-      if (!scrollTicking) {
-        scrollTicking = true;
-        requestAnimationFrame(() => {
-          const scrollTop = window.scrollY || document.documentElement.scrollTop;
-          const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-          const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-          if (viScrollProgressBar) viScrollProgressBar.style.width = pct + '%';
-          if (viFab) {
-            if (scrollTop > 200) viFab.classList.add('vi-fab-visible');
-            else viFab.classList.remove('vi-fab-visible');
-          }
-          scrollTicking = false;
-        });
+<script>
+  (function() {
+    // ── Scroll reveal ──
+    var io = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.01 });
+    document.querySelectorAll('.vi2-rv').forEach(function(el) {
+      var r = el.getBoundingClientRect();
+      if (r.top < window.innerHeight && r.bottom > 0) {
+        requestAnimationFrame(function() { el.classList.add('in'); });
+      } else {
+        io.observe(el);
       }
-    }, { passive: true });
-
-    // ── 3. Contador animado en microstats ───────────
-    function animateCount(el) {
-      const target = parseInt(el.dataset.target, 10);
-      if (isNaN(target)) return;
-      let start = 0;
-      const duration = 1200;
-      const startTime = performance.now();
-      function update(now) {
-        const elapsed = now - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        // easeOutExpo
-        const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-        const current = Math.floor(eased * target);
-        el.textContent = current;
-        if (progress < 1) requestAnimationFrame(update);
-        else el.textContent = target;
-      }
-      requestAnimationFrame(update);
-    }
-
-    const countObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          animateCount(entry.target);
-          countObserver.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.5 });
-
-    document.querySelectorAll('.vi-count-anim, .vi-count-anim-pill').forEach(el => {
-      el.textContent = '0';
-      countObserver.observe(el);
     });
 
-    // ── 4. Section titles con línea animada ─────────
-    const titleObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('vi-title-visible');
-        }
-      });
-    }, { threshold: 0.3 });
-
-    document.querySelectorAll('.vi-section-title').forEach(el => titleObserver.observe(el));
-
-    // ── 5. Tilt 3D en venue cards (solo desktop) ────
-    const isMobile = window.matchMedia('(max-width: 768px)').matches;
-
-    if (!isMobile) {
-      document.querySelectorAll('.vi-venue-card').forEach(card => {
-        const shineEl = card.querySelector('.vi-card-shine');
-
-        card.addEventListener('mousemove', (e) => {
-          const rect = card.getBoundingClientRect();
-          const x = e.clientX - rect.left;
-          const y = e.clientY - rect.top;
-          const cx = rect.width / 2;
-          const cy = rect.height / 2;
-          const rotY = ((x - cx) / cx) * 8;
-          const rotX = -((y - cy) / cy) * 8;
-          card.style.transition = 'transform 0.1s ease, box-shadow 0.3s ease';
-          card.style.transform = `perspective(800px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateY(-6px)`;
-
-          // Shine/glare
-          if (shineEl) {
-            const imgWrap = card.querySelector('.vi-venue-img-wrap');
-            if (imgWrap) {
-              const ir = imgWrap.getBoundingClientRect();
-              const ix = ((e.clientX - ir.left) / ir.width) * 100;
-              const iy = ((e.clientY - ir.top) / ir.height) * 100;
-              shineEl.style.background = `radial-gradient(circle at ${ix}% ${iy}%, rgba(255,255,255,.18) 0%, transparent 60%)`;
-            }
-          }
+    // ── Featured tab switching ──
+    document.querySelectorAll('.vi2-feat-tab').forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        var name = tab.dataset.tab;
+        document.querySelectorAll('.vi2-feat-tab').forEach(function(t) { t.classList.remove('active'); });
+        tab.classList.add('active');
+        document.querySelectorAll('.vi2-feat-pane').forEach(function(p) {
+          p.classList.toggle('active', p.dataset.pane === name);
         });
-
-        card.addEventListener('mouseleave', () => {
-          card.style.transition = 'transform 0.5s ease, box-shadow 0.3s ease';
-          card.style.transform = 'perspective(800px) rotateX(0deg) rotateY(0deg) translateY(0px)';
-        });
-      });
-    }
-
-
-    // ── 7. Favorito heart pop animation ─────────────
-    document.querySelectorAll('.vi-venue-fav-btn').forEach(btn => {
-      btn.addEventListener('click', function() {
-        this.classList.remove('vi-heart-animating');
-        void this.offsetWidth;
-        this.classList.add('vi-heart-animating');
-        this.addEventListener('animationend', () => {
-          this.classList.remove('vi-heart-animating');
-        }, { once: true });
       });
     });
 
-  </script>
+    // ── Advanced filters toggle ──
+    window.vi2ToggleAdv = function() {
+      var panel = document.getElementById('vi2AdvPanel');
+      if (panel) panel.classList.toggle('open');
+    };
 
-  <script>
-    function requestGeolocation() {
-      const btn = document.getElementById('geoBtn');
+    // ── Date/time pickers (robust) ──
+    window.vi2OpenDate = function() {
+      var input = document.getElementById('vi2DateInput');
+      if (!input) return;
+      if (typeof input.showPicker === 'function') { try { input.showPicker(); return; } catch(e) {} }
+      try { input.focus(); } catch(e) {}
+      try { input.click(); } catch(e) {}
+    };
+    window.vi2OpenTime = function() {
+      var input = document.getElementById('vi2TimeInput');
+      if (!input) return;
+      if (typeof input.showPicker === 'function') { try { input.showPicker(); return; } catch(e) {} }
+      try { input.focus(); } catch(e) {}
+      try { input.click(); } catch(e) {}
+    };
+
+    // ── Geolocation ──
+    window.vi2RequestGeo = function() {
       if (!navigator.geolocation) {
         alert('Tu navegador no soporta geolocalización.');
         return;
       }
-      btn.textContent = 'Obteniendo ubicación...';
-      btn.disabled = true;
-      navigator.geolocation.getCurrentPosition(
-        function(pos) {
-          document.getElementById('userLat').value = pos.coords.latitude;
-          document.getElementById('userLng').value = pos.coords.longitude;
-          document.getElementById('venueSearchForm').submit();
-        },
-        function(err) {
-          const msgs = {
-            1: 'Permiso denegado. Permitile al navegador acceder a tu ubicación.',
-            2: 'Ubicación no disponible en este dispositivo.',
-            3: 'Tiempo de espera agotado. Intentá de nuevo.',
-          };
-          btn.textContent = msgs[err.code] || 'No se pudo obtener la ubicación';
-          btn.disabled = false;
-        },
-        { timeout: 8000 }
-      );
-    }
-  </script>
+      var btn = document.getElementById('vi2GeoBtn');
+      if (btn) btn.textContent = 'Obteniendo ubicación…';
+      navigator.geolocation.getCurrentPosition(function(pos) {
+        document.getElementById('vi2UserLat').value = pos.coords.latitude;
+        document.getElementById('vi2UserLng').value = pos.coords.longitude;
+        document.getElementById('vi2Form').submit();
+      }, function() {
+        if (btn) btn.textContent = 'No se pudo obtener tu ubicación';
+      });
+    };
+
+    // ── Google Maps lazy load ──
+    var VENUES = [
+      @foreach($allVenues as $v)
+        { id: {{ $v->id }}, name: @json($v->name), lat: {{ $v->lat ?? 'null' }}, lng: {{ $v->lng ?? 'null' }}, url: @json(route('venues.show', $v)) }@if(!$loop->last),@endif
+      @endforeach
+    ];
+    var DEFAULT_CENTER = { lat: -34.6037, lng: -58.3816 };
+
+    window.vi2InitMap = function() {
+      var mapEl = document.getElementById('vi2Map');
+      var skel  = document.getElementById('vi2MapSkeleton');
+      if (!mapEl) return;
+      mapEl.style.display = 'block';
+      mapEl.style.height = '440px';
+      if (skel) skel.style.display = 'none';
+
+      var first = VENUES.find(function(v) { return v.lat !== null && v.lng !== null; });
+      var map = new google.maps.Map(mapEl, {
+        zoom: first ? 13 : 12,
+        center: first ? { lat: Number(first.lat), lng: Number(first.lng) } : DEFAULT_CENTER,
+        styles: [
+          { elementType: 'geometry', stylers: [{ color: '#1d1d1d' }] },
+          { elementType: 'labels.text.stroke', stylers: [{ color: '#050505' }] },
+          { elementType: 'labels.text.fill', stylers: [{ color: '#8a8a8a' }] },
+          { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#2a2a2a' }] },
+          { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0a0f14' }] },
+          { featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] }
+        ]
+      });
+      function escHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+      VENUES.forEach(function(v) {
+        if (v.lat === null || v.lng === null) return;
+        var marker = new google.maps.Marker({ map: map, position: { lat: Number(v.lat), lng: Number(v.lng) }, title: v.name });
+        var info = new google.maps.InfoWindow({
+          content: '<div style="font-family:system-ui;color:#111;"><strong>' + escHtml(v.name) + '</strong><br><a href="' + escHtml(v.url) + '" style="color:#166534;font-weight:700;">Ver complejo →</a></div>'
+        });
+        marker.addListener('click', function() { info.open({ map: map, anchor: marker }); });
+      });
+    };
+
+    var mapLoaded = false;
+    var mapObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting && !mapLoaded) {
+          mapLoaded = true;
+          var script = document.createElement('script');
+          script.src = 'https://maps.googleapis.com/maps/api/js?key={{ config("services.google_maps.key") }}&callback=vi2InitMap';
+          script.async = true; script.defer = true;
+          document.head.appendChild(script);
+          mapObserver.disconnect();
+        }
+      });
+    }, { threshold: 0.1 });
+    var mapWrap = document.getElementById('vi2MapWrap');
+    if (mapWrap) mapObserver.observe(mapWrap);
+  })();
+</script>
 @endpush
 
 @endsection

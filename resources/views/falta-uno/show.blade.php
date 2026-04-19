@@ -977,29 +977,43 @@
 
   </div>
 
-  {{-- Resultados --}}
-  @if($game->isFinished() && $game->activeParticipants->whereNotNull('result')->isNotEmpty())
+  {{-- Reportes de los jugadores --}}
+  @if($game->isFinished() && $game->activeParticipants->isNotEmpty())
   @php
-    $wins       = $game->activeParticipants->where('result', 'win')->count();
-    $draws      = $game->activeParticipants->where('result', 'draw')->count();
-    $losses     = $game->activeParticipants->where('result', 'loss')->count();
-    $totalGoals = $game->activeParticipants->sum('goals');
+    $totalActive  = $game->activeParticipants->count();
+    $wins         = $game->activeParticipants->where('result', 'win')->count();
+    $draws        = $game->activeParticipants->where('result', 'draw')->count();
+    $losses       = $game->activeParticipants->where('result', 'loss')->count();
+    $pending      = $totalActive - ($wins + $draws + $losses);
+    $reported     = $wins + $draws + $losses;
+    $totalGoals   = $game->activeParticipants->sum('goals');
     $totalAssists = $game->activeParticipants->sum('assists');
+    $fullyReported = $pending === 0;
   @endphp
+  @if($reported > 0 || $pending > 0)
   <div class="fus-results-card" data-aos="zoom-in">
-    <p class="fus-results-title">Resultado del partido</p>
-    <div class="fus-results-tiles">
+    <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
+      <p class="fus-results-title" style="margin:0;">Reportes de los jugadores</p>
+      <span style="font-size:12px; font-weight:700; color: {{ $fullyReported ? '#22c55e' : '#a0a0a0' }};">
+        {{ $reported }} de {{ $totalActive }} {{ $totalActive === 1 ? 'jugador reportó' : 'jugadores reportaron' }}
+      </span>
+    </div>
+    <div class="fus-results-tiles" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:8px;">
       <div class="fus-result-tile">
         <div class="fus-result-tile-num" style="color:#22c55e;">{{ $wins }}</div>
-        <div class="fus-result-tile-label">Victorias</div>
+        <div class="fus-result-tile-label">{{ $wins === 1 ? 'Ganó' : 'Ganaron' }}</div>
       </div>
       <div class="fus-result-tile">
         <div class="fus-result-tile-num" style="color:#f59e0b;">{{ $draws }}</div>
-        <div class="fus-result-tile-label">Empates</div>
+        <div class="fus-result-tile-label">{{ $draws === 1 ? 'Empató' : 'Empataron' }}</div>
       </div>
       <div class="fus-result-tile">
         <div class="fus-result-tile-num" style="color:#dc2626;">{{ $losses }}</div>
-        <div class="fus-result-tile-label">Derrotas</div>
+        <div class="fus-result-tile-label">{{ $losses === 1 ? 'Perdió' : 'Perdieron' }}</div>
+      </div>
+      <div class="fus-result-tile" style="opacity: {{ $pending > 0 ? '1' : '.35' }};">
+        <div class="fus-result-tile-num" style="color:#8a8a8a;">{{ $pending }}</div>
+        <div class="fus-result-tile-label">Sin reportar</div>
       </div>
     </div>
     @if($totalGoals > 0 || $totalAssists > 0)
@@ -1019,6 +1033,7 @@
       </div>
     @endif
   </div>
+  @endif
   @endif
 
   {{-- ═══ SECCIÓN POST-PARTIDO ═══ --}}

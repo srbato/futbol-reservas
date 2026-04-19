@@ -1238,17 +1238,100 @@
     @yield('content')
   </main>
 
-  <footer style="border-top:1px solid rgba(255,255,255,.06); padding:24px 0; margin-top:48px; text-align:center; font-size:13px; color:#666;">
-    <div style="max-width:1200px; margin:0 auto; padding:0 20px; display:flex; justify-content:center; align-items:center; gap:16px; flex-wrap:wrap;">
-      <span>&copy; {{ date('Y') }} TuCancha</span>
-      <span style="color:rgba(255,255,255,.15);">|</span>
-      <a href="{{ url('/como-funciona') }}" style="color:#888; text-decoration:none; transition:color .2s;" onmouseover="this.style.color='#22c55e'" onmouseout="this.style.color='#888'">Como funciona</a>
-      <span style="color:rgba(255,255,255,.15);">|</span>
-      <a href="{{ url('/nosotros') }}" style="color:#888; text-decoration:none; transition:color .2s;" onmouseover="this.style.color='#22c55e'" onmouseout="this.style.color='#888'">Nosotros</a>
-      <span style="color:rgba(255,255,255,.15);">|</span>
-      <a href="{{ route('blog.index') }}" style="color:#888; text-decoration:none; transition:color .2s;" onmouseover="this.style.color='#22c55e'" onmouseout="this.style.color='#888'">Blog</a>
-      <span style="color:rgba(255,255,255,.15);">|</span>
-      <a href="{{ route('planes') }}" style="color:#888; text-decoration:none; transition:color .2s;" onmouseover="this.style.color='#22c55e'" onmouseout="this.style.color='#888'">Sos dueno de un complejo? Registralo aca</a>
+  <style>
+    .tc-foot { border-top: 1px solid rgba(255,255,255,.06); background: #050505; margin-top: 64px; padding: 56px 24px 28px; color: #a0a0a0; }
+    .tc-foot-inner { max-width: 1360px; margin: 0 auto; }
+    .tc-foot-cols { display: grid; grid-template-columns: 1.6fr repeat(3, 1fr); gap: 48px; padding-bottom: 36px; border-bottom: 1px solid rgba(255,255,255,.06); }
+    .tc-foot-brand { display: flex; flex-direction: column; gap: 14px; max-width: 340px; }
+    .tc-foot-logo { display: inline-flex; align-items: center; text-decoration: none; }
+    .tc-foot-logo img { height: 56px; width: auto; display: block; }
+    .tc-foot-brand p { font-size: 13px; line-height: 1.6; color: #8a8a8a; margin: 0; font-weight: 400; }
+    .tc-foot-socials { display: flex; gap: 8px; margin-top: 6px; }
+    .tc-foot-social { width: 34px; height: 34px; border-radius: 10px; border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.02); display: flex; align-items: center; justify-content: center; color: #8a8a8a; text-decoration: none; transition: border-color .15s, color .15s, background .15s; }
+    .tc-foot-social:hover { border-color: rgba(34,197,94,.35); color: #22c55e; background: rgba(34,197,94,.06); }
+    .tc-foot-col h6 { font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #666; margin: 0 0 16px; }
+    .tc-foot-col ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+    .tc-foot-col li a { font-size: 13px; color: #a0a0a0; text-decoration: none; font-weight: 500; transition: color .15s; display: inline-flex; align-items: center; gap: 6px; }
+    .tc-foot-col li a:hover { color: #22c55e; }
+    .tc-foot-base { padding-top: 24px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; font-size: 12px; color: #666; }
+    .tc-foot-base-links { display: flex; gap: 18px; flex-wrap: wrap; }
+    .tc-foot-base-links a { color: #666; text-decoration: none; transition: color .15s; }
+    .tc-foot-base-links a:hover { color: #c8c8c8; }
+    @media (max-width: 860px) {
+      .tc-foot-cols { grid-template-columns: 1fr 1fr; gap: 32px; }
+      .tc-foot-brand { grid-column: 1 / -1; max-width: none; }
+    }
+    @media (max-width: 480px) {
+      .tc-foot-cols { grid-template-columns: 1fr; gap: 28px; }
+      .tc-foot { padding: 44px 20px 24px; }
+      .tc-foot-base { justify-content: center; text-align: center; }
+    }
+  </style>
+
+  <footer class="tc-foot">
+    <div class="tc-foot-inner">
+      <div class="tc-foot-cols">
+        <div class="tc-foot-brand">
+          <a href="{{ route('home') }}" class="tc-foot-logo" aria-label="TuCancha">
+            <img src="/images/logo-blanco.svg" alt="TuCancha">
+          </a>
+          <p>La plataforma para reservar canchas y completar equipos en Argentina. Nueva, en crecimiento, hecha por jugadores para jugadores.</p>
+          <div class="tc-foot-socials">
+            <a href="https://wa.me/5491127279757" target="_blank" rel="noopener" class="tc-foot-social" aria-label="WhatsApp">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.611.611l4.458-1.495A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.34 0-4.508-.654-6.363-1.787l-.362-.222-3.75 1.257 1.257-3.75-.222-.362A9.935 9.935 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/></svg>
+            </a>
+            <a href="mailto:tucancha10@gmail.com" class="tc-foot-social" aria-label="Email">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>
+            </a>
+            <a href="https://instagram.com/tucancha.web" target="_blank" rel="noopener" class="tc-foot-social" aria-label="Instagram">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="tc-foot-col">
+          <h6>Jugadores</h6>
+          <ul>
+            <li><a href="{{ route('venues.index') }}">Buscar complejos</a></li>
+            <li><a href="{{ route('falta-uno.index') }}">Falta Uno</a></li>
+            <li><a href="{{ route('ranking.index') }}">Ranking</a></li>
+            <li><a href="{{ url('/como-funciona') }}">Cómo funciona</a></li>
+            @auth
+              <li><a href="{{ url('/dashboard') }}">Mi panel</a></li>
+            @else
+              <li><a href="{{ route('register') }}">Crear cuenta</a></li>
+            @endauth
+          </ul>
+        </div>
+
+        <div class="tc-foot-col">
+          <h6>Complejos</h6>
+          <ul>
+            <li><a href="{{ route('para-complejos') }}">Sumá tu complejo</a></li>
+            <li><a href="{{ route('planes') }}">Planes</a></li>
+            <li><a href="{{ route('por-que-tucancha') }}">Por qué TuCancha</a></li>
+            <li><a href="https://wa.me/5491127279757?text={{ urlencode('Hola! Tengo una consulta sobre TuCancha para mi complejo.') }}" target="_blank" rel="noopener">Contactar ventas</a></li>
+          </ul>
+        </div>
+
+        <div class="tc-foot-col">
+          <h6>Empresa</h6>
+          <ul>
+            <li><a href="{{ url('/nosotros') }}">Nosotros</a></li>
+            <li><a href="{{ route('blog.index') }}">Blog</a></li>
+            <li><a href="{{ route('faq') }}">Preguntas frecuentes</a></li>
+            <li><a href="https://wa.me/5491127279757" target="_blank" rel="noopener">Contacto</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tc-foot-base">
+        <span>&copy; {{ date('Y') }} TuCancha &middot; Hecho en Argentina &middot; Con pasión por el juego</span>
+        <div class="tc-foot-base-links">
+          <a href="{{ route('faq') }}">FAQ</a>
+          <a href="https://wa.me/5491127279757" target="_blank" rel="noopener">Soporte</a>
+        </div>
+      </div>
     </div>
   </footer>
 

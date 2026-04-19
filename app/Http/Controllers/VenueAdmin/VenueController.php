@@ -33,7 +33,11 @@ class VenueController extends Controller
     {
         $user = $request->user();
         abort_if($user->isVenueStaff(), 403);
-        if ($user->role !== 'super_admin' && Venue::where('owner_user_id', $user->id)->exists()) {
+        // Si el super_admin está impersonando a otro usuario, aplicar el límite del usuario impersonado
+        $effectiveOwnerId = session('impersonating_as') ?? $user->id;
+        $isTrueSuperAdmin = $user->role === 'super_admin' && !session('impersonating_as');
+
+        if (!$isTrueSuperAdmin && Venue::where('owner_user_id', $effectiveOwnerId)->exists()) {
             return redirect()->route('va.dashboard')
                 ->with('error', 'Ya tenés un complejo creado. Solo podés administrar un complejo por cuenta.');
         }
@@ -52,8 +56,10 @@ class VenueController extends Controller
         $data = $request->validate([
             'name'               => ['required', 'string', 'max:120'],
             'description'        => ['nullable', 'string', 'max:255'],
-            'phone'              => ['nullable', 'string', 'max:30'],
+            'phone'              => ['nullable', 'string', 'max:30', 'regex:/^[\d\s\+\-\(\)]{8,30}$/'],
             'cover_image'        => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'gallery'            => ['nullable', 'array', 'max:5'],
+            'gallery.*'          => ['image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'address'            => ['nullable', 'string', 'max:200'],
             'zone'               => ['nullable', 'string', 'max:120'],
             'cancellation_hours'      => ['nullable', 'integer', 'min:1', 'max:720'],
@@ -64,7 +70,11 @@ class VenueController extends Controller
             'accepts_cash_payment'    => ['nullable'],
         ]);
 
-        if ($user->role !== 'super_admin' && Venue::where('owner_user_id', $user->id)->exists()) {
+        // Si el super_admin está impersonando a otro usuario, aplicar el límite del usuario impersonado
+        $effectiveOwnerId = session('impersonating_as') ?? $user->id;
+        $isTrueSuperAdmin = $user->role === 'super_admin' && !session('impersonating_as');
+
+        if (!$isTrueSuperAdmin && Venue::where('owner_user_id', $effectiveOwnerId)->exists()) {
             return redirect()->route('va.dashboard')
                 ->with('error', 'Ya tenés un complejo creado. Solo podés administrar un complejo por cuenta.');
         }
@@ -87,12 +97,35 @@ class VenueController extends Controller
         $venue->accepts_cash_payment   = $request->has('accepts_cash_payment');
         $venue->is_active              = true;
 
-        if ($request->hasFile('cover_image')) {
-            $path = $request->file('cover_image')->store('venues', 'public');
-            $venue->cover_image_path = $path;
-        }
+        $uploadedPaths = [];
 
-        $venue->save();
+        try {
+            if ($request->hasFile('cover_image')) {
+                $path = $request->file('cover_image')->store('venues', 'public');
+                $uploadedPaths[] = $path;
+                $venue->cover_image_path = $path;
+            }
+
+            if ($request->hasFile('gallery')) {
+                $galleryPaths = [];
+                foreach ($request->file('gallery') as $file) {
+                    if ($file && $file->isValid()) {
+                        $p = $file->store('venues/gallery', 'public');
+                        $uploadedPaths[] = $p;
+                        $galleryPaths[] = $p;
+                    }
+                }
+                $venue->gallery_paths = array_slice($galleryPaths, 0, 5);
+            }
+
+            $venue->save();
+        } catch (\Throwable $e) {
+            // Cleanup: borrar cualquier archivo subido si el save falla
+            foreach ($uploadedPaths as $p) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($p);
+            }
+            throw $e;
+        }
 
         return redirect()->route('va.venues.connect_mp', $venue);
     }
@@ -128,8 +161,12 @@ class VenueController extends Controller
         $data = $request->validate([
             'name'               => ['required', 'string', 'max:120'],
             'description'        => ['nullable', 'string', 'max:255'],
-            'phone'              => ['nullable', 'string', 'max:30'],
+            'phone'              => ['nullable', 'string', 'max:30', 'regex:/^[\d\s\+\-\(\)]{8,30}$/'],
             'cover_image'        => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'gallery'            => ['nullable', 'array', 'max:5'],
+            'gallery.*'          => ['image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'gallery_keep'       => ['nullable', 'array'],
+            'gallery_keep.*'     => ['string'],
             'address'            => ['nullable', 'string', 'max:200'],
             'zone'               => ['nullable', 'string', 'max:120'],
             'cancellation_hours'      => ['nullable', 'integer', 'min:1', 'max:720'],
@@ -173,6 +210,27 @@ class VenueController extends Controller
             $path = $request->file('cover_image')->store('venues', 'public');
             $venue->cover_image_path = $path;
         }
+
+        // Gallery: keep existing paths that user didn't remove, delete the rest, add new uploads
+        $existing   = is_array($venue->gallery_paths) ? $venue->gallery_paths : [];
+        $toKeep     = array_values(array_intersect($existing, $data['gallery_keep'] ?? []));
+        $toDelete   = array_values(array_diff($existing, $toKeep));
+
+        foreach ($toDelete as $oldPath) {
+            Storage::disk('public')->delete($oldPath);
+        }
+
+        $newPaths = [];
+        if ($request->hasFile('gallery')) {
+            foreach ($request->file('gallery') as $file) {
+                if ($file && $file->isValid()) {
+                    $newPaths[] = $file->store('venues/gallery', 'public');
+                }
+            }
+        }
+
+        $finalGallery = array_slice(array_merge($toKeep, $newPaths), 0, 5);
+        $venue->gallery_paths = $finalGallery;
 
         $venue->save();
 

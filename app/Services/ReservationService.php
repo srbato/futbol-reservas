@@ -161,10 +161,11 @@ class ReservationService
 
         $finalPrice = $basePrice;
 
-        $matchingDiscount = $field->discounts()
+        // Buscar TODOS los descuentos que matchean y elegir el MÁS BAJO (mejor para el usuario)
+        $matchingDiscounts = $field->discounts()
             ->where('is_active', true)
             ->get()
-            ->first(function ($discount) use ($date, $dow, $start, $end) {
+            ->filter(function ($discount) use ($date, $dow, $start, $end) {
                 if ($discount->date && $discount->date->toDateString() !== $date->toDateString()) {
                     return false;
                 }
@@ -179,8 +180,14 @@ class ReservationService
                 return true;
             });
 
-        if ($matchingDiscount) {
-            $finalPrice = (float) $matchingDiscount->discount_price;
+        if ($matchingDiscounts->isNotEmpty()) {
+            // Mejor descuento = el precio final más bajo
+            $bestDiscount = $matchingDiscounts->sortBy(fn($d) => (float) $d->discount_price)->first();
+            $discountedPrice = (float) $bestDiscount->discount_price;
+            // Solo aplicar si realmente es menor al precio base (evitar "descuentos" que suben precio)
+            if ($discountedPrice < $finalPrice) {
+                $finalPrice = $discountedPrice;
+            }
         }
 
         return $finalPrice;

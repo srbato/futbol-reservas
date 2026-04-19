@@ -43,7 +43,7 @@ class ManualReservationController extends Controller
             'time'           => ['required', 'date_format:H:i'],
             'notes'          => ['nullable', 'string', 'max:255'],
             'client_user_id' => ['nullable', 'integer', 'exists:users,id'],
-            'amount_paid'    => ['nullable', 'numeric', 'min:0'],
+            'amount_paid'    => ['nullable', 'numeric', 'min:0', 'max:10000000'],
         ]);
 
         $field = Field::with(['venue', 'schedules', 'exceptions'])
@@ -78,7 +78,9 @@ class ManualReservationController extends Controller
         }
 
         $start = Carbon::parse($data['date'] . ' ' . $data['time'])->seconds(0);
-        $end   = $start->copy()->addMinutes((int) $field->slot_minutes ?: 60);
+        $slotMinutes = (int) ($field->slot_minutes ?: 60);
+        if ($slotMinutes <= 0) $slotMinutes = 60;
+        $end = $start->copy()->addMinutes($slotMinutes);
 
         // Check overlap with existing active reservations
         $overlap = Reservation::where('field_id', $field->id)
