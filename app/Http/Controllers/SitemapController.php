@@ -10,9 +10,10 @@ class SitemapController extends Controller
 {
     public function index()
     {
-        // Cacheado por 6hs — sitemap no necesita ser tiempo real.
+        // Cacheamos SOLO el XML (string), no el Response (que al deserializarlo puede romper).
+        // Cache de 6h — sitemap no necesita ser tiempo real.
         // Limite de 50k entradas por grupo (Google recomienda máximo 50k URLs por sitemap).
-        return cache()->remember('sitemap.xml', now()->addHours(6), function () {
+        $xml = cache()->remember('sitemap.xml', now()->addHours(6), function () {
             $venues = Venue::where('is_active', true)
                 ->select('id', 'updated_at')
                 ->orderByDesc('updated_at')
@@ -31,8 +32,10 @@ class SitemapController extends Controller
                 ->limit(10000)
                 ->get();
 
-            return response()->view('sitemap', compact('venues', 'fields', 'blogPosts'))
-                ->header('Content-Type', 'application/xml');
+            return view('sitemap', compact('venues', 'fields', 'blogPosts'))->render();
         });
+
+        return response($xml, 200)
+            ->header('Content-Type', 'application/xml; charset=utf-8');
     }
 }
