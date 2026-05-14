@@ -90,6 +90,25 @@ class PublicPagesTest extends TestCase
         $this->assertNotNull(cache()->get('sitemap.xml'));
     }
 
+    public function test_sitemap_excludes_venues_with_inactive_owner(): void
+    {
+        cache()->forget('sitemap.xml');
+
+        // Venue con dueño super_admin → accesible públicamente
+        $activeVenue = $this->makeVenue();
+
+        // Venue con dueño venue_admin sin suscripción → venues.show 404ea
+        $inactiveOwner = \App\Models\User::factory()->create(['role' => 'venue_admin', 'is_active' => true]);
+        $inactiveVenue = \App\Models\Venue::factory()->create([
+            'owner_user_id' => $inactiveOwner->id, 'is_active' => true,
+        ]);
+
+        $body = $this->get(route('sitemap'))->getContent();
+
+        $this->assertStringContainsString(route('venues.show', $activeVenue->id), $body);
+        $this->assertStringNotContainsString(route('venues.show', $inactiveVenue->id), $body);
+    }
+
     // ─── Feedback ────────────────────────────────────────────────────────
 
     public function test_feedback_form_accepts_valid_submission(): void
