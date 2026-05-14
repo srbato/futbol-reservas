@@ -312,7 +312,7 @@ class VenueController extends Controller
         ));
     }
 
-    public function show(Venue $venue)
+    public function show(Request $request, Venue $venue)
     {
         // Si el dueño no tiene suscripción activa, el complejo no está disponible
         $venue->loadMissing('owner');
@@ -339,7 +339,22 @@ class VenueController extends Controller
             ->orderBy('start_at')
             ->get();
 
-        return view('venues.show', compact('venue', 'averageRating', 'faltaUnoGames'));
+        // Modo "modificar reserva" — si llega ?modify={id} y el usuario es dueño de esa reserva
+        // y la reserva pertenece a este complejo, pasamos al partial del grid para activar UI especial.
+        $modifyReservation = null;
+        $modifyId = (int) $request->query('modify');
+        if ($modifyId && auth()->check()) {
+            $r = \App\Models\Reservation::with('field')->find($modifyId);
+            if ($r
+                && ($r->user_id === auth()->id() || auth()->user()->role === 'super_admin')
+                && $r->field?->venue_id === $venue->id
+                && in_array($r->status, ['PAID', 'PENDING_CASH'])
+            ) {
+                $modifyReservation = $r;
+            }
+        }
+
+        return view('venues.show', compact('venue', 'averageRating', 'faltaUnoGames', 'modifyReservation'));
     }
 
     public function weeklyCalendar(Request $request, Venue $venue)

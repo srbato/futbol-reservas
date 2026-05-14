@@ -113,13 +113,13 @@ class MatchHistoryController extends Controller
             ->first();
 
         $previousOutcome = $existingResult?->match_outcome;
-        $newOutcome      = $data['match_outcome'] ?: null;
+        $newOutcome      = ($data['match_outcome'] ?? null) ?: null;
 
         // Each user saves their own result independently
         ReservationResult::updateOrCreate(
             ['reservation_id' => $reservation->id, 'user_id' => $user->id],
             [
-                'match_result'  => $data['match_result']  ?: null,
+                'match_result'  => ($data['match_result'] ?? null) ?: null,
                 'match_outcome' => $newOutcome,
             ]
         );
@@ -137,7 +137,7 @@ class MatchHistoryController extends Controller
      * Sync the user's FaltaUnoSportProfile when a reservation result is saved.
      * Handles both first-time creation and updates to existing results.
      */
-    private function syncSportProfile($user, Reservation $reservation, ?string $previousOutcome, string $newOutcome): void
+    private function syncSportProfile($user, Reservation $reservation, ?string $previousOutcome, ?string $newOutcome): void
     {
         $sport = $reservation->field->sport;
 

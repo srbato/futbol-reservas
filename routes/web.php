@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\AvailabilityController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\ContiguousReservationController;
+use App\Http\Controllers\VenueGridController;
 use App\Http\Controllers\FavoriteVenueController;
 use App\Http\Controllers\FieldController;
 use App\Http\Controllers\CashPaymentController;
@@ -85,7 +87,7 @@ Route::get('/', function () {
 })->name('home');
 
 // Feedback público (sin auth requerido)
-Route::post('/feedback', [FeedbackController::class, 'store'])->middleware('throttle:5,1')->name('feedback.store');
+Route::post('/feedback', [FeedbackController::class, 'store'])->middleware('throttle:3,30')->name('feedback.store');
 
 // Google OAuth
 Route::get('/auth/google', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'redirect'])->name('auth.google');
@@ -187,8 +189,13 @@ Route::middleware(['auth', 'active.user'])->group(function () {
 
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/venues', [VenueController::class, 'index'])->name('venues.index');
-Route::get('/venues/{venue}', [VenueController::class, 'show'])->name('venues.show');
-Route::get('/venues/{venue}/calendario', [VenueController::class, 'weeklyCalendar'])->name('venues.weekly-calendar');
+Route::get('/venues/{venue}', [VenueController::class, 'show'])->whereNumber('venue')->name('venues.show');
+Route::get('/venues/{venue}/calendario', [VenueController::class, 'weeklyCalendar'])->whereNumber('venue')->name('venues.weekly-calendar');
+Route::get('/venues/{venue}/reservar', [VenueGridController::class, 'show'])->whereNumber('venue')->name('venues.grid');
+Route::get('/venues/{venue}/grid-availability', [VenueGridController::class, 'availability'])
+    ->whereNumber('venue')
+    ->middleware('throttle:120,1')
+    ->name('venues.grid_availability');
 Route::get('/falta-uno', [FaltaUnoController::class, 'index'])->name('falta-uno.index');
 Route::get('/falta-uno/{game}', [FaltaUnoController::class, 'show'])->name('falta-uno.show');
 
@@ -214,6 +221,9 @@ Route::middleware(['auth', 'active.user'])->group(function () {
     Route::post('/reservations', [ReservationController::class, 'store'])
         ->middleware('throttle:20,1')
         ->name('reservations.store');
+    Route::post('/reservations/contiguous', [ContiguousReservationController::class, 'store'])
+        ->middleware('throttle:20,1')
+        ->name('reservations.contiguous');
     Route::post('/reservations/recurring', [RecurringReservationController::class, 'store'])
         ->middleware('throttle:10,1')
         ->name('reservations.recurring');
@@ -253,6 +263,8 @@ Route::middleware(['auth', 'active.user'])->group(function () {
 
     Route::get('/reservations/{reservation}/modify', [ReservationModifyController::class, 'showSlotPicker'])
         ->name('reservations.modify.show');
+    Route::get('/reservations/{reservation}/modificar', [ReservationModifyController::class, 'showGrid'])
+        ->name('reservations.modify.grid');
     Route::post('/reservations/{reservation}/modify/preview', [ReservationModifyController::class, 'previewChange'])
         ->name('reservations.modify.preview');
     Route::post('/reservations/{reservation}/modify/confirm', [ReservationModifyController::class, 'confirm'])

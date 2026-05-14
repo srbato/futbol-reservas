@@ -27,7 +27,7 @@ return new class extends Migration
             $table->unsignedInteger('total_players');      // total de jugadores para el partido
             $table->unsignedInteger('initiator_players');  // jugadores que trae el iniciador
             $table->unsignedInteger('players_needed');     // faltan = total - initiator_players
-            $table->enum('status', ['open', 'full', 'cancelled', 'expired'])->default('open');
+            $table->string('status', 20)->default('open'); // open|full|cancelled|expired|finished — sin enum DB para evitar problemas de migración futura
             $table->dateTime('start_at');
             $table->decimal('amount_paid', 12, 2)->default(0);
             $table->timestamp('cancelled_at')->nullable();
@@ -39,7 +39,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('game_id')->constrained('falta_uno_games')->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->enum('status', ['confirmed', 'cancelled'])->default('confirmed');
+            $table->string('status', 20)->default('confirmed'); // confirmed|cancelled|no_show — sin enum para que migrations posteriores no necesiten alter constraint
             $table->timestamps();
         });
     }

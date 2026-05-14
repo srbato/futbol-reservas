@@ -569,6 +569,8 @@
           <form method="POST" action="{{ route('feedback.store') }}" class="tc-foot-fb-form">
             @csrf
             <input type="text" name="website_url" style="position:absolute;left:-9999px;opacity:0;height:0;width:0;" tabindex="-1" autocomplete="off">
+            <input type="hidden" name="form_loaded_at" value="">
+            <script>document.currentScript.previousElementSibling.value = Date.now();</script>
             @auth
               <p class="tc-foot-fb-from">Desde <strong>{{ auth()->user()->email }}</strong></p>
             @else

@@ -1,905 +1,1330 @@
 @php
   use App\Support\ReservationStatus;
+  use Carbon\Carbon;
 @endphp
 
 @extends('layouts.app')
 
-@section('title', 'Mi actividad')
+@section('title', 'Mi actividad — TuCancha')
+
+@push('head')
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@200;300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+@endpush
+
+@php
+  $sportLabel = fn($s) => match($s) {
+    'football'   => 'Fútbol',
+    'padel'      => 'Pádel',
+    'tennis'     => 'Tenis',
+    'basketball' => 'Básquet',
+    'volleyball' => 'Vóley',
+    default      => ucfirst($s ?? ''),
+  };
+
+  // Tag de status para reservas
+  $statusBadge = function($status) {
+    return match($status) {
+      'PAID'           => ['ok',     'Pagado'],
+      'PENDING_CASH'   => ['cash',   'Pago en complejo'],
+      'PENDING_PAYMENT'=> ['warn',   'Pago pendiente'],
+      'CANCELLED'      => ['danger', 'Cancelado'],
+      'EXPIRED'        => ['muted',  'Expirado'],
+      default          => ['muted',  ucfirst(strtolower($status))],
+    };
+  };
+
+  $avatarGradient = function($name) {
+    $palette = [
+      ['#4ade80', '#22a55a'], ['#7abef5', '#2a6aaa'], ['#fda4af', '#be123c'],
+      ['#a78bfa', '#5a3da8'], ['#f5c17a', '#a88844'], ['#94e8c4', '#33996c'],
+      ['#fcb46e', '#c0712a'], ['#82e0e5', '#319196'], ['#f9a8d4', '#9d174d'],
+    ];
+    return $palette[abs(crc32((string) $name)) % count($palette)];
+  };
+
+  // Para el sport icon
+  $sportIcon = function($sport) {
+    return match($sport) {
+      'padel', 'tennis' => '<rect x="4" y="6" width="16" height="12" rx="2"/><path d="M4 12h16"/>',
+      default           => '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a14 14 0 0 1 0 20M12 2a14 14 0 0 0 0 20"/>',
+    };
+  };
+
+  // Particionar reservas
+  $upcoming   = $reservations->filter(fn($r) => in_array($r->status, ['PAID','PENDING_CASH','PENDING_PAYMENT']) && $r->start_at->isFuture());
+  $past       = $reservations->filter(fn($r) => $r->status === 'PAID' && $r->start_at->isPast())->take(10);
+  $cancelled  = $reservations->filter(fn($r) => in_array($r->status, ['CANCELLED','EXPIRED']))->take(10);
+  $pendingPay = $reservations->filter(fn($r) => $r->status === 'PENDING_PAYMENT' && $r->expires_at && $r->expires_at->isFuture());
+
+  // Agrupar upcoming por bucket: mañana / esta semana / más adelante
+  $tomorrow = now()->copy()->addDay()->endOfDay();
+  $weekEnd  = now()->copy()->endOfWeek(Carbon::SUNDAY);
+  $upTomorrow = $upcoming->filter(fn($r) => $r->start_at->lte($tomorrow));
+  $upWeek     = $upcoming->filter(fn($r) => $r->start_at->gt($tomorrow) && $r->start_at->lte($weekEnd));
+  $upLater    = $upcoming->filter(fn($r) => $r->start_at->gt($weekEnd));
+
+  // FU partitioning
+  $fuUpcoming  = $misPartidos->filter(fn($g) => $g->start_at->isFuture() && in_array($g->status, ['open','full']));
+  $fuCancelled = $misPartidos->filter(fn($g) => in_array($g->status, ['cancelled','expired']))->take(5);
+  $fuHistory   = $misPartidos->filter(fn($g) => $g->start_at->isPast() && !in_array($g->status, ['cancelled','expired']))->take(8);
+
+  // Recurring subs partitioning
+  $subsActive    = $recurringSubscriptions->where('status', 'ACTIVE');
+  $subsPaused    = $recurringSubscriptions->whereIn('status', ['PAUSED']);
+  $subsFinished  = $recurringSubscriptions->whereIn('status', ['CANCELLED','FINISHED']);
+
+  // Categorías legibles
+  $categoryLabel = fn($cat) => match(strtolower($cat ?? '')) {
+    'recreativo'   => 'Recreativo',
+    'intermedio'   => 'Intermedio',
+    'avanzado'     => 'Avanzado',
+    'competitivo'  => 'Competitivo',
+    default        => ucfirst($cat ?? '—'),
+  };
+@endphp
 
 @push('styles')
 <style>
-  /* ── Tabs ─────────────────────────────────────────── */
+  /* ── Mi Actividad — design v2 ─────────────────────────────────────────── */
+  .my-scope {
+    --my-bg:#050505; --my-bg-1:#0a0a0a; --my-bg-2:#111; --my-bg-3:#161616;
+    --my-bd:rgba(255,255,255,.07); --my-bd-2:rgba(255,255,255,.14);
+    --my-tx:#f2f2f2; --my-tx-2:#c8c8c8; --my-tx-3:#8a8a8a; --my-tx-4:#555;
+    --my-accent:#4ade80; --my-accent-ink:#052010; --my-accent-hover:#6ee7a0;
+    --my-accent-soft:rgba(74,222,128,.08);
+    --my-warn:#f5c17a; --my-danger:#f87171; --my-blue:#7abef5; --my-purple:#a78bfa;
+    --my-mono:'JetBrains Mono', ui-monospace, monospace;
+    background: var(--my-bg); color: var(--my-tx);
+    font-family: 'Sora', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  .my-scope a { color: inherit; text-decoration: none; }
+  .my-scope button { font-family: inherit; cursor: pointer; }
+  .my-scope ::selection { background: var(--my-accent); color: var(--my-accent-ink); }
+
+  .my-page {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 36px 36px 80px;
+  }
+
+  /* HEAD */
+  .my-head {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 24px; margin-bottom: 36px;
+  }
+  .my-eyebrow {
+    font-size: 10px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--my-tx-3); margin-bottom: 8px;
+  }
+  .my-title { font-size: clamp(36px, 5vw, 56px); font-weight: 200; letter-spacing: -0.04em; line-height: .95; margin: 0; }
+  .my-title b { font-weight: 600; background: linear-gradient(135deg, #4ade80, #6ee7a0); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .my-sub { color: var(--my-tx-3); font-size: 15px; margin: 14px 0 0; max-width: 540px; }
+  .my-cta-new {
+    background: var(--my-accent); color: var(--my-accent-ink);
+    padding: 12px 22px; border-radius: 12px; border: 0;
+    font-size: 14px; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 8px;
+    text-decoration: none; transition: background .15s;
+  }
+  .my-cta-new:hover { background: var(--my-accent-hover); }
+
+  /* STATS */
+  .my-stats {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+    margin-bottom: 36px;
+  }
+  .my-stat {
+    background: var(--my-bg-1); border: 1px solid var(--my-bd);
+    border-radius: 14px; padding: 18px 20px;
+  }
+  .my-stat-k { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--my-tx-3); margin-bottom: 12px; display: inline-flex; align-items: center; gap: 8px; font-weight: 600; }
+  .my-stat-ico { width: 6px; height: 6px; border-radius: 50%; background: var(--my-accent); }
+  .my-stat-ico.purple { background: var(--my-purple); }
+  .my-stat-ico.blue   { background: var(--my-blue); }
+  .my-stat-ico.warn   { background: var(--my-warn); }
+  .my-stat-v { font-size: 36px; font-weight: 200; letter-spacing: -0.03em; color: var(--my-tx); line-height: 1; font-variant-numeric: tabular-nums; }
+  .my-stat-v sub { font-size: 13px; color: var(--my-tx-3); font-weight: 400; margin-left: 4px; vertical-align: 2px; letter-spacing: 0; }
+  .my-stat-meta { font-size: 11px; color: var(--my-tx-3); margin-top: 8px; }
+  .my-stat-meta b { color: var(--my-tx-2); font-weight: 500; }
+  .my-stat-meta .up { color: var(--my-accent); }
+
+  /* TABS */
   .my-tabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 24px;
+    display: flex; gap: 4px;
+    background: var(--my-bg-1); border: 1px solid var(--my-bd);
+    border-radius: 14px; padding: 6px;
+    margin-bottom: 22px;
     overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
-    padding-bottom: 4px;
   }
-
   .my-tabs::-webkit-scrollbar { display: none; }
-
   .my-tab {
-    padding: 10px 22px;
-    border-radius: var(--radius-full);
-    border: 1px solid rgba(255,255,255,.1);
-    background: #111;
-    font-size: 14px;
-    font-weight: 700;
-    color: #a0a0a0;
-    cursor: pointer;
+    flex: 1; min-width: max-content;
+    padding: 11px 16px; border: 0; background: transparent;
+    font-size: 13px; font-weight: 500; color: var(--my-tx-3);
+    border-radius: 9px; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    transition: background .15s, color .15s;
+  }
+  .my-tab:hover { color: var(--my-tx-2); }
+  .my-tab.active { background: rgba(255,255,255,.06); color: var(--my-tx); }
+  .my-tab .count { font-size: 11px; padding: 1px 7px; border-radius: 999px; background: rgba(255,255,255,.06); color: var(--my-tx-3); font-variant-numeric: tabular-nums; }
+  .my-tab.active .count { background: var(--my-accent-soft); color: var(--my-accent); }
+
+  /* BODY */
+  .my-body {
+    display: grid; grid-template-columns: 1fr 320px;
+    gap: 28px;
+  }
+
+  /* PANEL */
+  .my-panel { display: none; }
+  .my-panel.on { display: block; }
+
+  /* SUB FILTERS */
+  .my-subfilters { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-bottom: 18px; }
+  .my-sub-chip {
+    padding: 6px 12px; background: rgba(255,255,255,.04);
+    border: 1px solid var(--my-bd); border-radius: 9px;
+    font-size: 12px; font-weight: 500; color: var(--my-tx-2);
     transition: background .15s, color .15s, border-color .15s;
-    font-family: inherit;
-    white-space: nowrap;
-    flex-shrink: 0;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
+  }
+  .my-sub-chip:hover { background: rgba(255,255,255,.08); color: var(--my-tx); }
+  .my-sub-chip.active { background: rgba(74,222,128,.06); border-color: rgba(74,222,128,.2); color: var(--my-accent); }
+  .my-sub-divider { width: 1px; height: 22px; background: var(--my-bd); margin: 0 6px; }
+
+  /* TIMELINE GROUP */
+  .my-timeline { margin-bottom: 30px; }
+  .my-timeline-head {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+    font-size: 13px;
+  }
+  .my-timeline-head h2 {
+    font-size: 13px; font-weight: 500; color: var(--my-tx-2);
+    margin: 0; display: inline-flex; align-items: center; gap: 8px;
+    letter-spacing: -0.005em;
+  }
+  .my-timeline-head h2 .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--my-accent); }
+  .my-timeline-head h2.history .dot { background: var(--my-tx-3); }
+  .my-timeline-head h2.cancel  .dot { background: var(--my-danger); }
+  .my-timeline-head .ct { font-size: 11px; color: var(--my-tx-3); }
+  .my-timeline-head .ln { flex: 1; height: 1px; background: var(--my-bd); }
+
+  /* TURN CARD (full) */
+  .my-turn {
+    background: var(--my-bg-1); border: 1px solid var(--my-bd);
+    border-radius: 14px; overflow: hidden;
+    margin-bottom: 12px;
+    transition: border-color .15s;
+  }
+  .my-turn:hover { border-color: var(--my-bd-2); }
+  .my-turn-head {
+    display: grid; grid-template-columns: 64px 1fr auto;
+    gap: 18px; align-items: center;
+    padding: 18px 20px;
+  }
+  .my-turn-date {
+    text-align: center; padding: 6px 0;
+    background: rgba(255,255,255,.03); border-radius: 10px;
+  }
+  .my-turn-date .day { font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: var(--my-tx-3); display: block; font-weight: 600; }
+  .my-turn-date .d { font-size: 22px; font-weight: 300; color: var(--my-tx); line-height: 1; display: block; margin: 2px 0; font-variant-numeric: tabular-nums; }
+  .my-turn-date .m { font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: var(--my-tx-3); display: block; font-weight: 600; }
+  .my-turn-info { min-width: 0; }
+  .my-turn-title {
+    font-size: 16px; font-weight: 500; color: var(--my-tx);
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    margin-bottom: 6px; letter-spacing: -0.01em;
+  }
+  .my-turn-meta {
+    font-size: 12px; color: var(--my-tx-3);
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  }
+  .my-turn-meta span { display: inline-flex; align-items: center; gap: 5px; }
+  .my-turn-meta b { color: var(--my-tx-2); font-weight: 500; }
+  .my-turn-meta svg { opacity: .65; }
+  .my-turn-cta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+  .my-tag {
+    padding: 2px 10px; border-radius: 999px;
+    font-size: 10px; font-weight: 500; letter-spacing: .04em;
+    background: rgba(255,255,255,.04); border: 1px solid var(--my-bd);
+    color: var(--my-tx-2); display: inline-flex; align-items: center; gap: 4px;
+  }
+  .my-tag.ok     { color: var(--my-accent); background: rgba(74,222,128,.06); border-color: rgba(74,222,128,.2); }
+  .my-tag.warn   { color: var(--my-warn); background: rgba(245,193,122,.06); border-color: rgba(245,193,122,.2); }
+  .my-tag.cash   { color: var(--my-blue); background: rgba(122,190,245,.06); border-color: rgba(122,190,245,.2); }
+  .my-tag.danger { color: var(--my-danger); background: rgba(248,113,113,.06); border-color: rgba(248,113,113,.2); }
+  .my-tag.muted  { color: var(--my-tx-3); }
+
+  /* Turn body (expanded info — code + tags) */
+  .my-turn-body {
+    border-top: 1px solid var(--my-bd);
+    padding: 16px 20px;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    background: rgba(0,0,0,.2);
+  }
+  .my-turn-payment-head { font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: var(--my-tx-3); font-weight: 600; margin-bottom: 8px; }
+  .my-turn-code-row { display: flex; align-items: center; gap: 10px; }
+  .my-turn-code {
+    font-family: var(--my-mono); font-size: 18px; letter-spacing: .12em;
+    color: var(--my-tx); padding: 8px 14px;
+    background: rgba(74,222,128,.04); border: 1px dashed rgba(74,222,128,.2);
+    border-radius: 8px; display: inline-flex; align-items: center; gap: 12px;
+  }
+  .my-turn-code-copy {
+    background: transparent; border: 0; color: var(--my-tx-3);
+    padding: 4px; border-radius: 5px; transition: color .15s, background .15s;
+  }
+  .my-turn-code-copy:hover { color: var(--my-accent); background: rgba(74,222,128,.06); }
+  .my-turn-payment-status {
+    font-size: 11px; color: var(--my-tx-3); margin-top: 8px;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .my-turn-payment-status .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--my-accent); animation: my-pulse 2s infinite; }
+  .my-turn-payment-status .dot.pending { background: var(--my-warn); }
+  .my-turn-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  @keyframes my-pulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(74,222,128,.4); }
+    70%     { box-shadow: 0 0 0 5px rgba(74,222,128,0); }
   }
 
-  .my-tab.active {
-    background: #22c55e;
-    color: #050505;
-    border-color: #22c55e;
+  /* CARD compact (esta semana / historial) */
+  .my-card {
+    background: var(--my-bg-1); border: 1px solid var(--my-bd);
+    border-radius: 12px; padding: 14px 18px;
+    display: grid; grid-template-columns: 36px 1fr auto;
+    gap: 14px; align-items: center;
+    margin-bottom: 8px;
+    transition: border-color .15s;
   }
-
-  .my-tab-count {
-    display: inline-block;
-    margin-left: 6px;
-    background: rgba(0,0,0,.12);
-    border-radius: var(--radius-full);
-    padding: 1px 7px;
-    font-size: 12px;
-    font-weight: 800;
+  .my-card:hover { border-color: var(--my-bd-2); }
+  .my-card.cancelled { opacity: .7; }
+  .my-card-ico {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: var(--my-accent-soft); color: var(--my-accent);
+    display: inline-flex; align-items: center; justify-content: center; flex: none;
   }
-
-  .my-tab.active .my-tab-count {
-    background: rgba(255,255,255,.2);
+  .my-card-ico.cancel  { background: rgba(248,113,113,.08); color: var(--my-danger); }
+  .my-card-ico.history { background: rgba(255,255,255,.04); color: var(--my-tx-3); }
+  .my-card-ico.padel   { background: rgba(167,139,250,.08); color: var(--my-purple); }
+  .my-card-ico.tenis   { background: rgba(122,190,245,.08); color: var(--my-blue); }
+  .my-card-main { min-width: 0; }
+  .my-card-title-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .my-card-title { font-size: 14px; font-weight: 500; color: var(--my-tx); }
+  .my-card-meta {
+    font-size: 11px; color: var(--my-tx-3);
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    margin-top: 2px;
   }
+  .my-card-meta b { color: var(--my-tx-2); font-weight: 500; }
+  .my-card-meta .sep { width: 2px; height: 2px; background: var(--my-tx-4); border-radius: 50%; flex: none; }
+  .my-card-aside { display: flex; align-items: center; gap: 8px; }
 
-  .tab-panel { display: none; }
-  .tab-panel.active { display: block; }
+  /* BUTTONS */
+  .my-btn {
+    padding: 8px 14px; border-radius: 9px; border: 0; cursor: pointer;
+    font-size: 12px; font-weight: 500; font-family: inherit;
+    display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+    text-decoration: none; transition: background .15s, color .15s, border-color .15s;
+  }
+  .my-btn-prim { background: var(--my-accent); color: var(--my-accent-ink); font-weight: 600; }
+  .my-btn-prim:hover { background: var(--my-accent-hover); }
+  .my-btn-warn { background: var(--my-warn); color: #2a1500; font-weight: 600; }
+  .my-btn-warn:hover { background: #e8a85a; }
+  .my-btn-ghost {
+    background: rgba(255,255,255,.04); border: 1px solid var(--my-bd);
+    color: var(--my-tx-2);
+  }
+  .my-btn-ghost:hover { background: rgba(255,255,255,.08); color: var(--my-tx); border-color: var(--my-bd-2); }
+  .my-btn-danger-ghost {
+    background: transparent; border: 1px solid rgba(248,113,113,.24);
+    color: var(--my-danger);
+  }
+  .my-btn-danger-ghost:hover { background: rgba(248,113,113,.08); }
 
-  /* ── Batch card ───────────────────────────────────── */
-  .batch-card {
-    background: var(--color-bg-card);
-    border: 1px solid var(--color-border);
-    border-radius: 18px;
-    overflow: hidden;
+  /* RECURRING */
+  .my-recurring {
+    background: var(--my-bg-1); border: 1px solid var(--my-bd);
+    border-radius: 14px; overflow: hidden;
+    margin-bottom: 14px;
+    transition: border-color .15s;
+  }
+  .my-recurring-head {
+    display: grid; grid-template-columns: 48px 1fr auto auto;
+    gap: 18px; align-items: center;
+    padding: 20px 22px;
+  }
+  .my-recurring-ico {
+    width: 48px; height: 48px; border-radius: 12px;
+    background: rgba(167,139,250,.08); color: var(--my-purple);
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .my-recurring-info h3 { font-size: 15px; font-weight: 500; color: var(--my-tx); margin: 0 0 6px; letter-spacing: -0.01em; }
+  .my-recurring-info .meta {
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    font-size: 12px; color: var(--my-tx-3);
+  }
+  .my-recurring-info .meta span { display: inline-flex; align-items: center; gap: 5px; }
+  .my-recurring-info .meta b { color: var(--my-tx-2); font-weight: 500; }
+  .my-recurring-amount { text-align: right; }
+  .my-recurring-amount .k { font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: var(--my-tx-3); margin-bottom: 4px; font-weight: 600; }
+  .my-recurring-amount .v { font-size: 18px; color: var(--my-tx); font-weight: 500; font-variant-numeric: tabular-nums; }
+  .my-recurring-body {
+    border-top: 1px solid var(--my-bd);
+    padding: 16px 22px;
+    background: rgba(0,0,0,.2);
+  }
+  .my-recurring-body-head {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: var(--my-tx-3); font-weight: 600; margin-bottom: 12px;
+  }
+  .my-recurring-body-head .next-pay { color: var(--my-warn); }
+  .my-recurring-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-bottom: 14px; }
+  .my-recurring-slot {
+    background: rgba(255,255,255,.03); border: 1px solid var(--my-bd);
+    border-radius: 9px; padding: 10px 12px;
+  }
+  .my-recurring-slot.next { border-color: rgba(74,222,128,.3); background: rgba(74,222,128,.03); }
+  .my-recurring-slot .date { font-size: 12px; color: var(--my-tx); font-weight: 500; }
+  .my-recurring-slot .time { font-size: 11px; color: var(--my-tx-3); margin-top: 1px; }
+  .my-recurring-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+
+  /* FU CARD */
+  .my-fu {
+    background: var(--my-bg-1); border: 1px solid var(--my-bd);
+    border-radius: 12px; padding: 14px 18px;
+    display: grid; grid-template-columns: 36px 1fr auto auto;
+    gap: 14px; align-items: center;
+    margin-bottom: 8px;
+    transition: border-color .15s;
+  }
+  .my-fu:hover { border-color: var(--my-bd-2); }
+  .my-fu.cancelled { opacity: .7; }
+  .my-fu-ico {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: var(--my-accent-soft); color: var(--my-accent);
+    display: inline-flex; align-items: center; justify-content: center; flex: none;
+  }
+  .my-fu-info { min-width: 0; }
+  .my-fu-title { font-size: 14px; font-weight: 500; color: var(--my-tx); margin-bottom: 2px; letter-spacing: -0.01em; }
+  .my-fu-meta { font-size: 11px; color: var(--my-tx-3); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .my-fu-meta b { color: var(--my-tx-2); font-weight: 500; }
+  .my-fu-meta .sep { width: 2px; height: 2px; background: var(--my-tx-4); border-radius: 50%; flex: none; }
+  .my-fu-roster { display: flex; align-items: center; }
+  .my-fu-ava {
+    width: 24px; height: 24px; border-radius: 50%;
+    border: 2px solid var(--my-bg-1);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 700; color: #000;
+    margin-left: -6px; flex: none;
+  }
+  .my-fu-ava:first-child { margin-left: 0; }
+  .my-fu-ava.empty {
+    background: rgba(255,255,255,.05); color: var(--my-tx-3);
+    font-size: 10px; font-weight: 500;
+  }
+  .my-fu-cta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .my-card-status {
+    padding: 4px 10px; border-radius: 6px;
+    font-size: 11px; font-weight: 600;
+  }
+  .my-card-status.victory { background: rgba(74,222,128,.1); color: var(--my-accent); }
+  .my-card-status.defeat  { background: rgba(248,113,113,.1); color: var(--my-danger); }
+  .my-card-status.draw    { background: rgba(245,193,122,.1); color: var(--my-warn); }
+
+  /* EMPTY STATE */
+  .my-empty {
+    background: var(--my-bg-1); border: 1px dashed var(--my-bd-2);
+    border-radius: 14px; padding: 50px 30px; text-align: center;
+  }
+  .my-empty-ico {
+    width: 50px; height: 50px; border-radius: 12px;
+    background: var(--my-accent-soft); color: var(--my-accent);
+    display: inline-flex; align-items: center; justify-content: center;
     margin-bottom: 16px;
-    box-shadow: var(--shadow-sm);
   }
+  .my-empty h3 { font-size: 18px; font-weight: 300; letter-spacing: -0.02em; margin: 0 0 6px; color: var(--my-tx); }
+  .my-empty p { font-size: 13px; color: var(--my-tx-3); margin: 0 0 18px; max-width: 340px; margin-inline: auto; }
 
-  .batch-card-header {
-    padding: 20px 22px 16px 22px;
-    border-bottom: 1px solid var(--color-border-light);
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 12px;
-    flex-wrap: wrap;
+  /* SIDEBAR */
+  .my-side {
+    position: sticky; top: 100px; height: fit-content;
+    display: flex; flex-direction: column; gap: 16px;
   }
+  .my-side-card { background: var(--my-bg-1); border: 1px solid var(--my-bd); border-radius: 14px; padding: 18px 20px; }
+  .my-side-card h3 { font-size: 13px; font-weight: 600; margin: 0 0 14px; display: flex; align-items: center; justify-content: space-between; }
+  .my-side-card h3 .pill { font-size: 10px; color: var(--my-tx-3); padding: 2px 8px; background: rgba(255,255,255,.04); border-radius: 999px; font-weight: 500; }
 
-  .batch-card-title {
-    margin: 0 0 4px 0;
-    font-size: 20px;
-    font-weight: 800;
-    letter-spacing: -0.01em;
+  /* WEEK MINI CALENDAR */
+  .my-week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .my-week-d {
+    text-align: center; padding: 8px 4px;
+    background: rgba(255,255,255,.02); border-radius: 8px;
+    border: 1px solid transparent;
+    position: relative;
   }
-
-  .batch-card-meta {
-    font-size: 13px;
-    color: var(--color-text-secondary);
+  .my-week-d span:first-child { font-size: 9px; color: var(--my-tx-3); display: block; letter-spacing: .08em; text-transform: uppercase; font-weight: 600; }
+  .my-week-d .num { font-size: 14px; color: var(--my-tx); margin-top: 2px; display: block; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .my-week-d.today { background: rgba(74,222,128,.08); border-color: rgba(74,222,128,.25); }
+  .my-week-d.today .num { color: var(--my-accent); }
+  .my-week-d.has::after {
+    content: ''; position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%);
+    width: 4px; height: 4px; border-radius: 50%; background: var(--my-accent);
   }
+  .my-week-d.has-2::after { box-shadow: 6px 0 0 var(--my-accent), -6px 0 0 var(--my-accent); }
 
-  .batch-discount-badge {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: var(--radius-full);
-    background: rgba(34,197,94,.1);
-    color: #6ee7a0;
-    font-size: 12px;
-    font-weight: 800;
-    margin-top: 6px;
+  /* LEVEL BARS */
+  .my-levels { display: flex; flex-direction: column; gap: 12px; }
+  .my-level-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; margin-bottom: 5px; }
+  .my-level-row .l { color: var(--my-tx-3); display: inline-flex; align-items: center; gap: 6px; }
+  .my-level-row .l .sw { width: 8px; height: 8px; border-radius: 2px; }
+  .my-level-row .v { color: var(--my-tx); font-weight: 500; font-variant-numeric: tabular-nums; }
+  .my-level-bar { height: 4px; background: rgba(255,255,255,.04); border-radius: 2px; overflow: hidden; }
+  .my-level-bar > span { display: block; height: 100%; border-radius: 2px; transition: width .4s; }
+
+  /* SIDE LINKS */
+  .my-side-link {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0; font-size: 13px; color: var(--my-tx-2);
+    border-bottom: 1px solid var(--my-bd);
+    transition: color .15s;
   }
+  .my-side-link:last-child { border-bottom: 0; padding-bottom: 0; }
+  .my-side-link:first-child { padding-top: 0; }
+  .my-side-link:hover { color: var(--my-accent); }
 
-  .batch-slots {
-    padding: 0 22px 8px 22px;
+  /* FOOTER LINK */
+  .my-footer-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 10px 16px; font-size: 13px; font-weight: 500; color: var(--my-tx-3);
+    border: 1px solid var(--my-bd); border-radius: 10px;
+    margin-top: 14px;
+    transition: color .15s, border-color .15s, background .15s;
   }
+  .my-footer-link:hover { color: var(--my-accent); border-color: rgba(74,222,128,.25); background: rgba(74,222,128,.04); }
 
-  .batch-slot {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--color-bg-hover);
-    flex-wrap: wrap;
+  /* RESPONSIVE */
+  @media (max-width: 1100px) {
+    .my-stats { grid-template-columns: repeat(2, 1fr); }
+    .my-body { grid-template-columns: 1fr; }
+    .my-side { position: static; flex-direction: row; flex-wrap: wrap; }
+    .my-side-card { flex: 1; min-width: 280px; }
   }
-
-  .batch-slot:last-child {
-    border-bottom: none;
-  }
-
-  .batch-slot-date {
-    font-size: 14px;
-    font-weight: 700;
-    min-width: 130px;
-  }
-
-  .batch-slot-time {
-    font-size: 13px;
-    color: var(--color-text-secondary);
-    min-width: 100px;
-  }
-
-  .batch-slot-code {
-    font-size: 15px;
-    font-weight: 800;
-    letter-spacing: 0.06em;
-    background: #0a0a0a;
-    border: 1px solid rgba(255,255,255,.08);
-    border-radius: 8px;
-    padding: 3px 10px;
-    color: var(--color-text);
-  }
-
-  .batch-card-footer {
-    padding: 14px 22px;
-    background: #0a0a0a;
-    border-top: 1px solid rgba(255,255,255,.06);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-
-  .batch-total {
-    font-size: 14px;
-    color: #a0a0a0;
-  }
-
-  .batch-total strong {
-    font-size: 18px;
-    font-weight: 800;
-    color: var(--color-text);
-  }
-
-  /* ── Recurrentes sub-tabs ─────────────────────────── */
-  .recur-subtab {
-    padding: 7px 16px;
-    border-radius: var(--radius-full);
-    border: 1px solid rgba(255,255,255,.1);
-    background: #111;
-    font-size: 13px;
-    font-weight: 700;
-    color: #a0a0a0;
-    cursor: pointer;
-    transition: background .15s, color .15s, border-color .15s;
-    font-family: inherit;
-    white-space: nowrap;
-  }
-
-  .recur-subtab.active {
-    background: var(--color-primary);
-    color: var(--color-text-inverse);
-    border-color: var(--color-primary);
-  }
-
-  .recur-subtab.active .my-tab-count {
-    background: rgba(255,255,255,.25);
+  @media (max-width: 760px) {
+    .my-page { padding: 24px 18px 60px; }
+    .my-head { flex-direction: column; align-items: flex-start; }
+    .my-stats { grid-template-columns: 1fr; }
+    .my-turn-head { grid-template-columns: 56px 1fr; gap: 14px; }
+    .my-turn-cta { grid-column: 1 / -1; }
+    .my-turn-body { grid-template-columns: 1fr; gap: 18px; }
+    .my-card { grid-template-columns: 32px 1fr; gap: 10px; }
+    .my-card-aside { grid-column: 1 / -1; flex-wrap: wrap; }
+    .my-recurring-head { grid-template-columns: 1fr; gap: 12px; }
+    .my-recurring-amount { text-align: left; }
+    .my-fu { grid-template-columns: 32px 1fr; }
+    .my-fu-roster, .my-fu-cta { grid-column: 1 / -1; }
   }
 </style>
 @endpush
 
 @section('content')
-  <div class="page-card" style="margin-bottom:22px;">
-    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;">
-      <div>
-        <h1 style="margin:0 0 8px 0; font-size:34px; letter-spacing:-0.02em;">Mi actividad</h1>
-        <p class="muted" style="margin:0;">
-          Tus turnos, partidos Falta Uno y actividad reciente.
-        </p>
-      </div>
+<div class="my-scope">
+<div class="my-page">
 
-      <div>
-        <a href="{{ route('venues.index') }}" class="btn btn-primary">Explorar complejos</a>
+  {{-- ═══ HEAD ═══ --}}
+  <div class="my-head">
+    <div>
+      <div class="my-eyebrow">MI CUENTA · ACTIVIDAD</div>
+      <h1 class="my-title">Mi <b>actividad</b></h1>
+      <p class="my-sub">Tus turnos reservados, partidos recurrentes y la actividad en Falta&nbsp;Uno, todo en un solo lugar.</p>
+    </div>
+    <a class="my-cta-new" href="{{ route('venues.index') }}">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+      Reservar nuevo
+    </a>
+  </div>
+
+  {{-- ═══ STATS ═══ --}}
+  <div class="my-stats">
+    <div class="my-stat">
+      <div class="my-stat-k"><span class="my-stat-ico"></span>PRÓXIMOS TURNOS</div>
+      <div class="my-stat-v">{{ $upcomingCount }}</div>
+      <div class="my-stat-meta">
+        @if($nextReservation)
+          Próximo: <b>{{ $nextReservation->start_at->locale('es')->isoFormat('ddd D [a las] HH:mm') }}</b>
+        @else
+          Sin próximos turnos
+        @endif
+      </div>
+    </div>
+    <div class="my-stat">
+      <div class="my-stat-k"><span class="my-stat-ico purple"></span>RECURRENTES ACTIVOS</div>
+      <div class="my-stat-v">{{ $activeSubsCount }}</div>
+      <div class="my-stat-meta">
+        @if($nextActiveSub)
+          {{ $sportLabel($nextActiveSub->field->sport ?? '') }} · <b>{{ $nextActiveSub->start_time ? substr($nextActiveSub->start_time, 0, 5) : '' }}</b>
+        @else
+          Sin abonos activos
+        @endif
+      </div>
+    </div>
+    <div class="my-stat">
+      <div class="my-stat-k"><span class="my-stat-ico blue"></span>FALTA UNO · ESTE MES</div>
+      <div class="my-stat-v">{{ $fuMonthCount }}<sub>{{ $fuMonthCount === 1 ? 'partido' : 'partidos' }}</sub></div>
+      <div class="my-stat-meta">
+        @if($fuMonthWins + $fuMonthLosses + $fuMonthDraws > 0)
+          <b class="up">{{ $fuMonthWins }} {{ $fuMonthWins === 1 ? 'victoria' : 'victorias' }}</b>
+          @if($fuMonthLosses > 0) · {{ $fuMonthLosses }} {{ $fuMonthLosses === 1 ? 'derrota' : 'derrotas' }} @endif
+        @else
+          Sin resultados cargados
+        @endif
+      </div>
+    </div>
+    <div class="my-stat">
+      <div class="my-stat-k"><span class="my-stat-ico warn"></span>TOTAL JUGADO</div>
+      <div class="my-stat-v">{{ $totalHoursPlayed }}<sub>hs</sub></div>
+      <div class="my-stat-meta">
+        Desde {{ $memberSince->locale('es')->isoFormat('MMMM') }}
+        @if($userRanking) · <b>{{ $categoryLabel($userRanking) }}</b> @endif
       </div>
     </div>
   </div>
 
-  {{-- ── Tabs ──────────────────────────────────────────────────────── --}}
-  <div class="my-tabs">
-    <button class="my-tab active" onclick="switchTab('individual', this)">
-      Mis turnos
-      <span class="my-tab-count">{{ $reservations->count() }}</span>
+  {{-- ═══ TABS ═══ --}}
+  <div class="my-tabs" role="tablist">
+    <button class="my-tab active" data-panel="turnos" type="button">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      Mis turnos <span class="count">{{ $reservations->count() }}</span>
     </button>
-    <button class="my-tab" onclick="switchTab('recurrentes', this)">
-      Recurrentes
-      <span class="my-tab-count">{{ $batches->count() + $recurringSubscriptions->count() }}</span>
+    <button class="my-tab" data-panel="rec" type="button">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12a9 9 0 1 1-3.5-7"/><path d="M21 5v6h-6"/></svg>
+      Recurrentes <span class="count">{{ $recurringSubscriptions->count() + $batches->count() }}</span>
     </button>
-    <button class="my-tab" onclick="switchTab('faltauno', this)" style="display:inline-flex;align-items:center;gap:6px;">
-      <i data-lucide="zap" style="width:14px;height:14px;stroke:currentColor;"></i> Falta Uno
-      <span class="my-tab-count">{{ $misPartidos->count() }}</span>
+    <button class="my-tab" data-panel="fu" type="button">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+      Falta Uno <span class="count">{{ $misPartidos->count() }}</span>
     </button>
   </div>
 
-  {{-- Banner partidos sin calificar --}}
-  @if($pendingRatingsCount > 0)
-    <div style="background:rgba(245,158,11,.08); border:1.5px solid rgba(245,158,11,.2); border-radius:14px; padding:14px 18px; margin-bottom:20px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;" data-aos="fade-down">
-      <i data-lucide="star" style="width:20px;height:20px;stroke:#fbbf24;stroke-width:2;flex-shrink:0;"></i>
-      <div style="flex:1; min-width:180px;">
-        <div style="font-size:14px; font-weight:700; color:#fbbf24;">
-          Tenes {{ $pendingRatingsCount }} partido{{ $pendingRatingsCount > 1 ? 's' : '' }} sin calificar
+  {{-- ═══ BODY ═══ --}}
+  <div class="my-body">
+
+    <div class="my-main">
+
+      {{-- ═══ PANEL: MIS TURNOS ═══ --}}
+      <div class="my-panel on" id="my-panel-turnos">
+
+        <div class="my-subfilters">
+          <button type="button" class="my-sub-chip active" data-filter="upcoming">Próximos <span style="opacity:.6">{{ $upcoming->count() }}</span></button>
+          <button type="button" class="my-sub-chip" data-filter="past">Pasados <span style="opacity:.6">{{ $past->count() }}</span></button>
+          <button type="button" class="my-sub-chip" data-filter="cancelled">Cancelados <span style="opacity:.6">{{ $cancelled->count() }}</span></button>
+          @if($pendingPay->count())
+            <span class="my-sub-divider"></span>
+            <button type="button" class="my-sub-chip" data-filter="pending">Pago pendiente <span style="opacity:.6">{{ $pendingPay->count() }}</span></button>
+          @endif
         </div>
-        <div style="font-size:12px; color:#fbbf24; margin-top:2px;">Califica a tus companeros para mejorar la experiencia de todos.</div>
-      </div>
-      <a href="{{ route('falta-uno.show', $pendingRatingGames->first()) }}" style="display:inline-flex; align-items:center; gap:5px; font-size:13px; font-weight:700; color:#fff; background:#d97706; padding:8px 16px; border-radius:10px; text-decoration:none; white-space:nowrap;">
-        Calificar <i data-lucide="arrow-right" style="width:14px;height:14px;stroke:currentColor;"></i>
-      </a>
-    </div>
-  @endif
 
-  {{-- ── Panel: turnos individuales ────────────────────────────────── --}}
-  <div id="panel-individual" class="tab-panel active">
-    @if($reservations->isEmpty())
-      <div class="page-card" style="text-align:center; padding:48px 24px;">
-        <div style="width:72px; height:72px; margin:0 auto 18px; background:linear-gradient(135deg, rgba(34,197,94,.1), rgba(34,197,94,.15)); border-radius:50%; display:flex; align-items:center; justify-content:center;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
-        </div>
-        <h3 style="margin:0 0 8px; font-size:18px; font-weight:800; letter-spacing:-0.01em;">Todavía no tenés turnos</h3>
-        <p class="muted" style="margin:0 0 20px; max-width:340px; margin-left:auto; margin-right:auto; line-height:1.6; font-size:14px;">
-          Buscá un complejo cerca tuyo, elegí la cancha y el horario que te guste, y reservá en segundos.
-        </p>
-        <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
-          <a href="{{ route('venues.index') }}" style="display:inline-flex; align-items:center; gap:6px; padding:10px 20px; background:#111; color:#fff; border-radius:12px; font-size:14px; font-weight:700; text-decoration:none;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-            Buscar cancha
-          </a>
-          <a href="{{ route('match_history') }}" style="display:inline-flex; align-items:center; gap:6px; padding:10px 20px; background:rgba(255,255,255,.04); color:#a0a0a0; border:1.5px solid rgba(255,255,255,.08); border-radius:12px; font-size:14px; font-weight:600; text-decoration:none;">
-            Ver historial
-          </a>
-        </div>
-      </div>
-    @else
-      <div class="grid" style="grid-template-columns:repeat(auto-fit, minmax(min(340px, 100%), 1fr));">
-        @foreach($reservations as $r)
-          <article class="venue-card" style="border-radius:18px;">
-            <div class="venue-card-body" style="padding:20px;">
-              <div style="display:flex; justify-content:space-between; gap:12px; align-items:flex-start; flex-wrap:wrap;">
-                <div>
-                  <div style="font-size:12px; color:#a0a0a0; margin-bottom:6px;">
-                    Reserva #{{ $r->id }}
-                  </div>
-
-                  <h3 style="margin:0 0 6px 0; font-size:22px;">
-                    {{ $r->field->name }}
-                  </h3>
-
-                  <div class="muted">
-                    {{ $r->field->venue->name }}
-                  </div>
-                </div>
-
-                <span
-                  id="status-badge-{{ $r->id }}"
-                  style="padding:6px 12px; border-radius:999px; font-weight:700; font-size:13px; {{ ReservationStatus::color($r->status) }}"
-                >
-                  {{ ReservationStatus::label($r->status) }}
-                </span>
+        {{-- Sub-panel: Próximos --}}
+        <div data-subpanel="upcoming">
+          @if($upcoming->isEmpty())
+            <div class="my-empty">
+              <div class="my-empty-ico">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
               </div>
-
-              <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;">
-                <span class="badge">{{ $r->start_at->format('d/m/Y') }}</span>
-                <span class="badge">{{ $r->start_at->format('H:i') }} - {{ $r->end_at->format('H:i') }}</span>
-                <span class="badge">{{ $r->currency }} {{ number_format($r->total_amount, 0, ',', '.') }}</span>
-              </div>
-
-              @if($r->verification_code && $r->status === 'PAID')
-                <div class="page-card" style="margin-top:14px; padding:14px; border-radius:14px;">
-                  <div style="font-size:12px; color:#a0a0a0; margin-bottom:4px;">Código de verificación</div>
-                  <div style="font-size:24px; font-weight:800; letter-spacing:0.06em;">
-                    {{ $r->verification_code }}
+              <h3>Sin turnos próximos</h3>
+              <p>Cuando reserves una cancha vas a verla acá. Empezá explorando complejos cerca tuyo.</p>
+              <a class="my-btn my-btn-prim" href="{{ route('venues.index') }}">Explorar complejos</a>
+            </div>
+          @else
+            @foreach([
+              ['title' => 'Mañana', 'icon' => '', 'items' => $upTomorrow],
+              ['title' => 'Esta semana', 'icon' => '', 'items' => $upWeek],
+              ['title' => 'Más adelante', 'icon' => '', 'items' => $upLater],
+            ] as $bucket)
+              @if($bucket['items']->count())
+                <div class="my-timeline">
+                  <div class="my-timeline-head">
+                    <h2><span class="dot"></span>{{ $bucket['title'] }}</h2>
+                    <span class="ct">{{ $bucket['items']->count() }} {{ $bucket['items']->count() === 1 ? 'turno' : 'turnos' }}</span>
+                    <div class="ln"></div>
                   </div>
+
+                  @foreach($bucket['items'] as $r)
+                    @php
+                      [$badgeClass, $badgeText] = $statusBadge($r->status);
+                      $venue = $r->field->venue;
+                      $cancelHrs = $venue->cancellation_hours;
+                      $deadline = $cancelHrs !== null ? $r->start_at->copy()->subHours($cancelHrs) : null;
+                      $canCancel = $r->status === 'PAID' && $deadline && now()->lt($deadline);
+                      $mapsUrl = $venue->lat && $venue->lng
+                        ? "https://www.google.com/maps/search/?api=1&query={$venue->lat},{$venue->lng}"
+                        : "https://www.google.com/maps/search/?api=1&query=" . urlencode(($venue->address ?? '') . ', ' . ($venue->zone ?? ''));
+                    @endphp
+                    <article class="my-turn">
+                      <div class="my-turn-head">
+                        <div class="my-turn-date">
+                          <span class="day">{{ ucfirst($r->start_at->locale('es')->isoFormat('ddd')) }}</span>
+                          <span class="d">{{ $r->start_at->format('d') }}</span>
+                          <span class="m">{{ $r->start_at->locale('es')->isoFormat('MMM') }}</span>
+                        </div>
+                        <div class="my-turn-info">
+                          <div class="my-turn-title">
+                            {{ $r->field->name }} · {{ $sportLabel($r->field->sport) }}
+                            <span class="my-tag {{ $badgeClass }}">{{ $badgeText }}</span>
+                          </div>
+                          <div class="my-turn-meta">
+                            <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> {{ $r->start_at->format('H:i') }} — {{ $r->end_at->format('H:i') }}</span>
+                            <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-7 8-13a8 8 0 0 0-16 0c0 6 8 13 8 13z"/></svg> {{ $venue->name }} @if($venue->zone)· <b>{{ $venue->zone }}</b>@endif</span>
+                          </div>
+                        </div>
+                        <div class="my-turn-cta">
+                          <a class="my-btn my-btn-ghost" href="{{ $mapsUrl }}" target="_blank" rel="noopener">Cómo llegar</a>
+                          @if($r->status === 'PENDING_PAYMENT')
+                            <a class="my-btn my-btn-warn" href="{{ route('reservations.checkout', $r) }}">Pagar ahora</a>
+                          @elseif($canCancel)
+                            <form method="POST" action="{{ route('reservations.cancel', $r) }}" onsubmit="return confirm('¿Cancelar esta reserva?')" style="display:inline-flex;">
+                              @csrf
+                              <button type="submit" class="my-btn my-btn-danger-ghost">Cancelar</button>
+                            </form>
+                          @endif
+                          <a class="my-btn my-btn-prim" href="{{ route('reservations.show', $r) }}">Ver detalle</a>
+                        </div>
+                      </div>
+                      <div class="my-turn-body">
+                        <div>
+                          <div class="my-turn-payment-head">CÓDIGO DE TURNO</div>
+                          <div class="my-turn-code-row">
+                            <div class="my-turn-code">
+                              {{ $r->verification_code ?? '—' }}
+                              @if($r->verification_code)
+                                <button type="button" class="my-turn-code-copy" title="Copiar" onclick="navigator.clipboard.writeText('{{ $r->verification_code }}'); this.querySelector('svg').style.color='var(--my-accent)'; setTimeout(()=>this.querySelector('svg').style.color='',1200)">
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                </button>
+                              @endif
+                            </div>
+                          </div>
+                          <div class="my-turn-payment-status">
+                            @if($r->status === 'PAID')
+                              <span class="dot"></span>Mostrá este código en recepción · pago confirmado
+                            @elseif($r->status === 'PENDING_CASH')
+                              <span class="dot pending"></span>Vas a pagar en efectivo en el complejo
+                            @elseif($r->status === 'PENDING_PAYMENT')
+                              <span class="dot pending"></span>
+                              @if($r->expires_at)
+                                Te quedan <b style="color:var(--my-warn)">{{ $r->expires_at->diffForHumans(now(), ['parts' => 1]) }}</b> para pagar antes de que se libere
+                              @else
+                                Pago pendiente
+                              @endif
+                            @endif
+                          </div>
+                        </div>
+                        <div>
+                          <div class="my-turn-payment-head">DETALLES</div>
+                          <div class="my-turn-tags">
+                            @if($r->total_amount)
+                              <span class="my-tag">${{ number_format($r->total_amount, 0, ',', '.') }}</span>
+                            @endif
+                            @if($r->field->format)
+                              <span class="my-tag">{{ $r->field->format }}v{{ $r->field->format }}</span>
+                            @endif
+                            @if($r->field->is_indoor)
+                              <span class="my-tag">Cubierta</span>
+                            @endif
+                            <span class="my-tag">{{ $sportLabel($r->field->sport) }}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+                  @endforeach
                 </div>
               @endif
-
-              <div id="reservation-meta-{{ $r->id }}" style="margin-top:12px; font-size:13px;">
-                @if($r->status === 'PENDING_PAYMENT' && (!$r->expires_at || $r->expires_at->isFuture()))
-                  <div style="color:#fbbf24;">
-                    <div>
-                      Pendiente de pago
-                      @if($r->expires_at)
-                        — vence {{ $r->expires_at->format('d/m/Y H:i') }}
-                      @endif
-                    </div>
-
-                    @if($r->expires_at)
-                      <div id="countdown-{{ $r->id }}" style="margin-top:6px; font-weight:700;"></div>
-                    @endif
-                  </div>
-                @elseif($r->status === 'PENDING_CASH')
-                  <div style="color:#93c5fd; font-weight:700;">Pago en el complejo — recorda pagar al llegar.</div>
-                @elseif($r->status === 'EXPIRED')
-                  <div style="color:#f87171; font-weight:700;">Reserva vencida por falta de pago.</div>
-                @elseif($r->status === 'CANCELLED')
-                  <div style="color:#f87171; font-weight:700;">Reserva cancelada.</div>
-                @elseif($r->status === 'PAID')
-                  <div style="color:#6ee7a0; font-weight:700;">Reserva pagada correctamente.</div>
-                @endif
-
-                @if($r->payment_status)
-                  <div class="muted" style="margin-top:6px;">
-                    Estado de pago: <strong>{{ $r->payment_status }}</strong>
-                  </div>
-                @endif
-              </div>
-
-              <div id="actions-wrap-{{ $r->id }}" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
-                <a href="{{ route('reservations.show', $r) }}" class="btn">Ver detalle</a>
-
-                @if($r->status === 'PENDING_PAYMENT' && (!$r->expires_at || $r->expires_at->isFuture()))
-                  <span id="pay-btn-wrap-{{ $r->id }}">
-                    <a href="{{ route('reservations.checkout', $r) }}" class="btn btn-primary">Pagar</a>
-                  </span>
-                @endif
-
-                @if(in_array($r->status, ['PENDING_PAYMENT','PENDING_CASH','PAID']))
-                  @php
-                    $cancellationHours = $r->field->venue->cancellation_hours ?? null;
-                    $canCancel = in_array($r->status, ['PENDING_PAYMENT', 'PENDING_CASH'])
-                        || $cancellationHours === null
-                        || now()->isBefore($r->start_at->copy()->subHours($cancellationHours));
-                  @endphp
-
-                  @if($canCancel)
-                    <form method="POST" action="{{ route('reservations.cancel', $r) }}" style="margin:0;">
-                      @csrf
-                      <button type="submit" class="btn">Cancelar</button>
-                    </form>
-                  @else
-                    <span class="badge" style="background:rgba(245,158,11,.08); color:#fbbf24; border-color:rgba(245,158,11,.2); font-size:12px;">
-                      Cancelación no disponible — venció el plazo de {{ $cancellationHours }}h
-                    </span>
-                  @endif
-                @endif
-
-                @if($r->status === 'PAID' && $r->batch_id === null && $r->start_at->isFuture())
-                  @php
-                    $modHours = $r->field->venue->modification_hours ?? null;
-                    $canModify = $modHours !== null && now()->isBefore($r->start_at->copy()->subHours($modHours));
-                  @endphp
-                  @if($canModify)
-                    <a href="{{ route('reservations.modify.show', $r) }}" class="btn btn-primary">Cambiar horario</a>
-                  @endif
-                @endif
-
-                @if(in_array($r->status, ['EXPIRED', 'CANCELLED']))
-                  <a href="{{ route('fields.show', $r->field) }}" class="btn btn-primary">Volver a la cancha</a>
-                @endif
-              </div>
-            </div>
-          </article>
-        @endforeach
-      </div>
-    @endif
-
-    <div style="text-align:center; margin-top:20px;">
-      <a href="{{ route('match_history') }}" style="display:inline-flex; align-items:center; gap:6px; font-size:14px; font-weight:600; color:#16a34a; text-decoration:none;" onmouseover="this.style.color='#15803d'" onmouseout="this.style.color='#16a34a'">
-        <i data-lucide="history" style="width:15px;height:15px;stroke:currentColor;"></i> Ver historial completo de partidos
-      </a>
-    </div>
-  </div>
-
-  {{-- ── Panel: reservas recurrentes ────────────────────────────────── --}}
-  <div id="panel-recurrentes" class="tab-panel">
-    @if($recurringSubscriptions->isEmpty() && $batches->isEmpty())
-      <div class="page-card" style="text-align:center; padding:36px 24px;">
-        <div style="margin-bottom:10px;"><i data-lucide="refresh-cw" style="width:36px;height:36px;stroke:#22c55e;stroke-width:1.5;"></i></div>
-        <h3 style="margin:0 0 8px;">No tenés reservas recurrentes</h3>
-        <p class="muted" style="margin-bottom:14px;">
-          Cuando reserves un turno recurrente (semanal o quincenal), aparece acá.
-        </p>
-        <a href="{{ route('venues.index') }}" class="btn btn-primary">Ver complejos</a>
-      </div>
-    @else
-      {{-- Sub-tabs dentro de Recurrentes --}}
-      <div class="recur-subtabs" style="display:flex; gap:6px; margin-bottom:20px;">
-        <button class="recur-subtab active" onclick="switchRecurSubtab('suscripciones', this)">
-          Suscripciones
-          <span class="my-tab-count">{{ $recurringSubscriptions->count() }}</span>
-        </button>
-        <button class="recur-subtab" onclick="switchRecurSubtab('paquetes', this)">
-          Pago único
-          <span class="my-tab-count">{{ $batches->count() }}</span>
-        </button>
-      </div>
-
-      {{-- ── Sub-panel: Suscripciones ── --}}
-      <div id="recur-sub-suscripciones" class="recur-subpanel">
-        @if($recurringSubscriptions->isEmpty())
-          <div class="page-card" style="text-align:center; padding:40px 20px;">
-            <div style="font-size:28px; margin-bottom:10px;">📅</div>
-            <p style="font-weight:700; font-size:15px; margin:0 0 6px;">No tenés suscripciones activas</p>
-            <p class="muted" style="margin:0 0 16px; font-size:13px; max-width:300px; margin-left:auto; margin-right:auto; line-height:1.5;">
-              Con una suscripción reservás tu turno fijo semanal o quincenal de forma automática.
-            </p>
-            <a href="{{ route('venues.index') }}" style="display:inline-flex; align-items:center; gap:5px; font-size:13px; font-weight:700; color:#16a34a; text-decoration:none;">
-              Explorar complejos con turnos recurrentes →
-            </a>
-          </div>
-        @else
-          <div style="display:grid; gap:16px;">
-            @foreach($recurringSubscriptions as $sub)
-              @php
-                $badgeStyle = match($sub->status) {
-                  'ACTIVE'          => 'background:rgba(34,197,94,.1); color:#6ee7a0;',
-                  'PENDING_PAYMENT' => 'background:rgba(245,158,11,.08); color:#fbbf24;',
-                  'FAILED'          => 'background:rgba(229,57,53,.1); color:#f87171;',
-                  default           => 'background:rgba(255,255,255,.04); color:#666;',
-                };
-              @endphp
-              <div class="batch-card">
-                <div class="batch-card-header">
-                  <div>
-                    <h3 class="batch-card-title">{{ $sub->field->name }}</h3>
-                    <div class="batch-card-meta">
-                      {{ $sub->field->venue->name }}
-                    </div>
-                    <div class="batch-card-meta" style="margin-top:4px;">
-                      Turno: {{ $sub->dayLabel() }} {{ \Carbon\Carbon::parse($sub->start_time)->format('H:i') }} &middot; {{ $sub->frequencyLabel() }}
-                    </div>
-                    <div class="batch-card-meta" style="margin-top:2px;">
-                      Monto mensual: <strong style="color:#e8e8e8;">${{ number_format($sub->monthly_amount, 0, ',', '.') }} {{ $sub->currency }}</strong>
-                    </div>
-                  </div>
-                  <span style="padding:6px 14px; border-radius:999px; font-weight:700; font-size:13px; {{ $badgeStyle }} flex-shrink:0;">
-                    {{ $sub->statusLabel() }}
-                  </span>
-                </div>
-
-                @php
-                  $subReservations = $sub->reservations
-                      ->where('status', '!=', 'CANCELLED')
-                      ->where('start_at', '>=', now()->subDay());
-                @endphp
-
-                @if($subReservations->isNotEmpty())
-                  <div class="batch-slots">
-                    <div style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:#666; padding:10px 0 6px;">
-                      Turnos reservados
-                    </div>
-                    @foreach($subReservations->take(8) as $slot)
-                      <div class="batch-slot">
-                        <div class="batch-slot-date">
-                          {{ $slot->start_at->locale('es')->isoFormat('ddd DD/MM') }}
-                        </div>
-                        <div class="batch-slot-time">
-                          {{ $slot->start_at->format('H:i') }} – {{ $slot->end_at->format('H:i') }}
-                        </div>
-                        <span style="padding:3px 10px; border-radius:999px; font-size:12px; font-weight:700; {{ ReservationStatus::color($slot->status) }}">
-                          {{ ReservationStatus::label($slot->status) }}
-                        </span>
-                        @if($slot->verification_code && $slot->status === 'PAID')
-                          <span class="batch-slot-code">{{ $slot->verification_code }}</span>
-                        @endif
-                      </div>
-                    @endforeach
-                  </div>
-                @elseif($sub->status === 'ACTIVE')
-                  @php $proximas = $sub->nextOccurrences(4); @endphp
-                  <div class="batch-slots">
-                    <div style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:#666; padding:10px 0 6px;">
-                      Próximos turnos (pendientes de generación)
-                    </div>
-                    @foreach($proximas as $fecha)
-                      <div class="batch-slot">
-                        <div class="batch-slot-date">
-                          {{ $fecha->locale('es')->isoFormat('ddd DD/MM') }}
-                        </div>
-                        <div class="batch-slot-time">
-                          {{ $fecha->format('H:i') }}
-                        </div>
-                      </div>
-                    @endforeach
-                  </div>
-                @endif
-
-                @if(in_array($sub->status, ['ACTIVE', 'PENDING_PAYMENT']))
-                  <div class="batch-card-footer">
-                    <div></div>
-                    <form method="POST" action="{{ route('recurring.subscription.cancel', $sub) }}" style="margin:0;"
-                          onsubmit="return confirm('¿Cancelar esta suscripción? Se dejarán de generar reservas automáticamente.')">
-                      @csrf
-                      <button type="submit" class="btn">Cancelar suscripción</button>
-                    </form>
-                  </div>
-                @endif
-              </div>
             @endforeach
-          </div>
-        @endif
-      </div>
+          @endif
+        </div>
 
-      {{-- ── Sub-panel: Paquetes pago único ── --}}
-      <div id="recur-sub-paquetes" class="recur-subpanel" style="display:none;">
-        @if($batches->isEmpty())
-          <div class="page-card" style="text-align:center; padding:40px 20px;">
-            <div style="font-size:28px; margin-bottom:10px;">📦</div>
-            <p style="font-weight:700; font-size:15px; margin:0 0 6px;">No tenés paquetes de pago único</p>
-            <p class="muted" style="margin:0 0 16px; font-size:13px; max-width:300px; margin-left:auto; margin-right:auto; line-height:1.5;">
-              Algunos complejos ofrecen paquetes de varios turnos con descuento. Pagás todo junto y listo.
-            </p>
-            <a href="{{ route('venues.index') }}" style="display:inline-flex; align-items:center; gap:5px; font-size:13px; font-weight:700; color:#16a34a; text-decoration:none;">
-              Buscar complejos →
-            </a>
-          </div>
-        @else
-          @foreach($batches as $batch)
-            @php
-              $batchReservations = $batch->reservations;
-              $firstSlot  = $batchReservations->first();
-              $lastSlot   = $batchReservations->last();
-              $paid       = $batchReservations->where('status', 'PAID')->count();
-              $total      = $batchReservations->count();
-              $hasPending = $batchReservations->where('status', 'PENDING_PAYMENT')
-                              ->filter(fn($r) => !$r->expires_at || $r->expires_at->isFuture())
-                              ->isNotEmpty();
-
-              if ($paid > 0) {
-                  $effectiveStatus = 'PAID';
-              } elseif ($hasPending) {
-                  $effectiveStatus = 'PENDING_PAYMENT';
-              } else {
-                  $effectiveStatus = 'CANCELLED';
-              }
-            @endphp
-
-            <div class="batch-card">
-              <div class="batch-card-header">
-                <div>
-                  <h3 class="batch-card-title">{{ $batch->field->name }}</h3>
-                  <div class="batch-card-meta">
-                    {{ $batch->field->venue->name }}
-                    @if($firstSlot && $lastSlot)
-                      &nbsp;·&nbsp;
-                      {{ $firstSlot->start_at->format('d/m/Y') }}
-                      →
-                      {{ $lastSlot->start_at->format('d/m/Y') }}
-                    @endif
-                  </div>
-
-                  @if($batch->discount_percentage > 0)
-                    <span class="batch-discount-badge">
-                      {{ number_format($batch->discount_percentage, 0) }}% de descuento aplicado
-                    </span>
-                  @endif
-                </div>
-
-                <span style="padding:6px 12px; border-radius:999px; font-weight:700; font-size:13px; {{ ReservationStatus::color($effectiveStatus) }}">
-                  {{ ReservationStatus::label($effectiveStatus) }}
-                </span>
+        {{-- Sub-panel: Pasados --}}
+        <div data-subpanel="past" style="display:none;">
+          @if($past->isEmpty())
+            <div class="my-empty">
+              <div class="my-empty-ico">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
               </div>
-
-              <div class="batch-slots">
-                @foreach($batchReservations as $slot)
-                  <div class="batch-slot">
-                    <div class="batch-slot-date">
-                      {{ $slot->start_at->locale('es')->isoFormat('ddd D MMM YYYY') }}
+              <h3>Aún no jugaste ningún turno</h3>
+              <p>Una vez que pase tu primer reserva, va a aparecer en el historial.</p>
+            </div>
+          @else
+            <div class="my-timeline">
+              <div class="my-timeline-head">
+                <h2 class="history"><span class="dot"></span>Historial</h2>
+                <span class="ct">últimas {{ $past->count() }}</span>
+                <div class="ln"></div>
+              </div>
+              @foreach($past as $r)
+                <article class="my-card">
+                  <div class="my-card-ico history">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">{!! $sportIcon($r->field->sport) !!}</svg>
+                  </div>
+                  <div class="my-card-main">
+                    <div class="my-card-title-row">
+                      <span class="my-card-title">{{ $r->field->name }} · {{ $sportLabel($r->field->sport) }}</span>
+                      <span class="my-tag muted">Jugado</span>
                     </div>
-                    <div class="batch-slot-time">
-                      {{ $slot->start_at->format('H:i') }} – {{ $slot->end_at->format('H:i') }}
+                    <div class="my-card-meta">
+                      <span>{{ ucfirst($r->start_at->locale('es')->isoFormat('ddd')) }} <b>{{ $r->start_at->format('d') }}</b> {{ $r->start_at->locale('es')->isoFormat('MMM') }} · <b>{{ $r->start_at->format('H:i') }}</b></span>
+                      <span class="sep"></span>
+                      <span>{{ $r->field->venue->name }} @if($r->field->venue->zone)· {{ $r->field->venue->zone }}@endif</span>
                     </div>
-                    <div style="flex:1; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                      <span style="padding:3px 10px; border-radius:999px; font-size:12px; font-weight:700; {{ ReservationStatus::color($slot->status) }}">
-                        {{ ReservationStatus::label($slot->status) }}
-                      </span>
+                  </div>
+                  <div class="my-card-aside">
+                    <a class="my-btn my-btn-ghost" href="{{ route('venues.show', $r->field->venue) }}">Reservar igual</a>
+                    <a class="my-btn my-btn-ghost" href="{{ route('reservations.show', $r) }}">Ver detalle</a>
+                  </div>
+                </article>
+              @endforeach
+            </div>
+          @endif
+        </div>
 
-                      @if($slot->verification_code && $slot->status === 'PAID')
-                        <span class="batch-slot-code">{{ $slot->verification_code }}</span>
+        {{-- Sub-panel: Cancelados --}}
+        <div data-subpanel="cancelled" style="display:none;">
+          @if($cancelled->isEmpty())
+            <div class="my-empty">
+              <div class="my-empty-ico" style="background:rgba(248,113,113,.08); color:var(--my-danger);">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 14.14 14.14"/></svg>
+              </div>
+              <h3>Sin reservas canceladas</h3>
+              <p>Las reservas que canceles o que expiren van a aparecer acá.</p>
+            </div>
+          @else
+            <div class="my-timeline">
+              <div class="my-timeline-head">
+                <h2 class="cancel"><span class="dot"></span>Canceladas / expiradas</h2>
+                <span class="ct">{{ $cancelled->count() }}</span>
+                <div class="ln"></div>
+              </div>
+              @foreach($cancelled as $r)
+                @php [$bClass, $bText] = $statusBadge($r->status); @endphp
+                <article class="my-card cancelled">
+                  <div class="my-card-ico cancel">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 14.14 14.14"/></svg>
+                  </div>
+                  <div class="my-card-main">
+                    <div class="my-card-title-row">
+                      <span class="my-card-title">{{ $r->field->name }} · {{ $sportLabel($r->field->sport) }}</span>
+                      <span class="my-tag {{ $bClass }}">{{ $bText }}</span>
+                    </div>
+                    <div class="my-card-meta">
+                      <span>{{ ucfirst($r->start_at->locale('es')->isoFormat('ddd')) }} <b>{{ $r->start_at->format('d') }}</b> {{ $r->start_at->locale('es')->isoFormat('MMM') }} · <b>{{ $r->start_at->format('H:i') }}</b></span>
+                      <span class="sep"></span>
+                      <span>{{ $r->field->venue->name }}</span>
+                    </div>
+                  </div>
+                  <div class="my-card-aside">
+                    <a class="my-btn my-btn-ghost" href="{{ route('reservations.show', $r) }}">Ver detalle</a>
+                  </div>
+                </article>
+              @endforeach
+            </div>
+          @endif
+        </div>
+
+        {{-- Sub-panel: Pago pendiente --}}
+        @if($pendingPay->count())
+          <div data-subpanel="pending" style="display:none;">
+            <div class="my-timeline">
+              <div class="my-timeline-head">
+                <h2><span class="dot" style="background:var(--my-warn);"></span>Pago pendiente</h2>
+                <span class="ct">{{ $pendingPay->count() }}</span>
+                <div class="ln"></div>
+              </div>
+              @foreach($pendingPay as $r)
+                <article class="my-card">
+                  <div class="my-card-ico" style="background:rgba(245,193,122,.08); color:var(--my-warn);">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                  </div>
+                  <div class="my-card-main">
+                    <div class="my-card-title-row">
+                      <span class="my-card-title">{{ $r->field->name }} · {{ $sportLabel($r->field->sport) }}</span>
+                      <span class="my-tag warn">Pago pendiente</span>
+                    </div>
+                    <div class="my-card-meta">
+                      <span>{{ ucfirst($r->start_at->locale('es')->isoFormat('ddd')) }} <b>{{ $r->start_at->format('d') }}</b> {{ $r->start_at->locale('es')->isoFormat('MMM') }} · <b>{{ $r->start_at->format('H:i') }}</b></span>
+                      @if($r->expires_at)
+                        <span class="sep"></span>
+                        <span>Vence {{ $r->expires_at->diffForHumans() }}</span>
                       @endif
                     </div>
                   </div>
-                @endforeach
-              </div>
-
-              <div class="batch-card-footer">
-                <div class="batch-total">
-                  @if($batch->discount_percentage > 0)
-                    <span style="color:#a0a0a0; font-size:13px; text-decoration:line-through; margin-right:6px;">
-                      {{ $batch->currency }} {{ number_format($batch->subtotal, 0, ',', '.') }}
-                    </span>
-                  @endif
-                  <strong>{{ $batch->currency }} {{ number_format($batch->total_amount, 0, ',', '.') }}</strong>
-                  <span style="color:#a0a0a0; font-size:13px;"> · {{ $paid }}/{{ $total }} turnos confirmados</span>
-                </div>
-
-                <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                  @if($effectiveStatus === 'PENDING_PAYMENT')
-                    <a href="{{ route('batches.checkout', $batch) }}" class="btn btn-primary">Pagar paquete</a>
-                  @endif
-                </div>
-              </div>
+                  <div class="my-card-aside">
+                    <a class="my-btn my-btn-warn" href="{{ route('reservations.checkout', $r) }}">Pagar</a>
+                  </div>
+                </article>
+              @endforeach
             </div>
+          </div>
+        @endif
+
+      </div>
+
+      {{-- ═══ PANEL: RECURRENTES ═══ --}}
+      <div class="my-panel" id="my-panel-rec">
+        <div class="my-subfilters">
+          <button type="button" class="my-sub-chip active" data-rec-filter="active">Activos <span style="opacity:.6">{{ $subsActive->count() }}</span></button>
+          <button type="button" class="my-sub-chip" data-rec-filter="paused">Pausados <span style="opacity:.6">{{ $subsPaused->count() }}</span></button>
+          <button type="button" class="my-sub-chip" data-rec-filter="finished">Finalizados <span style="opacity:.6">{{ $subsFinished->count() }}</span></button>
+        </div>
+
+        @php
+          $allSubs = collect()->merge($subsActive)->merge($subsPaused)->merge($subsFinished);
+        @endphp
+
+        @if($allSubs->isEmpty() && $batches->isEmpty())
+          <div class="my-empty">
+            <div class="my-empty-ico" style="background:rgba(167,139,250,.08); color:var(--my-purple);">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12a9 9 0 1 1-3.5-7"/><path d="M21 5v6h-6"/></svg>
+            </div>
+            <h3>Sin abonos recurrentes</h3>
+            <p>Reservá un horario fijo cada semana, mismo día y horario, con un solo abono mensual.</p>
+            <a class="my-btn my-btn-prim" href="{{ route('venues.index') }}">Crear recurrente</a>
+          </div>
+        @else
+          @foreach($allSubs as $sub)
+            @php
+              $statusClass = match($sub->status) {
+                'ACTIVE'   => 'active',
+                'PAUSED'   => 'paused',
+                'CANCELLED','FINISHED' => 'finished',
+                default    => 'active',
+              };
+              $upcomingSlots = $sub->reservations
+                ->where('start_at', '>', now())
+                ->whereIn('status', ['PAID','PENDING_PAYMENT','PENDING_CASH'])
+                ->sortBy('start_at')
+                ->take(4)
+                ->values();
+              // Si no hay reservas futuras persistidas, proyectamos 4 fechas a partir de day_of_week + start_time
+              if ($upcomingSlots->isEmpty() && $sub->status === 'ACTIVE') {
+                $projected = collect();
+                $cursor = now()->copy()->startOfDay();
+                $targetDow = (int) $sub->day_of_week; // 0..6
+                while ($projected->count() < 4) {
+                  if ($cursor->dayOfWeek === $targetDow) {
+                    [$h, $m] = array_pad(explode(':', $sub->start_time), 2, 0);
+                    $start = $cursor->copy()->setTime((int)$h, (int)$m);
+                    if ($start->isFuture()) {
+                      $end = $start->copy()->addMinutes((int) $sub->slot_minutes);
+                      $projected->push((object)['start_at' => $start, 'end_at' => $end, 'projected' => true]);
+                    }
+                  }
+                  $cursor->addDay();
+                }
+                $upcomingSlots = $projected;
+              }
+              // Formatear duración
+              $durMin = (int) $sub->slot_minutes;
+              $durLabel = $durMin >= 60
+                ? (intdiv($durMin, 60) . 'h' . ($durMin % 60 ? ' ' . ($durMin % 60) . 'm' : ''))
+                : ($durMin . ' min');
+              // End time string desde start_time + duración
+              [$_h, $_m] = array_pad(explode(':', $sub->start_time), 2, 0);
+              $startStr = sprintf('%02d:%02d', (int)$_h, (int)$_m);
+              $endStr   = \Carbon\Carbon::createFromTime((int)$_h, (int)$_m)->addMinutes($durMin)->format('H:i');
+            @endphp
+            <article class="my-recurring" data-rec-status="{{ $statusClass }}" @if($statusClass !== 'active') style="display:none;" @endif>
+              <div class="my-recurring-head">
+                <div class="my-recurring-ico">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12a9 9 0 1 1-3.5-7"/><path d="M21 5v6h-6"/></svg>
+                </div>
+                <div class="my-recurring-info">
+                  <h3>
+                    {{ $sub->field->name ?? '—' }} · {{ $sportLabel($sub->field->sport ?? '') }}
+                    · <span style="color:{{ $sub->status === 'ACTIVE' ? 'var(--my-accent)' : 'var(--my-tx-3)' }}; font-weight:600;">
+                      {{ $sub->statusLabel() }}
+                    </span>
+                  </h3>
+                  <div class="meta">
+                    @php
+                      $dowLabels = [0=>'domingos',1=>'lunes',2=>'martes',3=>'miércoles',4=>'jueves',5=>'viernes',6=>'sábados'];
+                    @endphp
+                    <span>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                      Todos los <b>{{ $dowLabels[$sub->day_of_week] ?? '—' }}</b>
+                    </span>
+                    <span>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                      {{ $startStr }} — {{ $endStr }} · <b>{{ $durLabel }}</b>
+                    </span>
+                    @if($sub->field->venue)
+                      <span>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-7 8-13a8 8 0 0 0-16 0c0 6 8 13 8 13z"/></svg>
+                        {{ $sub->field->venue->name }} @if($sub->field->venue->zone)· <b>{{ $sub->field->venue->zone }}</b>@endif
+                      </span>
+                    @endif
+                  </div>
+                </div>
+                <div class="my-recurring-amount">
+                  <div class="k">MENSUAL</div>
+                  <div class="v">${{ number_format($sub->monthly_amount, 0, ',', '.') }}</div>
+                </div>
+                <div class="my-turn-cta">
+                  <a class="my-btn my-btn-ghost" href="{{ route('recurring.subscription.result', $sub) }}">Ver detalle</a>
+                </div>
+              </div>
+
+              @if($upcomingSlots->count() > 0)
+                <div class="my-recurring-body">
+                  <div class="my-recurring-body-head">
+                    <span>PRÓXIMOS TURNOS · {{ $upcomingSlots->count() }} INCLUIDOS</span>
+                    @if($sub->next_billing_date)
+                      <span class="next-pay">PRÓX. PAGO: {{ strtoupper($sub->next_billing_date->locale('es')->isoFormat('DD MMM')) }}</span>
+                    @endif
+                  </div>
+                  <div class="my-recurring-grid">
+                    @foreach($upcomingSlots as $idx => $slot)
+                      <div class="my-recurring-slot {{ $idx === 0 ? 'next' : '' }}">
+                        <div class="date">{{ ucfirst($slot->start_at->locale('es')->isoFormat('ddd D MMM')) }}</div>
+                        <div class="time">{{ $slot->start_at->format('H:i') }} — {{ $slot->end_at->format('H:i') }}</div>
+                      </div>
+                    @endforeach
+                  </div>
+                  @if($sub->status === 'ACTIVE')
+                    <div class="my-recurring-actions">
+                      <form method="POST" action="{{ route('recurring.subscription.cancel', $sub) }}" onsubmit="return confirm('¿Cancelar esta suscripción mensual?')" style="display:inline-flex; margin-left:auto;">
+                        @csrf
+                        <button type="submit" class="my-btn my-btn-danger-ghost">Cancelar suscripción</button>
+                      </form>
+                    </div>
+                  @endif
+                </div>
+              @endif
+            </article>
           @endforeach
+
+          {{-- Promo: crear nueva recurrente --}}
+          <div style="background:var(--my-bg-1); border:1px solid var(--my-bd); border-radius:14px; padding:20px 22px; display:grid; grid-template-columns:auto 1fr auto; gap:18px; align-items:center; margin-top:14px;">
+            <div style="width:44px; height:44px; border-radius:11px; background:rgba(74,222,128,.06); border:1px dashed rgba(74,222,128,.25); display:flex; align-items:center; justify-content:center; color:var(--my-accent);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            </div>
+            <div>
+              <div style="font-size:14px; font-weight:500; color:var(--my-tx); margin-bottom:3px;">Reservá un horario fijo</div>
+              <div style="font-size:12px; color:var(--my-tx-3);">Asegurá tu cancha cada semana, mismo día y horario. Pagás un solo abono mensual.</div>
+            </div>
+            <a class="my-btn my-btn-prim" href="{{ route('venues.index') }}">Crear recurrente</a>
+          </div>
         @endif
       </div>
-    @endif
-  </div>
 
+      {{-- ═══ PANEL: FALTA UNO ═══ --}}
+      <div class="my-panel" id="my-panel-fu">
+        <div class="my-subfilters">
+          <button type="button" class="my-sub-chip active" data-fu-filter="upcoming">Próximos <span style="opacity:.6">{{ $fuUpcoming->count() }}</span></button>
+          <button type="button" class="my-sub-chip" data-fu-filter="cancelled">Cancelados <span style="opacity:.6">{{ $fuCancelled->count() }}</span></button>
+          <button type="button" class="my-sub-chip" data-fu-filter="history">Historial <span style="opacity:.6">{{ $fuHistory->count() }}</span></button>
+          <span style="margin-left:auto;">
+            <a href="{{ route('sport-profile.public', auth()->user()) }}" class="my-sub-chip" style="color:var(--my-accent); background:rgba(74,222,128,.06); border-color:rgba(74,222,128,.2); text-decoration:none;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+              Ver mi perfil de jugador
+            </a>
+          </span>
+        </div>
 
-  {{-- ── Panel: Falta Uno ────────────────────────────────── --}}
-  <div id="panel-faltauno" class="tab-panel">
-    {{-- Link a perfil público --}}
-    @if(auth()->user()->faltaUnoSportProfiles()->exists())
-      <div style="display:flex; justify-content:flex-end; margin-bottom:12px;">
-        <a href="{{ route('sport-profile.public', auth()->user()) }}" style="display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:700; color:#16a34a; text-decoration:none; padding:6px 14px; border:1.5px solid rgba(34,197,94,.2); border-radius:999px; background:rgba(34,197,94,.1); transition:all .15s;" onmouseover="this.style.background='rgba(34,197,94,.15)'" onmouseout="this.style.background='rgba(34,197,94,.1)'">
-          <i data-lucide="user" style="width:14px;height:14px;stroke:currentColor;"></i> Ver mi perfil de jugador
+        {{-- Próximos --}}
+        <div data-fu-subpanel="upcoming">
+          @if($fuUpcoming->isEmpty())
+            <div class="my-empty">
+              <div class="my-empty-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg></div>
+              <h3>No estás anotado en ningún partido</h3>
+              <p>Sumate a partidos abiertos o creá uno nuevo en Falta Uno.</p>
+              <a class="my-btn my-btn-prim" href="{{ route('falta-uno.index') }}">Ir a Falta Uno</a>
+            </div>
+          @else
+            <div class="my-timeline">
+              <div class="my-timeline-head">
+                <h2><span class="dot"></span>Próximos partidos</h2>
+                <span class="ct">{{ $fuUpcoming->count() }}</span>
+                <div class="ln"></div>
+              </div>
+              @foreach($fuUpcoming as $g)
+                @php
+                  $remaining = $g->players_needed - $g->activeParticipants->count();
+                  $isFull = $g->status === 'full' || $remaining <= 0;
+                  $shown = $g->activeParticipants->take(5);
+                  $extraCount = max(0, $g->activeParticipants->count() - 5);
+                @endphp
+                <article class="my-fu">
+                  <div class="my-fu-ico">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">{!! $sportIcon($g->field->sport) !!}</svg>
+                  </div>
+                  <div class="my-fu-info">
+                    <div class="my-fu-title">{{ $g->field->name }} · {{ $sportLabel($g->field->sport) }} — {{ $g->field->venue->name }}</div>
+                    <div class="my-fu-meta">
+                      <span>{{ ucfirst($g->start_at->locale('es')->isoFormat('ddd')) }} <b>{{ $g->start_at->format('d') }}</b> {{ $g->start_at->locale('es')->isoFormat('MMM') }} · <b>{{ $g->start_at->format('H:i') }}</b></span>
+                      @if($g->field->venue->zone)<span class="sep"></span><span>{{ $g->field->venue->zone }}</span>@endif
+                    </div>
+                  </div>
+                  <div class="my-fu-roster">
+                    @foreach($shown as $p)
+                      @php
+                        $pName = $p->user->name ?? '?';
+                        [$pFrom, $pTo] = $avatarGradient($pName);
+                      @endphp
+                      <span class="my-fu-ava" title="{{ $pName }}" style="background:linear-gradient(135deg, {{ $pFrom }}, {{ $pTo }});">
+                        {{ strtoupper(substr($pName, 0, 1)) }}
+                      </span>
+                    @endforeach
+                    @if($extraCount > 0)<span class="my-fu-ava empty">+{{ $extraCount }}</span>@endif
+                  </div>
+                  <div class="my-fu-cta">
+                    @if($isFull)
+                      <span class="my-tag ok">Confirmado</span>
+                    @else
+                      <span class="my-tag warn">Buscando jugadores</span>
+                    @endif
+                    <a class="my-btn my-btn-ghost" href="{{ route('falta-uno.show', $g) }}">Ver partido</a>
+                  </div>
+                </article>
+              @endforeach
+            </div>
+          @endif
+        </div>
+
+        {{-- Cancelados --}}
+        <div data-fu-subpanel="cancelled" style="display:none;">
+          @if($fuCancelled->isEmpty())
+            <div class="my-empty">
+              <div class="my-empty-ico" style="background:rgba(248,113,113,.08); color:var(--my-danger);">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 14.14 14.14"/></svg>
+              </div>
+              <h3>Sin partidos cancelados</h3>
+              <p>Los partidos que se cancelan o expiren van a aparecer acá.</p>
+            </div>
+          @else
+            <div class="my-timeline">
+              <div class="my-timeline-head">
+                <h2 class="cancel"><span class="dot"></span>Cancelados</h2>
+                <span class="ct">últimos 30 días</span>
+                <div class="ln"></div>
+              </div>
+              @foreach($fuCancelled as $g)
+                <article class="my-fu cancelled">
+                  <div class="my-fu-ico" style="background:rgba(248,113,113,.06); color:var(--my-danger);">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">{!! $sportIcon($g->field->sport) !!}</svg>
+                  </div>
+                  <div class="my-fu-info">
+                    <div class="my-fu-title">{{ $g->field->name }} · {{ $sportLabel($g->field->sport) }} — {{ $g->field->venue->name }}</div>
+                    <div class="my-fu-meta">
+                      <span>{{ $g->start_at->format('d/m/Y') }} · <b>{{ $g->start_at->format('H:i') }}</b></span>
+                      <span class="sep"></span>
+                      <span>{{ $g->total_players }} jugadores · {{ $g->activeParticipants->count() }} anotados</span>
+                    </div>
+                  </div>
+                  <div class="my-fu-roster"></div>
+                  <div class="my-fu-cta">
+                    <span class="my-tag danger">{{ $g->status === 'expired' ? 'No se completó' : 'Cancelado' }}</span>
+                    <a class="my-btn my-btn-ghost" href="{{ route('falta-uno.show', $g) }}">Ver partido</a>
+                  </div>
+                </article>
+              @endforeach
+            </div>
+          @endif
+        </div>
+
+        {{-- Historial --}}
+        <div data-fu-subpanel="history" style="display:none;">
+          @if($fuHistory->isEmpty())
+            <div class="my-empty">
+              <div class="my-empty-ico" style="background:rgba(255,255,255,.04); color:var(--my-tx-3);">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              </div>
+              <h3>Sin partidos jugados</h3>
+              <p>Cuando termines tu primer partido en Falta Uno, va a aparecer en el historial.</p>
+            </div>
+          @else
+            <div class="my-timeline">
+              <div class="my-timeline-head">
+                <h2 class="history"><span class="dot"></span>Historial</h2>
+                <span class="ct">{{ $fuHistory->count() }} {{ $fuHistory->count() === 1 ? 'partido' : 'partidos' }}</span>
+                <div class="ln"></div>
+              </div>
+              @foreach($fuHistory as $g)
+                @php
+                  $myP = $g->participants->firstWhere('user_id', auth()->id());
+                  $result = $myP?->result;
+                  $shown = $g->activeParticipants->take(4);
+                @endphp
+                <article class="my-fu {{ $result === 'win' ? 'victory' : ($result === 'loss' ? 'defeat' : '') }}">
+                  <div class="my-fu-ico {{ $g->field->sport === 'padel' ? 'padel' : '' }}" style="{{ $g->field->sport === 'padel' ? 'background:rgba(167,139,250,.08); color:var(--my-purple);' : '' }}">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">{!! $sportIcon($g->field->sport) !!}</svg>
+                  </div>
+                  <div class="my-fu-info">
+                    <div class="my-fu-title">{{ $g->field->name }} · {{ $sportLabel($g->field->sport) }} — {{ $g->field->venue->name }}</div>
+                    <div class="my-fu-meta">
+                      <span>{{ $g->start_at->format('d/m/Y') }} · <b>{{ $g->start_at->format('H:i') }}</b></span>
+                      @if($myP?->goals !== null)
+                        <span class="sep"></span>
+                        <span>{{ $myP->goals }} {{ (int) $myP->goals === 1 ? 'gol' : 'goles' }}</span>
+                      @endif
+                    </div>
+                  </div>
+                  <div class="my-fu-roster">
+                    @foreach($shown as $p)
+                      @php
+                        $pName = $p->user->name ?? '?';
+                        [$pFrom, $pTo] = $avatarGradient($pName);
+                      @endphp
+                      <span class="my-fu-ava" title="{{ $pName }}" style="background:linear-gradient(135deg, {{ $pFrom }}, {{ $pTo }});">{{ strtoupper(substr($pName, 0, 1)) }}</span>
+                    @endforeach
+                  </div>
+                  <div class="my-fu-cta">
+                    @if($result === 'win')
+                      <span class="my-card-status victory">Victoria</span>
+                    @elseif($result === 'loss')
+                      <span class="my-card-status defeat">Derrota</span>
+                    @elseif($result === 'draw')
+                      <span class="my-card-status draw">Empate</span>
+                    @else
+                      <span class="my-tag muted">Sin resultado</span>
+                    @endif
+                    <a class="my-btn my-btn-ghost" href="{{ route('falta-uno.show', $g) }}">Ver partido</a>
+                    @if(!$result && $myP)
+                      <a class="my-btn my-btn-prim" href="{{ route('falta-uno.stats', $g) }}">Cargar resultado</a>
+                    @endif
+                  </div>
+                </article>
+              @endforeach
+            </div>
+          @endif
+        </div>
+
+        <a class="my-footer-link" href="{{ route('falta-uno.index') }}">
+          Ver todos los partidos Falta Uno
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </a>
       </div>
-    @endif
-    @if($misPartidos->isEmpty())
-      <div class="page-card" style="text-align:center; padding:36px 24px;">
-        <div style="margin-bottom:10px;"><i data-lucide="zap" style="width:36px;height:36px;stroke:#22c55e;stroke-width:1.5;"></i></div>
-        <h3 style="margin:0 0 8px;">No participaste en ningún partido Falta Uno</h3>
-        <p class="muted" style="margin-bottom:14px;">Unite a un partido o creá el tuyo.</p>
-        <a href="{{ route('falta-uno.index') }}" class="btn btn-primary">Ver partidos Falta Uno</a>
-      </div>
-    @else
-      @php
-        $proximosPartidos = $misPartidos->filter(fn($g) => $g->start_at->isFuture() && in_array($g->status, ['open', 'full']))
-            ->sortByDesc(fn($g) => $g->reservation?->status === 'PENDING_PAYMENT' ? 1 : 0);
-        $canceladosRecientes = $misPartidos->filter(fn($g) => in_array($g->status, ['cancelled', 'expired']) && $g->cancelled_at && $g->cancelled_at->isAfter(now()->subDays(3)));
-        $partidosPasados  = $misPartidos->filter(fn($g) => $g->start_at->isPast() && !in_array($g->status, ['cancelled', 'expired']));
-        $userId = auth()->id();
-      @endphp
-      @if($proximosPartidos->isNotEmpty())
-        <h3 style="font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:#666; margin:0 0 10px;">Próximos</h3>
-        <div style="display:grid; gap:10px; margin-bottom:20px;">
-          @foreach($proximosPartidos as $pg)
-          @php
-            $esIniciador = $pg->initiator_user_id === $userId;
-            $sportLabel  = match($pg->field->sport ?? '') {
-              'football'   => '⚽ Fútbol', 'padel' => '🏓 Pádel',
-              'tennis'     => '🎾 Tenis',  'basketball' => '🏀 Básquet',
-              'volleyball' => '🏐 Vóley',  default => ucfirst($pg->field->sport ?? ''),
-            };
-          @endphp
-          <div style="display:flex; align-items:center; gap:14px; padding:12px 16px; background:#111; border:1px solid rgba(255,255,255,.08); border-radius:12px; flex-wrap:wrap; box-shadow:0 2px 6px rgba(0,0,0,.15);">
-            <div style="font-size:22px;">{{ explode(' ', $sportLabel)[0] }}</div>
-            <div style="flex:1; min-width:140px;">
-              <div style="font-weight:700; font-size:14px;">{{ $pg->field->name }} · {{ $pg->field->venue->name }}</div>
-              <div style="font-size:12px; color:#666; margin-top:2px;">
-                {{ $pg->start_at->format('d/m/Y H:i') }} hs
-                @if($esIniciador) · <span style="color:#2563eb;">Organizador</span> @endif
-              </div>
-            </div>
-            @if($pg->reservation && $pg->reservation->status === 'PENDING_PAYMENT')
-              <span style="font-size:12px; font-weight:700; padding:3px 10px; border-radius:999px; background:rgba(229,57,53,.1); color:#f87171;">
-                Pendiente de pago
-              </span>
-              <a href="{{ route('reservations.checkout', $pg->reservation) }}"
-                 style="font-size:12px; padding:5px 14px; background:#22c55e; color:#050505; border-radius:8px; text-decoration:none; font-weight:700; white-space:nowrap;">
-                Pagar
-              </a>
-            @else
-              <span style="font-size:12px; font-weight:700; padding:3px 10px; border-radius:999px;
-                           background:{{ $pg->status === 'full' ? 'rgba(34,197,94,.1)' : 'rgba(245,158,11,.08)' }};
-                           color:{{ $pg->status === 'full' ? '#6ee7a0' : '#fbbf24' }};">
-                {{ $pg->status === 'full' ? 'Completo' : 'Buscando jugadores' }}
-              </span>
-              <a href="{{ route('falta-uno.show', $pg) }}"
-                 style="font-size:12px; padding:5px 14px; border:1.5px solid rgba(255,255,255,.08); border-radius:8px; color:#a0a0a0; text-decoration:none; font-weight:600; white-space:nowrap;">
-                Ver partido
-              </a>
-            @endif
-          </div>
-          @endforeach
-        </div>
-      @endif
-      @if($canceladosRecientes->isNotEmpty())
-        <h3 style="font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:#666; margin:0 0 10px;">Cancelados</h3>
-        <div style="display:grid; gap:10px; margin-bottom:20px;">
-          @foreach($canceladosRecientes as $pg)
-          @php
-            $sportLabel = match($pg->field->sport ?? '') {
-              'football'   => '⚽ Fútbol', 'padel' => '🏓 Pádel',
-              'tennis'     => '🎾 Tenis',  'basketball' => '🏀 Básquet',
-              'volleyball' => '🏐 Vóley',  default => ucfirst($pg->field->sport ?? ''),
-            };
-          @endphp
-          <div style="display:flex; align-items:center; gap:14px; padding:12px 16px; background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.06); border-radius:12px; flex-wrap:wrap; opacity:.7;">
-            <div style="font-size:22px; opacity:.5;">{{ explode(' ', $sportLabel)[0] }}</div>
-            <div style="flex:1; min-width:140px;">
-              <div style="font-weight:700; font-size:14px; color:#666;">{{ $pg->field->name }} · {{ $pg->field->venue->name }}</div>
-              <div style="font-size:12px; color:#666; margin-top:2px;">
-                {{ $pg->start_at->format('d/m/Y H:i') }} hs
-              </div>
-            </div>
-            <span style="font-size:12px; font-weight:700; padding:3px 10px; border-radius:999px; background:rgba(255,255,255,.04); color:#666;">
-              {{ $pg->status === 'expired' ? 'Expirado' : 'Cancelado' }}
-            </span>
-          </div>
-          @endforeach
-        </div>
-      @endif
-      @if($partidosPasados->isNotEmpty())
-        <h3 style="font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:#666; margin:0 0 10px;">Historial</h3>
-        <div style="display:grid; gap:10px;">
-          @foreach($partidosPasados as $pg)
-          @php
-            $esIniciador = $pg->initiator_user_id === $userId;
-            $sportLabel  = match($pg->field->sport ?? '') {
-              'football'   => '⚽ Fútbol', 'padel' => '🏓 Pádel',
-              'tennis'     => '🎾 Tenis',  'basketball' => '🏀 Básquet',
-              'volleyball' => '🏐 Vóley',  default => ucfirst($pg->field->sport ?? ''),
-            };
-            $yaCalifico = App\Models\FaltaUnoRating::where('game_id', $pg->id)
-              ->where('rater_user_id', $userId)->exists();
-            $myParticipation = $pg->participants->first();
-            $myResult = $myParticipation?->result;
-            $myGoals = $myParticipation?->goals;
-            $myAssists = $myParticipation?->assists;
-            $resultStyle = match($myResult) {
-              'win'  => ['bg' => 'rgba(34,197,94,.1)', 'color' => '#6ee7a0', 'border' => 'rgba(34,197,94,.2)', 'label' => 'Victoria', 'icon' => 'W'],
-              'draw' => ['bg' => 'rgba(255,255,255,.04)', 'color' => '#a0a0a0', 'border' => 'rgba(255,255,255,.08)', 'label' => 'Empate', 'icon' => 'E'],
-              'loss' => ['bg' => 'rgba(229,57,53,.1)', 'color' => '#f87171', 'border' => 'rgba(229,57,53,.2)', 'label' => 'Derrota', 'icon' => 'D'],
-              default => null,
-            };
-          @endphp
-          <div style="display:flex; align-items:center; gap:14px; padding:12px 16px; background:#111; border:1px solid {{ $resultStyle ? $resultStyle['border'] : 'rgba(255,255,255,.08)' }}; border-left:4px solid {{ $resultStyle ? $resultStyle['color'] : 'rgba(255,255,255,.08)' }}; border-radius:12px; flex-wrap:wrap; box-shadow:0 2px 6px rgba(0,0,0,.15);">
-            <div style="font-size:22px; opacity:.6;">{{ explode(' ', $sportLabel)[0] }}</div>
-            <div style="flex:1; min-width:140px;">
-              <div style="font-weight:700; font-size:14px; color:#e8e8e8;">{{ $pg->field->name }} · {{ $pg->field->venue->name }}</div>
-              <div style="font-size:12px; color:#666; margin-top:2px;">
-                {{ $pg->start_at->format('d/m/Y H:i') }} hs
-                @if($esIniciador) · <span style="color:#666;">Organizador</span> @endif
-              </div>
-              @if($myGoals !== null || $myAssists !== null)
-                <div style="font-size:11px; color:#666; margin-top:3px;">
-                  @if($myGoals !== null) {{ $myGoals }} gol{{ $myGoals !== 1 ? 'es' : '' }} @endif
-                  @if($myGoals !== null && $myAssists !== null) · @endif
-                  @if($myAssists !== null) {{ $myAssists }} asist{{ $myAssists !== 1 ? 'encias' : 'encia' }} @endif
-                </div>
-              @endif
-            </div>
-            @if($resultStyle)
-              <span style="font-size:12px; font-weight:800; padding:4px 12px; border-radius:999px; background:{{ $resultStyle['bg'] }}; color:{{ $resultStyle['color'] }}; white-space:nowrap;">
-                {{ $resultStyle['label'] }}
-              </span>
-            @else
-              <span style="font-size:11px; font-weight:600; padding:4px 10px; border-radius:999px; background:rgba(255,255,255,.04); color:#666; white-space:nowrap;">
-                Sin resultado
-              </span>
-            @endif
-            <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
-              @if(!$yaCalifico)
-                <a href="{{ route('falta-uno.rate', $pg) }}"
-                   style="font-size:12px; padding:5px 12px; background:rgba(245,158,11,.08); border-radius:8px; color:#fbbf24; text-decoration:none; font-weight:700; white-space:nowrap;">
-                  ★ Calificar
-                </a>
-              @endif
-              <a href="{{ route('falta-uno.show', $pg) }}"
-                 style="font-size:12px; padding:5px 12px; background:rgba(255,255,255,.04); border-radius:8px; color:#a0a0a0; text-decoration:none; font-weight:600; white-space:nowrap;">
-                Ver partido
-              </a>
-            </div>
-          </div>
-          @endforeach
-        </div>
-      @endif
-    @endif
-
-    <div style="text-align:center; margin-top:20px;">
-      <a href="{{ route('falta-uno.index') }}" style="display:inline-flex; align-items:center; gap:6px; font-size:14px; font-weight:600; color:#16a34a; text-decoration:none;" onmouseover="this.style.color='#15803d'" onmouseout="this.style.color='#16a34a'">
-        <i data-lucide="zap" style="width:15px;height:15px;stroke:currentColor;"></i> Ver todos los partidos Falta Uno
-      </a>
     </div>
+
+    {{-- ═══ SIDEBAR ═══ --}}
+    <aside class="my-side">
+
+      <div class="my-side-card">
+        <h3>Esta semana <span class="pill">{{ $weekDays[0]['date']->locale('es')->isoFormat('D MMM') }} — {{ $weekDays[6]['date']->locale('es')->isoFormat('D MMM') }}</span></h3>
+        <div class="my-week">
+          @foreach($weekDays as $wd)
+            <div class="my-week-d {{ $wd['isToday'] ? 'today' : '' }} {{ $wd['count'] >= 1 ? 'has' : '' }} {{ $wd['count'] >= 2 ? 'has-2' : '' }}" title="{{ $wd['count'] }} {{ $wd['count'] === 1 ? 'turno' : 'turnos' }}">
+              <span>{{ ucfirst($wd['date']->locale('es')->isoFormat('ddd')) }}</span>
+              <span class="num">{{ $wd['date']->format('d') }}</span>
+            </div>
+          @endforeach
+        </div>
+      </div>
+
+      @if($levelMetrics)
+        <div class="my-side-card">
+          <h3>Tu nivel <span class="pill">{{ $sportLabel($levelMetrics['sport']) }}</span></h3>
+          <div class="my-levels">
+            <div>
+              <div class="my-level-row">
+                <span class="l"><span class="sw" style="background:var(--my-accent);"></span>Constancia</span>
+                <span class="v">{{ $levelMetrics['constancia'] }}%</span>
+              </div>
+              <div class="my-level-bar"><span style="width:{{ min(100, $levelMetrics['constancia']) }}%; background:var(--my-accent);"></span></div>
+            </div>
+            <div>
+              <div class="my-level-row">
+                <span class="l"><span class="sw" style="background:var(--my-blue);"></span>Puntualidad</span>
+                <span class="v">{{ $levelMetrics['puntualidad'] }}%</span>
+              </div>
+              <div class="my-level-bar"><span style="width:{{ min(100, $levelMetrics['puntualidad']) }}%; background:var(--my-blue);"></span></div>
+            </div>
+            <div>
+              <div class="my-level-row">
+                <span class="l"><span class="sw" style="background:var(--my-purple);"></span>Fair play</span>
+                <span class="v">{{ $levelMetrics['fair_play'] }}%</span>
+              </div>
+              <div class="my-level-bar"><span style="width:{{ min(100, $levelMetrics['fair_play']) }}%; background:var(--my-purple);"></span></div>
+            </div>
+          </div>
+        </div>
+      @endif
+
+      <div class="my-side-card">
+        <h3>Atajos</h3>
+        <a class="my-side-link" href="{{ route('venues.index') }}">
+          <span>Buscar cancha</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        <a class="my-side-link" href="{{ route('falta-uno.index') }}">
+          <span>Crear partido Falta Uno</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        <a class="my-side-link" href="{{ route('ranking.index') }}">
+          <span>Mi ranking</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        <a class="my-side-link" href="{{ route('venues.favorites') }}">
+          <span>Favoritos</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        <a class="my-side-link" href="{{ route('profile.edit') }}">
+          <span>Configuración</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+
+    </aside>
   </div>
 
-  <script>
-    function switchTab(name, btn) {
-      document.querySelectorAll('.my-tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById('panel-' + name).classList.add('active');
-    }
+</div>{{-- /.my-page --}}
+</div>{{-- /.my-scope --}}
 
-    // Activar tab desde query param ?tab=
-    (function() {
-      const params = new URLSearchParams(window.location.search);
-      const tab = params.get('tab');
-      if (tab) {
-        const panel = document.getElementById('panel-' + tab);
-        const btns = document.querySelectorAll('.my-tab');
-        if (panel) {
-          document.querySelectorAll('.my-tab').forEach(t => t.classList.remove('active'));
-          document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-          panel.classList.add('active');
-          btns.forEach(function(b) {
-            if (b.getAttribute('onclick') && b.getAttribute('onclick').includes("'" + tab + "'")) {
-              b.classList.add('active');
-            }
-          });
-        }
-      }
-    })();
+@push('scripts')
+<script>
+  // ── Tab switching ────────────────────────────────────────────────────
+  document.querySelectorAll('.my-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.panel;
+      document.querySelectorAll('.my-tab').forEach(b => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('.my-panel').forEach(p => p.classList.toggle('on', p.id === 'my-panel-' + target));
+    });
+  });
 
-    function switchRecurSubtab(name, btn) {
-      document.querySelectorAll('.recur-subtab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.recur-subpanel').forEach(p => p.style.display = 'none');
-      btn.classList.add('active');
-      document.getElementById('recur-sub-' + name).style.display = 'block';
-    }
+  // ── Subfilters: turnos ───────────────────────────────────────────────
+  document.querySelectorAll('[data-filter]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const f = btn.dataset.filter;
+      document.querySelectorAll('[data-filter]').forEach(b => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('[data-subpanel]').forEach(p => p.style.display = p.dataset.subpanel === f ? '' : 'none');
+    });
+  });
 
-    function markReservationAsExpired(reservationId, fieldUrl) {
-      const payWrap = document.getElementById(`pay-btn-wrap-${reservationId}`);
-      const meta    = document.getElementById(`reservation-meta-${reservationId}`);
-      const badge   = document.getElementById(`status-badge-${reservationId}`);
-      const actions = document.getElementById(`actions-wrap-${reservationId}`);
+  // ── Subfilters: recurrentes ──────────────────────────────────────────
+  document.querySelectorAll('[data-rec-filter]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const f = btn.dataset.recFilter;
+      document.querySelectorAll('[data-rec-filter]').forEach(b => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('[data-rec-status]').forEach(el => {
+        el.style.display = el.dataset.recStatus === f ? '' : 'none';
+      });
+    });
+  });
 
-      if (payWrap) payWrap.style.display = 'none';
-
-      if (meta) {
-        meta.innerHTML = `<div style="color:#f87171; font-weight:700;">Reserva vencida por falta de pago.</div>`;
-      }
-
-      if (badge) {
-        badge.textContent = 'Expirada';
-        badge.style.background = 'rgba(229,57,53,.1)';
-        badge.style.color = '#f87171';
-        badge.style.border = '1px solid rgba(229,57,53,.2)';
-      }
-
-      if (actions && !document.getElementById(`back-to-field-${reservationId}`)) {
-        actions.insertAdjacentHTML('beforeend', `
-          <a href="${fieldUrl}" class="btn btn-primary" id="back-to-field-${reservationId}">
-            Volver a la cancha
-          </a>
-        `);
-      }
-    }
-
-    function startCountdown(elementId, expiresAt, payWrapId, reservationId, fieldUrl) {
-      const el      = document.getElementById(elementId);
-      const payWrap = document.getElementById(payWrapId);
-      if (!el) return;
-
-      function tick() {
-        const diff = new Date(expiresAt).getTime() - Date.now();
-
-        if (diff <= 0) {
-          el.innerText = 'La reserva expiró';
-          if (payWrap) payWrap.style.display = 'none';
-          markReservationAsExpired(reservationId, fieldUrl);
-          return;
-        }
-
-        const totalSeconds = Math.floor(diff / 1000);
-        const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
-        const seconds = String(totalSeconds % 60).padStart(2, '0');
-        el.innerText = `Te quedan ${minutes}:${seconds} para pagar`;
-      }
-
-      tick();
-      const interval = setInterval(() => {
-        if (new Date(expiresAt).getTime() - Date.now() <= 0) clearInterval(interval);
-        tick();
-      }, 1000);
-    }
-  </script>
-
-  @foreach($reservations as $r)
-    @if($r->status === 'PENDING_PAYMENT' && $r->expires_at && $r->expires_at->isFuture())
-      <script>
-        startCountdown(
-          'countdown-{{ $r->id }}',
-          '{{ $r->expires_at->toIso8601String() }}',
-          'pay-btn-wrap-{{ $r->id }}',
-          {{ $r->id }},
-          '{{ route('fields.show', $r->field) }}'
-        );
-      </script>
-    @endif
-  @endforeach
+  // ── Subfilters: falta uno ────────────────────────────────────────────
+  document.querySelectorAll('[data-fu-filter]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const f = btn.dataset.fuFilter;
+      document.querySelectorAll('[data-fu-filter]').forEach(b => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('[data-fu-subpanel]').forEach(p => p.style.display = p.dataset.fuSubpanel === f ? '' : 'none');
+    });
+  });
+</script>
+@endpush
 
 @endsection

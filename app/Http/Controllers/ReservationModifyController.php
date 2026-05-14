@@ -18,6 +18,25 @@ use Illuminate\Support\Facades\Mail;
 class ReservationModifyController extends Controller
 {
     /**
+     * Paso 1B — Selector de nuevo horario usando el grid ATC del complejo.
+     * Renderiza la vista del complejo (venues.show) con flag de modificación.
+     */
+    public function showGrid(Request $request, Reservation $reservation)
+    {
+        $this->authorizeModify($request, $reservation);
+        $reservation->loadMissing('field.venue');
+        $venue = $reservation->field->venue;
+
+        if (!$venue->is_active) {
+            return back()->with('error', 'El complejo no está activo.');
+        }
+
+        // Simplemente redirigimos al complejo con un query param que activa el modo modify.
+        // venues.show levantará $modifyReservation y se lo pasará al partial del grid.
+        return redirect()->to(route('venues.show', $venue) . '?modify=' . $reservation->id . '#reservar');
+    }
+
+    /**
      * Paso 1 — Selector de nuevo horario.
      */
     public function showSlotPicker(Request $request, Reservation $reservation)

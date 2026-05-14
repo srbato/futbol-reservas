@@ -113,31 +113,21 @@
             @enderror
         </div>
 
-        {{-- Grupo de edad (Falta Uno) --}}
+        {{-- Edad (Falta Uno) --}}
         <div>
-            <label class="pf-label" for="age_group">Grupo de edad <span style="font-weight:400; color:#9ca3af;">(opcional, para Falta Uno)</span></label>
-            <select
-                id="age_group"
-                name="age_group"
+            <label class="pf-label" for="age">Edad <span style="font-weight:400; color:#9ca3af;">(opcional, para Falta Uno)</span></label>
+            <input
+                type="number"
+                id="age"
+                name="age"
                 class="pf-input"
-                style="appearance:auto;"
+                min="5"
+                max="99"
+                placeholder="Ej: 28"
+                value="{{ old('age', $user->age) }}"
             >
-                <option value="">Sin especificar</option>
-                @php
-                    $ageGroups = [
-                        'sub10' => 'Sub 10', 'sub12' => 'Sub 12', 'sub14' => 'Sub 14',
-                        'sub16' => 'Sub 16', 'sub18' => 'Sub 18', '19a25' => '19 a 25',
-                        '26a34' => '26 a 34', 'open'  => 'Open',   'mas35' => '+35',
-                        'mas40' => '+40',     'mas45' => '+45',     'mas50' => '+50',
-                        'mas55' => '+55',     'mas60' => '+60',
-                    ];
-                @endphp
-                @foreach($ageGroups as $val => $label)
-                    <option value="{{ $val }}" {{ old('age_group', $user->age_group) === $val ? 'selected' : '' }}>{{ $label }}</option>
-                @endforeach
-            </select>
-            <p style="font-size:12px; color:#9ca3af; margin:6px 0 0 0;">Se usa para filtrar partidos por grupo de edad en Falta Uno.</p>
-            @error('age_group', 'updateProfileInformation')
+            <p style="font-size:12px; color:#9ca3af; margin:6px 0 0 0;">Se usa para filtrar partidos por edad en Falta Uno.</p>
+            @error('age', 'updateProfileInformation')
                 <div style="color:#dc2626; font-size:13px; margin-top:6px;">{{ $message }}</div>
             @enderror
         </div>

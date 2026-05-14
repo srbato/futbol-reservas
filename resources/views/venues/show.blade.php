@@ -1074,223 +1074,8 @@
       @endif
     </section>
 
-    {{-- FIELDS --}}
-    <section class="vs-sec" id="canchas">
-      <span class="vs-eyebrow">Reservas</span>
-      <div class="vs-fields-head">
-        <div>
-          <h2 class="vs-sec-title"><span class="italic">Canchas</span> disponibles</h2>
-          <p class="vs-sec-sub">Elegí una cancha y revisá la disponibilidad en tiempo real.</p>
-        </div>
-        @if($activeFields->count() > 0)
-          <a href="{{ route('venues.weekly-calendar', $venue) }}" class="vs-ghost" style="padding:8px 14px; font-size:12px;">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-            Ver agenda semanal
-          </a>
-        @endif
-      </div>
-
-      @if($activeFields->isEmpty())
-        <div class="vs-no-reviews">
-          <div class="vs-no-reviews-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><path d="M3 9h18M9 21V9"/></svg>
-          </div>
-          <h4>Todavía no hay canchas cargadas</h4>
-          <p>Este complejo está preparando su espacio en TuCancha. Volvé pronto o explorá otros complejos.</p>
-          <a href="{{ route('venues.index') }}" class="vs-reserve-btn" style="margin-top: 18px; display: inline-flex;">Ver otros complejos</a>
-        </div>
-      @else
-        {{-- Sport filters --}}
-        @if($sports->count() > 1)
-          <div class="vs-filters">
-            <button onclick="vsFilterSport(null)" class="vs-chip-f active" data-sport="">Todas <span style="opacity:.5; margin-left:4px;">{{ $activeFields->count() }}</span></button>
-            @foreach($sports as $sport)
-              @php $count = $activeFields->where('sport', $sport)->count(); @endphp
-              <button onclick="vsFilterSport('{{ $sport }}')" class="vs-chip-f" data-sport="{{ $sport }}">
-                {{ $sportIcon($sport) }} {{ $sportLabel($sport) }} <span style="opacity:.5; margin-left:4px;">{{ $count }}</span>
-              </button>
-            @endforeach
-          </div>
-        @endif
-
-        <div class="vs-field-list">
-          @foreach($activeFields as $field)
-            <article class="vs-field-card" data-sport="{{ $field->sport }}">
-              <a href="{{ route('fields.show', $field) }}" class="vs-field-img" aria-label="Ver {{ $field->name }}">
-                @if($field->cover_image_path)
-                  <img src="{{ \Illuminate\Support\Facades\Storage::url($field->cover_image_path) }}"
-                       alt="{{ $field->name }}"
-                       loading="lazy">
-                @else
-                  <div class="vs-field-img-placeholder">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-                  </div>
-                @endif
-                <span class="vs-field-img-tag">{{ $sportLabel($field->sport ?? '') }}</span>
-              </a>
-
-              <div class="vs-field-body">
-                <h3 class="vs-field-name">
-                  <a href="{{ route('fields.show', $field) }}">{{ $field->name }}</a>
-                </h3>
-                <div class="vs-field-kind">
-                  @if($field->format)
-                    <span>{{ $field->format }}v{{ $field->format }}</span>
-                    <span class="dot"></span>
-                  @endif
-                  <span>{{ $field->slot_minutes }} min</span>
-                </div>
-                <div class="vs-field-tags">
-                  @if($field->faltaUnoSetting?->enabled)
-                    <span class="vs-tag vs-tag-fu">
-                      <span class="vs-fu-dot"></span> Falta Uno
-                    </span>
-                  @endif
-                  @if($venue->cancellation_hours)
-                    <span class="vs-tag">
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                      Cancela {{ $venue->cancellation_hours }}h antes
-                    </span>
-                  @endif
-                </div>
-              </div>
-
-              <div class="vs-field-cta">
-                <div class="vs-price">
-                  <b><span>{{ $field->price->currency ?? 'ARS' }} </span>{{ number_format($field->price->price_per_slot ?? 0, 0, ',', '.') }}</b>
-                  <small>por turno</small>
-                </div>
-                <a href="{{ route('fields.show', $field) }}" class="vs-reserve-btn">
-                  Ver disponibilidad
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-                </a>
-                @if($field->faltaUnoSetting?->enabled)
-                  <a href="{{ route('falta-uno.create', $field) }}" class="vs-fu-btn">
-                    <span class="vs-fu-dot"></span> Iniciar Falta Uno
-                  </a>
-                @endif
-              </div>
-            </article>
-          @endforeach
-        </div>
-      @endif
-    </section>
-
-    {{-- REVIEWS --}}
-    <section class="vs-sec" id="reviews">
-      <span class="vs-eyebrow">Opiniones</span>
-      <h2 class="vs-sec-title"><span class="italic">Reseñas</span> de la comunidad</h2>
-      <p class="vs-sec-sub">Lo que dicen los jugadores que ya pasaron por este complejo.</p>
-
-      {{-- Review form --}}
-      @auth
-        <div id="vsReviewFormWrap" style="display:none;">
-          <div class="vs-review-form-wrap">
-            <form method="POST" action="{{ route('venues.reviews.store', $venue) }}" style="display:grid; gap:16px; max-width:560px;">
-              @csrf
-              <div>
-                <label class="vs-form-label">Puntuación</label>
-                <input type="hidden" name="rating" id="vsRatingInput" value="{{ old('rating', '') }}" required>
-                <div class="vs-star-picker" id="vsReviewStars">
-                  @for($i = 1; $i <= 5; $i++)
-                    <button type="button" data-value="{{ $i }}" aria-label="Puntuar con {{ $i }} estrella{{ $i > 1 ? 's' : '' }}">&#9733;</button>
-                  @endfor
-                </div>
-                <div id="vsRatingText" style="color: var(--vs-tx-3); font-size:12px; margin-top:6px;">Seleccioná una puntuación</div>
-                @error('rating')<div style="color:#ef4444; font-size:12px; margin-top:4px;">{{ $message }}</div>@enderror
-              </div>
-              <div>
-                <label class="vs-form-label">Comentario</label>
-                <textarea name="comment" rows="3" class="vs-textarea" placeholder="Contá cómo fue tu experiencia...">{{ old('comment', '') }}</textarea>
-                @error('comment')<div style="color:#ef4444; font-size:12px; margin-top:4px;">{{ $message }}</div>@enderror
-              </div>
-              <div style="display:flex; gap:8px;">
-                <button type="submit" class="vs-reserve-btn">Publicar reseña</button>
-                <button type="button" onclick="vsToggleReviewForm(false)" class="vs-ghost">Cancelar</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      @endauth
-
-      @if($reviewsCount > 0)
-        <div class="vs-review-wrap">
-          {{-- Left: big score + distribution --}}
-          <div class="vs-review-summary">
-            <div class="vs-big-score">
-              <span class="vs-big-score-num">{{ number_format($averageRating, 2) }}</span>
-              <span class="vs-big-score-out">/ 5</span>
-            </div>
-            <div class="vs-big-score-stars">
-              @for($i = 1; $i <= 5; $i++){!! $i <= $roundedAverage ? '&#9733;' : '&#9734;' !!}@endfor
-            </div>
-            <div class="vs-big-score-count">Basado en <b>{{ $reviewsCount }}</b> {{ $reviewsCount === 1 ? 'reseña' : 'reseñas' }}</div>
-
-            @foreach([5, 4, 3, 2, 1] as $star)
-              @php
-                $count = $distribution[$star];
-                $pct = $reviewsCount > 0 ? ($count / $reviewsCount) * 100 : 0;
-              @endphp
-              <div class="vs-dist-row">
-                <span>{{ $star }}★</span>
-                <div class="vs-dist-bar"><div class="vs-dist-bar-fill" style="width: {{ $pct }}%;"></div></div>
-                <span class="vs-dist-num">{{ $count }}</span>
-              </div>
-            @endforeach
-
-            @auth
-              <button type="button" class="vs-write-btn" onclick="vsToggleReviewForm()">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-                Escribir reseña
-              </button>
-            @endauth
-          </div>
-
-          {{-- Right: list --}}
-          <div class="vs-review-items">
-            @foreach($venue->reviews->sortByDesc('created_at') as $review)
-              <div class="vs-review-item">
-                <div class="vs-rev-head">
-                  <div class="vs-rev-avatar">
-                    @if($review->user->avatar_path)
-                      <img src="{{ \Illuminate\Support\Facades\Storage::url($review->user->avatar_path) }}" alt="{{ $review->user->name }}">
-                    @else
-                      {{ strtoupper(substr($review->user->name, 0, 1)) }}
-                    @endif
-                  </div>
-                  <div>
-                    <div class="vs-rev-name">{{ $review->user->name }}</div>
-                    <div class="vs-rev-date">{{ $review->created_at->isoFormat('D [de] MMM, YYYY') }}</div>
-                  </div>
-                  <span class="vs-rev-stars">
-                    @for($i = 1; $i <= 5; $i++){!! $i <= $review->rating ? '&#9733;' : '&#9734;' !!}@endfor
-                  </span>
-                </div>
-                @if($review->comment)
-                  <p class="vs-rev-body">{{ $review->comment }}</p>
-                @endif
-              </div>
-            @endforeach
-          </div>
-        </div>
-      @else
-        <div class="vs-no-reviews">
-          <div class="vs-no-reviews-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          </div>
-          <h4>Sé el primero en reseñar</h4>
-          <p>Todavía nadie dejó su opinión sobre este complejo. Si jugaste acá, contanos cómo fue tu experiencia.</p>
-          @auth
-            <button type="button" class="vs-write-btn" onclick="vsToggleReviewForm()" style="margin-top: 20px;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-              Escribir la primera reseña
-            </button>
-          @else
-            <a href="{{ route('login') }}" class="vs-write-btn" style="margin-top: 20px; text-decoration: none;">Iniciá sesión para reseñar</a>
-          @endauth
-        </div>
-      @endif
-    </section>
+    {{-- (Sección Reservar movida al final, fuera del grid de 2 columnas) --}}
+    {{-- (Sección Reseñas también movida al final, después de Reservar) --}}
   </div>
 
   {{-- ═══ RIGHT STICKY RAIL ═══ --}}
@@ -1319,8 +1104,8 @@
       </div>
 
       @if($activeFields->count() > 0)
-        <button type="button" onclick="vsScrollTo('canchas')" class="vs-rail-cta">
-          Ver disponibilidad
+        <button type="button" onclick="vsScrollTo('reservar')" class="vs-rail-cta">
+          Reservar ahora
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
         </button>
         <a href="{{ route('venues.weekly-calendar', $venue) }}" class="vs-rail-cta-alt">
@@ -1356,6 +1141,179 @@
   </aside>
 
 </div>{{-- /.vs-main-grid --}}
+
+  {{-- ═══ SECCIÓN PROTAGONISTA: RESERVAR (FULL WIDTH, fuera del grid) ═══ --}}
+  <section class="vs-sec-reserve" id="reservar"
+           style="position:relative; padding:64px 0 72px; margin-top:32px;
+                  border-top:1px solid rgba(255,255,255,.08);
+                  border-bottom:1px solid rgba(255,255,255,.08);
+                  width:100%;">
+    <div aria-hidden="true" style="position:absolute;top:0;left:0;right:0;height:1px;
+         background:linear-gradient(90deg, transparent, rgba(16,185,129,.5), transparent);"></div>
+    <span class="vs-eyebrow" style="color:#10b981;">— Reservar ahora</span>
+    <div class="vs-fields-head" style="margin-bottom:32px;">
+      <div>
+        <h2 class="vs-sec-title" style="font-size:clamp(36px, 5vw, 60px); margin-bottom:10px;">
+          Elegí <span class="italic">tu turno</span>
+        </h2>
+        <p class="vs-sec-sub" style="font-size:16px; max-width:640px;">
+          Arrastrá sobre los horarios para reservar uno o varios turnos seguidos. Confirmás todo en un solo paso.
+        </p>
+      </div>
+      @if($activeFields->count() > 0)
+        <a href="{{ route('venues.weekly-calendar', $venue) }}" class="vs-ghost" style="padding:10px 16px; font-size:13px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          Ver agenda semanal
+        </a>
+      @endif
+    </div>
+
+    @if($activeFields->isEmpty())
+      <div class="vs-no-reviews">
+        <div class="vs-no-reviews-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><path d="M3 9h18M9 21V9"/></svg>
+        </div>
+        <h4>Todavía no hay canchas cargadas</h4>
+        <p>Este complejo está preparando su espacio en TuCancha. Volvé pronto o explorá otros complejos.</p>
+        <a href="{{ route('venues.index') }}" class="vs-reserve-btn" style="margin-top: 18px; display: inline-flex;">Ver otros complejos</a>
+      </div>
+    @else
+      @include('venues._reserve_grid', [
+        'venue' => $venue,
+        'modifyReservation' => $modifyReservation ?? null,
+      ])
+
+      @php $hasExtras = $activeFields->contains(fn($f) => $f->faltaUnoSetting?->enabled); @endphp
+      @if($hasExtras)
+        <div style="margin-top:28px; padding-top:24px; border-top:1px solid rgba(255,255,255,.06);">
+          <div style="font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--vs-tx-3); margin-bottom:12px; font-weight:600;">Más opciones por cancha</div>
+          <div style="display:flex; flex-wrap:wrap; gap:8px;">
+            @foreach($activeFields as $field)
+              @if($field->faltaUnoSetting?->enabled)
+                <a href="{{ route('falta-uno.create', $field) }}" class="vs-fu-btn" style="font-size:12px; padding:8px 14px;">
+                  <span class="vs-fu-dot"></span> {{ $field->name }} · Iniciar Falta Uno
+                </a>
+              @endif
+            @endforeach
+          </div>
+        </div>
+      @endif
+    @endif
+  </section>
+
+  {{-- ═══ RESEÑAS (full width, al final) ═══ --}}
+  <section class="vs-sec" id="reviews" style="padding-top:48px;">
+    <span class="vs-eyebrow">Opiniones</span>
+    <h2 class="vs-sec-title"><span class="italic">Reseñas</span> de la comunidad</h2>
+    <p class="vs-sec-sub">Lo que dicen los jugadores que ya pasaron por este complejo.</p>
+
+    {{-- Review form --}}
+    @auth
+      <div id="vsReviewFormWrap" style="display:none;">
+        <div class="vs-review-form-wrap">
+          <form method="POST" action="{{ route('venues.reviews.store', $venue) }}" style="display:grid; gap:16px; max-width:560px;">
+            @csrf
+            <div>
+              <label class="vs-form-label">Puntuación</label>
+              <input type="hidden" name="rating" id="vsRatingInput" value="{{ old('rating', '') }}" required>
+              <div class="vs-star-picker" id="vsReviewStars">
+                @for($i = 1; $i <= 5; $i++)
+                  <button type="button" data-value="{{ $i }}" aria-label="Puntuar con {{ $i }} estrella{{ $i > 1 ? 's' : '' }}">&#9733;</button>
+                @endfor
+              </div>
+              <div id="vsRatingText" style="color: var(--vs-tx-3); font-size:12px; margin-top:6px;">Seleccioná una puntuación</div>
+              @error('rating')<div style="color:#ef4444; font-size:12px; margin-top:4px;">{{ $message }}</div>@enderror
+            </div>
+            <div>
+              <label class="vs-form-label">Comentario</label>
+              <textarea name="comment" rows="3" class="vs-textarea" placeholder="Contá cómo fue tu experiencia...">{{ old('comment', '') }}</textarea>
+              @error('comment')<div style="color:#ef4444; font-size:12px; margin-top:4px;">{{ $message }}</div>@enderror
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button type="submit" class="vs-reserve-btn">Publicar reseña</button>
+              <button type="button" onclick="vsToggleReviewForm(false)" class="vs-ghost">Cancelar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    @endauth
+
+    @if($reviewsCount > 0)
+      <div class="vs-review-wrap">
+        <div class="vs-review-summary">
+          <div class="vs-big-score">
+            <span class="vs-big-score-num">{{ number_format($averageRating, 2) }}</span>
+            <span class="vs-big-score-out">/ 5</span>
+          </div>
+          <div class="vs-big-score-stars">
+            @for($i = 1; $i <= 5; $i++){!! $i <= $roundedAverage ? '&#9733;' : '&#9734;' !!}@endfor
+          </div>
+          <div class="vs-big-score-count">Basado en <b>{{ $reviewsCount }}</b> {{ $reviewsCount === 1 ? 'reseña' : 'reseñas' }}</div>
+
+          @foreach([5, 4, 3, 2, 1] as $star)
+            @php
+              $count = $distribution[$star];
+              $pct = $reviewsCount > 0 ? ($count / $reviewsCount) * 100 : 0;
+            @endphp
+            <div class="vs-dist-row">
+              <span>{{ $star }}★</span>
+              <div class="vs-dist-bar"><div class="vs-dist-bar-fill" style="width: {{ $pct }}%;"></div></div>
+              <span class="vs-dist-num">{{ $count }}</span>
+            </div>
+          @endforeach
+
+          @auth
+            <button type="button" class="vs-write-btn" onclick="vsToggleReviewForm()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+              Escribir reseña
+            </button>
+          @endauth
+        </div>
+
+        <div class="vs-review-items">
+          @foreach($venue->reviews->sortByDesc('created_at') as $review)
+            <div class="vs-review-item">
+              <div class="vs-rev-head">
+                <div class="vs-rev-avatar">
+                  @if($review->user->avatar_path)
+                    <img src="{{ \Illuminate\Support\Facades\Storage::url($review->user->avatar_path) }}" alt="{{ $review->user->name }}">
+                  @else
+                    {{ strtoupper(substr($review->user->name, 0, 1)) }}
+                  @endif
+                </div>
+                <div>
+                  <div class="vs-rev-name">{{ $review->user->name }}</div>
+                  <div class="vs-rev-date">{{ $review->created_at->isoFormat('D [de] MMM, YYYY') }}</div>
+                </div>
+                <span class="vs-rev-stars">
+                  @for($i = 1; $i <= 5; $i++){!! $i <= $review->rating ? '&#9733;' : '&#9734;' !!}@endfor
+                </span>
+              </div>
+              @if($review->comment)
+                <p class="vs-rev-body">{{ $review->comment }}</p>
+              @endif
+            </div>
+          @endforeach
+        </div>
+      </div>
+    @else
+      <div class="vs-no-reviews">
+        <div class="vs-no-reviews-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <h4>Sé el primero en reseñar</h4>
+        <p>Todavía nadie dejó su opinión sobre este complejo. Si jugaste acá, contanos cómo fue tu experiencia.</p>
+        @auth
+          <button type="button" class="vs-write-btn" onclick="vsToggleReviewForm()" style="margin-top: 20px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+            Escribir la primera reseña
+          </button>
+        @else
+          <a href="{{ route('login') }}" class="vs-write-btn" style="margin-top: 20px; text-decoration: none;">Iniciá sesión para reseñar</a>
+        @endauth
+      </div>
+    @endif
+  </section>
 
 </div>{{-- /.vs-scope --}}
 

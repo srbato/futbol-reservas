@@ -301,21 +301,22 @@
   .chat-bubble-body {
     font-size: var(--text-sm);
     line-height: var(--leading-normal);
-    padding-right: 42px; /* space for timestamp */
+    padding-right: 52px; /* reserva ancho para que el timestamp no pise el texto */
+    min-height: 18px;
+    word-break: break-word;
   }
 
   .chat-bubble-time {
     font-size: 10px;
-    color: rgba(0,0,0,.35);
-    float: right;
-    margin-top: -14px;
-    position: relative;
+    color: rgba(255,255,255,.45);
+    position: absolute;
+    bottom: 5px;
+    right: 10px;
     line-height: 1;
     user-select: none;
+    pointer-events: none;
   }
-  .chat-msg.own .chat-bubble-time {
-    color: rgba(255,255,255,.5);
-  }
+  .chat-msg:not(.own) .chat-bubble-time { color: var(--color-text-muted); }
 
   /* ── Input Area ──────────────────────────────────────── */
   .chat-input-area {
@@ -541,8 +542,9 @@
         @endforeach
       @endif
 
-      {{-- Dynamic messages appended via JS --}}
-      <div id="dynamicMessages"></div>
+      {{-- Dynamic messages appended via JS — replica el flex column del padre
+           para que align-self:flex-end de .chat-msg.own siga alineando a la derecha. --}}
+      <div id="dynamicMessages" style="display:flex; flex-direction:column; gap:6px;"></div>
     </div>
   </div>
 
@@ -593,7 +595,9 @@
       ? `<img src="${msg.user.avatar}" alt="" loading="lazy">`
       : `<span>${msg.user.name.charAt(0).toUpperCase()}</span>`;
     const nameRow  = isOwn ? '' : `<div class="chat-bubble-name">${escapeHtml(msg.user.name)}</div>`;
-    const time     = new Date(msg.created_at).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+    // Forzamos 24h para matchear con el render de PHP (H:i) y evitar inconsistencias
+    // como "08:18 p. m." que ensanchan la burbuja vs "20:18".
+    const time     = new Date(msg.created_at).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false });
 
     return `
       <div class="chat-msg ${isOwn ? 'own' : ''}" style="animation-delay:.05s">

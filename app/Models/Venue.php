@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
@@ -13,7 +14,7 @@ use App\Models\Reservation;
 
 class Venue extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
     protected $fillable = [
         'owner_user_id',
         'name',
@@ -114,6 +115,19 @@ class Venue extends Model
     /**
      * Scope: solo venues cuyo dueño tiene suscripción activa (o es super_admin).
      */
+    /** Verifica (sobre un modelo cargado) si el dueño tiene suscripción vigente o es super_admin. */
+    public function hasActiveOwner(): bool
+    {
+        $owner = $this->relationLoaded('owner') ? $this->owner : $this->owner()->first();
+        if (!$owner) {
+            return false;
+        }
+        if ($owner->role === 'super_admin') {
+            return true;
+        }
+        return $owner->hasActiveVenueAdminSubscription();
+    }
+
     public function scopeWithActiveOwner(Builder $query): Builder
     {
         return $query->whereHas('owner', function ($q) {

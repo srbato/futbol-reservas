@@ -1184,8 +1184,8 @@
             <h3 class="pf-sport-name">{{ $spName }}</h3>
             <div class="pf-sport-badges">
               <span class="pf-sport-badge">{{ $sp->category }}</span>
-              @if($sp->age_group)
-                <span class="pf-sport-badge">{{ $sp->age_group }}</span>
+              @if($user->age)
+                <span class="pf-sport-badge">{{ $user->age }} años</span>
               @endif
             </div>
             <div class="pf-sport-stats">

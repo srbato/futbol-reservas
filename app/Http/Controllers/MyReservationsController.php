@@ -20,7 +20,7 @@ class MyReservationsController extends Controller
             ->whereNull('batch_id')
             ->whereNull('recurring_subscription_id')
             ->whereDoesntHave('faltaUnoGame')
-            ->with(['field.venue' => fn($q) => $q->select('id', 'name', 'owner_user_id', 'cancellation_hours')])
+            ->with(['field.venue' => fn($q) => $q->select('id', 'name', 'address', 'lat', 'lng', 'owner_user_id', 'cancellation_hours', 'zone')])
             ->orderByDesc('start_at')
             ->get();
 
@@ -58,6 +58,95 @@ class MyReservationsController extends Controller
             ->values();
         $pendingRatingsCount = $pendingRatingGames->count();
 
-        return view('reservations.my', compact('reservations', 'batches', 'misPartidos', 'recurringSubscriptions', 'pendingRatingsCount', 'pendingRatingGames'));
+        // ── Stats para la cabecera ────────────────────────────────────────
+        $now = now();
+        $startOfMonth = $now->copy()->startOfMonth();
+
+        $upcomingReservations = $reservations->filter(fn($r) =>
+            in_array($r->status, ['PAID', 'PENDING_CASH']) && $r->start_at->isFuture()
+        );
+        $upcomingCount = $upcomingReservations->count();
+        $nextReservation = $upcomingReservations->sortBy('start_at')->first();
+
+        // Recurring subs activas
+        $activeSubsCount = $recurringSubscriptions->where('status', 'ACTIVE')->count();
+        $nextActiveSub   = $recurringSubscriptions->where('status', 'ACTIVE')->first();
+
+        // Falta Uno este mes (jugados, finished, no cancelados)
+        $thisMonthFu = $misPartidos->filter(fn($g) =>
+            $g->start_at->isPast() &&
+            $g->start_at->gte($startOfMonth) &&
+            !in_array($g->status, ['cancelled', 'expired'])
+        );
+        $fuMonthCount = $thisMonthFu->count();
+        $fuMonthWins  = 0; $fuMonthLosses = 0; $fuMonthDraws = 0;
+        foreach ($thisMonthFu as $g) {
+            $myParticipation = $g->participants->firstWhere('user_id', $userId);
+            if ($myParticipation && $myParticipation->result) {
+                if ($myParticipation->result === 'win')  $fuMonthWins++;
+                if ($myParticipation->result === 'loss') $fuMonthLosses++;
+                if ($myParticipation->result === 'draw') $fuMonthDraws++;
+            }
+        }
+
+        // Total horas jugadas (todas las reservas pagadas + FU finished participados)
+        $totalMinutes = 0;
+        foreach (Reservation::where('user_id', $userId)->whereIn('status', ['PAID'])->get(['start_at','end_at']) as $r) {
+            $totalMinutes += $r->start_at->diffInMinutes($r->end_at);
+        }
+        $totalHoursPlayed = round($totalMinutes / 60);
+        $memberSince = $request->user()->created_at;
+
+        // Ranking del usuario en su deporte principal (si tiene perfil)
+        $mainSportProfile = $request->user()->faltaUnoSportProfiles()->orderByDesc('games_played')->first();
+        $userRanking = $mainSportProfile?->category;
+
+        // Métricas del nivel (Constancia, Puntualidad, Fair play)
+        $levelMetrics = null;
+        if ($mainSportProfile) {
+            // Puntualidad = attendance_rate (% confirmed sin late_leave)
+            $puntualidad = (float) $mainSportProfile->attendance_rate;
+            // Fair play = average_rating × 20 (5 estrellas = 100%)
+            $fairPlay = round(((float) $mainSportProfile->average_rating) * 20, 1);
+            // Constancia = % de partidos completados de los anotados
+            $totalParticipations = \App\Models\FaltaUnoParticipant::where('user_id', $userId)->count();
+            $playedParticipations = \App\Models\FaltaUnoParticipant::where('user_id', $userId)
+                ->where('status', 'confirmed')
+                ->where('is_late_leave', false)
+                ->whereHas('game', fn($q) => $q->where('start_at', '<', now())->whereNotIn('status', ['cancelled','expired']))
+                ->count();
+            $constancia = $totalParticipations > 0 ? round(($playedParticipations / $totalParticipations) * 100, 1) : 100.0;
+
+            $levelMetrics = [
+                'sport'       => $mainSportProfile->sport,
+                'constancia'  => $constancia,
+                'puntualidad' => $puntualidad,
+                'fair_play'   => $fairPlay,
+            ];
+        }
+
+        // Esta semana — reservas + FU del usuario agrupadas por día
+        $weekStart = $now->copy()->startOfWeek(\Carbon\Carbon::MONDAY);
+        $weekDays = [];
+        for ($i = 0; $i < 7; $i++) {
+            $day = $weekStart->copy()->addDays($i);
+            $count = $reservations->filter(fn($r) => $r->start_at->isSameDay($day) && in_array($r->status, ['PAID','PENDING_CASH','PENDING_PAYMENT']))->count();
+            $count += $misPartidos->filter(fn($g) => $g->start_at->isSameDay($day) && !in_array($g->status, ['cancelled','expired']))->count();
+            $weekDays[] = [
+                'date'     => $day,
+                'isToday'  => $day->isToday(),
+                'count'    => $count,
+            ];
+        }
+
+        return view('reservations.my', compact(
+            'reservations', 'batches', 'misPartidos', 'recurringSubscriptions',
+            'pendingRatingsCount', 'pendingRatingGames',
+            'upcomingCount', 'nextReservation',
+            'activeSubsCount', 'nextActiveSub',
+            'fuMonthCount', 'fuMonthWins', 'fuMonthLosses', 'fuMonthDraws',
+            'totalHoursPlayed', 'memberSince', 'userRanking',
+            'levelMetrics', 'weekDays'
+        ));
     }
 }

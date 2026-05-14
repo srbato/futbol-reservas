@@ -165,7 +165,7 @@
                 $deadlineExpired = $modHours !== null && !$canModify;
               @endphp
               @if($canModify)
-                <a href="{{ route('reservations.modify.show', $reservation) }}" class="btn btn-primary">
+                <a href="{{ route('reservations.modify.grid', $reservation) }}" class="btn btn-primary">
                   Cambiar horario
                 </a>
               @elseif($deadlineExpired)

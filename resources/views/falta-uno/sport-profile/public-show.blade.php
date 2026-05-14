@@ -852,10 +852,25 @@
     {{-- ─── HEADER CARD ─── --}}
     <header class="pp2-hdr">
       <div class="pp2-hdr-cover">
-        <button type="button" class="pp2-hdr-share" onclick="pp2Share()">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51 15.42 17.49M15.41 6.51 8.59 10.49"/></svg>
-          Compartir perfil
-        </button>
+        <div style="position:absolute; top:14px; right:14px; display:flex; gap:8px; align-items:center; z-index:5;">
+          @auth
+            @if(auth()->id() === $user->id)
+              <a href="{{ route('profile.edit') }}" class="pp2-hdr-settings" title="Configuración" aria-label="Configuración"
+                 style="display:inline-flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:50%; background:rgba(0,0,0,.45); border:1px solid rgba(255,255,255,.16); color:#e8e8e8; backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); transition:background .15s, border-color .15s, transform .15s; text-decoration:none;"
+                 onmouseover="this.style.background='rgba(0,0,0,.65)'; this.style.borderColor='rgba(255,255,255,.3)'; this.style.transform='rotate(45deg)';"
+                 onmouseout="this.style.background='rgba(0,0,0,.45)'; this.style.borderColor='rgba(255,255,255,.16)'; this.style.transform='none';">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              </a>
+            @endif
+          @endauth
+          <button type="button" class="pp2-hdr-share" onclick="pp2Share()" style="position:static;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51 15.42 17.49M15.41 6.51 8.59 10.49"/></svg>
+            Compartir perfil
+          </button>
+        </div>
       </div>
 
       <div class="pp2-hdr-body">

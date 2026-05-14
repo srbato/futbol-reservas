@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class FaltaUnoGame extends Model
 {
+    use HasFactory;
     const STATUS_OPEN = 'open';
     const STATUS_FULL = 'full';
     const STATUS_CANCELLED = 'cancelled';
@@ -27,8 +29,10 @@ class FaltaUnoGame extends Model
         'gender_filter',
         'category_min',
         'category_max',
-        'age_group_min',
-        'age_group_max',
+        'age_min',
+        'age_max',
+        'message',
+        'is_private',
         'reminder_sent_at',
         'post_game_notified_at',
         'start_at',
@@ -42,6 +46,9 @@ class FaltaUnoGame extends Model
         'reminder_sent_at'       => 'datetime',
         'post_game_notified_at'  => 'datetime',
         'amount_paid'  => 'decimal:2',
+        'is_private'   => 'boolean',
+        'age_min'      => 'integer',
+        'age_max'      => 'integer',
     ];
 
     public function field(): BelongsTo
@@ -102,32 +109,41 @@ class FaltaUnoGame extends Model
         return $userIdx >= $minIdx && $userIdx <= $maxIdx;
     }
 
-    /** Orden de grupos de edad para comparar rangos */
-    public static function getAgeGroupOrder(): array
+    /** Verifica si una edad exacta cae dentro del rango [age_min, age_max] del partido */
+    public function isInAgeRange(?int $age): bool
     {
-        return ['sub10', 'sub12', 'sub14', 'sub16', 'sub18', '19a25', '26a34', 'open', 'mas35', 'mas40', 'mas45', 'mas50', 'mas55', 'mas60'];
-    }
-
-    /** Verifica si un age_group cae dentro del rango [age_group_min, age_group_max] del partido */
-    public function isInAgeGroupRange(string $ageGroup): bool
-    {
-        if (!$this->age_group_min && !$this->age_group_max) {
+        if (!$this->age_min && !$this->age_max) {
             return true;
         }
 
-        $groups  = self::getAgeGroupOrder();
-        $userIdx = array_search($ageGroup, $groups);
-
-        if ($userIdx === false) {
+        if ($age === null) {
             return false;
         }
 
-        $minSearch = $this->age_group_min ? array_search($this->age_group_min, $groups) : false;
-        $maxSearch = $this->age_group_max ? array_search($this->age_group_max, $groups) : false;
-        $minIdx = $minSearch !== false ? $minSearch : 0;
-        $maxIdx = $maxSearch !== false ? $maxSearch : count($groups) - 1;
+        if ($this->age_min && $age < $this->age_min) {
+            return false;
+        }
 
-        return $userIdx >= $minIdx && $userIdx <= $maxIdx;
+        if ($this->age_max && $age > $this->age_max) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /** Etiqueta legible del rango de edad del partido */
+    public function ageRangeLabel(): ?string
+    {
+        if (!$this->age_min && !$this->age_max) {
+            return null;
+        }
+        if ($this->age_min && $this->age_max) {
+            return $this->age_min . ' a ' . $this->age_max . ' años';
+        }
+        if ($this->age_min) {
+            return 'Desde ' . $this->age_min . ' años';
+        }
+        return 'Hasta ' . $this->age_max . ' años';
     }
 
     /** Si el partido ya terminó (fue marcado finished, o la hora de inicio pasó y estaba open/full) */

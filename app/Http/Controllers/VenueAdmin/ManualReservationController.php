@@ -111,8 +111,13 @@ class ManualReservationController extends Controller
             'currency'         => $field->price?->currency ?? 'ARS',
             'payment_provider' => 'manual',
             'verification_code'=> Str::upper(Str::random(8)),
-            'notes'            => $data['notes'] ?: null,
+            'notes'            => ($data['notes'] ?? null) ?: null,
         ]);
+
+        broadcast(new \App\Events\FieldAvailabilityChanged(
+            $field->id,
+            $start->toDateString()
+        ));
 
         return redirect()->route('va.reservations.index', ['date' => $start->toDateString()])
             ->with('success', 'Reserva manual creada correctamente.');

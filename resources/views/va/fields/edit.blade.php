@@ -103,11 +103,23 @@
             Duración del turno
           </label>
           <div class="flex items-center gap-3">
-            <input id="slot_minutes" type="number" name="slot_minutes"
-                   value="{{ old('slot_minutes', $field->slot_minutes) }}" min="30" max="180" required
-                   class="w-28 rounded-xl border px-4 py-2.5 text-sm text-slate-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 {{ $errors->has('slot_minutes') ? 'border-red-400 focus:ring-red-400' : 'border-slate-300' }}">
-            <span class="text-sm text-slate-500">minutos por turno</span>
+            @php $smCurrent = (int) old('slot_minutes', $field->slot_minutes ?: 60); @endphp
+            <select id="slot_minutes" name="slot_minutes" required
+                    class="w-44 rounded-xl border px-4 py-2.5 text-sm text-slate-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 {{ $errors->has('slot_minutes') ? 'border-red-400 focus:ring-red-400' : 'border-slate-300' }}">
+              @foreach([30, 45, 60, 90, 120] as $opt)
+                <option value="{{ $opt }}" {{ $smCurrent === $opt ? 'selected' : '' }}>
+                  {{ $opt }} minutos
+                </option>
+              @endforeach
+              @if(!in_array($smCurrent, [30, 45, 60, 90, 120]))
+                <option value="{{ $smCurrent }}" selected>{{ $smCurrent }} minutos</option>
+              @endif
+            </select>
+            <span class="text-xs text-slate-400">por turno</span>
           </div>
+          <p class="text-xs text-slate-500 mt-1.5">
+            Esto determina cuánto dura cada slot reservable. Los usuarios pueden reservar uno o varios turnos seguidos.
+          </p>
           @error('slot_minutes')
             <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
           @enderror

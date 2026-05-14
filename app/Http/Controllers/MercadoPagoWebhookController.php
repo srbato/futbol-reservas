@@ -415,11 +415,12 @@ class MercadoPagoWebhookController extends Controller
             }
         }
 
-        $wasPaidBefore = false;
+        $wasPaidBefore     = false;
+        $shouldNotifyPaid  = false; // true sólo si esta llamada efectivamente transicionó la reserva a PAID
 
         // Wrapear en transacción con lockForUpdate para evitar race conditions
         // cuando dos webhooks llegan simultáneamente.
-        \Illuminate\Support\Facades\DB::transaction(function () use ($reservation, $paymentId, $paymentStatus, &$wasPaidBefore) {
+        \Illuminate\Support\Facades\DB::transaction(function () use ($reservation, $paymentId, $paymentStatus, &$wasPaidBefore, &$shouldNotifyPaid) {
             // Re-cargar con lock pesimista
             $locked = Reservation::lockForUpdate()->find($reservation->id);
             if (!$locked) return;
@@ -432,7 +433,7 @@ class MercadoPagoWebhookController extends Controller
                     'payment_id'     => $paymentId,
                     'payment_status' => $paymentStatus,
                 ]);
-                return;
+                return; // shouldNotifyPaid queda false → no se mandan emails
             }
 
             if ($locked->payment_external_id === (string) $paymentId && $locked->status === 'PAID') {
@@ -449,6 +450,7 @@ class MercadoPagoWebhookController extends Controller
                 $locked->payment_status      = $paymentStatus;
                 $locked->status              = 'PAID';
                 $locked->expires_at          = null;
+                $shouldNotifyPaid = !$wasPaidBefore; // sólo notificar en la transición a PAID
             } else {
                 // Pago rejected/cancelled: solo actualizar status si no había uno aprobado antes
                 if ($locked->payment_status !== 'approved') {
@@ -463,7 +465,7 @@ class MercadoPagoWebhookController extends Controller
             $reservation->setRawAttributes($locked->getAttributes(), true);
         });
 
-        if ($paymentStatus === 'approved' && !$wasPaidBefore) {
+        if ($shouldNotifyPaid) {
             $reservation->loadMissing(['user', 'field.venue.owner']);
 
             if ($reservation->user && $reservation->user->email) {

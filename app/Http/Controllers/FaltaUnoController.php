@@ -49,25 +49,65 @@ class FaltaUnoController extends Controller
         $gender   = $request->query('gender');
         $category = $request->query('category');
         $zone     = $request->query('zone');
+        $time     = $request->query('time'); // urgent | today | tomorrow | week
 
         $games = FaltaUnoGame::with([
                 'field.venue',
                 'field.faltaUnoSetting',
                 'activeParticipants.user',
                 'reservation',
+                'initiator',
             ])
             ->whereIn('status', ['open', 'full'])
             ->where(function ($q) {
-                $q->whereHas('reservation', fn($rq) => $rq->where('status', 'PAID'))
+                // Reservas con pago confirmado (PAID) o pago en efectivo en complejo (PENDING_CASH).
+                // PENDING_CASH cuenta como confirmada porque no expira y el cliente se comprometió.
+                $q->whereHas('reservation', fn($rq) => $rq->whereIn('status', ['PAID', 'PENDING_CASH']))
                   ->orWhereNull('reservation_id');
             })
+            ->where('is_private', false) // partidos privados no aparecen en el feed público
+            // Solo de complejos cuyo dueño tiene suscripción vigente
+            ->whereHas('field.venue', fn($q) => $q->where('is_active', true)->withActiveOwner())
             ->where('start_at', '>', now())
             ->when($sport, fn($q) => $q->whereHas('field', fn($q2) => $q2->where('sport', $sport)))
             ->when($gender, fn($q) => $q->where(fn($q2) => $q2->where('gender_filter', $gender)->orWhere('gender_filter', 'mixed')))
             ->when($zone, fn($q) => $q->whereHas('field.venue', fn($q2) => $q2->where('zone', $zone)))
+            ->when($time === 'urgent', fn($q) => $q->where('start_at', '<=', now()->addHours(4)))
+            ->when($time === 'today', fn($q) => $q->whereDate('start_at', today()))
+            ->when($time === 'tomorrow', fn($q) => $q->whereDate('start_at', today()->addDay()))
+            ->when($time === 'week', fn($q) => $q->where('start_at', '<=', now()->endOfWeek()))
             ->orderBy('start_at')
             ->get()
             ->when($category, fn($coll) => $coll->filter(fn($game) => $game->isInCategoryRange($category)));
+
+        // Próximos partidos del usuario (sidebar). Sólo si está auth.
+        $myUpcomingGames = collect();
+        $pendingPaymentGame = null;
+        if (auth()->check()) {
+            $userId = auth()->id();
+            $myUpcomingGames = FaltaUnoGame::with(['field.venue'])
+                ->where(function ($q) use ($userId) {
+                    $q->where('initiator_user_id', $userId)
+                      ->orWhereHas('activeParticipants', fn($qq) => $qq->where('user_id', $userId)->where('status', 'confirmed'));
+                })
+                ->whereIn('status', ['open', 'full'])
+                ->where('start_at', '>', now())
+                ->orderBy('start_at')
+                ->limit(3)
+                ->get();
+
+            // Partido FU del usuario pendiente de pago (no aparece en el feed público hasta que pague)
+            $pendingPaymentGame = FaltaUnoGame::with(['reservation', 'field.venue'])
+                ->where('initiator_user_id', $userId)
+                ->where('status', 'open')
+                ->whereHas('reservation', fn($q) => $q
+                    ->where('status', 'PENDING_PAYMENT')
+                    ->where(fn($qq) => $qq->whereNull('expires_at')->orWhere('expires_at', '>', now()))
+                )
+                ->where('start_at', '>', now())
+                ->latest('id')
+                ->first();
+        }
 
         // Zonas disponibles: solo las de venues con partidos abiertos activos
         $zones = Venue::whereHas('fields.faltaUnoGames', function ($q) {
@@ -83,8 +123,9 @@ class FaltaUnoController extends Controller
 
         // Canchas con Falta Uno habilitado (para el selector de "Crear partido")
         $faltaUnoFields = Field::with('venue')
+            ->where('is_active', true)
             ->whereHas('faltaUnoSetting', fn($q) => $q->where('enabled', true))
-            ->whereHas('venue', fn($q) => $q->where('is_active', true))
+            ->whereHas('venue', fn($q) => $q->where('is_active', true)->withActiveOwner())
             ->orderBy('name')
             ->get();
 
@@ -94,7 +135,7 @@ class FaltaUnoController extends Controller
             $recommendations = $this->matchmakingService->getRecommendations(auth()->user(), 4);
         }
 
-        return view('falta-uno.index', compact('games', 'sport', 'gender', 'category', 'zone', 'zones', 'faltaUnoFields', 'recommendations'));
+        return view('falta-uno.index', compact('games', 'sport', 'gender', 'category', 'zone', 'time', 'zones', 'faltaUnoFields', 'recommendations', 'myUpcomingGames', 'pendingPaymentGame'));
     }
 
     /**
@@ -116,10 +157,17 @@ class FaltaUnoController extends Controller
         $isJoined    = $userId && $game->activeParticipants->contains('user_id', $userId);
         $isParticipant = $isInitiator || $isJoined;
 
-        // Si la reserva no esta pagada, solo el iniciador puede ver el partido
-        if ($game->reservation && $game->reservation->status !== 'PAID' && !$isInitiator) {
+        // Si la reserva no está pagada (ni con efectivo comprometido), solo el iniciador puede ver el partido
+        if ($game->reservation && !in_array($game->reservation->status, ['PAID', 'PENDING_CASH']) && !$isInitiator) {
             return redirect()->route('falta-uno.index')
                 ->with('error', 'Este partido aun no esta disponible.');
+        }
+
+        // Si el complejo no está activo o su dueño no tiene suscripción vigente,
+        // solo los participantes existentes pueden ver el partido (ya están adentro).
+        if ((!$game->field?->is_active || !$game->field?->venue?->is_active || !$game->field?->venue?->hasActiveOwner()) && !$isParticipant) {
+            return redirect()->route('falta-uno.index')
+                ->with('error', 'Este partido ya no está disponible.');
         }
 
         $yaCalifico = $userId
@@ -172,10 +220,29 @@ class FaltaUnoController extends Controller
             $otherUsers = User::whereIn('id', $otherIds)->get();
         }
 
+        // Últimos 3 mensajes del chat para preview
+        $recentMessages = $game->messages()
+            ->with('user')
+            ->latest('id')
+            ->limit(3)
+            ->get()
+            ->reverse()
+            ->values();
+        $totalMessages = $game->messages()->count();
+
+        // Bloqueo del venue (pre-check para mostrar UI sin permitir click vacío)
+        $venueBlock = null;
+        if ($userId && $game->field->venue) {
+            $venueBlock = VenueUserBlock::where('user_id', $userId)
+                ->where('venue_id', $game->field->venue->id)
+                ->first();
+        }
+
         return view('falta-uno.show', compact(
             'game', 'isInitiator', 'isJoined', 'isParticipant', 'yaCalifico',
             'reputationData', 'wouldBeLateLeave', 'joinCheck', 'wasKicked',
-            'noShowParticipants', 'otherUsers', 'wasNoShow'
+            'noShowParticipants', 'otherUsers', 'wasNoShow',
+            'recentMessages', 'totalMessages', 'venueBlock'
         ));
     }
 
@@ -187,6 +254,11 @@ class FaltaUnoController extends Controller
         $field->load(['venue', 'price', 'faltaUnoSetting']);
 
         if (!$field->faltaUnoSetting?->enabled) {
+            abort(404);
+        }
+
+        // El complejo debe estar activo y su dueño con suscripción vigente
+        if (!$field->is_active || !$field->venue || !$field->venue->is_active || !$field->venue->hasActiveOwner()) {
             abort(404);
         }
 
@@ -204,6 +276,11 @@ class FaltaUnoController extends Controller
             abort(404);
         }
 
+        // El complejo debe estar activo y su dueño con suscripción vigente
+        if (!$field->is_active || !$field->venue || !$field->venue->is_active || !$field->venue->hasActiveOwner()) {
+            return back()->with('error', 'Este complejo no está disponible en este momento.');
+        }
+
         // Verificar si el usuario esta bloqueado en el venue
         if ($field->venue && VenueUserBlock::isBlocked($request->user()->id, $field->venue->id)) {
             return back()->with('error', 'No podés reservar en este complejo. Contactá al complejo para más información.');
@@ -216,8 +293,10 @@ class FaltaUnoController extends Controller
             'gender_filter'     => ['nullable', 'in:male,female,mixed'],
             'category_min'      => ['nullable', 'string'],
             'category_max'      => ['nullable', 'string'],
-            'age_group_min'     => ['nullable', 'string', 'in:sub10,sub12,sub14,sub16,sub18,19a25,26a34,open,mas35,mas40,mas45,mas50,mas55,mas60'],
-            'age_group_max'     => ['nullable', 'string', 'in:sub10,sub12,sub14,sub16,sub18,19a25,26a34,open,mas35,mas40,mas45,mas50,mas55,mas60'],
+            'age_min'           => ['nullable', 'integer', 'min:5', 'max:99'],
+            'age_max'           => ['nullable', 'integer', 'min:5', 'max:99', 'gte:age_min'],
+            'message'           => ['nullable', 'string', 'max:500'],
+            'is_private'        => ['nullable', 'boolean'],
         ]);
 
         $totalPlayers     = (int) $data['total_players'];
@@ -247,31 +326,19 @@ class FaltaUnoController extends Controller
             }
         }
 
-        // Validar que el grupo de edad del iniciador esté dentro del rango definido
-        if ($data['age_group_min'] || $data['age_group_max']) {
-            $userAgeGroup = $request->user()->age_group;
-            if (!$userAgeGroup) {
+        // Validar que la edad del iniciador esté dentro del rango definido
+        $ageMin = $data['age_min'] ?? null;
+        $ageMax = $data['age_max'] ?? null;
+        if ($ageMin || $ageMax) {
+            $userAge = $request->user()->age;
+            if (!$userAge) {
                 return redirect('/profile#personal-info')
-                    ->with('error', 'Necesitás completar tu grupo de edad en tu perfil para crear un partido con filtro de edad.');
+                    ->with('error', 'Necesitás completar tu edad en tu perfil para crear un partido con filtro de edad.');
             }
-            $ageOrder = FaltaUnoGame::getAgeGroupOrder();
-            $userAgeIdx = array_search($userAgeGroup, $ageOrder);
-            if ($userAgeIdx !== false) {
-                $minAgeSearch = $data['age_group_min'] ? array_search($data['age_group_min'], $ageOrder) : false;
-                $maxAgeSearch = $data['age_group_max'] ? array_search($data['age_group_max'], $ageOrder) : false;
-                $minAgeIdx = $minAgeSearch !== false ? $minAgeSearch : 0;
-                $maxAgeIdx = $maxAgeSearch !== false ? $maxAgeSearch : count($ageOrder) - 1;
-                if ($userAgeIdx < $minAgeIdx || $userAgeIdx > $maxAgeIdx) {
-                    $ageLabelMap = [
-                        'sub10' => 'Sub 10', 'sub12' => 'Sub 12', 'sub14' => 'Sub 14',
-                        'sub16' => 'Sub 16', 'sub18' => 'Sub 18', '19a25' => '19 a 25',
-                        'mas35' => '+35', 'mas40' => '+40', 'mas45' => '+45', 'mas50' => '+50',
-                        'mas55' => '+55', 'mas60' => '+60', '26a34' => '26 a 34', 'open' => 'Open',
-                    ];
-                    $range = ($ageLabelMap[$data['age_group_min']] ?? 'cualquiera') . ' – ' . ($ageLabelMap[$data['age_group_max']] ?? 'cualquiera');
-                    $userAgeLabel = $ageLabelMap[$userAgeGroup] ?? $userAgeGroup;
-                    return back()->withErrors(['age_group_min' => "Tu grupo de edad ({$userAgeLabel}) está fuera del rango que definiste ({$range}). Solo podés crear partidos en los que tu edad esté incluida."])->withInput();
-                }
+            if (($ageMin && $userAge < $ageMin) || ($ageMax && $userAge > $ageMax)) {
+                $range = $ageMin && $ageMax ? "{$ageMin} a {$ageMax} años"
+                    : ($ageMin ? "desde {$ageMin} años" : "hasta {$ageMax} años");
+                return back()->withErrors(['age_min' => "Tu edad ({$userAge}) está fuera del rango que definiste ({$range}). Solo podés crear partidos en los que tu edad esté incluida."])->withInput();
             }
         }
 
@@ -317,8 +384,10 @@ class FaltaUnoController extends Controller
                 'gender_filter'     => $data['gender_filter'] ?? 'mixed',
                 'category_min'      => $data['category_min'] ?: null,
                 'category_max'      => $data['category_max'] ?: null,
-                'age_group_min'     => $data['age_group_min'] ?: null,
-                'age_group_max'     => $data['age_group_max'] ?: null,
+                'age_min'           => $ageMin ?: null,
+                'age_max'           => $ageMax ?: null,
+                'message'           => $data['message'] ?? null,
+                'is_private'        => (bool) ($data['is_private'] ?? false),
             ]);
 
             DB::commit();
@@ -360,11 +429,18 @@ class FaltaUnoController extends Controller
             return back()->with('error', 'No podés reservar en este complejo. Contactá al complejo para más información.');
         }
 
+        // El complejo debe estar activo y su dueño con suscripción vigente
+        if (!$game->field || !$game->field->is_active || !$game->field->venue
+            || !$game->field->venue->is_active || !$game->field->venue->hasActiveOwner()) {
+            return back()->with('error', 'Este complejo ya no está disponible.');
+        }
+
         if ($game->status !== 'open') {
             return back()->with('error', 'Este partido ya no está disponible.');
         }
 
-        if ($game->reservation_id && $game->reservation?->status !== 'PAID') {
+        // PAID o PENDING_CASH (efectivo en complejo, ya comprometido) son válidos
+        if ($game->reservation_id && !in_array($game->reservation?->status, ['PAID', 'PENDING_CASH'])) {
             return back()->with('error', 'Este partido no está disponible aún.');
         }
 
@@ -407,25 +483,14 @@ class FaltaUnoController extends Controller
             return back()->with('error', "Este partido acepta categorías {$range}. Tu categoría es {$profile->category}.");
         }
 
-        // Validar grupo de edad
-        if ($game->age_group_min || $game->age_group_max) {
-            if (!$user->age_group) {
+        // Validar edad
+        if ($game->age_min || $game->age_max) {
+            if (!$user->age) {
                 return redirect('/profile#personal-info')
-                    ->with('error', 'Necesitás completar tu grupo de edad en tu perfil para unirte a este partido.');
+                    ->with('error', 'Necesitás completar tu edad en tu perfil para unirte a este partido.');
             }
-            if (!$game->isInAgeGroupRange($user->age_group)) {
-                $ageLabels = FaltaUnoGame::getAgeGroupOrder();
-                $ageLabelMap = [
-                    'sub10' => 'Sub 10', 'sub12' => 'Sub 12', 'sub14' => 'Sub 14',
-                    'sub16' => 'Sub 16', 'sub18' => 'Sub 18', '19a25' => '19 a 25',
-                    '26a34' => '26 a 34', 'open'  => 'Open',   'mas35' => '+35',
-                    'mas40' => '+40',     'mas45' => '+45',     'mas50' => '+50',
-                    'mas55' => '+55',     'mas60' => '+60',
-                ];
-                $minLabel = $ageLabelMap[$game->age_group_min] ?? 'cualquiera';
-                $maxLabel = $ageLabelMap[$game->age_group_max] ?? 'cualquiera';
-                $userLabel = $ageLabelMap[$user->age_group] ?? $user->age_group;
-                return back()->with('error', "Este partido acepta edades {$minLabel} – {$maxLabel}. Tu grupo de edad es {$userLabel}.");
+            if (!$game->isInAgeRange($user->age)) {
+                return back()->with('error', "Este partido acepta edades de {$game->ageRangeLabel()}. Tu edad es {$user->age}.");
             }
         }
 
@@ -804,8 +869,10 @@ class FaltaUnoController extends Controller
             'gender_filter'     => ['nullable', 'in:male,female,mixed'],
             'category_min'      => ['nullable', 'string'],
             'category_max'      => ['nullable', 'string'],
-            'age_group_min'     => ['nullable', 'string', 'in:sub10,sub12,sub14,sub16,sub18,19a25,26a34,open,mas35,mas40,mas45,mas50,mas55,mas60'],
-            'age_group_max'     => ['nullable', 'string', 'in:sub10,sub12,sub14,sub16,sub18,19a25,26a34,open,mas35,mas40,mas45,mas50,mas55,mas60'],
+            'age_min'           => ['nullable', 'integer', 'min:5', 'max:99'],
+            'age_max'           => ['nullable', 'integer', 'min:5', 'max:99', 'gte:age_min'],
+            'message'           => ['nullable', 'string', 'max:500'],
+            'is_private'        => ['nullable', 'boolean'],
         ]);
 
         $totalPlayers     = (int) $data['total_players'];
@@ -837,31 +904,19 @@ class FaltaUnoController extends Controller
             }
         }
 
-        // Validar grupo de edad del iniciador
-        if ($data['age_group_min'] || $data['age_group_max']) {
-            $userAgeGroup = $user->age_group;
-            if (!$userAgeGroup) {
+        // Validar edad del iniciador
+        $ageMin = $data['age_min'] ?? null;
+        $ageMax = $data['age_max'] ?? null;
+        if ($ageMin || $ageMax) {
+            $userAge = $user->age;
+            if (!$userAge) {
                 return redirect('/profile#personal-info')
-                    ->with('error', 'Necesitas completar tu grupo de edad en tu perfil para crear un partido con filtro de edad.');
+                    ->with('error', 'Necesitas completar tu edad en tu perfil para crear un partido con filtro de edad.');
             }
-            $ageOrder = FaltaUnoGame::getAgeGroupOrder();
-            $userAgeIdx = array_search($userAgeGroup, $ageOrder);
-            if ($userAgeIdx !== false) {
-                $minAgeSearch = $data['age_group_min'] ? array_search($data['age_group_min'], $ageOrder) : false;
-                $maxAgeSearch = $data['age_group_max'] ? array_search($data['age_group_max'], $ageOrder) : false;
-                $minAgeIdx = $minAgeSearch !== false ? $minAgeSearch : 0;
-                $maxAgeIdx = $maxAgeSearch !== false ? $maxAgeSearch : count($ageOrder) - 1;
-                if ($userAgeIdx < $minAgeIdx || $userAgeIdx > $maxAgeIdx) {
-                    $ageLabelMap = [
-                        'sub10' => 'Sub 10', 'sub12' => 'Sub 12', 'sub14' => 'Sub 14',
-                        'sub16' => 'Sub 16', 'sub18' => 'Sub 18', '19a25' => '19 a 25',
-                        'mas35' => '+35', 'mas40' => '+40', 'mas45' => '+45', 'mas50' => '+50',
-                        'mas55' => '+55', 'mas60' => '+60', '26a34' => '26 a 34', 'open' => 'Open',
-                    ];
-                    $range = ($ageLabelMap[$data['age_group_min']] ?? 'cualquiera') . ' - ' . ($ageLabelMap[$data['age_group_max']] ?? 'cualquiera');
-                    $userAgeLabel = $ageLabelMap[$userAgeGroup] ?? $userAgeGroup;
-                    return back()->withErrors(['age_group_min' => "Tu grupo de edad ({$userAgeLabel}) esta fuera del rango que definiste ({$range})."])->withInput();
-                }
+            if (($ageMin && $userAge < $ageMin) || ($ageMax && $userAge > $ageMax)) {
+                $range = $ageMin && $ageMax ? "{$ageMin} a {$ageMax} años"
+                    : ($ageMin ? "desde {$ageMin} años" : "hasta {$ageMax} años");
+                return back()->withErrors(['age_min' => "Tu edad ({$userAge}) esta fuera del rango que definiste ({$range})."])->withInput();
             }
         }
 
@@ -883,8 +938,10 @@ class FaltaUnoController extends Controller
                 'gender_filter'     => $data['gender_filter'] ?? 'mixed',
                 'category_min'      => $data['category_min'] ?: null,
                 'category_max'      => $data['category_max'] ?: null,
-                'age_group_min'     => $data['age_group_min'] ?: null,
-                'age_group_max'     => $data['age_group_max'] ?: null,
+                'age_min'           => $ageMin ?: null,
+                'age_max'           => $ageMax ?: null,
+                'message'           => $data['message'] ?? null,
+                'is_private'        => (bool) ($data['is_private'] ?? false),
             ]);
 
             DB::commit();

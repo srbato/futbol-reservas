@@ -63,15 +63,16 @@ class FieldDiscountController extends Controller
             ->whereHas('venue', fn ($q) => $q->accessibleBy($user))
             ->findOrFail($data['field_id']);
 
+        $dow = $data['day_of_week'] ?? null;
         FieldDiscount::create([
-            'field_id' => $field->id,
-            'day_of_week' => $data['day_of_week'] !== '' ? $data['day_of_week'] : null,
-            'date' => $data['date'] ?? null,
-            'start_time' => $data['start_time'] ?? null,
-            'end_time' => $data['end_time'] ?? null,
+            'field_id'       => $field->id,
+            'day_of_week'    => ($dow !== '' && $dow !== null) ? $dow : null,
+            'date'           => $data['date'] ?? null,
+            'start_time'     => $data['start_time'] ?? null,
+            'end_time'       => $data['end_time'] ?? null,
             'discount_price' => $data['discount_price'],
-            'label' => $data['label'] ?? null,
-            'is_active' => true,
+            'label'          => $data['label'] ?? null,
+            'is_active'      => true,
         ]);
 
         return redirect()->route('va.discounts.index')->with('success', 'Descuento creado.');

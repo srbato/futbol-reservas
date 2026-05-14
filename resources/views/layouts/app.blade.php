@@ -1545,7 +1545,9 @@
   var success = document.getElementById('feedbackSuccess');
   var form    = document.getElementById('feedbackForm');
 
-  function openPanel()  { panel.style.display = 'block'; }
+  var formLoadedAt = Date.now(); // se actualiza al abrir el panel — antibot por timing
+
+  function openPanel()  { panel.style.display = 'block'; formLoadedAt = Date.now(); }
   function closePanel() { panel.style.display = 'none'; success.style.display = 'none'; form.style.display = 'block'; msg.value = ''; err.style.display = 'none'; }
 
   toggle.addEventListener('click', function(e) {
@@ -1579,7 +1581,7 @@
         'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
         'Accept': 'application/json',
       },
-      body: JSON.stringify({ feedback_message: message, website_url: '' }),
+      body: JSON.stringify({ feedback_message: message, website_url: '', form_loaded_at: formLoadedAt }),
     })
     .then(function(r) { return r.json(); })
     .then(function(data) {

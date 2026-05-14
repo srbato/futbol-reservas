@@ -533,46 +533,23 @@
 
         <div class="fu-divider"></div>
 
-        {{-- Filtro de grupo de edad (rango) --}}
-        @php
-          $ageGroups = [
-            'sub10' => 'Sub 10', 'sub12' => 'Sub 12', 'sub14' => 'Sub 14',
-            'sub16' => 'Sub 16', 'sub18' => 'Sub 18', '19a25' => '19 a 25',
-            '26a34' => '26 a 34', 'open'  => 'Open',   'mas35' => '+35',
-            'mas40' => '+40',     'mas45' => '+45',     'mas50' => '+50',
-            'mas55' => '+55',     'mas60' => '+60',
-          ];
-        @endphp
+        {{-- Filtro de edad (rango exacto) --}}
         <div class="fu-input-group">
           <label class="fu-label">
             <span class="fu-label-icon"><i data-lucide="calendar-range" style="width:14px;height:14px;stroke:currentColor;vertical-align:middle;"></i></span> Rango de edad aceptado
           </label>
           <div style="display:flex; gap:10px; align-items:center;">
             <div style="flex:1;">
-              <div style="font-size:11px; color:#666; font-weight:600; margin-bottom:4px; text-transform:uppercase; letter-spacing:.05em;">Desde</div>
-              <select id="age_group_min" name="age_group_min" class="form-control" style="width:100%; font-size:14px;" onchange="syncAgeMax()">
-                <option value="">Cualquiera</option>
-                @foreach($ageGroups as $val => $label)
-                  <option value="{{ $val }}" {{ old('age_group_min') === $val ? 'selected' : '' }}>
-                    {{ $label }}
-                  </option>
-                @endforeach
-              </select>
+              <div style="font-size:11px; color:#666; font-weight:600; margin-bottom:4px; text-transform:uppercase; letter-spacing:.05em;">Edad mínima</div>
+              <input type="number" id="age_min" name="age_min" class="form-control" style="width:100%; font-size:14px;" min="5" max="99" placeholder="Cualquiera" value="{{ old('age_min') }}">
             </div>
             <div style="color:#444; padding-top:18px; display:flex; align-items:center;"><i data-lucide="arrow-right" style="width:18px;height:18px;stroke:#444;"></i></div>
             <div style="flex:1;">
-              <div style="font-size:11px; color:#666; font-weight:600; margin-bottom:4px; text-transform:uppercase; letter-spacing:.05em;">Hasta</div>
-              <select id="age_group_max" name="age_group_max" class="form-control" style="width:100%; font-size:14px;" onchange="syncAgeMin()">
-                <option value="">Cualquiera</option>
-                @foreach($ageGroups as $val => $label)
-                  <option value="{{ $val }}" {{ old('age_group_max') === $val ? 'selected' : '' }}>
-                    {{ $label }}
-                  </option>
-                @endforeach
-              </select>
+              <div style="font-size:11px; color:#666; font-weight:600; margin-bottom:4px; text-transform:uppercase; letter-spacing:.05em;">Edad máxima</div>
+              <input type="number" id="age_max" name="age_max" class="form-control" style="width:100%; font-size:14px;" min="5" max="99" placeholder="Cualquiera" value="{{ old('age_max') }}">
             </div>
           </div>
-          <p class="fu-hint">Deja ambos en "Cualquiera" para aceptar jugadores de cualquier edad.</p>
+          <p class="fu-hint">Dejá ambos vacíos para aceptar jugadores de cualquier edad.</p>
         </div>
 
         <div class="fu-divider"></div>
@@ -762,34 +739,22 @@
     }
   }
 
-  // Sincroniza selects de grupo de edad
-  const AGE_ORDER = @json(array_keys($ageGroups));
-
-  function ageIndex(val) {
-    return val === '' ? -1 : AGE_ORDER.indexOf(val);
-  }
-
-  function syncAgeMax() {
-    const minSel = document.getElementById('age_group_min');
-    const maxSel = document.getElementById('age_group_max');
-    const minIdx = ageIndex(minSel.value);
-    if (minIdx === -1) return;
-    const maxIdx = ageIndex(maxSel.value);
-    if (maxIdx !== -1 && maxIdx < minIdx) {
-      maxSel.value = minSel.value;
+  // Sincroniza inputs de edad: min no puede superar max
+  (function () {
+    const minEl = document.getElementById('age_min');
+    const maxEl = document.getElementById('age_max');
+    if (!minEl || !maxEl) return;
+    function sync(changed) {
+      const min = parseInt(minEl.value, 10);
+      const max = parseInt(maxEl.value, 10);
+      if (!isNaN(min) && !isNaN(max) && min > max) {
+        if (changed === 'min') maxEl.value = min;
+        else minEl.value = max;
+      }
     }
-  }
-
-  function syncAgeMin() {
-    const minSel = document.getElementById('age_group_min');
-    const maxSel = document.getElementById('age_group_max');
-    const maxIdx = ageIndex(maxSel.value);
-    if (maxIdx === -1) return;
-    const minIdx = ageIndex(minSel.value);
-    if (minIdx !== -1 && minIdx > maxIdx) {
-      minSel.value = maxSel.value;
-    }
-  }
+    minEl.addEventListener('change', () => sync('min'));
+    maxEl.addEventListener('change', () => sync('max'));
+  })();
 </script>
 
 @endsection

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('sport');
             $table->string('category');
-            $table->enum('gender', ['male', 'female']);
+            $table->string('gender', 10)->nullable(); // male|female|null — sin enum/NOT NULL para que migrations posteriores que lo hacen nullable funcionen también en SQLite
             $table->string('age_group')->nullable();
             $table->unsignedInteger('games_played')->default(0);
             $table->unsignedInteger('wins')->default(0);

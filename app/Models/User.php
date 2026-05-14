@@ -25,7 +25,7 @@ class User extends Authenticatable
         'avatar_path',
         'google_id',
         'onboarding_completed_at',
-        'age_group',
+        'age',
     ];
     
     protected $hidden = [
@@ -42,6 +42,7 @@ class User extends Authenticatable
             'email_verified_at'      => 'datetime',
             'password'               => 'hashed',
             'is_active'              => 'boolean',
+            'age'                    => 'integer',
             'onboarding_completed_at' => 'datetime',
             'mp_access_token'        => 'encrypted',
             'mp_refresh_token'       => 'encrypted',

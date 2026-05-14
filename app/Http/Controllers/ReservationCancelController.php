@@ -53,6 +53,12 @@ class ReservationCancelController extends Controller
             'expires_at' => null,
         ]);
 
+        // Avisar al grid público (real-time) que el slot quedó libre
+        broadcast(new \App\Events\FieldAvailabilityChanged(
+            $reservation->field_id,
+            $reservation->start_at->toDateString()
+        ));
+
         // Si la reserva pertenece a un partido Falta Uno, cancelarlo y notificar participantes
         $faltaUnoGame = FaltaUnoGame::where('reservation_id', $reservation->id)->first();
         if ($faltaUnoGame && in_array($faltaUnoGame->status, ['open', 'full'])) {

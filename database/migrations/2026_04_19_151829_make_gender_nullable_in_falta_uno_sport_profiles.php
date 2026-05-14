@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Usamos raw SQL para Postgres (la enum column no se altera con Schema::change fácilmente)
-        \Illuminate\Support\Facades\DB::statement('ALTER TABLE falta_uno_sport_profiles ALTER COLUMN gender DROP NOT NULL');
+        // Postgres: ALTER COLUMN raw. SQLite (testing): no-op porque el create_table inicial
+        // ya define gender nullable o no existe la tabla todavía.
+        if (\Illuminate\Support\Facades\DB::getDriverName() === 'pgsql') {
+            \Illuminate\Support\Facades\DB::statement('ALTER TABLE falta_uno_sport_profiles ALTER COLUMN gender DROP NOT NULL');
+        }
     }
 
     /**
@@ -20,8 +23,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Revertir: primero setear un default en las filas null, luego aplicar NOT NULL
-        \Illuminate\Support\Facades\DB::statement("UPDATE falta_uno_sport_profiles SET gender = 'male' WHERE gender IS NULL");
-        \Illuminate\Support\Facades\DB::statement('ALTER TABLE falta_uno_sport_profiles ALTER COLUMN gender SET NOT NULL');
+        if (\Illuminate\Support\Facades\DB::getDriverName() === 'pgsql') {
+            \Illuminate\Support\Facades\DB::statement("UPDATE falta_uno_sport_profiles SET gender = 'male' WHERE gender IS NULL");
+            \Illuminate\Support\Facades\DB::statement('ALTER TABLE falta_uno_sport_profiles ALTER COLUMN gender SET NOT NULL');
+        }
     }
 };
