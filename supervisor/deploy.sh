@@ -69,6 +69,20 @@ $PHP artisan migrate --force
 echo "==> [7/10] Linking storage..."
 $PHP artisan storage:link --force
 
+# ── Symlinks de assets: el DocumentRoot (public_html) apunta fuera del
+# public/ real de Laravel. Symlinkeamos las carpetas de assets para que
+# Apache las sirva directo (si no, 404 en CSS/JS/imágenes). Idempotente.
+PUBLIC_HTML="/home/santiago/public_html"
+REAL_PUBLIC="/home/santiago/tucancha/public"
+if [ -d "$PUBLIC_HTML" ]; then
+  for asset in build css images storage site.webmanifest sw.js favicon.ico robots.txt; do
+    if [ -e "$REAL_PUBLIC/$asset" ]; then
+      ln -sfn "$REAL_PUBLIC/$asset" "$PUBLIC_HTML/$asset"
+    fi
+  done
+  echo "    Symlinks de assets actualizados en $PUBLIC_HTML"
+fi
+
 echo "==> [8/10] Optimizando Laravel..."
 $PHP artisan optimize:clear
 $PHP artisan optimize
