@@ -55,3 +55,61 @@ test('password confirmation must match', function () {
         'password_confirmation' => 'other-password',
     ])->assertSessionHasErrors(['password']);
 });
+
+test('registration rejects name with a URL (spam bot)', function () {
+    Mail::fake();
+
+    $this->post('/register', [
+        'name'                  => '$3,222 deposit available! http://naveenplast.com/?mn1m29',
+        'email'                 => 'spam@mailbox.in.ua',
+        'password'              => 'password',
+        'password_confirmation' => 'password',
+    ])->assertSessionHasErrors(['name']);
+
+    $this->assertDatabaseMissing('users', ['email' => 'spam@mailbox.in.ua']);
+    Mail::assertNothingSent();
+});
+
+test('registration rejects when honeypot is filled', function () {
+    Mail::fake();
+
+    $this->post('/register', [
+        'name'                  => 'Real Person',
+        'email'                 => 'bot@example.com',
+        'password'              => 'password',
+        'password_confirmation' => 'password',
+        'website_url'           => 'http://bot.example',
+    ])->assertStatus(422);
+
+    $this->assertDatabaseMissing('users', ['email' => 'bot@example.com']);
+});
+
+test('registration rejects submission faster than 3 seconds', function () {
+    Mail::fake();
+
+    $this->post('/register', [
+        'name'                  => 'Real Person',
+        'email'                 => 'fast@example.com',
+        'password'              => 'password',
+        'password_confirmation' => 'password',
+        'form_loaded_at'        => now()->valueOf(), // recién cargado → < 3s
+    ])->assertStatus(422);
+
+    $this->assertDatabaseMissing('users', ['email' => 'fast@example.com']);
+});
+
+test('registration accepts a human with valid timing', function () {
+    Mail::fake();
+    Event::fake([Registered::class]);
+
+    $this->post('/register', [
+        'name'                  => 'Juan Pérez',
+        'email'                 => 'juan@example.com',
+        'password'              => 'password',
+        'password_confirmation' => 'password',
+        'form_loaded_at'        => now()->subSeconds(10)->valueOf(),
+    ]);
+
+    $this->assertAuthenticated();
+    $this->assertDatabaseHas('users', ['email' => 'juan@example.com']);
+});

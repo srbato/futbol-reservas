@@ -23,6 +23,12 @@
     <form method="POST" action="{{ route('register') }}">
         @csrf
 
+        {{-- Antibot: honeypot (invisible) + timestamp de carga --}}
+        <input type="text" name="website_url" tabindex="-1" autocomplete="off" aria-hidden="true"
+               style="position:absolute;left:-9999px;opacity:0;height:0;width:0;">
+        <input type="hidden" name="form_loaded_at" value="">
+        <script>document.currentScript.previousElementSibling.value = Date.now();</script>
+
         <div style="margin-bottom:16px;">
             <label for="name">Nombre</label>
             <input
