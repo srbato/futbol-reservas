@@ -75,11 +75,19 @@ $PHP artisan storage:link --force
 PUBLIC_HTML="/home/santiago/public_html"
 REAL_PUBLIC="/home/santiago/tucancha/public"
 if [ -d "$PUBLIC_HTML" ]; then
-  for asset in build css images storage site.webmanifest sw.js favicon.ico robots.txt; do
+  # Assets estáticos: targets en public/ (root-owned). Apache usa
+  # SymLinksIfOwnerMatch → el symlink debe tener el MISMO dueño que su target.
+  # Estos quedan root→root (el deploy corre como root) → OK.
+  for asset in build css images site.webmanifest sw.js favicon.ico robots.txt; do
     if [ -e "$REAL_PUBLIC/$asset" ]; then
       ln -sfn "$REAL_PUBLIC/$asset" "$PUBLIC_HTML/$asset"
     fi
   done
+  # storage: el target real (storage/app/public) es de 'santiago'. Para que
+  # SymLinksIfOwnerMatch lo siga, el symlink debe apuntar DIRECTO al target
+  # real (no al symlink intermedio public/storage) y tener dueño santiago.
+  ln -sfn /home/santiago/tucancha/storage/app/public "$PUBLIC_HTML/storage"
+  chown -h santiago:santiago "$PUBLIC_HTML/storage"
   echo "    Symlinks de assets actualizados en $PUBLIC_HTML"
 fi
 
