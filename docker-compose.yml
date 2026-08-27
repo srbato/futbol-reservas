@@ -11,30 +11,60 @@
 #   localhost:8080         → Reverb (websockets)
 #   http://localhost:5173  → Vite dev server (hot reload)
 
+# Variables que SIEMPRE deben valer esto dentro de Docker, sin importar lo que
+# diga el .env del desarrollador. Laravel no pisa las variables que ya existen
+# en el entorno, así que estas ganan sobre el archivo .env.
+#
+# Es lo que permite tener un .env apuntando a ngrok/producción y que igual
+# funcione todo en local: acá se corrige la URL, el esquema y la base.
+x-php-env: &php-env
+  # Base de datos del contenedor (no la que tengas instalada en tu máquina)
+  DB_CONNECTION: pgsql
+  DB_HOST: db
+  DB_PORT: 5432
+  DB_DATABASE: tucancha
+  DB_USERNAME: tucancha
+  DB_PASSWORD: secret
+  # Sin esto Laravel genera los links con https y el navegador da
+  # ERR_SSL_PROTOCOL_ERROR (además de romper la sesión por la cookie segura).
+  APP_URL: http://localhost:8000
+  ASSET_URL: http://localhost:8000
+  SESSION_SECURE_COOKIE: "false"
+  # En desarrollo los mails se escriben en storage/logs, no se envían
+  MAIL_MAILER: log
+  # Websockets dentro de la red de Docker
+  REVERB_HOST: reverb
+  REVERB_PORT: 8080
+  REVERB_SCHEME: http
+  REVERB_SERVER_HOSTNAME: 0.0.0.0
+  REVERB_CLIENT_HOST: localhost
+  REVERB_CLIENT_PORT: 8080
+
+# Configuración común de los 4 servicios PHP: comparten imagen y código,
+# sólo cambia el comando que ejecutan.
+x-php-service: &php-service
+  build:
+    context: .
+    dockerfile: docker/php/Dockerfile
+    args:
+      UID: ${UID:-1000}
+      GID: ${GID:-1000}
+  restart: unless-stopped
+  volumes:
+    - .:/var/www/html
+  depends_on:
+    db:
+      condition: service_healthy
+  networks: [tucancha]
+
 services:
   # ── Aplicación (PHP-FPM) ────────────────────────────────────────────
   app:
-    build:
-      context: .
-      dockerfile: docker/php/Dockerfile
-      args:
-        UID: ${UID:-1000}
-        GID: ${GID:-1000}
+    <<: *php-service
     container_name: tucancha-app
-    restart: unless-stopped
-    volumes:
-      - .:/var/www/html
     environment:
+      <<: *php-env
       CONTAINER_ROLE: app
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_DATABASE: tucancha
-      DB_USERNAME: tucancha
-      DB_PASSWORD: secret
-    depends_on:
-      db:
-        condition: service_healthy
-    networks: [tucancha]
 
   # ── Servidor web ────────────────────────────────────────────────────
   nginx:
@@ -71,80 +101,32 @@ services:
 
   # ── Worker de colas (emails, notificaciones) ────────────────────────
   queue:
-    build:
-      context: .
-      dockerfile: docker/php/Dockerfile
-      args:
-        UID: ${UID:-1000}
-        GID: ${GID:-1000}
+    <<: *php-service
     container_name: tucancha-queue
-    restart: unless-stopped
     command: php artisan queue:work --sleep=3 --tries=3 --max-time=3600
-    volumes:
-      - .:/var/www/html
     environment:
+      <<: *php-env
       CONTAINER_ROLE: queue
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_DATABASE: tucancha
-      DB_USERNAME: tucancha
-      DB_PASSWORD: secret
-    depends_on:
-      db:
-        condition: service_healthy
-    networks: [tucancha]
 
   # ── Reverb (websockets: chat de Falta Uno, disponibilidad live) ─────
   reverb:
-    build:
-      context: .
-      dockerfile: docker/php/Dockerfile
-      args:
-        UID: ${UID:-1000}
-        GID: ${GID:-1000}
+    <<: *php-service
     container_name: tucancha-reverb
-    restart: unless-stopped
     command: php artisan reverb:start --host=0.0.0.0 --port=8080
     ports:
       - "8080:8080"
-    volumes:
-      - .:/var/www/html
     environment:
+      <<: *php-env
       CONTAINER_ROLE: reverb
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_DATABASE: tucancha
-      DB_USERNAME: tucancha
-      DB_PASSWORD: secret
-    depends_on:
-      db:
-        condition: service_healthy
-    networks: [tucancha]
 
   # ── Scheduler (tareas programadas) ──────────────────────────────────
   scheduler:
-    build:
-      context: .
-      dockerfile: docker/php/Dockerfile
-      args:
-        UID: ${UID:-1000}
-        GID: ${GID:-1000}
+    <<: *php-service
     container_name: tucancha-scheduler
-    restart: unless-stopped
     command: php artisan schedule:work
-    volumes:
-      - .:/var/www/html
     environment:
+      <<: *php-env
       CONTAINER_ROLE: scheduler
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_DATABASE: tucancha
-      DB_USERNAME: tucancha
-      DB_PASSWORD: secret
-    depends_on:
-      db:
-        condition: service_healthy
-    networks: [tucancha]
 
   # ── Vite (assets + hot reload) ──────────────────────────────────────
   vite:
