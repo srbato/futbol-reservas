@@ -25,10 +25,18 @@ x-php-env: &php-env
   DB_DATABASE: tucancha
   DB_USERNAME: tucancha
   DB_PASSWORD: secret
-  # Sin esto Laravel genera los links con https y el navegador da
+  # Por defecto la app vive en localhost. Sin esto, un .env con APP_URL de
+  # ngrok hace que Laravel genere los links con https y el navegador tire
   # ERR_SSL_PROTOCOL_ERROR (además de romper la sesión por la cookie segura).
-  APP_URL: http://localhost:8000
-  ASSET_URL: http://localhost:8000
+  #
+  # Mercado Pago y el login con Google NO funcionan contra localhost: MP
+  # rechaza esas URLs y necesita alcanzarte por webhook, y Google sólo
+  # redirige a una URL registrada en su consola. Para probarlos hay que
+  # exponer el puerto 8000 con ngrok y definir PUBLIC_URL con ese dominio
+  # (ver DESARROLLO.md → "Probar pagos y login con Google").
+  APP_URL: ${PUBLIC_URL:-http://localhost:8000}
+  ASSET_URL: ${PUBLIC_URL:-http://localhost:8000}
+  GOOGLE_REDIRECT_URI: ${PUBLIC_URL:-http://localhost:8000}/auth/google/callback
   SESSION_SECURE_COOKIE: "false"
   # En desarrollo los mails se escriben en storage/logs, no se envían
   MAIL_MAILER: log

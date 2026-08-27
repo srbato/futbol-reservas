@@ -116,7 +116,52 @@ docker compose exec app php artisan migrate:fresh --seed
 
 ---
 
-## 5. Cómo trabajamos (GitFlow)
+## 5. Probar pagos y login con Google
+
+Mercado Pago y el login con Google **no funcionan contra `localhost`**, y no es
+un problema de Docker:
+
+- Mercado Pago rechaza `localhost` en las URLs de retorno y necesita poder
+  alcanzar tu máquina desde internet para mandar los webhooks de pago.
+- Google sólo redirige a URLs previamente registradas en su consola.
+
+Para el 95% del trabajo diario no hacen falta: iniciás sesión con los usuarios
+de prueba (email y contraseña) y reservás en el **Complejo de Usuario1**, que
+está configurado para aceptar pago en efectivo.
+
+Cuando sí necesites probarlos, exponé el puerto 8000 con [ngrok](https://ngrok.com):
+
+```bash
+ngrok http 8000
+```
+
+Copiá el dominio que te da (algo como `https://xxxx.ngrok-free.dev`) y agregalo
+al final de tu `.env`:
+
+```env
+PUBLIC_URL=https://xxxx.ngrok-free.dev
+```
+
+Recreá los contenedores para que tomen el valor:
+
+```bash
+docker compose up -d
+```
+
+Con eso, `APP_URL`, las URLs de Mercado Pago y el callback de Google pasan a
+apuntar al dominio público. Entrá por la URL de ngrok, no por localhost.
+
+> Además hay que registrar `https://xxxx.ngrok-free.dev/auth/google/callback`
+> en Google Cloud Console, y usar credenciales **de prueba** de Mercado Pago.
+> El dominio de ngrok cambia cada vez que lo reiniciás (en el plan gratuito),
+> así que hay que repetir estos pasos.
+
+Cuando termines, borrá o comentá la línea `PUBLIC_URL` y volvé a levantar para
+seguir trabajando en localhost.
+
+---
+
+## 6. Cómo trabajamos (GitFlow)
 
 ```
 main       → producción. Lo que se mergea acá se deploya solo.
@@ -145,7 +190,7 @@ automáticamente; si fallan, no se puede mergear.
 ### Publicar a producción
 
 Cuando `develop` está estable, se abre un PR de `develop` → `main`.
-Al mergearlo, el deploy corre solo (ver sección 6).
+Al mergearlo, el deploy corre solo (ver sección 7).
 
 > **Nunca pushees directo a `main` ni a `develop`.** Siempre por PR.
 
@@ -164,7 +209,7 @@ pierda en el próximo release.
 
 ---
 
-## 6. Deploy
+## 7. Deploy
 
 El deploy es automático: **todo lo que llega a `main` se publica solo** en
 https://tucancha.com.ar.
@@ -174,7 +219,7 @@ de la base, actualiza el código, corre migraciones y reinicia los servicios.
 
 ---
 
-## 7. Problemas comunes
+## 8. Problemas comunes
 
 **"Cannot connect to the Docker daemon"**
 Docker Desktop no está abierto. Abrilo y esperá a que el ícono deje de moverse.
