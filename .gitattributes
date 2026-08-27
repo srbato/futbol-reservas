@@ -1,11 +1,10 @@
-* text=auto eol=lf
-
-*.blade.php diff=html
-*.css diff=css
-*.html diff=html
-*.md diff=markdown
-*.php diff=php
-
-/.github export-ignore
-CHANGELOG.md export-ignore
-.styleci.yml export-ignore
+# Los scripts y configs que se ejecutan dentro de contenedores Linux deben
+# tener saltos de línea LF. Si git los convierte a CRLF en Windows, fallan con
+# "bad interpreter: no such file or directory".
+#
+# Sólo se fuerza en estos archivos: aplicarlo a todo el repo obligaría a
+# renormalizar miles de archivos ya versionados.
+*.sh        text eol=lf
+Dockerfile  text eol=lf
+*.yml       text eol=lf
+*.yaml      text eol=lf

@@ -1,0 +1,79 @@
+name: Deploy a producción
+
+# Se dispara cuando algo llega a main (merge de un PR desde develop o hotfix).
+# Primero corre los tests: si fallan, NO deploya.
+on:
+  push:
+    branches: [main]
+  # Permite lanzarlo a mano desde la pestaña Actions de GitHub
+  workflow_dispatch:
+
+# Si se pushea dos veces seguidas, cancela el deploy viejo y corre el nuevo.
+concurrency:
+  group: deploy-produccion
+  cancel-in-progress: false
+
+jobs:
+  tests:
+    name: Tests previos
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_sqlite, sqlite3, bcmath, gmp, intl, zip, gd, exif, pcntl, sockets
+          coverage: none
+
+      - name: Instalar dependencias PHP
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Preparar entorno
+        run: |
+          cp .env.docker.example .env
+          php artisan key:generate
+
+      - name: Compilar assets
+        run: |
+          npm ci
+          npm run build
+
+      - name: Correr tests
+        run: php artisan test
+
+  deploy:
+    name: Publicar en el VPS
+    needs: tests            # sin tests verdes no hay deploy
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Deploy por SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          # El deploy puede tardar: backup de DB + composer + npm + migraciones
+          command_timeout: 20m
+          script: |
+            set -e
+            cd /home/santiago/tucancha
+
+            # El favicon suele quedar modificado en el server y frena el pull
+            git checkout -- public/favicon.ico 2>/dev/null || true
+
+            bash supervisor/deploy.sh
+
+      - name: Verificar que el sitio responde
+        run: |
+          sleep 10
+          code=$(curl -s -o /dev/null -w "%{http_code}" https://tucancha.com.ar)
+          echo "HTTP $code"
+          if [ "$code" != "200" ]; then
+            echo "❌ El sitio no responde 200 después del deploy"
+            exit 1
+          fi
+          echo "✅ Sitio en línea"

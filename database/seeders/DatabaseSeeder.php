@@ -118,5 +118,9 @@ class DatabaseSeeder extends Seeder
             'created_at' => now(),
             'updated_at' => now(),
         ]);
+
+        // Canchas, precios, horarios, reservas, partidos Falta Uno y blog.
+        // Sin esto la app queda vacía y no se puede navegar nada.
+        $this->call(DemoDataSeeder::class);
     }
 }

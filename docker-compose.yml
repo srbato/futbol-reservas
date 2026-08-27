@@ -1,0 +1,171 @@
+# Entorno de desarrollo de TuCancha.
+#
+# Levantar todo:   docker compose up -d
+# Ver logs:        docker compose logs -f app
+# Consola:         docker compose exec app bash
+# Datos de prueba: docker compose exec app php artisan migrate:fresh --seed
+#
+# Servicios y puertos en el host:
+#   http://localhost:8000  → la app
+#   localhost:5433         → PostgreSQL (5433 para no chocar con uno local)
+#   localhost:8080         → Reverb (websockets)
+#   http://localhost:5173  → Vite dev server (hot reload)
+
+services:
+  # ── Aplicación (PHP-FPM) ────────────────────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+    container_name: tucancha-app
+    restart: unless-stopped
+    volumes:
+      - .:/var/www/html
+    environment:
+      CONTAINER_ROLE: app
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: tucancha
+      DB_USERNAME: tucancha
+      DB_PASSWORD: secret
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [tucancha]
+
+  # ── Servidor web ────────────────────────────────────────────────────
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: tucancha-nginx
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on: [app]
+    networks: [tucancha]
+
+  # ── Base de datos ───────────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: tucancha-db
+    restart: unless-stopped
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: tucancha
+      POSTGRES_USER: tucancha
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tucancha -d tucancha"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks: [tucancha]
+
+  # ── Worker de colas (emails, notificaciones) ────────────────────────
+  queue:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+    container_name: tucancha-queue
+    restart: unless-stopped
+    command: php artisan queue:work --sleep=3 --tries=3 --max-time=3600
+    volumes:
+      - .:/var/www/html
+    environment:
+      CONTAINER_ROLE: queue
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: tucancha
+      DB_USERNAME: tucancha
+      DB_PASSWORD: secret
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [tucancha]
+
+  # ── Reverb (websockets: chat de Falta Uno, disponibilidad live) ─────
+  reverb:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+    container_name: tucancha-reverb
+    restart: unless-stopped
+    command: php artisan reverb:start --host=0.0.0.0 --port=8080
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/var/www/html
+    environment:
+      CONTAINER_ROLE: reverb
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: tucancha
+      DB_USERNAME: tucancha
+      DB_PASSWORD: secret
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [tucancha]
+
+  # ── Scheduler (tareas programadas) ──────────────────────────────────
+  scheduler:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+    container_name: tucancha-scheduler
+    restart: unless-stopped
+    command: php artisan schedule:work
+    volumes:
+      - .:/var/www/html
+    environment:
+      CONTAINER_ROLE: scheduler
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: tucancha
+      DB_USERNAME: tucancha
+      DB_PASSWORD: secret
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [tucancha]
+
+  # ── Vite (assets + hot reload) ──────────────────────────────────────
+  vite:
+    image: node:20-alpine
+    container_name: tucancha-vite
+    restart: unless-stopped
+    working_dir: /var/www/html
+    command: sh -c "npm install && npm run dev"
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/var/www/html
+      - node_modules:/var/www/html/node_modules
+    environment:
+      VITE_HOST: 0.0.0.0
+    networks: [tucancha]
+
+volumes:
+  pgdata:
+  node_modules:
+
+networks:
+  tucancha:
+    driver: bridge
